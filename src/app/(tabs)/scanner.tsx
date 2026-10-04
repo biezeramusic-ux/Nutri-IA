@@ -20,7 +20,7 @@ export default function ScannerScreen() {
   const insets = useSafeAreaInsets();
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
-  const { canScan, lockReason, registerScan } = useSubscription();
+  const { canScan, lockReason, consumeScan } = useSubscription();
   const { setCurrent } = useDiary();
   const [busy, setBusy] = useState(false);
   const [meal, setMeal] = useState<Meal | null>(null);
@@ -38,14 +38,19 @@ export default function ScannerScreen() {
       const photo = await cameraRef.current?.takePictureAsync({ quality: 0.7, skipProcessing: true });
       if (!photo) throw new Error('Sem foto');
       const small = await compressImage(photo.uri);
+      // O servidor valida e conta o scan (limite diário / teste grátis) antes de gastar a IA.
+      const access = await consumeScan();
+      if (!access.allowed) {
+        router.push('/paywall');
+        return;
+      }
       const { analysis, isFallback } = await recognizeFood(small.base64);
-      registerScan();
       setFallback(isFallback);
       const result = buildMeal(analysis, small.uri);
       setMeal(result);
       setCurrent(result);
     } catch {
-      Alert.alert('Erro', 'Não foi possível analisar a foto. Tente novamente.');
+      Alert.alert('Erro', 'Não foi possível analisar a foto. Verifique a ligação e tente novamente.');
     } finally {
       setBusy(false);
     }

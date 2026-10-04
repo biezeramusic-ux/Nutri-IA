@@ -1,0 +1,25 @@
+# Supabase · setup do Nutri AI
+
+1. Crie um projeto em <https://supabase.com>.
+2. **SQL Editor** → cole todo o ficheiro `migrations/001_init.sql` → *Run*.
+   (Cria tabelas, RLS, trigger do perfil, RPCs `get_access_status` / `consume_scan` / `activate_plan` e o bucket privado `meal-photos`.)
+3. **Project Settings → API**: copie *Project URL* e *anon public key* para o `.env`:
+   ```
+   EXPO_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+   EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+   ```
+   Nunca use a `service_role` key na app.
+4. **Authentication → Providers → Email**: para o MVP, desligue *Confirm email* (login imediato após o registo).
+   Se deixar ligado, a app mostra "Verifique o seu e-mail" após o registo.
+5. Pagamentos simulados (apenas desenvolvimento): para o paywall conseguir ativar planos de teste, execute uma vez
+   ```sql
+   alter database postgres set app.allow_dev_activation = 'true';
+   ```
+   Em **produção deixe desligado** (qualquer utilizador autenticado poderia dar-se premium) e ative planos
+   por webhook de pagamento com a `service_role`.
+
+## Regras de segurança (resumo)
+- RLS em todas as tabelas: cada utilizador só vê/escreve as suas linhas.
+- `profiles`: o cliente só altera `full_name`; teste grátis e plano não são editáveis pelo cliente.
+- `daily_scans`: só escrita via `consume_scan()` (atómica, dia em `Africa/Maputo`, 3 dias de teste, 2 scans/dia).
+- Fotos: bucket privado, cada utilizador só acede à pasta `<uid>/`.

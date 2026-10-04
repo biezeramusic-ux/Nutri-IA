@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LockOverlay } from '../../components/LockOverlay';
 import { MealCard } from '../../components/MealCard';
 import { SearchBar } from '../../components/SearchBar';
 import { TAB_BAR_SPACE, colors, radius, shadow } from '../../constants/theme';
+import { useAuth } from '../../hooks/useAuth';
 import { useDiary } from '../../hooks/useDiary';
 import { useSubscription } from '../../hooks/useSubscription';
 import { analyzeFromText, buildMeal } from '../../services/foodCatalog';
@@ -15,8 +16,9 @@ import type { Meal } from '../../types';
 export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { meals, setCurrent } = useDiary();
-  const { lockReason, isPremium, trialDaysLeft, scansLeftToday } = useSubscription();
+  const { meals, setCurrent, loading: diaryLoading, error: diaryError, refresh } = useDiary();
+  const { displayName, signOut } = useAuth();
+  const { lockReason, isPremium, trialDaysLeft, scansLeftToday, loading: accessLoading } = useSubscription();
   const [query, setQuery] = useState('');
 
   const todayStart = new Date().setHours(0, 0, 0, 0);
@@ -27,6 +29,20 @@ export default function HomeScreen() {
     setCurrent(meal);
     router.push({ pathname: '/details', params: { id: meal.id } });
   };
+
+  const confirmSignOut = () =>
+    Alert.alert('Terminar sessão', 'Deseja sair da sua conta?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Sair', style: 'destructive', onPress: () => void signOut() },
+    ]);
+
+  const chipLabel = accessLoading
+    ? '…'
+    : isPremium
+      ? 'Premium'
+      : lockReason === 'trial_expired'
+        ? 'Teste terminado'
+        : `Teste: ${trialDaysLeft}d · ${scansLeftToday ?? 0} scans hoje`;
 
   const handleSearch = () => {
     if (lockReason === 'trial_expired') return router.push('/paywall');
@@ -47,6 +63,9 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingTop: insets.top + 20, paddingHorizontal: 20, paddingBottom: TAB_BAR_SPACE + 40 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={diaryLoading} onRefresh={() => void refresh()} tintColor={colors.primary} />
+        }
       >
         <View style={styles.brandRow}>
           <View style={styles.logo}>
@@ -54,12 +73,12 @@ export default function HomeScreen() {
           </View>
           <Text style={styles.brand}>Nutri AI</Text>
           <View style={styles.trialChip}>
-            <Text style={styles.trialText}>
-              {isPremium ? 'Premium' : lockReason === 'trial_expired' ? 'Teste terminado' : `Teste: ${trialDaysLeft}d · ${scansLeftToday} scans hoje`}
-            </Text>
+            <Text style={styles.trialText}>{chipLabel}</Text>
           </View>
+          <Ionicons name="log-out-outline" size={22} color={colors.textMuted} onPress={confirmSignOut} />
         </View>
 
+        {!!displayName && <Text style={styles.greeting}>Olá, {displayName.split(' ')[0]} 👋</Text>}
         <Text style={styles.title}>Let's Check Your Meal Together</Text>
         <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
 
@@ -74,6 +93,7 @@ export default function HomeScreen() {
         </View>
 
         <Text style={styles.section}>Last Scans</Text>
+        {diaryError && <Text style={styles.error}>{diaryError}</Text>}
         {meals.length === 0 ? (
           <View style={styles.empty}>
             <Ionicons name="camera-outline" size={34} color={colors.primary} />
@@ -100,6 +120,8 @@ const styles = StyleSheet.create({
   brand: { fontSize: 18, fontWeight: '800', color: colors.text, flex: 1 },
   trialChip: { backgroundColor: colors.primarySoft, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
   trialText: { fontSize: 11, fontWeight: '700', color: colors.primaryDark },
+  greeting: { fontSize: 14, color: colors.textMuted, fontWeight: '600', marginBottom: 4 },
+  error: { fontSize: 12, color: colors.danger, marginBottom: 10 },
   title: { fontSize: 34, lineHeight: 40, fontWeight: '800', color: colors.text, marginBottom: 20, letterSpacing: -0.5 },
   summary: {
     marginTop: 20,

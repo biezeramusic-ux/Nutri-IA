@@ -3,7 +3,7 @@ import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, shadow } from '../constants/theme';
-import type { LockReason } from '../hooks/useSubscription';
+import type { LockReason } from '../types';
 
 const MESSAGES: Record<Exclude<LockReason, null>, { title: string; body: string }> = {
   trial_expired: {

@@ -17,6 +17,7 @@ export default function TrackerScreen() {
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.title}>Tracker</Text>
+      {(water.error || fasting.error) && <Text style={styles.error}>{water.error ?? fasting.error}</Text>}
 
       <View style={styles.card}>
         <View style={styles.cardHead}>
@@ -78,7 +79,8 @@ export default function TrackerScreen() {
 
         <Pressable
           style={[styles.action, fasting.running && styles.actionStop]}
-          onPress={fasting.running ? fasting.stop : fasting.start}
+          disabled={fasting.busy}
+          onPress={() => void (fasting.running ? fasting.stop() : fasting.start())}
         >
           <Ionicons name={fasting.running ? 'stop' : 'play'} size={18} color="#fff" />
           <Text style={styles.actionText}>{fasting.running ? 'Terminar jejum' : 'Iniciar jejum'}</Text>
@@ -91,6 +93,7 @@ export default function TrackerScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   title: { fontSize: 32, fontWeight: '800', color: colors.text },
+  error: { fontSize: 12, color: colors.danger },
   card: { backgroundColor: colors.card, borderRadius: radius.card, padding: 20, gap: 16, ...shadow },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   iconBubble: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },

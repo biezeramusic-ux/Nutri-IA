@@ -1,6 +1,7 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlowerChart } from '../components/FlowerChart';
 import { MacroSquareCard } from '../components/MacroSquareCard';
@@ -13,6 +14,7 @@ export default function DetailsScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string }>();
   const { meals, current, isSaved, saveMeal } = useDiary();
+  const [saving, setSaving] = useState(false);
 
   const meal = meals.find((m) => m.id === id) ?? current;
 
@@ -84,15 +86,28 @@ export default function DetailsScreen() {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
         <Pressable
-          disabled={saved}
+          disabled={saved || saving}
           style={[styles.save, saved && styles.saved]}
-          onPress={() => {
-            saveMeal(meal);
-            router.navigate('/');
+          onPress={async () => {
+            setSaving(true);
+            try {
+              await saveMeal(meal);
+              router.navigate('/');
+            } catch {
+              Alert.alert('Não foi possível salvar', 'Verifique a ligação à internet e tente novamente.');
+            } finally {
+              setSaving(false);
+            }
           }}
         >
-          <Ionicons name={saved ? 'checkmark-circle' : 'bookmark'} size={20} color="#fff" />
-          <Text style={styles.saveText}>{saved ? 'Salvo no diário' : 'Salvar no meu Diário'}</Text>
+          {saving ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <Ionicons name={saved ? 'checkmark-circle' : 'bookmark'} size={20} color="#fff" />
+              <Text style={styles.saveText}>{saved ? 'Salvo no diário' : 'Salvar no meu Diário'}</Text>
+            </>
+          )}
         </Pressable>
       </View>
     </View>

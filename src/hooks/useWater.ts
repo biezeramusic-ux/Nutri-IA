@@ -1,33 +1,60 @@
-import { useCallback, useEffect, useState } from 'react';
-import { STORAGE_KEYS, loadJSON, saveJSON, todayKey } from '../services/storage';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { todayKey } from '../services/date';
+import { getWater, setWater } from '../services/repositories/tracker';
+import { useAuth } from './useAuth';
 
 export const WATER_GOAL = 8;
-
-interface WaterState {
-  date: string;
-  glasses: number;
-}
+const MAX_GLASSES = 20;
 
 export function useWater() {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const [glasses, setGlasses] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const latest = useRef(0);
+  // Fila de escritas: mantém a ordem dos toques rápidos em + e −.
+  const queue = useRef<Promise<void>>(Promise.resolve());
 
   useEffect(() => {
-    void loadJSON<WaterState>(STORAGE_KEYS.water, { date: todayKey(), glasses: 0 }).then((s) =>
-      setGlasses(s.date === todayKey() ? s.glasses : 0),
-    );
-  }, []);
+    if (!userId) {
+      latest.current = 0;
+      setGlasses(0);
+      return;
+    }
+    let active = true;
+    getWater(userId, todayKey())
+      .then((n) => {
+        if (!active) return;
+        latest.current = n;
+        setGlasses(n);
+        setError(null);
+      })
+      .catch(() => active && setError('Sem ligação: não foi possível carregar a água de hoje.'));
+    return () => {
+      active = false;
+    };
+  }, [userId]);
 
-  const update = useCallback((delta: number) => {
-    setGlasses((prev) => {
-      const next = Math.min(20, Math.max(0, prev + delta));
-      void saveJSON<WaterState>(STORAGE_KEYS.water, { date: todayKey(), glasses: next });
-      return next;
-    });
-  }, []);
+  const update = useCallback(
+    (delta: number) => {
+      if (!userId) return;
+      const next = Math.min(MAX_GLASSES, Math.max(0, latest.current + delta));
+      if (next === latest.current) return;
+      latest.current = next;
+      setGlasses(next);
+      const day = todayKey();
+      queue.current = queue.current
+        .then(() => setWater(userId, day, next))
+        .then(() => setError(null))
+        .catch(() => setError('Sem ligação: a alteração não foi guardada.'));
+    },
+    [userId],
+  );
 
   return {
     glasses,
     goal: WATER_GOAL,
+    error,
     increment: useCallback(() => update(1), [update]),
     decrement: useCallback(() => update(-1), [update]),
   };

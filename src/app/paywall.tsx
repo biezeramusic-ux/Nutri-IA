@@ -37,7 +37,12 @@ export default function PaywallScreen() {
       Alert.alert('Pagamento não concluído', result.error ?? 'Tente novamente.');
       return;
     }
-    activatePlan(plan.id);
+    try {
+      await activatePlan(plan.id);
+    } catch (e) {
+      Alert.alert('Não foi possível ativar o plano', e instanceof Error ? e.message : 'Tente novamente.');
+      return;
+    }
     Alert.alert('Bem-vindo ao Nutri AI Premium! 🎉', `Plano ${plan.label} ativo.\nRef.: ${result.reference} (pagamento simulado)`);
     router.back();
   };

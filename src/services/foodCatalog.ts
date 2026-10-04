@@ -1,4 +1,5 @@
 import type { FoodAnalysis, IconName, Ingredient, Meal } from '../types';
+import { uuidv4 } from '../utils/uuid';
 
 interface Part {
   name: string;
@@ -171,7 +172,7 @@ export function deriveIngredients(foodName: string, totalGrams: number): Ingredi
 
 export function buildMeal(analysis: FoodAnalysis, photoUri?: string): Meal {
   return {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    id: uuidv4(),
     createdAt: Date.now(),
     analysis,
     ingredients: deriveIngredients(analysis.food_name, analysis.estimated_weight_grams),

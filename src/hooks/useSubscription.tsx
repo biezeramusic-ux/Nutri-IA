@@ -7,103 +7,84 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { FREE_SCANS_PER_DAY, PLANS, TRIAL_DAYS } from '../constants/plans';
-import { STORAGE_KEYS, loadJSON, saveJSON, todayKey } from '../services/storage';
-import type { PlanId, SubscriptionState } from '../types';
+import { AppState } from 'react-native';
+import { TRIAL_DAYS } from '../constants/plans';
+import {
+  activatePlan as activatePlanRemote,
+  consumeScan as consumeScanRemote,
+  getAccessStatus,
+  type ConsumeScanResult,
+} from '../services/repositories/access';
+import type { AccessStatus, LockReason, PlanId } from '../types';
+import { useAuth } from './useAuth';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+export type { LockReason };
 
-const INITIAL: SubscriptionState = {
-  firstUseAt: null,
-  scansByDay: {},
-  plan: null,
-  expiresAt: null,
+const INITIAL: AccessStatus = {
+  isPremium: false,
+  trialDaysLeft: TRIAL_DAYS,
+  scansLeftToday: null,
+  lockReason: null,
 };
 
-export type LockReason = 'trial_expired' | 'daily_limit' | null;
-
-interface SubscriptionContextValue {
-  ready: boolean;
-  isPremium: boolean;
-  trialDaysLeft: number;
-  scansToday: number;
-  scansLeftToday: number;
-  /** Motivo do bloqueio das funções gratuitas, ou null se estiver liberado. */
-  lockReason: LockReason;
+interface SubscriptionContextValue extends AccessStatus {
+  loading: boolean;
   canScan: boolean;
-  registerScan: () => void;
-  activatePlan: (plan: PlanId) => void;
+  refresh: () => Promise<void>;
+  /** Consome um scan no servidor (atómico). Chamar antes da IA. Lança erro se offline. */
+  consumeScan: () => Promise<ConsumeScanResult>;
+  activatePlan: (plan: PlanId) => Promise<void>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextValue | null>(null);
 
+/** Estado do teste grátis / limite diário / premium, guardado no perfil na nuvem. */
 export function SubscriptionProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<SubscriptionState>(INITIAL);
-  const [ready, setReady] = useState(false);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const [status, setStatus] = useState<AccessStatus>(INITIAL);
+  const [loading, setLoading] = useState(false);
+
+  const refresh = useCallback(async () => {
+    if (!userId) return;
+    try {
+      setStatus(await getAccessStatus());
+    } catch {
+      // Sem rede: mantém o último estado conhecido. O servidor valida em consumeScan().
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
 
   useEffect(() => {
-    (async () => {
-      const stored = await loadJSON<SubscriptionState>(STORAGE_KEYS.subscription, INITIAL);
-      // Primeiro uso: inicia o período de teste gratuito.
-      const next = stored.firstUseAt ? stored : { ...stored, firstUseAt: Date.now() };
-      setState(next);
-      if (!stored.firstUseAt) await saveJSON(STORAGE_KEYS.subscription, next);
-      setReady(true);
-    })();
-  }, []);
-
-  const persist = useCallback((updater: (s: SubscriptionState) => SubscriptionState) => {
-    setState((prev) => {
-      const next = updater(prev);
-      void saveJSON(STORAGE_KEYS.subscription, next);
-      return next;
-    });
-  }, []);
-
-  const registerScan = useCallback(() => {
-    const key = todayKey();
-    persist((s) => ({ ...s, scansByDay: { ...s.scansByDay, [key]: (s.scansByDay[key] ?? 0) + 1 } }));
-  }, [persist]);
-
-  const activatePlan = useCallback(
-    (planId: PlanId) => {
-      const plan = PLANS.find((p) => p.id === planId);
-      if (!plan) return;
-      persist((s) => {
-        // Renovar antes de expirar acumula o tempo restante.
-        const base = s.expiresAt && s.expiresAt > Date.now() ? s.expiresAt : Date.now();
-        return { ...s, plan: planId, expiresAt: base + plan.days * DAY_MS };
-      });
-    },
-    [persist],
-  );
-
-  const value = useMemo<SubscriptionContextValue>(() => {
-    const now = Date.now();
-    const isPremium = !!state.expiresAt && state.expiresAt > now;
-    const elapsedDays = state.firstUseAt ? Math.floor((now - state.firstUseAt) / DAY_MS) : 0;
-    const trialDaysLeft = Math.max(0, TRIAL_DAYS - elapsedDays);
-    const scansToday = state.scansByDay[todayKey()] ?? 0;
-    const scansLeftToday = Math.max(0, FREE_SCANS_PER_DAY - scansToday);
-
-    let lockReason: LockReason = null;
-    if (!isPremium) {
-      if (trialDaysLeft === 0) lockReason = 'trial_expired';
-      else if (scansLeftToday === 0) lockReason = 'daily_limit';
+    if (!userId) {
+      setStatus(INITIAL);
+      setLoading(false);
+      return;
     }
+    setLoading(true);
+    void refresh();
+    // Reavalia ao voltar à app (ex.: virou o dia em Maputo).
+    const sub = AppState.addEventListener('change', (s) => {
+      if (s === 'active') void refresh();
+    });
+    return () => sub.remove();
+  }, [userId, refresh]);
 
-    return {
-      ready,
-      isPremium,
-      trialDaysLeft,
-      scansToday,
-      scansLeftToday,
-      lockReason,
-      canScan: lockReason === null,
-      registerScan,
-      activatePlan,
-    };
-  }, [state, ready, registerScan, activatePlan]);
+  const consumeScan = useCallback(async () => {
+    const { allowed, ...next } = await consumeScanRemote();
+    setStatus(next);
+    return { allowed, ...next };
+  }, []);
+
+  const activatePlan = useCallback(async (plan: PlanId) => {
+    setStatus(await activatePlanRemote(plan));
+  }, []);
+
+  const value = useMemo<SubscriptionContextValue>(
+    () => ({ ...status, loading, canScan: status.lockReason === null, refresh, consumeScan, activatePlan }),
+    [status, loading, refresh, consumeScan, activatePlan],
+  );
 
   return <SubscriptionContext.Provider value={value}>{children}</SubscriptionContext.Provider>;
 }

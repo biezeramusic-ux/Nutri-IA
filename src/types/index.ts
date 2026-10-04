@@ -44,9 +44,13 @@ export interface Plan {
   badge?: string;
 }
 
-export interface SubscriptionState {
-  firstUseAt: number | null;
-  scansByDay: Record<string, number>;
-  plan: PlanId | null;
-  expiresAt: number | null;
+export type LockReason = 'trial_expired' | 'daily_limit' | null;
+
+/** Estado de acesso calculado no servidor (get_access_status / consume_scan). */
+export interface AccessStatus {
+  isPremium: boolean;
+  trialDaysLeft: number;
+  /** null para utilizadores premium (scans ilimitados). */
+  scansLeftToday: number | null;
+  lockReason: LockReason;
 }

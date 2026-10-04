@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { STORAGE_KEYS, loadJSON, saveJSON } from '../services/storage';
+import {
+  getActiveFast,
+  startFast,
+  stopFast,
+  type ActiveFast,
+} from '../services/repositories/tracker';
+import { useAuth } from './useAuth';
 
 export const FASTING_GOAL_HOURS = 16;
-
-interface FastingState {
-  startedAt: number | null;
-}
 
 export function formatDuration(totalSeconds: number): string {
   const h = Math.floor(totalSeconds / 3600);
@@ -15,42 +17,77 @@ export function formatDuration(totalSeconds: number): string {
 }
 
 export function useFasting() {
-  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
+  const [fast, setFast] = useState<ActiveFast | null>(null);
   const [now, setNow] = useState(Date.now());
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    void loadJSON<FastingState>(STORAGE_KEYS.fasting, { startedAt: null }).then((s) =>
-      setStartedAt(s.startedAt),
-    );
-  }, []);
+    if (!userId) {
+      setFast(null);
+      return;
+    }
+    let active = true;
+    getActiveFast(userId)
+      .then((f) => {
+        if (!active) return;
+        setFast(f);
+        setError(null);
+      })
+      .catch(() => active && setError('Sem ligação: não foi possível carregar o jejum.'));
+    return () => {
+      active = false;
+    };
+  }, [userId]);
 
   useEffect(() => {
-    if (startedAt === null) return;
+    if (!fast) return;
     setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
-  }, [startedAt]);
+  }, [fast]);
 
-  const start = useCallback(() => {
-    const ts = Date.now();
-    setStartedAt(ts);
-    void saveJSON<FastingState>(STORAGE_KEYS.fasting, { startedAt: ts });
-  }, []);
+  const start = useCallback(async () => {
+    if (!userId || busy) return;
+    setBusy(true);
+    try {
+      setFast(await startFast(userId, FASTING_GOAL_HOURS));
+      setError(null);
+    } catch {
+      setError('Não foi possível iniciar o jejum. Verifique a ligação.');
+    } finally {
+      setBusy(false);
+    }
+  }, [userId, busy]);
 
-  const stop = useCallback(() => {
-    setStartedAt(null);
-    void saveJSON<FastingState>(STORAGE_KEYS.fasting, { startedAt: null });
-  }, []);
+  const stop = useCallback(async () => {
+    if (!fast || busy) return;
+    setBusy(true);
+    try {
+      await stopFast(fast.id);
+      setFast(null);
+      setError(null);
+    } catch {
+      setError('Não foi possível terminar o jejum. Verifique a ligação.');
+    } finally {
+      setBusy(false);
+    }
+  }, [fast, busy]);
 
-  const elapsedSeconds = startedAt === null ? 0 : Math.max(0, Math.floor((now - startedAt) / 1000));
-  const progress = Math.min(1, elapsedSeconds / (FASTING_GOAL_HOURS * 3600));
+  const goalHours = fast?.goalHours ?? FASTING_GOAL_HOURS;
+  const elapsedSeconds = fast ? Math.max(0, Math.floor((now - fast.startedAt) / 1000)) : 0;
+  const progress = Math.min(1, elapsedSeconds / (goalHours * 3600));
 
   return {
-    running: startedAt !== null,
+    running: fast !== null,
+    busy,
+    error,
     elapsedSeconds,
     display: formatDuration(elapsedSeconds),
     progress,
-    goalHours: FASTING_GOAL_HOURS,
+    goalHours,
     start,
     stop,
   };
