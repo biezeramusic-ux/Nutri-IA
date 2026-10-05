@@ -29,4 +29,4 @@
 - RLS em todas as tabelas: cada utilizador só vê/escreve as suas linhas.
 - `profiles`: o cliente só altera `full_name`; teste grátis e plano não são editáveis pelo cliente.
 - `daily_scans`: só escrita via `consume_scan()` (atómica, dia em `Africa/Maputo`, 3 dias de teste, 2 scans/dia).
-- Fotos: bucket privado, cada utilizador só acede à pasta `<uid>/`.
+- Fotos: comprimidas a ~50 KB antes de arquivar; bucket privado, cada utilizador só acede à pasta `<uid>/`.

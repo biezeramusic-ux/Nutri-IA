@@ -1,4 +1,5 @@
 import type { IconName, Ingredient, Meal } from '../../types';
+import { compressForStorage } from '../imageCompressor';
 import type { Database, Json } from '../database.types';
 import { supabase } from '../supabase';
 
@@ -57,10 +58,11 @@ export async function listMeals(limit = 50): Promise<Meal[]> {
   return data.map((row) => rowToMeal(row, row.photo_path ? urlByPath.get(row.photo_path) : undefined));
 }
 
-/** Envia a foto já comprimida (<300 KB). Falhas aqui não impedem de guardar a refeição. */
+/** Comprime a foto para ~50 KB e envia-a. Falhas aqui não impedem de guardar a refeição. */
 async function uploadPhoto(userId: string, mealId: string, uri: string): Promise<string | null> {
   try {
-    const bytes = await (await fetch(uri)).arrayBuffer();
+    const small = await compressForStorage(uri);
+    const bytes = await (await fetch(small.uri)).arrayBuffer();
     const path = `${userId}/${mealId}.jpg`;
     const { error } = await supabase.storage
       .from(BUCKET)

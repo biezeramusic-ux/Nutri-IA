@@ -297,12 +297,13 @@ grant execute on function public.consume_scan()      to authenticated;
 grant execute on function public.activate_plan(text) to authenticated;
 
 -- ============================================================================
--- 6. STORAGE: bucket privado para as fotos (já comprimidas, < 300 KB)
+-- 6. STORAGE: bucket privado para as fotos (comprimidas a ~50 KB)
 -- ============================================================================
 
+-- Fotos arquivadas a ~50 KB (a app comprime antes de enviar); limite de 100 KB por segurança.
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('meal-photos', 'meal-photos', false, 524288, array['image/jpeg'])
-on conflict (id) do nothing;
+values ('meal-photos', 'meal-photos', false, 102400, array['image/jpeg'])
+on conflict (id) do update set file_size_limit = excluded.file_size_limit;
 
 -- Cada utilizador só acede à pasta com o seu uid: meal-photos/<uid>/ficheiro.jpg
 drop policy if exists meal_photos_select_own on storage.objects;

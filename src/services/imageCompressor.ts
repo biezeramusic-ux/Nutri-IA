@@ -1,6 +1,9 @@
 import { SaveFormat, manipulateAsync } from 'expo-image-manipulator';
 
+/** Limite para enviar à IA (poupa os megas do utilizador). */
 export const MAX_IMAGE_BYTES = 300 * 1024;
+/** Limite para arquivar no Supabase (~0,05 MB por foto). */
+export const STORAGE_IMAGE_BYTES = 50 * 1024;
 
 export interface CompressedImage {
   uri: string;
@@ -8,14 +11,13 @@ export interface CompressedImage {
   bytes: number;
 }
 
-/** Tamanho aproximado em bytes de uma string base64. */
-function base64Bytes(b64: string): number {
-  const padding = b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0;
-  return Math.floor((b64.length * 3) / 4) - padding;
+interface Attempt {
+  width: number;
+  quality: number;
 }
 
 // Tentativas progressivas: largura (px) e qualidade JPEG, da melhor para a mais agressiva.
-const ATTEMPTS: { width: number; quality: number }[] = [
+const AI_ATTEMPTS: Attempt[] = [
   { width: 640, quality: 0.6 },
   { width: 512, quality: 0.5 },
   { width: 448, quality: 0.4 },
@@ -24,13 +26,25 @@ const ATTEMPTS: { width: number; quality: number }[] = [
   { width: 256, quality: 0.15 },
 ];
 
-/**
- * Reduz drasticamente resolução e qualidade da foto para < 300 KB,
- * poupando os megas de internet do utilizador.
- */
-export async function compressImage(uri: string): Promise<CompressedImage> {
+const STORAGE_ATTEMPTS: Attempt[] = [
+  { width: 480, quality: 0.5 },
+  { width: 420, quality: 0.4 },
+  { width: 360, quality: 0.35 },
+  { width: 320, quality: 0.3 },
+  { width: 280, quality: 0.25 },
+  { width: 240, quality: 0.2 },
+  { width: 200, quality: 0.15 },
+];
+
+/** Tamanho aproximado em bytes de uma string base64. */
+function base64Bytes(b64: string): number {
+  const padding = b64.endsWith('==') ? 2 : b64.endsWith('=') ? 1 : 0;
+  return Math.floor((b64.length * 3) / 4) - padding;
+}
+
+async function compressUntil(uri: string, maxBytes: number, attempts: Attempt[]): Promise<CompressedImage> {
   let last: CompressedImage | null = null;
-  for (const { width, quality } of ATTEMPTS) {
+  for (const { width, quality } of attempts) {
     const result = await manipulateAsync(uri, [{ resize: { width } }], {
       compress: quality,
       format: SaveFormat.JPEG,
@@ -38,8 +52,18 @@ export async function compressImage(uri: string): Promise<CompressedImage> {
     });
     const base64 = result.base64 ?? '';
     last = { uri: result.uri, base64, bytes: base64Bytes(base64) };
-    if (last.bytes < MAX_IMAGE_BYTES) return last;
+    if (last.bytes < maxBytes) return last;
   }
-  // Última tentativa já é muito pequena; devolve o melhor esforço.
+  // A última tentativa já é a mais agressiva; devolve o melhor esforço.
   return last as CompressedImage;
+}
+
+/** Reduz resolução e qualidade para < 300 KB antes de enviar à IA. */
+export function compressImage(uri: string): Promise<CompressedImage> {
+  return compressUntil(uri, MAX_IMAGE_BYTES, AI_ATTEMPTS);
+}
+
+/** Reduz a foto para ~50 KB antes de a arquivar no Supabase. */
+export function compressForStorage(uri: string): Promise<CompressedImage> {
+  return compressUntil(uri, STORAGE_IMAGE_BYTES, STORAGE_ATTEMPTS);
 }
