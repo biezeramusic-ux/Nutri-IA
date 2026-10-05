@@ -6,15 +6,17 @@ interface Props {
   percent: number;
   grams: number;
   color: string;
+  /** Mostra só os gramas (sem percentagem), ex.: no resumo do plano. */
+  unitOnly?: boolean;
 }
 
-export function MacroSquareCard({ label, percent, grams, color }: Props) {
+export function MacroSquareCard({ label, percent, grams, color, unitOnly }: Props) {
   return (
     <View style={styles.card}>
       <View style={[styles.bar, { backgroundColor: color }]} />
-      <Text style={styles.percent}>{percent}%</Text>
+      <Text style={styles.percent}>{unitOnly ? `${grams} g` : `${percent}%`}</Text>
       <Text style={styles.label}>{label}</Text>
-      <Text style={styles.grams}>{grams} g</Text>
+      {!unitOnly && <Text style={styles.grams}>{grams} g</Text>}
     </View>
   );
 }

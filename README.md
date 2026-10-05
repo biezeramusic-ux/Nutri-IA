@@ -20,11 +20,17 @@ Sem chave de API, o scanner devolve o mock "Vegetable Salad" (fallback).
 - **APK instalável (Android):** `npm i -g eas-cli && eas login && eas build -p android --profile preview`, depois instale o link do APK.
   Defina as variáveis `EXPO_PUBLIC_*` no EAS (`eas env:create`) antes de compilar.
 
+## Quiz, metas e lembretes de água
+- Depois de criar conta (ou no primeiro login com Google) a app mostra um quiz de 5 perguntas e calcula as metas diárias
+  de calorias, macros e água (`src/services/goals.ts`). Pode refazê-lo em Perfil.
+- Os lembretes de água são notificações locais planeadas por `src/services/waterReminderPlan.ts`
+  (ajustam-se ao progresso, ao objetivo e ao horário). Fundo do "Criar conta": substitua `assets/auth-bg.jpg` pela sua foto.
+
 ## Estrutura
-- `src/app` — rotas (Expo Router): `auth/login|register`, `(tabs)/index|scanner|tracker`, `details`, `paywall`
+- `src/app` — rotas (Expo Router): `auth/login|register`, `onboarding` (quiz), `quiz` (refazer), `(tabs)/index|progress|scanner|water|profile`, `details`, `paywall`
 - `src/components` — UI (MealCard, FlowerChart, PlanCard, LockOverlay…)
 - `src/services` — `supabase` (cliente), `repositories/` (meals, tracker, access), `foodRecognition` (IA), `imageCompressor` (<300KB), `payments` (stubs), `foodCatalog`
-- `src/hooks` — `useAuth`, `useSubscription` (estado vindo do servidor), `useDiary`, `useWater`, `useFasting`
+- `src/hooks` — `useAuth`, `useSubscription` (estado vindo do servidor), `useProfile` (metas do quiz), `useDiary`, `useWater` (+ lembretes)
 
 ## Pendente para produção
 - Backend/proxy para a IA e integração real M-Pesa, e-Mola e cartões (hoje simulados).

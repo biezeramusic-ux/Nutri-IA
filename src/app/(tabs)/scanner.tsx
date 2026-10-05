@@ -13,6 +13,7 @@ import { useSubscription } from '../../hooks/useSubscription';
 import { buildMeal, macroPercentages } from '../../services/foodCatalog';
 import { recognizeFood } from '../../services/foodRecognition';
 import { compressImage } from '../../services/imageCompressor';
+import { scheduleMealWaterNudge } from '../../services/notifications';
 import type { Meal } from '../../types';
 
 export default function ScannerScreen() {
@@ -50,6 +51,7 @@ export default function ScannerScreen() {
       const result = buildMeal(analysis, photo.uri);
       setMeal(result);
       setCurrent(result);
+      void scheduleMealWaterNudge();
     } catch {
       Alert.alert('Erro', 'Não foi possível analisar a foto. Verifique a ligação e tente novamente.');
     } finally {

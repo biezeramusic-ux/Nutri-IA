@@ -12,11 +12,11 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '700' },
         tabBarStyle: {
           position: 'absolute',
-          left: 16,
-          right: 16,
+          left: 12,
+          right: 12,
           bottom: Platform.OS === 'ios' ? 24 : 14,
           height: 68,
           paddingTop: 8,
@@ -36,6 +36,13 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="progress"
+        options={{
+          title: 'Progresso',
+          tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="scanner"
         options={{
           title: 'Scanner',
@@ -47,10 +54,17 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="tracker"
+        name="water"
         options={{
-          title: 'Tracker',
+          title: 'Água',
           tabBarIcon: ({ color, size }) => <Ionicons name="water" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Perfil',
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" size={size} color={color} />,
         }}
       />
     </Tabs>

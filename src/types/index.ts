@@ -54,3 +54,42 @@ export interface AccessStatus {
   scansLeftToday: number | null;
   lockReason: LockReason;
 }
+
+export type GoalType = 'lose_weight' | 'maintain' | 'gain_muscle' | 'eat_healthy' | 'track_calories';
+export type Sex = 'male' | 'female';
+export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'very_active';
+export type DietPreference = 'vegetarian' | 'vegan' | 'gluten_free' | 'lactose_free' | 'halal' | 'no_pork';
+
+/** Respostas do quiz inicial. */
+export interface QuizAnswers {
+  goal: GoalType;
+  sex: Sex;
+  age: number;
+  heightCm: number;
+  weightKg: number;
+  targetWeightKg: number;
+  activity: ActivityLevel;
+  diet: DietPreference[];
+}
+
+/** Metas diárias calculadas a partir do quiz. */
+export interface DailyGoals {
+  calories: number;
+  proteinG: number;
+  carbsG: number;
+  fatsG: number;
+  waterMl: number;
+}
+
+export interface UserProfile {
+  fullName: string;
+  goal: GoalType | null;
+  quiz: QuizAnswers | null;
+  goals: DailyGoals | null;
+  waterReminders: boolean;
+  wakeHour: number;
+  sleepHour: number;
+  onboardingCompleted: boolean;
+}
+
+export type MealType = 'breakfast' | 'lunch' | 'snack' | 'dinner';

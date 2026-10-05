@@ -47,6 +47,12 @@
         {
           "cameraPermission": "O Nutri AI usa a câmera para analisar as suas refeições."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#4CAF50"
+        }
       ]
     ]
   }
