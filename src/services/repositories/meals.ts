@@ -1,5 +1,6 @@
 import type { IconName, Ingredient, Meal } from '../../types';
 import { compressForStorage } from '../imageCompressor';
+import { getLocalPhotoUri, persistLocalPhoto } from '../localPhotos';
 import type { Database, Json } from '../database.types';
 import { supabase } from '../supabase';
 
@@ -47,7 +48,13 @@ export async function listMeals(limit = 50): Promise<Meal[]> {
     .limit(limit);
   if (error) throw new Error(error.message);
 
-  const paths = data.flatMap((r) => (r.photo_path ? [r.photo_path] : []));
+  // Foto original guardada no telemóvel tem prioridade; só as restantes usam a cópia de 50 KB da nuvem.
+  const localById = new Map<string, string>();
+  data.forEach((r) => {
+    const local = getLocalPhotoUri(r.id);
+    if (local) localById.set(r.id, local);
+  });
+  const paths = data.flatMap((r) => (r.photo_path && !localById.has(r.id) ? [r.photo_path] : []));
   const urlByPath = new Map<string, string>();
   if (paths.length > 0) {
     const signed = await supabase.storage.from(BUCKET).createSignedUrls(paths, SIGNED_URL_TTL_SECONDS);
@@ -55,7 +62,9 @@ export async function listMeals(limit = 50): Promise<Meal[]> {
       if (entry.path && entry.signedUrl) urlByPath.set(entry.path, entry.signedUrl);
     });
   }
-  return data.map((row) => rowToMeal(row, row.photo_path ? urlByPath.get(row.photo_path) : undefined));
+  return data.map((row) =>
+    rowToMeal(row, localById.get(row.id) ?? (row.photo_path ? urlByPath.get(row.photo_path) : undefined)),
+  );
 }
 
 /** Comprime a foto para ~50 KB e envia-a. Falhas aqui não impedem de guardar a refeição. */
@@ -77,6 +86,8 @@ const UNIQUE_VIOLATION = '23505';
 
 /** Guarda a refeição (e a foto). Devolve a refeição guardada; é idempotente por id. */
 export async function insertMeal(userId: string, meal: Meal): Promise<Meal> {
+  // A foto original fica no telemóvel; para a nuvem vai a versão de ~50 KB.
+  const localUri = meal.photoUri ? persistLocalPhoto(meal.id, meal.photoUri) : undefined;
   const photoPath = meal.photoUri ? await uploadPhoto(userId, meal.id, meal.photoUri) : null;
   const { analysis } = meal;
   const { error } = await supabase.from('meals').insert({
@@ -93,5 +104,5 @@ export async function insertMeal(userId: string, meal: Meal): Promise<Meal> {
     created_at: new Date(meal.createdAt).toISOString(),
   });
   if (error && error.code !== UNIQUE_VIOLATION) throw new Error(error.message);
-  return meal;
+  return localUri ? { ...meal, photoUri: localUri } : meal;
 }

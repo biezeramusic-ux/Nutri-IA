@@ -46,7 +46,8 @@ export default function ScannerScreen() {
       }
       const { analysis, isFallback } = await recognizeFood(small.base64);
       setFallback(isFallback);
-      const result = buildMeal(analysis, small.uri);
+      // A foto mostrada na app é a original (como foi tirada); a IA recebeu só a versão pequena.
+      const result = buildMeal(analysis, photo.uri);
       setMeal(result);
       setCurrent(result);
     } catch {

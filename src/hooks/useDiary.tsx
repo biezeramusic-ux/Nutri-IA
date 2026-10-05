@@ -61,8 +61,8 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
   const saveMeal = useCallback(
     async (meal: Meal) => {
       if (!userId) throw new Error('Sessão inválida. Inicie sessão novamente.');
-      await insertMeal(userId, meal);
-      setMeals((prev) => [meal, ...prev.filter((m) => m.id !== meal.id)]);
+      const saved = await insertMeal(userId, meal);
+      setMeals((prev) => [saved, ...prev.filter((m) => m.id !== saved.id)]);
     },
     [userId],
   );
