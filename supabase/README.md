@@ -18,6 +18,13 @@
    Em **produção deixe desligado** (qualquer utilizador autenticado poderia dar-se premium) e ative planos
    por webhook de pagamento com a `service_role`.
 
+## Login com Google
+1. **Google Cloud Console** (https://console.cloud.google.com): crie um projeto → *APIs e serviços* → *Ecrã de consentimento OAuth* (tipo Externo, preencha nome da app e e-mail) → *Credenciais* → *Criar credenciais* → *ID de cliente OAuth* → tipo **Aplicação Web**.
+2. Em *URIs de redirecionamento autorizados* coloque: `https://<ref-do-projeto>.supabase.co/auth/v1/callback` (o URL exato aparece no Supabase, no painel do provedor Google).
+3. Copie o **Client ID** e o **Client Secret**.
+4. **Supabase → Authentication → Sign In / Providers → Google**: ative, cole o Client ID e o Client Secret, *Save*.
+5. **Supabase → Authentication → URL Configuration → Redirect URLs**: adicione `exp://**` (Expo Go) e `nutriai://**` (app instalada), *Save*.
+
 ## Regras de segurança (resumo)
 - RLS em todas as tabelas: cada utilizador só vê/escreve as suas linhas.
 - `profiles`: o cliente só altera `full_name`; teste grátis e plano não são editáveis pelo cliente.

@@ -4,6 +4,7 @@ import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { AuthButton } from '../../components/AuthButton';
 import { AuthInput } from '../../components/AuthInput';
 import { AuthScreenLayout } from '../../components/AuthScreenLayout';
+import { GoogleButton } from '../../components/GoogleButton';
 import { colors } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { validateEmail, validateName, validatePassword } from '../../services/validation';
@@ -16,7 +17,7 @@ interface FormErrors {
 
 export default function RegisterScreen() {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const [name, setName] = useState('');
@@ -24,6 +25,7 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const submit = async () => {
     const next: FormErrors = {
@@ -49,6 +51,18 @@ export default function RegisterScreen() {
       Alert.alert('Não foi possível criar a conta', e instanceof Error ? e.message : 'Tente novamente.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setGoogleLoading(true);
+    try {
+      // Em caso de sucesso, o guard do Root Layout redireciona para a Home.
+      await signInWithGoogle();
+    } catch (e) {
+      Alert.alert('Login com Google', e instanceof Error ? e.message : 'Tente novamente.');
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -99,7 +113,8 @@ export default function RegisterScreen() {
           returnKeyType="go"
           onSubmitEditing={() => void submit()}
         />
-        <AuthButton title="Criar Conta" onPress={() => void submit()} loading={loading} />
+        <AuthButton title="Criar Conta" onPress={() => void submit()} loading={loading} disabled={googleLoading} />
+        <GoogleButton onPress={() => void handleGoogle()} loading={googleLoading} disabled={loading} title="Registar com Google" />
       </View>
 
       <View style={styles.footer}>

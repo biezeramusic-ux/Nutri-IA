@@ -4,17 +4,19 @@ import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { AuthButton } from '../../components/AuthButton';
 import { AuthInput } from '../../components/AuthInput';
 import { AuthScreenLayout } from '../../components/AuthScreenLayout';
+import { GoogleButton } from '../../components/GoogleButton';
 import { colors } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { validateEmail, validatePassword } from '../../services/validation';
 
 export default function LoginScreen() {
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const passwordRef = useRef<TextInput>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string | null; password?: string | null }>({});
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const submit = async () => {
     const next = { email: validateEmail(email), password: validatePassword(password) };
@@ -29,6 +31,18 @@ export default function LoginScreen() {
       Alert.alert('Não foi possível entrar', e instanceof Error ? e.message : 'Tente novamente.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setGoogleLoading(true);
+    try {
+      // Em caso de sucesso, o guard do Root Layout redireciona para a Home.
+      await signInWithGoogle();
+    } catch (e) {
+      Alert.alert('Login com Google', e instanceof Error ? e.message : 'Tente novamente.');
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -65,7 +79,8 @@ export default function LoginScreen() {
           returnKeyType="go"
           onSubmitEditing={() => void submit()}
         />
-        <AuthButton title="Entrar" onPress={() => void submit()} loading={loading} />
+        <AuthButton title="Entrar" onPress={() => void submit()} loading={loading} disabled={googleLoading} />
+        <GoogleButton onPress={() => void handleGoogle()} loading={googleLoading} disabled={loading} title="Continuar com Google" />
       </View>
 
       <View style={styles.footer}>

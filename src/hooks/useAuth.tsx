@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { translateAuthError } from '../services/authErrors';
+import { signInWithGoogle as googleOAuth } from '../services/googleAuth';
 import { supabase } from '../services/supabase';
 
 export type SignUpOutcome = 'signed_in' | 'confirm_email';
@@ -21,6 +22,8 @@ interface AuthContextValue {
   displayName: string;
   signUp: (name: string, email: string, password: string) => Promise<SignUpOutcome>;
   signIn: (email: string, password: string) => Promise<void>;
+  /** Abre o login Google. Devolve false se o utilizador cancelou. */
+  signInWithGoogle: () => Promise<boolean>;
   signOut: () => Promise<void>;
 }
 
@@ -75,6 +78,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw new Error(translateAuthError(error));
   }, []);
 
+  const signInWithGoogle = useCallback<AuthContextValue['signInWithGoogle']>(() => googleOAuth(), []);
+
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
   }, []);
@@ -83,8 +88,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const user = session?.user ?? null;
     const metaName = user?.user_metadata?.full_name;
     const displayName = typeof metaName === 'string' && metaName ? metaName : (user?.email ?? '');
-    return { session, user, loading, displayName, signUp, signIn, signOut };
-  }, [session, loading, signUp, signIn, signOut]);
+    return { session, user, loading, displayName, signUp, signIn, signInWithGoogle, signOut };
+  }, [session, loading, signUp, signIn, signInWithGoogle, signOut]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
