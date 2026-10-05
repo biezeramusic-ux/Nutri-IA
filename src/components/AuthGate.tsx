@@ -1,9 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRootNavigationState, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { colors } from '../constants/theme';
 import { useAuth } from '../hooks/useAuth';
+import { Logo } from './Logo';
 
 /**
  * Guard do Root Layout: sem sessão, todas as rotas (exceto /auth/*) redirecionam para o login;
@@ -29,9 +29,7 @@ export function AuthGate() {
 
   return (
     <View style={styles.splash} pointerEvents="auto">
-      <View style={styles.logo}>
-        <Ionicons name="leaf" size={34} color="#fff" />
-      </View>
+      <Logo size={96} />
       <ActivityIndicator color={colors.primary} style={styles.spinner} />
     </View>
   );
@@ -44,14 +42,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 18,
-  },
-  logo: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   spinner: { marginTop: 12 },
 });

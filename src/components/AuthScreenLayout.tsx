@@ -1,8 +1,8 @@
-import { Ionicons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/theme';
+import { Logo } from './Logo';
 import { isSupabaseConfigured } from '../services/supabase';
 
 interface Props {
@@ -28,9 +28,7 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.hero}>
-          <View style={styles.logo}>
-            <Ionicons name="leaf" size={34} color="#fff" />
-          </View>
+          <Logo size={84} />
           <Text style={styles.brand}>Nutri AI</Text>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.subtitle}>{subtitle}</Text>
@@ -50,15 +48,6 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   hero: { alignItems: 'center', gap: 6, marginBottom: 8 },
-  logo: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
   brand: { fontSize: 14, fontWeight: '800', color: colors.primaryDark, letterSpacing: 1 },
   title: { fontSize: 30, fontWeight: '800', color: colors.text, marginTop: 8 },
   subtitle: { fontSize: 14, color: colors.textMuted, textAlign: 'center' },

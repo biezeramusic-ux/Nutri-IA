@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Logo } from '../components/Logo';
 import { PayButton } from '../components/PayButton';
 import { PlanCard } from '../components/PlanCard';
 import { PLANS } from '../constants/plans';
@@ -59,9 +60,7 @@ export default function PaywallScreen() {
         </Pressable>
 
         <View style={styles.hero}>
-          <View style={styles.logo}>
-            <Ionicons name="leaf" size={30} color="#fff" />
-          </View>
+          <Logo size={72} />
           <Text style={styles.title}>Nutri AI Premium</Text>
           <View style={styles.benefits}>
             {BENEFITS.map((b) => (
@@ -137,7 +136,6 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   close: { alignSelf: 'flex-end', width: 40, height: 40, borderRadius: 20, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   hero: { alignItems: 'center', gap: 10 },
-  logo: { width: 64, height: 64, borderRadius: 32, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 28, fontWeight: '800', color: colors.text },
   benefits: { gap: 6, alignSelf: 'stretch', paddingHorizontal: 24, marginTop: 4 },
   benefit: { flexDirection: 'row', alignItems: 'center', gap: 8 },

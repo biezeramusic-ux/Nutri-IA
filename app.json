@@ -17,12 +17,14 @@
     "android": {
       "package": "mz.nutriai.app",
       "adaptiveIcon": {
-        "backgroundColor": "#E8F5E9",
+        "backgroundColor": "#000000",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "permissions": ["CAMERA"],
+      "permissions": [
+        "CAMERA"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -32,8 +34,19 @@
     "plugins": [
       "expo-router",
       [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000000"
+        }
+      ],
+      [
         "expo-camera",
-        { "cameraPermission": "O Nutri AI usa a câmera para analisar as suas refeições." }
+        {
+          "cameraPermission": "O Nutri AI usa a câmera para analisar as suas refeições."
+        }
       ]
     ]
   }

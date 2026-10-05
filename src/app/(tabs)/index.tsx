@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LockOverlay } from '../../components/LockOverlay';
+import { Logo } from '../../components/Logo';
 import { MealCard } from '../../components/MealCard';
 import { SearchBar } from '../../components/SearchBar';
 import { TAB_BAR_SPACE, colors, radius, shadow } from '../../constants/theme';
@@ -68,9 +69,7 @@ export default function HomeScreen() {
         }
       >
         <View style={styles.brandRow}>
-          <View style={styles.logo}>
-            <Ionicons name="leaf" size={18} color="#fff" />
-          </View>
+          <Logo size={36} />
           <Text style={styles.brand}>Nutri AI</Text>
           <View style={styles.trialChip}>
             <Text style={styles.trialText}>{chipLabel}</Text>
@@ -116,7 +115,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   brandRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 18 },
-  logo: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   brand: { fontSize: 18, fontWeight: '800', color: colors.text, flex: 1 },
   trialChip: { backgroundColor: colors.primarySoft, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
   trialText: { fontSize: 11, fontWeight: '700', color: colors.primaryDark },
