@@ -15,6 +15,11 @@ Sem chave de API, o scanner devolve o mock "Vegetable Salad" (fallback).
 > ⚠️ **Segurança (MVP):** variáveis `EXPO_PUBLIC_*` ficam embutidas na app e podem ser extraídas.
 > Antes de publicar, mova a chamada de IA para um backend/proxy.
 
+## Ver a app no telemóvel
+- **Rápido (Expo Go):** instale *Expo Go*, corra `npx expo start` e leia o QR code (telemóvel e PC na mesma rede Wi-Fi, ou use `npx expo start --tunnel`).
+- **APK instalável (Android):** `npm i -g eas-cli && eas login && eas build -p android --profile preview`, depois instale o link do APK.
+  Defina as variáveis `EXPO_PUBLIC_*` no EAS (`eas env:create`) antes de compilar.
+
 ## Estrutura
 - `src/app` — rotas (Expo Router): `auth/login|register`, `(tabs)/index|scanner|tracker`, `details`, `paywall`
 - `src/components` — UI (MealCard, FlowerChart, PlanCard, LockOverlay…)
