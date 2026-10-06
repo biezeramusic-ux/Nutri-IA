@@ -153,3 +153,15 @@ export function saveReminderSettings(userId: string, s: ReminderSettings): Promi
 export function saveWaterGoal(userId: string, waterMl: number): Promise<void> {
   return updateProfile(userId, { water_goal_ml: waterMl });
 }
+
+/** Guarda metas personalizadas (recurso PRO) e o peso desejado. */
+export function saveCustomGoals(userId: string, goals: DailyGoals, targetWeightKg: number): Promise<void> {
+  return updateProfile(userId, {
+    daily_calorie_goal: goals.calories,
+    protein_goal_g: goals.proteinG,
+    carbs_goal_g: goals.carbsG,
+    fats_goal_g: goals.fatsG,
+    water_goal_ml: goals.waterMl,
+    target_weight_kg: targetWeightKg,
+  });
+}

@@ -10,7 +10,7 @@ const API_URL = 'https://api.anthropic.com/v1/messages';
 const TIMEOUT_MS = 25000;
 
 export const SYSTEM_PROMPT =
-  "You are an expert Mozambican Nutritionist AI and core engine of 'Nutri IA'. Analyze the food image. You must accurately recognize typical Mozambican culinary dishes (e.g., matapa, xima, mucapata, caril de amendoim, cacana, badgias, peixe grelhado, etc.) and estimate the weight in grams. Return strictly a clean JSON object: { 'food_name': string, 'estimated_weight_grams': number, 'calories': number, 'carbs_g': number, 'protein_g': number, 'fats_g': number }. Write 'food_name' in Portuguese. Also add a 'confidence' number from 0 to 100 with your certainty about the identification.";
+  "You are an expert Mozambican Nutritionist AI and core engine of 'Nutri IA'. Analyze the food image. You must accurately recognize typical Mozambican culinary dishes (e.g., matapa, xima, mucapata, caril de amendoim, cacana, badgias, peixe grelhado, etc.) and estimate the weight in grams. Return strictly a clean JSON object: { 'food_name': string, 'estimated_weight_grams': number, 'calories': number, 'carbs_g': number, 'protein_g': number, 'fats_g': number }. Write 'food_name' in Portuguese. Also add a 'confidence' number from 0 to 100 with your certainty about the identification, and 'fiber_g' (number) with the estimated dietary fiber in grams.";
 
 export const MOCK_VEGETABLE_SALAD: FoodAnalysis = {
   food_name: 'Salada de legumes',
@@ -20,6 +20,7 @@ export const MOCK_VEGETABLE_SALAD: FoodAnalysis = {
   protein_g: 6,
   fats_g: 8,
   confidence: 70,
+  fiber_g: 5,
 };
 
 export interface RecognitionResult {
@@ -48,8 +49,10 @@ function parseAnalysis(text: string): FoodAnalysis {
   const parsed: unknown = JSON.parse(text.slice(start, end + 1));
   if (!isFoodAnalysis(parsed)) throw new Error('JSON fora do formato esperado');
   const confidence = (parsed as { confidence?: unknown }).confidence;
+  const fiber = (parsed as { fiber_g?: unknown }).fiber_g;
   return {
     ...parsed,
+    ...(typeof fiber === 'number' && fiber >= 0 ? { fiber_g: fiber } : {}),
     ...(typeof confidence === 'number' && confidence >= 0 && confidence <= 100
       ? { confidence: Math.round(confidence) }
       : {}),

@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { insertMeal, listMeals } from '../services/repositories/meals';
+import { deleteMealById, insertMeal, listMeals } from '../services/repositories/meals';
 import type { Meal } from '../types';
 import { useAuth } from './useAuth';
 
@@ -22,6 +22,8 @@ interface DiaryContextValue {
   isSaved: (id: string) => boolean;
   /** Guarda no Supabase. Lança erro se falhar (ex.: sem rede). */
   saveMeal: (meal: Meal) => Promise<void>;
+  /** Apaga uma refeição guardada. */
+  removeMeal: (id: string) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -67,11 +69,16 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
     [userId],
   );
 
+  const removeMeal = useCallback(async (id: string) => {
+    await deleteMealById(id);
+    setMeals((prev) => prev.filter((m) => m.id !== id));
+  }, []);
+
   const isSaved = useCallback((id: string) => meals.some((m) => m.id === id), [meals]);
 
   const value = useMemo<DiaryContextValue>(
-    () => ({ meals, loading, error, current, setCurrent, isSaved, saveMeal, refresh }),
-    [meals, loading, error, current, isSaved, saveMeal, refresh],
+    () => ({ meals, loading, error, current, setCurrent, isSaved, saveMeal, removeMeal, refresh }),
+    [meals, loading, error, current, isSaved, saveMeal, removeMeal, refresh],
   );
   return <DiaryContext.Provider value={value}>{children}</DiaryContext.Provider>;
 }

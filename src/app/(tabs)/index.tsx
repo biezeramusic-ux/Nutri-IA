@@ -1,12 +1,13 @@
-import { Camera } from 'lucide-react-native';
+import { Activity, Camera, Droplets, Target } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, FlatList, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CaloriesCard } from '../../components/CaloriesCard';
 import { LockOverlay } from '../../components/LockOverlay';
 import { Logo } from '../../components/Logo';
 import { MealSection } from '../../components/MealSection';
+import { ProBadge } from '../../components/ProOverlay';
 import { ScanCard } from '../../components/ScanCard';
 import { SearchBar } from '../../components/SearchBar';
 import { WaterMiniCard } from '../../components/WaterMiniCard';
@@ -34,7 +35,7 @@ export default function HomeScreen() {
   const { profile, goals, saveReminders } = useProfile();
   const water = useWater();
   const permission = useNotificationPermission();
-  const { lockReason, isPremium, trialDaysLeft, scansLeftToday, loading: accessLoading } = useSubscription();
+  const { lockReason, isPremium, isPro, trialDaysLeft, scansLeftToday, loading: accessLoading } = useSubscription();
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(() => new Date());
   const [reminderDismissed, setReminderDismissed] = useState(false);
@@ -66,7 +67,7 @@ export default function HomeScreen() {
         : `Teste: ${trialDaysLeft} d · ${scansLeftToday ?? 0} scans hoje`;
 
   const remindersActive = !!profile?.waterReminders && permission.granted;
-  const showReminderCard = !!profile?.onboardingCompleted && !reminderDismissed && !remindersActive;
+  const showReminderCard = isPro && !!profile?.onboardingCompleted && !reminderDismissed && !remindersActive;
 
   const activateReminders = async () => {
     if (!notificationsSupported) {
@@ -147,7 +148,18 @@ export default function HomeScreen() {
         )}
 
         <View style={[styles.pad, styles.row]}>
-          <WaterMiniCard glasses={water.glasses} goalGlasses={water.goalGlasses} onAdd={water.increment} onOpen={() => router.navigate('/water')} />
+          {isPro ? (
+            <WaterMiniCard glasses={water.glasses} goalGlasses={water.goalGlasses} onAdd={water.increment} onOpen={() => router.push('/water')} />
+          ) : (
+            <Pressable style={styles.lockedCard} onPress={() => router.push('/paywall')}>
+              <View style={styles.lockedHead}>
+                <Text style={styles.statTitle}>Água</Text>
+                <ProBadge />
+              </View>
+              <Droplets size={22} color={colors.water} />
+              <Text style={styles.statLabel}>Registo de água e lembretes no plano Pro</Text>
+            </Pressable>
+          )}
           <View style={styles.statCard}>
             <Text style={styles.statTitle}>Refeições</Text>
             <View>
@@ -155,6 +167,23 @@ export default function HomeScreen() {
               <Text style={styles.statLabel}>{isToday ? 'registadas hoje' : 'registadas neste dia'}</Text>
             </View>
           </View>
+        </View>
+
+        <View style={[styles.pad, styles.shortcuts]}>
+          <Pressable style={styles.shortcut} onPress={() => router.push('/goals')}>
+            <Target size={18} color={colors.primary} />
+            <Text style={styles.shortcutText}>Objetivos</Text>
+          </Pressable>
+          <Pressable style={styles.shortcut} onPress={() => router.push(isPro ? '/activity' : '/paywall')}>
+            <Activity size={18} color={colors.primary} />
+            <Text style={styles.shortcutText}>Atividade</Text>
+            {!isPro && <ProBadge />}
+          </Pressable>
+          <Pressable style={styles.shortcut} onPress={() => router.push(isPro ? '/water' : '/paywall')}>
+            <Droplets size={18} color={colors.water} />
+            <Text style={styles.shortcutText}>Água</Text>
+            {!isPro && <ProBadge />}
+          </Pressable>
         </View>
 
         <View style={[styles.pad, { gap: 12 }]}>
@@ -216,6 +245,11 @@ const styles = StyleSheet.create({
   statTitle: { fontSize: font.body, fontWeight: '600', color: colors.text },
   statValue: { fontSize: 24, fontWeight: '700', color: colors.text },
   statLabel: { fontSize: font.tiny, color: colors.textMuted },
+  lockedCard: { ...cardBase, flex: 1, padding: 14, gap: 8 },
+  lockedHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  shortcuts: { flexDirection: 'row', gap: 10 },
+  shortcut: { ...cardBase, flex: 1, borderRadius: radius.lg, paddingVertical: 12, alignItems: 'center', gap: 6 },
+  shortcutText: { fontSize: font.small, fontWeight: '600', color: colors.text },
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   section: { fontSize: font.h2, fontWeight: '700', color: colors.text },
   error: { fontSize: font.small, color: colors.danger },

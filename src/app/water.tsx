@@ -2,14 +2,16 @@ import { BellRing, Droplets, GlassWater, Minus, Plus, Sparkles } from 'lucide-re
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ProgressRing } from '../../components/ProgressRing';
-import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, colors, font, radius } from '../../constants/theme';
-import { useProfile } from '../../hooks/useProfile';
-import { useWater } from '../../hooks/useWater';
-import { GLASS_ML } from '../../services/goals';
-import { notificationsSupported } from '../../services/notifications';
-import { planWaterReminders } from '../../services/waterReminderPlan';
-import type { GoalType } from '../../types';
+import { ProgressRing } from '../components/ProgressRing';
+import { ProGate } from '../components/ProOverlay';
+import { ScreenHeader } from '../components/ScreenHeader';
+import { SCREEN_PADDING, cardBase, colors, font, radius } from '../constants/theme';
+import { useProfile } from '../hooks/useProfile';
+import { useWater } from '../hooks/useWater';
+import { GLASS_ML } from '../services/goals';
+import { notificationsSupported } from '../services/notifications';
+import { planWaterReminders } from '../services/waterReminderPlan';
+import type { GoalType } from '../types';
 
 const TIPS: Record<GoalType | 'generic', string> = {
   lose_weight: 'Beber água antes das refeições ajuda a controlar a fome e apoia a perda de peso.',
@@ -57,12 +59,13 @@ export default function WaterScreen() {
           : 'Sem lembretes pendentes por agora.';
 
   return (
+    <ProGate feature="Registe a água que bebe e receba lembretes personalizados.">
     <ScrollView
       style={styles.root}
-      contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: SCREEN_PADDING, paddingBottom: TAB_BAR_SPACE + 24, gap: 16 }}
+      contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: SCREEN_PADDING, paddingBottom: insets.bottom + 32, gap: 16 }}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Água</Text>
+      <ScreenHeader title="Água" />
       {!!water.error && <Text style={styles.error}>{water.error}</Text>}
 
       <View style={styles.card}>
@@ -115,6 +118,7 @@ export default function WaterScreen() {
         </View>
       </View>
     </ScrollView>
+    </ProGate>
   );
 }
 

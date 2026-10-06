@@ -10,6 +10,7 @@ import {
 import { DEFAULT_GOALS, calculateGoals } from '../services/goals';
 import {
   getProfile,
+  saveCustomGoals,
   saveOnboarding,
   saveReminderSettings,
   saveWaterGoal,
@@ -31,6 +32,8 @@ interface ProfileContextValue {
   completeOnboarding: (answers: QuizAnswers) => Promise<DailyGoals>;
   saveReminders: (settings: ReminderSettings) => Promise<void>;
   saveWaterGoalMl: (ml: number) => Promise<void>;
+  /** Metas personalizadas (PRO) + peso desejado. */
+  saveGoals: (goals: DailyGoals, targetWeightKg: number) => Promise<void>;
 }
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
@@ -100,6 +103,23 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [userId],
   );
 
+  const saveGoals = useCallback(
+    async (goals: DailyGoals, targetWeightKg: number) => {
+      if (!userId) return;
+      await saveCustomGoals(userId, goals, targetWeightKg);
+      setProfile((prev) =>
+        prev
+          ? {
+              ...prev,
+              goals,
+              quiz: prev.quiz ? { ...prev.quiz, targetWeightKg } : prev.quiz,
+            }
+          : prev,
+      );
+    },
+    [userId],
+  );
+
   const value = useMemo<ProfileContextValue>(
     () => ({
       profile,
@@ -110,8 +130,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       completeOnboarding,
       saveReminders,
       saveWaterGoalMl,
+      saveGoals,
     }),
-    [profile, userId, loadedFor, refresh, completeOnboarding, saveReminders, saveWaterGoalMl],
+    [profile, userId, loadedFor, refresh, completeOnboarding, saveReminders, saveWaterGoalMl, saveGoals],
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;

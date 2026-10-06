@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { ChartColumn, Droplets, House, User } from 'lucide-react-native';
+import { BookOpen, ChartColumn, House, User } from 'lucide-react-native';
 import { Platform } from 'react-native';
 import { ScannerFab } from '../../components/ScannerFab';
 import { colors, font, shadow } from '../../constants/theme';
@@ -36,8 +36,8 @@ export default function TabsLayout() {
         options={{ title: 'Início', tabBarIcon: ({ color }) => <House size={20} color={color} /> }}
       />
       <Tabs.Screen
-        name="progress"
-        options={{ title: 'Progresso', tabBarIcon: ({ color }) => <ChartColumn size={20} color={color} /> }}
+        name="diary"
+        options={{ title: 'Diário', tabBarIcon: ({ color }) => <BookOpen size={20} color={color} /> }}
       />
       <Tabs.Screen
         name="scanner"
@@ -51,8 +51,8 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="water"
-        options={{ title: 'Água', tabBarIcon: ({ color }) => <Droplets size={20} color={color} /> }}
+        name="progress"
+        options={{ title: 'Progresso', tabBarIcon: ({ color }) => <ChartColumn size={20} color={color} /> }}
       />
       <Tabs.Screen
         name="profile"

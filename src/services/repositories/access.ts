@@ -21,6 +21,7 @@ function parseStatus(json: Json): ConsumeScanResult {
     isPremium: o.is_premium === true,
     trialDaysLeft: typeof o.trial_days_left === 'number' ? o.trial_days_left : 0,
     scansLeftToday: typeof o.scans_left_today === 'number' ? o.scans_left_today : null,
+    mealsLeft: typeof o.meals_left === 'number' ? o.meals_left : null,
     lockReason: parseLockReason(o.lock_reason),
   };
 }

@@ -32,6 +32,7 @@ export interface Totals {
   protein: number;
   carbs: number;
   fats: number;
+  fiber: number;
 }
 
 export function sumMeals(meals: Meal[]): Totals {
@@ -41,8 +42,9 @@ export function sumMeals(meals: Meal[]): Totals {
       protein: t.protein + m.analysis.protein_g,
       carbs: t.carbs + m.analysis.carbs_g,
       fats: t.fats + m.analysis.fats_g,
+      fiber: t.fiber + (m.analysis.fiber_g ?? 0),
     }),
-    { kcal: 0, protein: 0, carbs: 0, fats: 0 },
+    { kcal: 0, protein: 0, carbs: 0, fats: 0, fiber: 0 },
   );
 }
 

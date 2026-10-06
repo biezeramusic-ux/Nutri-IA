@@ -30,6 +30,9 @@ export default function RootLayout() {
                   <Stack.Screen name="quiz" options={{ presentation: 'modal' }} />
                   <Stack.Screen name="(tabs)" />
                   <Stack.Screen name="details" options={{ animation: 'slide_from_right' }} />
+                  <Stack.Screen name="water" options={{ animation: 'slide_from_right' }} />
+                  <Stack.Screen name="activity" options={{ animation: 'slide_from_right' }} />
+                  <Stack.Screen name="goals" options={{ animation: 'slide_from_right' }} />
                   <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
                 </Stack>
                 <RemindersSync />

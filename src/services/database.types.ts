@@ -76,6 +76,7 @@ export interface Database {
           photo_path: string | null;
           created_at: string;
           confidence: number | null;
+          fiber_g: number | null;
         };
         Insert: {
           id?: string;
@@ -90,6 +91,7 @@ export interface Database {
           photo_path?: string | null;
           created_at?: string;
           confidence?: number | null;
+          fiber_g?: number | null;
         };
         Update: never;
         Relationships: [];
@@ -116,6 +118,24 @@ export interface Database {
         };
         Insert: { id?: string; user_id?: string; started_at?: string; goal_hours?: number };
         Update: { ended_at?: string | null };
+        Relationships: [];
+      };
+      weight_logs: {
+        Row: { user_id: string; day: string; weight_kg: number };
+        Insert: { user_id?: string; day: string; weight_kg: number };
+        Update: { weight_kg?: number };
+        Relationships: [];
+      };
+      activity_logs: {
+        Row: { id: string; user_id: string; day: string; type: string; minutes: number; kcal: number; created_at: string };
+        Insert: { id?: string; user_id?: string; day: string; type: string; minutes: number; kcal: number };
+        Update: never;
+        Relationships: [];
+      };
+      daily_steps: {
+        Row: { user_id: string; day: string; steps: number };
+        Insert: { user_id?: string; day: string; steps: number };
+        Update: { steps?: number };
         Relationships: [];
       };
     };

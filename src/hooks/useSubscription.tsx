@@ -24,11 +24,14 @@ const INITIAL: AccessStatus = {
   isPremium: false,
   trialDaysLeft: TRIAL_DAYS,
   scansLeftToday: null,
+  mealsLeft: null,
   lockReason: null,
 };
 
 interface SubscriptionContextValue extends AccessStatus {
   loading: boolean;
+  /** true no plano PRO (todos os recursos). O teste FREE tem recursos limitados. */
+  isPro: boolean;
   canScan: boolean;
   refresh: () => Promise<void>;
   /** Consome um scan no servidor (atómico). Chamar antes da IA. Lança erro se offline. */
@@ -82,7 +85,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<SubscriptionContextValue>(
-    () => ({ ...status, loading, canScan: status.lockReason === null, refresh, consumeScan, activatePlan }),
+    () => ({ ...status, loading, isPro: status.isPremium, canScan: status.lockReason === null, refresh, consumeScan, activatePlan }),
     [status, loading, refresh, consumeScan, activatePlan],
   );
 

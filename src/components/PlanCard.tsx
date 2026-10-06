@@ -20,7 +20,7 @@ export function PlanCard({ plan, selected, onPress }: Props) {
       <View style={[styles.radio, selected && styles.radioOn]}>{selected && <Check size={14} color="#fff" strokeWidth={3} />}</View>
       <View style={styles.info}>
         <Text style={styles.label}>{plan.label}</Text>
-        <Text style={styles.sub}>Scans ilimitados</Text>
+        <Text style={styles.sub}>Análises ilimitadas</Text>
       </View>
       <View style={styles.priceCol}>
         <Text style={styles.price}>{plan.priceMT} MT</Text>

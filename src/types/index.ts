@@ -13,6 +13,8 @@ export interface FoodAnalysis {
   fats_g: number;
   /** Certeza da IA na identificação (0 a 100), quando disponível. */
   confidence?: number;
+  /** Fibras (g). Recurso PRO. */
+  fiber_g?: number;
 }
 
 export interface Ingredient {
@@ -56,6 +58,8 @@ export interface AccessStatus {
   trialDaysLeft: number;
   /** null para utilizadores premium (scans ilimitados). */
   scansLeftToday: number | null;
+  /** Registos de refeição que ainda pode fazer durante o teste; null para PRO (ilimitado). */
+  mealsLeft: number | null;
   lockReason: LockReason;
 }
 
@@ -119,3 +123,16 @@ export interface UserProfile {
 }
 
 export type MealType = 'breakfast' | 'lunch' | 'snack' | 'dinner';
+
+export interface WeightLog {
+  day: string;
+  weightKg: number;
+}
+
+export interface ActivityLog {
+  id: string;
+  day: string;
+  type: string;
+  minutes: number;
+  kcal: number;
+}

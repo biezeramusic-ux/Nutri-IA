@@ -53,6 +53,12 @@
         {
           "color": "#4CAF50"
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Nutri IA acede às suas fotos para analisar refeições."
+        }
       ]
     ]
   }

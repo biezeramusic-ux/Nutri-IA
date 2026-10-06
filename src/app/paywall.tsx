@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Logo } from '../components/Logo';
 import { PayButton } from '../components/PayButton';
 import { PlanCard } from '../components/PlanCard';
-import { PLANS } from '../constants/plans';
+import { FREE_FEATURES, PLANS, PRO_FEATURES } from '../constants/plans';
 import { SCREEN_PADDING, cardBase, colors, font, radius } from '../constants/theme';
 import { useSubscription } from '../hooks/useSubscription';
 import { payWithCard, payWithEmola, payWithMpesa, type PaymentResult } from '../services/payments';
@@ -15,7 +15,18 @@ import type { PlanId } from '../types';
 
 type Method = 'mpesa' | 'emola' | 'card';
 
-const BENEFITS = ['Scans de comida ilimitados', 'Histórico completo no diário', 'Gráficos nutricionais detalhados'];
+function FeatureList({ items, color }: { items: string[]; color: string }) {
+  return (
+    <View style={{ gap: 8 }}>
+      {items.map((item) => (
+        <View key={item} style={styles.feature}>
+          <Check size={15} color={color} strokeWidth={3} />
+          <Text style={styles.featureText}>{item}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
 
 export default function PaywallScreen() {
   const router = useRouter();
@@ -45,7 +56,7 @@ export default function PaywallScreen() {
       Alert.alert('Não foi possível ativar o plano', e instanceof Error ? e.message : 'Tente novamente.');
       return;
     }
-    Alert.alert('Bem-vindo ao Nutri IA Premium', `Plano ${plan.label} ativo.\nRef.: ${result.reference} (pagamento simulado)`);
+    Alert.alert('Bem-vindo ao Nutri IA Pro', `Plano ${plan.label} ativo.\nRef.: ${result.reference} (pagamento simulado)`);
     router.back();
   };
 
@@ -61,22 +72,27 @@ export default function PaywallScreen() {
         </Pressable>
 
         <View style={styles.hero}>
-          <Logo size={56} />
-          <Text style={styles.title}>Nutri IA Premium</Text>
-          <View style={styles.benefits}>
-            {BENEFITS.map((b) => (
-              <View key={b} style={styles.benefit}>
-                <Check size={16} color={colors.primary} strokeWidth={3} />
-                <Text style={styles.benefitText}>{b}</Text>
-              </View>
-            ))}
-          </View>
+          <Logo size={52} />
+          <Text style={styles.title}>Nutri IA Pro</Text>
+          <Text style={styles.subtitle}>
+            Todos os planos Pro têm exatamente os mesmos recursos. Escolha apenas por quanto tempo quer pagar.
+          </Text>
         </View>
 
         <View style={styles.plans}>
           {PLANS.map((p) => (
             <PlanCard key={p.id} plan={p} selected={p.id === planId} onPress={() => setPlanId(p.id)} />
           ))}
+        </View>
+
+        <View style={styles.box}>
+          <Text style={styles.boxTitle}>Todos os planos Pro incluem</Text>
+          <FeatureList items={PRO_FEATURES} color={colors.primary} />
+        </View>
+
+        <View style={styles.box}>
+          <Text style={styles.boxTitle}>Plano Free · 3 dias de teste</Text>
+          <FeatureList items={FREE_FEATURES} color={colors.textFaint} />
         </View>
 
         <Text style={styles.section}>Carteiras móveis</Text>
@@ -136,14 +152,15 @@ export default function PaywallScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   close: { alignSelf: 'flex-end', width: 34, height: 34, borderRadius: 17, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
-  hero: { alignItems: 'center', gap: 8 },
+  hero: { alignItems: 'center', gap: 6 },
   title: { fontSize: font.h1, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
-  benefits: { gap: 6, alignSelf: 'stretch', paddingHorizontal: 16, marginTop: 2 },
-  benefit: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  benefitText: { fontSize: font.body, color: colors.text },
-  plans: { gap: 16, marginTop: 8 },
+  subtitle: { fontSize: font.body, color: colors.textMuted, textAlign: 'center', lineHeight: 20, paddingHorizontal: 8 },
+  plans: { gap: 16, marginTop: 6 },
   section: { fontSize: font.h3, fontWeight: '600', color: colors.text, marginTop: 8 },
   box: { ...cardBase, padding: 14, gap: 10 },
+  boxTitle: { fontSize: font.h3, fontWeight: '600', color: colors.text },
+  feature: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  featureText: { flex: 1, fontSize: font.body, color: colors.text },
   input: { height: 46, borderRadius: radius.md, backgroundColor: colors.surface, paddingHorizontal: 14, fontSize: font.body, color: colors.text },
   cardBox: { backgroundColor: colors.navy, borderRadius: radius.card, padding: 16, gap: 12 },
   cardIcons: { flexDirection: 'row', alignItems: 'center', gap: 12 },

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { LogOut, RefreshCw } from 'lucide-react-native';
+import { Activity, Droplets, LogOut, RefreshCw, Target } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -128,6 +128,18 @@ export default function ProfileScreen() {
         <Pressable style={styles.linkBtn} onPress={() => router.push('/quiz')}>
           <RefreshCw size={14} color={colors.primaryDark} />
           <Text style={styles.linkText}>Refazer o quiz e recalcular</Text>
+        </Pressable>
+        <Pressable style={styles.linkBtn} onPress={() => router.push('/goals')}>
+          <Target size={14} color={colors.primaryDark} />
+          <Text style={styles.linkText}>Objetivos</Text>
+        </Pressable>
+        <Pressable style={styles.linkBtn} onPress={() => router.push('/activity')}>
+          <Activity size={14} color={colors.primaryDark} />
+          <Text style={styles.linkText}>Atividade física</Text>
+        </Pressable>
+        <Pressable style={styles.linkBtn} onPress={() => router.push('/water')}>
+          <Droplets size={14} color={colors.primaryDark} />
+          <Text style={styles.linkText}>Registo de água</Text>
         </Pressable>
       </View>
 

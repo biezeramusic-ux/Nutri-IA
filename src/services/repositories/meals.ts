@@ -34,6 +34,7 @@ function rowToMeal(row: MealRow, photoUri?: string): Meal {
       protein_g: row.protein_g,
       fats_g: row.fats_g,
       ...(row.confidence !== null ? { confidence: row.confidence } : {}),
+      ...(row.fiber_g !== null ? { fiber_g: row.fiber_g } : {}),
     },
     ingredients: parseIngredients(row.ingredients),
     photoUri,
@@ -102,9 +103,16 @@ export async function insertMeal(userId: string, meal: Meal): Promise<Meal> {
     fats_g: analysis.fats_g,
     ingredients: meal.ingredients.map((i) => ({ name: i.name, grams: i.grams, icon: i.icon as string, p100: i.p100 ?? null })),
     confidence: analysis.confidence ?? null,
+    fiber_g: analysis.fiber_g ?? null,
     photo_path: photoPath,
     created_at: new Date(meal.createdAt).toISOString(),
   });
   if (error && error.code !== UNIQUE_VIOLATION) throw new Error(error.message);
   return localUri ? { ...meal, photoUri: localUri } : meal;
+}
+
+/** Apaga uma refeição do diário. */
+export async function deleteMealById(id: string): Promise<void> {
+  const { error } = await supabase.from('meals').delete().eq('id', id);
+  if (error) throw new Error(error.message);
 }
