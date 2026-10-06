@@ -60,7 +60,10 @@ export function calculateWaterMl(weightKg: number, activity: ActivityLevel): num
 export function calculateGoals(a: QuizAnswers): DailyGoals {
   const tdee = basalMetabolicRate(a) * ACTIVITY_FACTOR[a.activity];
   const floor = a.sex === 'male' ? 1500 : 1200;
-  const calories = clamp(roundTo(tdee + CALORIE_ADJUSTMENT[a.goal], 10), floor, 5000);
+  // Na gravidez ou amamentação não aplicamos défice calórico.
+  const pregnant = a.conditions.includes('pregnancy');
+  const adjustment = pregnant ? Math.max(0, CALORIE_ADJUSTMENT[a.goal]) : CALORIE_ADJUSTMENT[a.goal];
+  const calories = clamp(roundTo(tdee + adjustment, 10), floor, 5000);
 
   const proteinG = Math.round(PROTEIN_PER_KG[a.goal] * a.weightKg);
   const fatsG = Math.round(0.8 * a.weightKg);
@@ -71,3 +74,19 @@ export function calculateGoals(a: QuizAnswers): DailyGoals {
 }
 
 export const glassesFromMl = (ml: number): number => Math.max(4, Math.round(ml / GLASS_ML));
+
+/** Dicas personalizadas (máx. 3) com base nas respostas do quiz. */
+export function planTips(a: QuizAnswers): string[] {
+  const tips: string[] = [];
+  if (a.conditions.includes('pregnancy')) {
+    tips.push('Na gravidez ou amamentação não aplicamos défice calórico. Fale com o seu médico sobre a sua alimentação.');
+  } else if (a.conditions.length > 0) {
+    tips.push('O Nutri IA não substitui o seu médico. Confirme estas metas com um profissional de saúde.');
+  }
+  if (a.habits.sugaryDrinks) tips.push('Trocar refrigerantes e sumos açucarados por água pode poupar muitas calorias por dia.');
+  if (a.habits.skipsMeals) tips.push('Saltar refeições costuma aumentar a fome à noite. Vamos ajudá-lo a distribuir as calorias.');
+  if (a.habits.eatsOut) tips.push('Quando comer fora, faça o scan do prato para ver as calorias antes de comer.');
+  if (!a.habits.eatsFruitVeg) tips.push('Tente juntar fruta ou legumes a uma refeição por dia.');
+  if (!a.habits.drinksEnoughWater) tips.push('Vai receber lembretes para chegar à sua meta de água.');
+  return tips.slice(0, 3);
+}

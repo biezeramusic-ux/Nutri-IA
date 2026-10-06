@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Check } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, shadow } from '../constants/theme';
+import { cardBase, colors, font, radius } from '../constants/theme';
 import type { Plan } from '../types';
 
 interface Props {
@@ -17,9 +17,7 @@ export function PlanCard({ plan, selected, onPress }: Props) {
           <Text style={styles.badgeText}>{plan.badge}</Text>
         </View>
       )}
-      <View style={styles.radio}>
-        {selected && <Ionicons name="checkmark" size={16} color="#fff" style={styles.check} />}
-      </View>
+      <View style={[styles.radio, selected && styles.radioOn]}>{selected && <Check size={14} color="#fff" strokeWidth={3} />}</View>
       <View style={styles.info}>
         <Text style={styles.label}>{plan.label}</Text>
         <Text style={styles.sub}>Scans ilimitados</Text>
@@ -33,43 +31,17 @@ export function PlanCard({ plan, selected, onPress }: Props) {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: colors.card,
-    borderRadius: radius.card,
-    padding: 18,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    ...shadow,
-  },
-  selected: { borderColor: colors.primary, backgroundColor: '#F4FBF4' },
-  badge: {
-    position: 'absolute',
-    top: -11,
-    right: 20,
-    backgroundColor: colors.primary,
-    borderRadius: radius.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
+  card: { ...cardBase, flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: radius.lg, padding: 14, borderWidth: 1.5 },
+  selected: { borderColor: colors.primary, backgroundColor: '#F6FBF6' },
+  badge: { position: 'absolute', top: -10, right: 14, backgroundColor: colors.primary, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 3 },
   badgeAlt: { backgroundColor: colors.navy },
-  badgeText: { color: '#fff', fontSize: 11, fontWeight: '800' },
-  radio: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  check: { backgroundColor: colors.primary, borderRadius: 12, width: 24, height: 24, textAlign: 'center', lineHeight: 24 },
+  badgeText: { color: '#fff', fontSize: 10, fontWeight: '700' },
+  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  radioOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   info: { flex: 1 },
-  label: { fontSize: 17, fontWeight: '800', color: colors.text },
-  sub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
+  label: { fontSize: font.h3, fontWeight: '600', color: colors.text },
+  sub: { fontSize: font.small, color: colors.textMuted, marginTop: 1 },
   priceCol: { alignItems: 'flex-end' },
-  price: { fontSize: 20, fontWeight: '800', color: colors.text },
-  period: { fontSize: 11, color: colors.textMuted },
+  price: { fontSize: font.h2, fontWeight: '700', color: colors.text },
+  period: { fontSize: font.tiny, color: colors.textMuted },
 });

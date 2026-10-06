@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { colors, radius, shadow } from '../constants/theme';
+import { Search, X } from 'lucide-react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { cardBase, colors, font, radius } from '../constants/theme';
 
 interface Props {
   value: string;
@@ -11,18 +11,20 @@ interface Props {
 export function SearchBar({ value, onChangeText, onSubmit }: Props) {
   return (
     <View style={styles.wrap}>
-      <Ionicons name="search" size={20} color={colors.textMuted} />
+      <Search size={18} color={colors.textFaint} />
       <TextInput
         value={value}
         onChangeText={onChangeText}
         onSubmitEditing={onSubmit}
-        placeholder="Pesquisar alimento (ex: xima com matapa)"
-        placeholderTextColor={colors.textMuted}
+        placeholder="Pesquisar alimento (ex.: xima com matapa)"
+        placeholderTextColor={colors.textFaint}
         returnKeyType="search"
         style={styles.input}
       />
       {value.length > 0 && (
-        <Ionicons name="close-circle" size={20} color={colors.textMuted} onPress={() => onChangeText('')} />
+        <Pressable onPress={() => onChangeText('')} hitSlop={10} accessibilityLabel="Limpar pesquisa">
+          <X size={18} color={colors.textFaint} />
+        </Pressable>
       )}
     </View>
   );
@@ -30,14 +32,13 @@ export function SearchBar({ value, onChangeText, onSubmit }: Props) {
 
 const styles = StyleSheet.create({
   wrap: {
+    ...cardBase,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: colors.card,
-    borderRadius: radius.pill,
-    paddingHorizontal: 20,
-    height: 54,
-    ...shadow,
+    borderRadius: radius.md,
+    paddingHorizontal: 14,
+    height: 48,
   },
-  input: { flex: 1, fontSize: 15, color: colors.text },
+  input: { flex: 1, fontSize: font.body, color: colors.text, paddingVertical: 0 },
 });

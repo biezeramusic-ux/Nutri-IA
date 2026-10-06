@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Minus, Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius, shadow } from '../../constants/theme';
+import { cardBase, colors, font, radius } from '../../constants/theme';
 
 interface Props {
   label: string;
@@ -19,14 +19,14 @@ export function NumberStepper({ label, value, unit, min, max, step = 1, onChange
       <Text style={styles.label}>{label}</Text>
       <View style={styles.row}>
         <Pressable style={styles.btn} onPress={() => set(value - step)} hitSlop={8} accessibilityLabel={`Diminuir ${label}`}>
-          <Ionicons name="remove" size={24} color={colors.text} />
+          <Minus size={18} color={colors.text} />
         </Pressable>
         <Text style={styles.value}>
           {value}
           {!!unit && <Text style={styles.unit}> {unit}</Text>}
         </Text>
         <Pressable style={[styles.btn, styles.btnPrimary]} onPress={() => set(value + step)} hitSlop={8} accessibilityLabel={`Aumentar ${label}`}>
-          <Ionicons name="add" size={24} color="#fff" />
+          <Plus size={18} color="#fff" />
         </Pressable>
       </View>
     </View>
@@ -34,11 +34,11 @@ export function NumberStepper({ label, value, unit, min, max, step = 1, onChange
 }
 
 const styles = StyleSheet.create({
-  wrap: { backgroundColor: colors.card, borderRadius: radius.card, padding: 18, gap: 10, ...shadow },
-  label: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
+  wrap: { ...cardBase, borderRadius: radius.lg, padding: 14, gap: 6 },
+  label: { fontSize: font.small, fontWeight: '500', color: colors.textMuted },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  btn: { width: 50, height: 50, borderRadius: 25, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  btn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   btnPrimary: { backgroundColor: colors.primary },
-  value: { fontSize: 38, fontWeight: '800', color: colors.text },
-  unit: { fontSize: 16, color: colors.textMuted, fontWeight: '700' },
+  value: { fontSize: 26, fontWeight: '700', color: colors.text },
+  unit: { fontSize: font.body, color: colors.textMuted, fontWeight: '500' },
 });

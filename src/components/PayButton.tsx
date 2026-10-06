@@ -1,5 +1,5 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
-import { radius } from '../constants/theme';
+import { font, radius } from '../constants/theme';
 
 interface Props {
   title: string;
@@ -12,27 +12,12 @@ interface Props {
   style?: ViewStyle;
 }
 
-export function PayButton({
-  title,
-  backgroundColor,
-  onPress,
-  loading,
-  disabled,
-  leading,
-  trailing,
-  style,
-}: Props) {
+export function PayButton({ title, backgroundColor, onPress, loading, disabled, leading, trailing, style }: Props) {
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
-      style={({ pressed }) => [
-        styles.button,
-        { backgroundColor },
-        (disabled || loading) && styles.disabled,
-        pressed && styles.pressed,
-        style,
-      ]}
+      style={({ pressed }) => [styles.button, { backgroundColor }, (disabled || loading) && styles.disabled, pressed && styles.pressed, style]}
     >
       {loading ? (
         <ActivityIndicator color="#fff" />
@@ -48,16 +33,9 @@ export function PayButton({
 }
 
 const styles = StyleSheet.create({
-  button: {
-    minHeight: 56,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  text: { color: '#fff', fontSize: 15, fontWeight: '800', flexShrink: 1, textAlign: 'center' },
+  button: { minHeight: 48, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 10 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  text: { color: '#fff', fontSize: font.body, fontWeight: '600', flexShrink: 1, textAlign: 'center' },
   disabled: { opacity: 0.6 },
-  pressed: { opacity: 0.88, transform: [{ scale: 0.99 }] },
+  pressed: { opacity: 0.9 },
 });

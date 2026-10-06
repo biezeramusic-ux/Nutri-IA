@@ -1,9 +1,9 @@
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { BellRing, Droplets, GlassWater, Minus, Plus, Sparkles } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProgressRing } from '../../components/ProgressRing';
-import { TAB_BAR_SPACE, colors, radius, shadow } from '../../constants/theme';
+import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, colors, font, radius } from '../../constants/theme';
 import { useProfile } from '../../hooks/useProfile';
 import { useWater } from '../../hooks/useWater';
 import { GLASS_ML } from '../../services/goals';
@@ -46,40 +46,43 @@ export default function WaterScreen() {
 
   const done = water.glasses >= water.goalGlasses;
 
+  const reminderText = !notificationsSupported
+    ? 'Os lembretes funcionam na app instalada (APK). No Expo Go não estão disponíveis.'
+    : !profile?.waterReminders
+      ? 'Desligados. Pode ligá-los no Perfil.'
+      : done
+        ? 'Meta cumprida hoje. Voltamos a lembrá-lo amanhã.'
+        : nextReminder
+          ? `Próximo lembrete às ${formatTime(nextReminder.at)}${nextReminder.at.getDate() !== new Date().getDate() ? ' (amanhã)' : ''}.`
+          : 'Sem lembretes pendentes por agora.';
+
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={{ paddingTop: insets.top + 20, paddingHorizontal: 20, paddingBottom: TAB_BAR_SPACE + 40, gap: 18 }}
+      contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: SCREEN_PADDING, paddingBottom: TAB_BAR_SPACE + 24, gap: 16 }}
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.title}>Água</Text>
       {!!water.error && <Text style={styles.error}>{water.error}</Text>}
 
       <View style={styles.card}>
-        <ProgressRing size={190} strokeWidth={16} progress={water.glasses / water.goalGlasses} color={colors.water} trackColor={colors.waterSoft}>
-          <Ionicons name="water" size={28} color={colors.water} />
+        <ProgressRing size={160} strokeWidth={12} progress={water.glasses / water.goalGlasses} color={colors.water} trackColor={colors.waterSoft}>
+          <Droplets size={22} color={colors.water} />
           <Text style={styles.ringValue}>{water.drankMl} ml</Text>
           <Text style={styles.ringSub}>de {water.goalMl} ml</Text>
         </ProgressRing>
 
-        <Text style={styles.status}>
-          {done ? '🎉 Meta de hoje cumprida!' : `Faltam ${water.goalGlasses - water.glasses} copos para a meta`}
-        </Text>
+        <Text style={styles.status}>{done ? 'Meta de hoje cumprida' : `Faltam ${water.goalGlasses - water.glasses} copos para a meta`}</Text>
 
         <View style={styles.glassRow}>
           {Array.from({ length: water.goalGlasses }).map((_, i) => (
-            <MaterialCommunityIcons
-              key={i}
-              name={i < water.glasses ? 'cup-water' : 'cup-outline'}
-              size={28}
-              color={i < water.glasses ? colors.water : '#CFD8DC'}
-            />
+            <GlassWater key={i} size={22} color={i < water.glasses ? colors.water : '#CBD5E1'} />
           ))}
         </View>
 
         <View style={styles.counter}>
           <Pressable style={styles.roundBtn} onPress={water.decrement} accessibilityLabel="Menos um copo">
-            <Ionicons name="remove" size={26} color={colors.text} />
+            <Minus size={20} color={colors.text} />
           </Pressable>
           <View style={{ alignItems: 'center' }}>
             <Text style={styles.big}>
@@ -89,15 +92,15 @@ export default function WaterScreen() {
             <Text style={styles.small}>copos de {GLASS_ML} ml</Text>
           </View>
           <Pressable style={[styles.roundBtn, styles.roundPrimary]} onPress={water.increment} accessibilityLabel="Mais um copo">
-            <Ionicons name="add" size={26} color="#fff" />
+            <Plus size={20} color="#fff" />
           </Pressable>
         </View>
       </View>
 
       <View style={styles.infoCard}>
-        <Ionicons name="sparkles" size={22} color={colors.limeDark} />
-        <View style={{ flex: 1, gap: 4 }}>
-          <Text style={styles.infoTitle}>Meta calculada pelo Nutri</Text>
+        <Sparkles size={18} color={colors.limeDark} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <Text style={styles.infoTitle}>Meta calculada pelo Nutri IA</Text>
           <Text style={styles.infoText}>
             {water.goalMl} ml por dia, com base no seu peso, atividade e no calor de Moçambique. {TIPS[goal ?? 'generic']}
           </Text>
@@ -105,20 +108,10 @@ export default function WaterScreen() {
       </View>
 
       <View style={styles.infoCard}>
-        <Ionicons name="notifications" size={22} color={colors.water} />
-        <View style={{ flex: 1, gap: 4 }}>
+        <BellRing size={18} color={colors.water} />
+        <View style={{ flex: 1, gap: 2 }}>
           <Text style={styles.infoTitle}>Lembretes de água</Text>
-          <Text style={styles.infoText}>
-            {!notificationsSupported
-              ? 'Os lembretes funcionam na app instalada (APK). No Expo Go não estão disponíveis.'
-              : !profile?.waterReminders
-              ? 'Desligados. Pode ligá-los no Perfil.'
-              : done
-                ? 'Meta cumprida hoje. Voltamos a lembrá-lo amanhã.'
-                : nextReminder
-                  ? `Próximo lembrete às ${formatTime(nextReminder.at)}${nextReminder.at.getDate() !== new Date().getDate() ? ' (amanhã)' : ''}.`
-                  : 'Sem lembretes pendentes por agora.'}
-          </Text>
+          <Text style={styles.infoText}>{reminderText}</Text>
         </View>
       </View>
     </ScrollView>
@@ -127,20 +120,20 @@ export default function WaterScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  title: { fontSize: 32, fontWeight: '800', color: colors.text },
-  error: { fontSize: 12, color: colors.danger },
-  card: { backgroundColor: colors.card, borderRadius: radius.card, padding: 22, alignItems: 'center', gap: 16, ...shadow },
-  ringValue: { fontSize: 28, fontWeight: '800', color: colors.text, marginTop: 2 },
-  ringSub: { fontSize: 12, color: colors.textMuted },
-  status: { fontSize: 15, fontWeight: '700', color: colors.text },
+  title: { fontSize: font.h1, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
+  error: { fontSize: font.small, color: colors.danger },
+  card: { ...cardBase, padding: 18, alignItems: 'center', gap: 14 },
+  ringValue: { fontSize: font.h1, fontWeight: '700', color: colors.text, marginTop: 2 },
+  ringSub: { fontSize: font.small, color: colors.textMuted },
+  status: { fontSize: font.body, fontWeight: '600', color: colors.text },
   glassRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 4 },
   counter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch' },
-  roundBtn: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.background, alignItems: 'center', justifyContent: 'center' },
+  roundBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   roundPrimary: { backgroundColor: colors.water },
-  big: { fontSize: 38, fontWeight: '800', color: colors.text },
-  bigSub: { fontSize: 18, color: colors.textMuted },
-  small: { fontSize: 12, color: colors.textMuted },
-  infoCard: { flexDirection: 'row', gap: 12, backgroundColor: colors.card, borderRadius: radius.card, padding: 16, ...shadow },
-  infoTitle: { fontSize: 14, fontWeight: '800', color: colors.text },
-  infoText: { fontSize: 13, color: colors.textMuted, lineHeight: 19 },
+  big: { fontSize: 28, fontWeight: '700', color: colors.text },
+  bigSub: { fontSize: font.h3, color: colors.textMuted, fontWeight: '500' },
+  small: { fontSize: font.small, color: colors.textMuted },
+  infoCard: { ...cardBase, flexDirection: 'row', gap: 12, padding: 14, borderRadius: radius.lg },
+  infoTitle: { fontSize: font.body, fontWeight: '600', color: colors.text },
+  infoText: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
 });

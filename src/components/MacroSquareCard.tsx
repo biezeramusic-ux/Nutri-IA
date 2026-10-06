@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, shadow } from '../constants/theme';
+import { cardBase, colors, font, radius } from '../constants/theme';
 
 interface Props {
   label: string;
@@ -23,17 +23,16 @@ export function MacroSquareCard({ label, percent, grams, color, unitOnly }: Prop
 
 const styles = StyleSheet.create({
   card: {
+    ...cardBase,
     flex: 1,
-    aspectRatio: 1,
-    backgroundColor: colors.card,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 2,
-    ...shadow,
   },
-  bar: { width: 28, height: 5, borderRadius: 3, marginBottom: 6 },
-  percent: { fontSize: 22, fontWeight: '800', color: colors.text },
-  label: { fontSize: 11, color: colors.textMuted, fontWeight: '600' },
-  grams: { fontSize: 11, color: colors.textMuted },
+  bar: { width: 22, height: 4, borderRadius: 2, marginBottom: 6 },
+  percent: { fontSize: font.h2, fontWeight: '700', color: colors.text },
+  label: { fontSize: font.tiny, color: colors.textMuted, fontWeight: '500' },
+  grams: { fontSize: font.tiny, color: colors.textFaint },
 });

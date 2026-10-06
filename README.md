@@ -1,4 +1,4 @@
-# Nutri AI 🥗
+# Nutri IA 🥗
 
 Contador de calorias por foto, feito para Moçambique e utilizadores internacionais.
 Expo SDK 57 · Expo Router · React Native · TypeScript estrito.
@@ -20,8 +20,12 @@ Sem chave de API, o scanner devolve o mock "Vegetable Salad" (fallback).
 - **APK instalável (Android):** `npm i -g eas-cli && eas login && eas build -p android --profile preview`, depois instale o link do APK.
   Defina as variáveis `EXPO_PUBLIC_*` no EAS (`eas env:create`) antes de compilar.
 
+## Design
+Interface pensada para telemóvel: escala tipográfica compacta, cartões com borda fina e cantos arredondados,
+ícones [Lucide](https://lucide.dev), neutros slate e Verde Saúde (`src/constants/theme.ts`). Todo o texto está em português.
+
 ## Quiz, metas e lembretes de água
-- Depois de criar conta (ou no primeiro login com Google) a app mostra um quiz de 5 perguntas e calcula as metas diárias
+- Depois de criar conta (ou no primeiro login com Google) a app mostra um quiz de 8 perguntas (objetivo, dados, atividade, saúde, hábitos sim/não, restrições e alimentos do dia a dia) e calcula as metas diárias
   de calorias, macros e água (`src/services/goals.ts`). Pode refazê-lo em Perfil.
 - Os lembretes de água são notificações locais planeadas por `src/services/waterReminderPlan.ts`
   (ajustam-se ao progresso, ao objetivo e ao horário). Fundo do "Criar conta": substitua `assets/auth-bg.jpg` pela sua foto.

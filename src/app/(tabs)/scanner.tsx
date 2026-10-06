@@ -1,13 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
+import { Camera, X } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LockOverlay } from '../../components/LockOverlay';
 import { MacroSquareCard } from '../../components/MacroSquareCard';
-import { colors, radius } from '../../constants/theme';
+import { colors, font, radius } from '../../constants/theme';
 import { useDiary } from '../../hooks/useDiary';
 import { useSubscription } from '../../hooks/useSubscription';
 import { buildMeal, macroPercentages } from '../../services/foodCatalog';
@@ -64,7 +64,7 @@ export default function ScannerScreen() {
   if (!permission.granted) {
     return (
       <View style={[styles.root, styles.center]}>
-        <Ionicons name="camera-outline" size={56} color={colors.primary} />
+        <Camera size={44} color={colors.primary} strokeWidth={1.5} />
         <Text style={styles.permTitle}>Precisamos da sua câmera</Text>
         <Text style={styles.permBody}>Para reconhecer a sua refeição e calcular as calorias.</Text>
         <Pressable style={styles.permButton} onPress={() => void requestPermission()}>
@@ -82,7 +82,7 @@ export default function ScannerScreen() {
 
       <View style={[styles.top, { paddingTop: insets.top + 12 }]}>
         <Pressable style={styles.roundBtn} onPress={() => router.navigate('/')}>
-          <Ionicons name="close" size={22} color="#fff" />
+          <X size={20} color="#fff" />
         </Pressable>
         <Text style={styles.hint}>Enquadre o prato dentro do visor</Text>
         <View style={styles.roundBtn} />
@@ -138,36 +138,36 @@ export default function ScannerScreen() {
   );
 }
 
-const CORNER = 36;
+const CORNER = 30;
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#000' },
   center: { alignItems: 'center', justifyContent: 'center', padding: 32, gap: 10, backgroundColor: colors.background },
-  permTitle: { fontSize: 20, fontWeight: '800', color: colors.text },
-  permBody: { fontSize: 14, color: colors.textMuted, textAlign: 'center' },
-  permButton: { backgroundColor: colors.primary, borderRadius: radius.pill, paddingVertical: 14, paddingHorizontal: 28, marginTop: 10 },
-  permButtonText: { color: '#fff', fontWeight: '800' },
-  top: { position: 'absolute', top: 0, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20 },
-  roundBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.4)', alignItems: 'center', justifyContent: 'center' },
-  hint: { color: '#fff', fontWeight: '700', fontSize: 14, backgroundColor: 'rgba(0,0,0,0.4)', paddingHorizontal: 14, paddingVertical: 8, borderRadius: radius.pill, overflow: 'hidden' },
+  permTitle: { fontSize: font.h2, fontWeight: '700', color: colors.text },
+  permBody: { fontSize: font.body, color: colors.textMuted, textAlign: 'center' },
+  permButton: { backgroundColor: colors.primary, borderRadius: radius.md, height: 46, paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
+  permButtonText: { color: '#fff', fontWeight: '600', fontSize: font.body },
+  top: { position: 'absolute', top: 0, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
+  roundBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' },
+  hint: { color: '#fff', fontWeight: '500', fontSize: font.small, backgroundColor: 'rgba(0,0,0,0.45)', paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.pill, overflow: 'hidden' },
   finderWrap: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', paddingBottom: 60 },
-  finder: { width: 270, height: 270, borderRadius: 36 },
-  corner: { position: 'absolute', width: CORNER, height: CORNER, borderColor: colors.primary, borderWidth: 5 },
-  tl: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 36 },
-  tr: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 36 },
-  bl: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0, borderBottomLeftRadius: 36 },
-  br: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0, borderBottomRightRadius: 36 },
-  shutterWrap: { position: 'absolute', bottom: 0, left: 0, right: 0, alignItems: 'center', gap: 10 },
-  shutterOuter: { width: 78, height: 78, borderRadius: 39, borderWidth: 5, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' },
-  shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.primary },
-  busy: { color: '#fff', fontWeight: '700' },
-  sheet: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: colors.background, borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 22, gap: 12 },
-  dish: { fontSize: 22, fontWeight: '800', color: colors.text },
-  kcal: { fontSize: 14, color: colors.textMuted, fontWeight: '600' },
-  macroRow: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  actions: { flexDirection: 'row', gap: 12, marginTop: 6 },
-  btn: { flex: 1, height: 52, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
+  finder: { width: 240, height: 240, borderRadius: 28 },
+  corner: { position: 'absolute', width: CORNER, height: CORNER, borderColor: colors.primary, borderWidth: 4 },
+  tl: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 28 },
+  tr: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 28 },
+  bl: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0, borderBottomLeftRadius: 28 },
+  br: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0, borderBottomRightRadius: 28 },
+  shutterWrap: { position: 'absolute', bottom: 0, left: 0, right: 0, alignItems: 'center', gap: 8 },
+  shutterOuter: { width: 68, height: 68, borderRadius: 34, borderWidth: 4, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  shutterInner: { width: 50, height: 50, borderRadius: 25, backgroundColor: colors.primary },
+  busy: { color: '#fff', fontWeight: '500', fontSize: font.body },
+  sheet: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: colors.background, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, gap: 10 },
+  dish: { fontSize: font.h2, fontWeight: '700', color: colors.text },
+  kcal: { fontSize: font.body, color: colors.textMuted },
+  macroRow: { flexDirection: 'row', gap: 10, marginTop: 2 },
+  actions: { flexDirection: 'row', gap: 10, marginTop: 4 },
+  btn: { flex: 1, height: 46, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center' },
   btnGhost: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
-  btnGhostText: { color: colors.text, fontWeight: '800' },
+  btnGhostText: { color: colors.text, fontWeight: '600', fontSize: font.body },
   btnPrimary: { backgroundColor: colors.primary },
-  btnPrimaryText: { color: '#fff', fontWeight: '800' },
+  btnPrimaryText: { color: '#fff', fontWeight: '600', fontSize: font.body },
 });

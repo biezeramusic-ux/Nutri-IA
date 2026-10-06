@@ -1,10 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { LogOut, RefreshCw } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NumberStepper } from '../../components/quiz/NumberStepper';
-import { TAB_BAR_SPACE, colors, radius, shadow } from '../../constants/theme';
+import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, colors, font, radius } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -71,7 +71,7 @@ export default function ProfileScreen() {
         'As notificações não funcionam no Expo Go. Instale a app (APK) para receber os lembretes. A sua escolha fica guardada.',
       );
     } else if (value && !(await ensureNotificationPermission(true))) {
-      Alert.alert('Notificações desligadas', 'Ative as notificações do Nutri AI nas definições do telemóvel para receber lembretes.');
+      Alert.alert('Notificações desligadas', 'Ative as notificações do Nutri IA nas definições do telemóvel para receber lembretes.');
     }
     setReminders(value);
   };
@@ -91,7 +91,7 @@ export default function ProfileScreen() {
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={{ paddingTop: insets.top + 20, paddingHorizontal: 20, paddingBottom: TAB_BAR_SPACE + 40, gap: 16 }}
+      contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: SCREEN_PADDING, paddingBottom: TAB_BAR_SPACE + 24, gap: 14 }}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.head}>
@@ -126,7 +126,7 @@ export default function ProfileScreen() {
           </View>
         </View>
         <Pressable style={styles.linkBtn} onPress={() => router.push('/quiz')}>
-          <Ionicons name="refresh" size={16} color={colors.primaryDark} />
+          <RefreshCw size={14} color={colors.primaryDark} />
           <Text style={styles.linkText}>Refazer o quiz e recalcular</Text>
         </Pressable>
       </View>
@@ -135,7 +135,7 @@ export default function ProfileScreen() {
         <View style={styles.switchRow}>
           <View style={{ flex: 1 }}>
             <Text style={styles.cardTitle}>Lembretes de água</Text>
-            <Text style={styles.sub}>O Nutri avisa-o para beber água ao longo do dia.</Text>
+            <Text style={styles.sub}>O Nutri IA avisa-o para beber água ao longo do dia.</Text>
           </View>
           <Switch
             value={reminders}
@@ -145,7 +145,7 @@ export default function ProfileScreen() {
           />
         </View>
         {reminders && (
-          <View style={{ gap: 12 }}>
+          <View style={{ gap: 10 }}>
             <NumberStepper label="Acordo às (hora)" value={wake} unit="h" min={4} max={12} onChange={setWake} />
             <NumberStepper label="Vou dormir às (hora)" value={sleep} unit="h" min={18} max={24} onChange={setSleep} />
           </View>
@@ -172,7 +172,7 @@ export default function ProfileScreen() {
       </View>
 
       <Pressable style={styles.signOut} onPress={confirmSignOut}>
-        <Ionicons name="log-out-outline" size={20} color={colors.danger} />
+        <LogOut size={18} color={colors.danger} />
         <Text style={styles.signOutText}>Terminar sessão</Text>
       </Pressable>
     </ScrollView>
@@ -181,24 +181,24 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  avatar: { width: 60, height: 60, borderRadius: 30, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontSize: 26, fontWeight: '800', color: colors.text },
-  name: { fontSize: 20, fontWeight: '800', color: colors.text },
-  email: { fontSize: 13, color: colors.textMuted },
-  card: { backgroundColor: colors.card, borderRadius: radius.card, padding: 18, gap: 12, ...shadow },
-  cardTitle: { fontSize: 16, fontWeight: '800', color: colors.text },
-  sub: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
-  goal: { fontSize: 14, fontWeight: '700', color: colors.limeDark },
-  planRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: colors.background, borderRadius: radius.md, padding: 14 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: font.h2, fontWeight: '700', color: colors.text },
+  name: { fontSize: font.h2, fontWeight: '700', color: colors.text },
+  email: { fontSize: font.small, color: colors.textMuted },
+  card: { ...cardBase, padding: 16, gap: 10 },
+  cardTitle: { fontSize: font.h3, fontWeight: '600', color: colors.text },
+  sub: { fontSize: font.small, color: colors.textMuted, marginTop: 1, lineHeight: 17 },
+  goal: { fontSize: font.body, fontWeight: '600', color: colors.limeDark },
+  planRow: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radius.md, padding: 12 },
   planItem: { alignItems: 'center', flex: 1 },
-  planValue: { fontSize: 17, fontWeight: '800', color: colors.text },
-  planLabel: { fontSize: 11, color: colors.textMuted },
+  planValue: { fontSize: font.h3, fontWeight: '700', color: colors.text },
+  planLabel: { fontSize: font.tiny, color: colors.textMuted },
   linkBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
-  linkText: { fontSize: 13, fontWeight: '700', color: colors.primaryDark },
+  linkText: { fontSize: font.small, fontWeight: '600', color: colors.primaryDark },
   switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  cta: { height: 48, borderRadius: radius.pill, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  ctaText: { color: '#fff', fontWeight: '800' },
-  signOut: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', height: 52, borderRadius: radius.pill, backgroundColor: '#FDECEA' },
-  signOutText: { color: colors.danger, fontWeight: '800', fontSize: 15 },
+  cta: { height: 44, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+  ctaText: { color: '#fff', fontWeight: '600', fontSize: font.body },
+  signOut: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', height: 46, borderRadius: radius.md, backgroundColor: colors.dangerSoft },
+  signOutText: { color: colors.danger, fontWeight: '600', fontSize: font.body },
 });

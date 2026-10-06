@@ -1,31 +1,32 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Eye, EyeOff, type LucideIcon } from 'lucide-react-native';
 import { forwardRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
-import { colors, radius, shadow } from '../constants/theme';
+import { colors, font, radius } from '../constants/theme';
 
 interface Props extends TextInputProps {
   label: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: LucideIcon;
   error?: string | null;
   /** Mostra o botão de mostrar/ocultar (use com secureTextEntry). */
   passwordToggle?: boolean;
 }
 
 export const AuthInput = forwardRef<TextInput, Props>(function AuthInput(
-  { label, icon, error, passwordToggle, secureTextEntry, style, ...rest },
+  { label, icon: Icon, error, passwordToggle, secureTextEntry, style, ...rest },
   ref,
 ) {
   const [hidden, setHidden] = useState(true);
   const secure = passwordToggle ? hidden : secureTextEntry;
+  const ToggleIcon = hidden ? EyeOff : Eye;
 
   return (
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <View style={[styles.field, !!error && styles.fieldError]}>
-        <Ionicons name={icon} size={20} color={error ? colors.danger : colors.textMuted} />
+        <Icon size={18} color={error ? colors.danger : colors.textFaint} />
         <TextInput
           ref={ref}
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={colors.textFaint}
           style={[styles.input, style]}
           secureTextEntry={secure}
           {...rest}
@@ -36,7 +37,7 @@ export const AuthInput = forwardRef<TextInput, Props>(function AuthInput(
             hitSlop={10}
             accessibilityLabel={hidden ? 'Mostrar senha' : 'Ocultar senha'}
           >
-            <Ionicons name={hidden ? 'eye-off-outline' : 'eye-outline'} size={20} color={colors.textMuted} />
+            <ToggleIcon size={18} color={colors.textFaint} />
           </Pressable>
         )}
       </View>
@@ -47,20 +48,19 @@ export const AuthInput = forwardRef<TextInput, Props>(function AuthInput(
 
 const styles = StyleSheet.create({
   wrap: { gap: 6 },
-  label: { fontSize: 13, fontWeight: '700', color: colors.text, marginLeft: 6 },
+  label: { fontSize: font.small, fontWeight: '500', color: colors.text },
   field: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    height: 56,
-    paddingHorizontal: 20,
-    borderRadius: radius.pill,
+    height: 48,
+    paddingHorizontal: 14,
+    borderRadius: radius.md,
     backgroundColor: colors.card,
-    borderWidth: 1.5,
-    borderColor: 'transparent',
-    ...shadow,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   fieldError: { borderColor: colors.danger },
-  input: { flex: 1, fontSize: 15, color: colors.text },
-  error: { fontSize: 12, color: colors.danger, marginLeft: 12 },
+  input: { flex: 1, fontSize: font.body, color: colors.text, paddingVertical: 0 },
+  error: { fontSize: font.small, color: colors.danger },
 });

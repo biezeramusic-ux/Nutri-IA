@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../constants/theme';
+import { colors, font } from '../constants/theme';
 import type { MacroPercentages } from '../types';
 
 export function MacroDots({ macros }: { macros: MacroPercentages }) {
@@ -23,8 +23,8 @@ export function MacroDots({ macros }: { macros: MacroPercentages }) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 10, marginTop: 6 },
-  item: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  text: { fontSize: 11, color: colors.textMuted, fontWeight: '600' },
+  row: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  item: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  text: { fontSize: font.tiny, color: colors.textMuted, fontWeight: '600' },
 });

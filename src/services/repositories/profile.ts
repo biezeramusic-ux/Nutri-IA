@@ -1,11 +1,52 @@
-import type { DietPreference, QuizAnswers, UserProfile, DailyGoals } from '../../types';
-import type { Database } from '../database.types';
+import type {
+  DailyGoals,
+  DietPreference,
+  Habits,
+  HealthCondition,
+  QuizAnswers,
+  UserProfile,
+} from '../../types';
+import type { Database, Json } from '../database.types';
 import { supabase } from '../supabase';
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
-const DIET_VALUES: DietPreference[] = ['vegetarian', 'vegan', 'gluten_free', 'lactose_free', 'halal', 'no_pork'];
+const DIET_VALUES: DietPreference[] = [
+  'vegetarian',
+  'vegan',
+  'gluten_free',
+  'lactose_free',
+  'halal',
+  'no_pork',
+  'peanut_allergy',
+  'shellfish_allergy',
+];
+const CONDITION_VALUES: HealthCondition[] = ['diabetes', 'hypertension', 'high_cholesterol', 'pregnancy'];
+
+const DEFAULT_HABITS: Habits = {
+  skipsMeals: false,
+  eatsOut: false,
+  sugaryDrinks: false,
+  eatsFruitVeg: true,
+  drinksEnoughWater: true,
+};
+
+function parseConditions(values: string[]): HealthCondition[] {
+  return values.filter((v): v is HealthCondition => (CONDITION_VALUES as string[]).includes(v));
+}
+
+function parseHabits(json: Json): Habits {
+  const o = typeof json === 'object' && json !== null && !Array.isArray(json) ? json : {};
+  const flag = (key: keyof Habits) => (typeof o[key] === 'boolean' ? (o[key] as boolean) : DEFAULT_HABITS[key]);
+  return {
+    skipsMeals: flag('skipsMeals'),
+    eatsOut: flag('eatsOut'),
+    sugaryDrinks: flag('sugaryDrinks'),
+    eatsFruitVeg: flag('eatsFruitVeg'),
+    drinksEnoughWater: flag('drinksEnoughWater'),
+  };
+}
 
 function parseDiet(values: string[]): DietPreference[] {
   return values.filter((v): v is DietPreference => (DIET_VALUES as string[]).includes(v));
@@ -27,7 +68,10 @@ function rowToProfile(row: ProfileRow): UserProfile {
           weightKg: row.weight_kg,
           targetWeightKg: row.target_weight_kg ?? row.weight_kg,
           activity: row.activity_level,
+          conditions: parseConditions(row.health_conditions),
+          habits: parseHabits(row.habits),
           diet: parseDiet(row.diet_preferences),
+          staples: row.staples,
         }
       : null;
 
@@ -80,6 +124,9 @@ export function saveOnboarding(userId: string, answers: QuizAnswers, goals: Dail
     target_weight_kg: answers.targetWeightKg,
     activity_level: answers.activity,
     diet_preferences: answers.diet,
+    health_conditions: answers.conditions,
+    habits: { ...answers.habits },
+    staples: answers.staples,
     daily_calorie_goal: goals.calories,
     protein_goal_g: goals.proteinG,
     carbs_goal_g: goals.carbsG,

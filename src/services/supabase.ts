@@ -12,7 +12,7 @@ export const isSupabaseConfigured = url.length > 0 && anonKey.length > 0;
 
 if (!isSupabaseConfigured) {
   console.warn(
-    '[Nutri AI] Defina EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_ANON_KEY no ficheiro .env.',
+    '[Nutri IA] Defina EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_ANON_KEY no ficheiro .env.',
   );
 }
 

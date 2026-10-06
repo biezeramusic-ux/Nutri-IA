@@ -1,4 +1,5 @@
-import type { IconName, Meal, MealType } from '../types';
+import { Apple, Coffee, Soup, UtensilsCrossed, type LucideIcon } from 'lucide-react-native';
+import type { Meal, MealType } from '../types';
 import { todayKey } from './date';
 
 export const WEEKDAY_LABELS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'] as const;
@@ -19,11 +20,11 @@ export function getMealType(timestamp: number): MealType {
   return 'dinner';
 }
 
-export const MEAL_TYPES: { type: MealType; label: string; icon: IconName }[] = [
-  { type: 'breakfast', label: 'Pequeno-almoço', icon: 'coffee' },
-  { type: 'lunch', label: 'Almoço', icon: 'food-variant' },
-  { type: 'snack', label: 'Lanche', icon: 'food-apple' },
-  { type: 'dinner', label: 'Jantar', icon: 'silverware-fork-knife' },
+export const MEAL_TYPES: { type: MealType; label: string; icon: LucideIcon }[] = [
+  { type: 'breakfast', label: 'Pequeno-almoço', icon: Coffee },
+  { type: 'lunch', label: 'Almoço', icon: UtensilsCrossed },
+  { type: 'snack', label: 'Lanche', icon: Apple },
+  { type: 'dinner', label: 'Jantar', icon: Soup },
 ];
 
 export interface Totals {

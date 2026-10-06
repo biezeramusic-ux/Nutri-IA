@@ -1,4 +1,4 @@
--- Nutri AI · esquema inicial (Supabase / PostgreSQL)
+-- Nutri IA · esquema inicial (Supabase / PostgreSQL)
 -- Cole este ficheiro inteiro no SQL Editor do Supabase e execute.
 -- É idempotente nas partes seguras (create ... if not exists / create or replace).
 

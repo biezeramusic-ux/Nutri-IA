@@ -32,6 +32,9 @@ export interface Database {
           wake_hour: number;
           sleep_hour: number;
           onboarding_completed_at: string | null;
+          health_conditions: string[];
+          habits: Json;
+          staples: string[];
         };
         Insert: never;
         Update: {
@@ -53,6 +56,9 @@ export interface Database {
           wake_hour?: number;
           sleep_hour?: number;
           onboarding_completed_at?: string | null;
+          health_conditions?: string[];
+          habits?: Json;
+          staples?: string[];
         };
         Relationships: [];
       };
@@ -69,6 +75,7 @@ export interface Database {
           ingredients: Json;
           photo_path: string | null;
           created_at: string;
+          confidence: number | null;
         };
         Insert: {
           id?: string;
@@ -82,6 +89,7 @@ export interface Database {
           ingredients?: Json;
           photo_path?: string | null;
           created_at?: string;
+          confidence?: number | null;
         };
         Update: never;
         Relationships: [];

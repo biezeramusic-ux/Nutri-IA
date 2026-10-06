@@ -10,15 +10,16 @@ const API_URL = 'https://api.anthropic.com/v1/messages';
 const TIMEOUT_MS = 25000;
 
 export const SYSTEM_PROMPT =
-  "You are an expert Mozambican Nutritionist AI and core engine of 'Nutri IA'. Analyze the food image. You must accurately recognize typical Mozambican culinary dishes (e.g., matapa, xima, mucapata, caril de amendoim, cacana, badgias, peixe grelhado, etc.) and estimate the weight in grams. Return strictly a clean JSON object: { 'food_name': string, 'estimated_weight_grams': number, 'calories': number, 'carbs_g': number, 'protein_g': number, 'fats_g': number }.";
+  "You are an expert Mozambican Nutritionist AI and core engine of 'Nutri IA'. Analyze the food image. You must accurately recognize typical Mozambican culinary dishes (e.g., matapa, xima, mucapata, caril de amendoim, cacana, badgias, peixe grelhado, etc.) and estimate the weight in grams. Return strictly a clean JSON object: { 'food_name': string, 'estimated_weight_grams': number, 'calories': number, 'carbs_g': number, 'protein_g': number, 'fats_g': number }. Write 'food_name' in Portuguese. Also add a 'confidence' number from 0 to 100 with your certainty about the identification.";
 
 export const MOCK_VEGETABLE_SALAD: FoodAnalysis = {
-  food_name: 'Vegetable Salad',
+  food_name: 'Salada de legumes',
   estimated_weight_grams: 350,
   calories: 180,
   carbs_g: 22,
   protein_g: 6,
   fats_g: 8,
+  confidence: 70,
 };
 
 export interface RecognitionResult {
@@ -46,7 +47,13 @@ function parseAnalysis(text: string): FoodAnalysis {
   if (start === -1 || end <= start) throw new Error('Resposta sem JSON');
   const parsed: unknown = JSON.parse(text.slice(start, end + 1));
   if (!isFoodAnalysis(parsed)) throw new Error('JSON fora do formato esperado');
-  return parsed;
+  const confidence = (parsed as { confidence?: unknown }).confidence;
+  return {
+    ...parsed,
+    ...(typeof confidence === 'number' && confidence >= 0 && confidence <= 100
+      ? { confidence: Math.round(confidence) }
+      : {}),
+  };
 }
 
 interface AnthropicResponse {

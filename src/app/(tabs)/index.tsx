@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Camera } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert, FlatList, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -10,16 +10,20 @@ import { MealSection } from '../../components/MealSection';
 import { ScanCard } from '../../components/ScanCard';
 import { SearchBar } from '../../components/SearchBar';
 import { WaterMiniCard } from '../../components/WaterMiniCard';
+import { WaterReminderCard } from '../../components/WaterReminderCard';
 import { WeekStrip } from '../../components/WeekStrip';
-import { TAB_BAR_SPACE, colors, radius, shadow } from '../../constants/theme';
+import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, colors, font, radius } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { useDiary } from '../../hooks/useDiary';
+import { useNotificationPermission } from '../../hooks/useNotificationPermission';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { useWater } from '../../hooks/useWater';
 import { todayKey } from '../../services/date';
 import { MEAL_TYPES, dayKeyOf, getMealType, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
 import { analyzeFromText, buildMeal } from '../../services/foodCatalog';
+import { ensureNotificationPermission, notificationsSupported } from '../../services/notifications';
+import { reminderPitch } from '../../services/reminderPitch';
 import type { Meal } from '../../types';
 
 export default function HomeScreen() {
@@ -27,11 +31,14 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const { meals, setCurrent, loading: diaryLoading, error: diaryError, refresh } = useDiary();
   const { displayName } = useAuth();
-  const { goals } = useProfile();
+  const { profile, goals, saveReminders } = useProfile();
   const water = useWater();
+  const permission = useNotificationPermission();
   const { lockReason, isPremium, trialDaysLeft, scansLeftToday, loading: accessLoading } = useSubscription();
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(() => new Date());
+  const [reminderDismissed, setReminderDismissed] = useState(false);
+  const [activating, setActivating] = useState(false);
 
   const selectedKey = todayKey(selected);
   const isToday = selectedKey === todayKey();
@@ -56,7 +63,35 @@ export default function HomeScreen() {
       ? 'Premium'
       : lockReason === 'trial_expired'
         ? 'Teste terminado'
-        : `Teste: ${trialDaysLeft}d · ${scansLeftToday ?? 0} scans hoje`;
+        : `Teste: ${trialDaysLeft} d · ${scansLeftToday ?? 0} scans hoje`;
+
+  const remindersActive = !!profile?.waterReminders && permission.granted;
+  const showReminderCard = !!profile?.onboardingCompleted && !reminderDismissed && !remindersActive;
+
+  const activateReminders = async () => {
+    if (!notificationsSupported) {
+      Alert.alert(
+        'Disponível na app instalada',
+        'As notificações não funcionam no Expo Go. Quando instalar a app (APK), os lembretes funcionam.',
+      );
+      return;
+    }
+    setActivating(true);
+    try {
+      if (!(await ensureNotificationPermission(true))) {
+        Alert.alert('Notificações desligadas', 'Ative as notificações do Nutri IA nas definições do telemóvel.');
+        return;
+      }
+      if (profile) {
+        await saveReminders({ waterReminders: true, wakeHour: profile.wakeHour, sleepHour: profile.sleepHour });
+      }
+      await permission.refresh();
+    } catch {
+      Alert.alert('Não foi possível ativar', 'Verifique a ligação à internet e tente novamente.');
+    } finally {
+      setActivating(false);
+    }
+  };
 
   const openMeal = (meal: Meal) => {
     setCurrent(meal);
@@ -79,20 +114,16 @@ export default function HomeScreen() {
   return (
     <View style={styles.root}>
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 16, paddingBottom: TAB_BAR_SPACE + 40, gap: 18 }}
+        contentContainerStyle={{ paddingTop: insets.top + 12, paddingBottom: TAB_BAR_SPACE + 24, gap: 20 }}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={diaryLoading} onRefresh={() => void refresh()} tintColor={colors.primary} />
-        }
+        refreshControl={<RefreshControl refreshing={diaryLoading} onRefresh={() => void refresh()} tintColor={colors.primary} />}
       >
         <View style={[styles.pad, styles.header]}>
-          <Logo size={40} />
+          <Logo size={34} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.hello}>{firstName ? `Olá, ${firstName} 👋` : 'Olá 👋'}</Text>
-            <View style={styles.chip}>
-              <Text style={styles.chipText}>{chipLabel}</Text>
-            </View>
+            <Text style={styles.hello}>{firstName ? `Olá, ${firstName}` : 'Olá'}</Text>
+            <Text style={styles.chipText}>{chipLabel}</Text>
           </View>
         </View>
 
@@ -104,30 +135,34 @@ export default function HomeScreen() {
           <CaloriesCard goals={goals} consumed={consumed} />
         </View>
 
-        <View style={[styles.pad, styles.twoCols]}>
-          <View style={{ flex: 1 }}>
-            <WaterMiniCard
-              glasses={water.glasses}
-              goalGlasses={water.goalGlasses}
-              onAdd={water.increment}
-              onOpen={() => router.navigate('/water')}
+        {showReminderCard && (
+          <View style={styles.pad}>
+            <WaterReminderCard
+              text={reminderPitch(profile?.goal ?? null, profile?.quiz?.habits ?? null, goals.waterMl)}
+              busy={activating}
+              onActivate={() => void activateReminders()}
+              onDismiss={() => setReminderDismissed(true)}
             />
           </View>
-          <View style={[styles.statCard, { flex: 1 }]}>
-            <View style={styles.statIcon}>
-              <Ionicons name="restaurant" size={18} color={colors.limeDark} />
-            </View>
-            <Text style={styles.statValue}>{dayMeals.length}</Text>
-            <Text style={styles.statLabel}>{dayMeals.length === 1 ? 'refeição' : 'refeições'} {isToday ? 'hoje' : 'neste dia'}</Text>
-          </View>
-        </View>
+        )}
 
-        <View style={styles.pad}>
-          <Text style={styles.title}>Let's Check Your Meal Together</Text>
-          <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
+        <View style={[styles.pad, styles.row]}>
+          <WaterMiniCard glasses={water.glasses} goalGlasses={water.goalGlasses} onAdd={water.increment} onOpen={() => router.navigate('/water')} />
+          <View style={styles.statCard}>
+            <Text style={styles.statTitle}>Refeições</Text>
+            <View>
+              <Text style={styles.statValue}>{dayMeals.length}</Text>
+              <Text style={styles.statLabel}>{isToday ? 'registadas hoje' : 'registadas neste dia'}</Text>
+            </View>
+          </View>
         </View>
 
         <View style={[styles.pad, { gap: 12 }]}>
+          <Text style={styles.title}>Vamos ver a sua refeição juntos</Text>
+          <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
+        </View>
+
+        <View style={[styles.pad, { gap: 10 }]}>
           <Text style={styles.section}>{isToday ? 'Refeições de hoje' : 'Refeições do dia'}</Text>
           {MEAL_TYPES.map((t) => (
             <MealSection
@@ -141,14 +176,16 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <View style={{ gap: 12 }}>
-          <Text style={[styles.section, styles.pad]}>Last Scans</Text>
+        <View style={{ gap: 10 }}>
+          <Text style={[styles.section, styles.pad]}>Últimos scans</Text>
           {diaryError && <Text style={[styles.error, styles.pad]}>{diaryError}</Text>}
           {meals.length === 0 ? (
-            <View style={[styles.empty, styles.pad]}>
-              <Ionicons name="camera-outline" size={34} color={colors.primary} />
-              <Text style={styles.emptyTitle}>Ainda sem scans</Text>
-              <Text style={styles.emptyBody}>Toque no botão verde para fotografar a sua primeira refeição.</Text>
+            <View style={styles.pad}>
+              <View style={styles.empty}>
+                <Camera size={28} color={colors.primary} />
+                <Text style={styles.emptyTitle}>Ainda sem scans</Text>
+                <Text style={styles.emptyBody}>Toque no botão verde para fotografar a sua primeira refeição.</Text>
+              </View>
             </View>
           ) : (
             <FlatList
@@ -157,7 +194,7 @@ export default function HomeScreen() {
               keyExtractor={(m) => m.id}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.carousel}
-              ItemSeparatorComponent={() => <View style={{ width: 14 }} />}
+              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
               renderItem={({ item }) => <ScanCard meal={item} onPress={() => openMeal(item)} />}
             />
           )}
@@ -170,21 +207,20 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  pad: { paddingHorizontal: 20 },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  hello: { fontSize: 18, fontWeight: '800', color: colors.text },
-  chip: { alignSelf: 'flex-start', backgroundColor: colors.limeSoft, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4, marginTop: 4 },
-  chipText: { fontSize: 11, fontWeight: '700', color: colors.limeDark },
-  twoCols: { flexDirection: 'row', gap: 14 },
-  statCard: { backgroundColor: colors.limeSoft, borderRadius: radius.card, padding: 16, justifyContent: 'space-between' },
-  statIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
-  statValue: { fontSize: 30, fontWeight: '800', color: colors.text },
-  statLabel: { fontSize: 12, color: colors.textMuted, fontWeight: '600' },
-  title: { fontSize: 32, lineHeight: 38, fontWeight: '800', color: colors.text, letterSpacing: -0.5, marginBottom: 14 },
-  section: { fontSize: 20, fontWeight: '800', color: colors.text },
-  error: { fontSize: 12, color: colors.danger },
-  carousel: { paddingHorizontal: 20, paddingBottom: 6 },
-  empty: { backgroundColor: colors.card, borderRadius: radius.card, padding: 28, alignItems: 'center', gap: 6, marginHorizontal: 20, ...shadow },
-  emptyTitle: { fontSize: 16, fontWeight: '800', color: colors.text },
-  emptyBody: { fontSize: 13, color: colors.textMuted, textAlign: 'center' },
+  pad: { paddingHorizontal: SCREEN_PADDING },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  hello: { fontSize: font.h2, fontWeight: '700', color: colors.text },
+  chipText: { fontSize: font.small, color: colors.textMuted, marginTop: 1 },
+  row: { flexDirection: 'row', gap: 12 },
+  statCard: { ...cardBase, flex: 1, padding: 14, justifyContent: 'space-between', backgroundColor: colors.limeSoft, borderColor: '#E4F0BD' },
+  statTitle: { fontSize: font.body, fontWeight: '600', color: colors.text },
+  statValue: { fontSize: 24, fontWeight: '700', color: colors.text },
+  statLabel: { fontSize: font.tiny, color: colors.textMuted },
+  title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
+  section: { fontSize: font.h2, fontWeight: '700', color: colors.text },
+  error: { fontSize: font.small, color: colors.danger },
+  carousel: { paddingHorizontal: SCREEN_PADDING, paddingBottom: 4 },
+  empty: { ...cardBase, padding: 22, alignItems: 'center', gap: 4, borderRadius: radius.card },
+  emptyTitle: { fontSize: font.h3, fontWeight: '600', color: colors.text },
+  emptyBody: { fontSize: font.body, color: colors.textMuted, textAlign: 'center' },
 });

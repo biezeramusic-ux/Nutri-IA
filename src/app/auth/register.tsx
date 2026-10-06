@@ -1,3 +1,4 @@
+import { Lock, Mail, User } from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -5,7 +6,7 @@ import { AuthButton } from '../../components/AuthButton';
 import { AuthInput } from '../../components/AuthInput';
 import { AuthScreenLayout } from '../../components/AuthScreenLayout';
 import { GoogleButton } from '../../components/GoogleButton';
-import { colors } from '../../constants/theme';
+import { colors, font } from '../../constants/theme';
 import { useAuth } from '../../hooks/useAuth';
 import { validateEmail, validateName, validatePassword } from '../../services/validation';
 
@@ -67,11 +68,11 @@ export default function RegisterScreen() {
   };
 
   return (
-    <AuthScreenLayout title="Criar Conta" subtitle="3 dias grátis para experimentar o Nutri AI." photo>
+    <AuthScreenLayout title="Criar Conta" subtitle="3 dias grátis para experimentar o Nutri IA.">
       <View style={styles.form}>
         <AuthInput
           label="Nome"
-          icon="person-outline"
+          icon={User}
           placeholder="O seu nome"
           value={name}
           onChangeText={setName}
@@ -85,7 +86,7 @@ export default function RegisterScreen() {
         <AuthInput
           ref={emailRef}
           label="E-mail"
-          icon="mail-outline"
+          icon={Mail}
           placeholder="o.seu@email.com"
           value={email}
           onChangeText={setEmail}
@@ -101,7 +102,7 @@ export default function RegisterScreen() {
         <AuthInput
           ref={passwordRef}
           label="Senha"
-          icon="lock-closed-outline"
+          icon={Lock}
           placeholder="Mínimo 6 caracteres"
           value={password}
           onChangeText={setPassword}
@@ -128,8 +129,8 @@ export default function RegisterScreen() {
 }
 
 const styles = StyleSheet.create({
-  form: { gap: 16, marginTop: 8 },
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 8 },
-  footerText: { color: colors.textMuted, fontSize: 14 },
-  link: { color: colors.primaryDark, fontSize: 14, fontWeight: '800' },
+  form: { gap: 12 },
+  footer: { flexDirection: 'row', justifyContent: 'center' },
+  footerText: { color: colors.textMuted, fontSize: font.body },
+  link: { color: colors.primaryDark, fontSize: font.body, fontWeight: '600' },
 });

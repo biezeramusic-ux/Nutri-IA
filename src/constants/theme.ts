@@ -1,51 +1,90 @@
+/** Sistema de design do Nutri IA: neutros slate + Verde Saúde, pensado para ecrãs de telemóvel. */
 export const colors = {
-  background: '#F8F9FA',
+  background: '#F8FAFC',
   card: '#FFFFFF',
+  surface: '#F1F5F9',
   primary: '#4CAF50',
-  primaryDark: '#388E3C',
-  primarySoft: '#E8F5E9',
+  primaryDark: '#2E7D32',
+  primarySoft: '#ECF7ED',
   lime: '#C6EA5C',
-  limeSoft: '#EDF8CF',
+  limeSoft: '#F1F9D9',
   limeDark: '#5F8F12',
-  water: '#4FC3F7',
-  waterSoft: '#E1F5FE',
-  text: '#1B1F23',
-  textMuted: '#6B7280',
-  border: '#ECEFF1',
-  carbs: '#FFB74D',
-  protein: '#64B5F6',
-  fats: '#F48FB1',
+  text: '#0F172A',
+  textMuted: '#64748B',
+  textFaint: '#94A3B8',
+  border: '#E2E8F0',
+  carbs: '#F5A524',
+  protein: '#4C9AFF',
+  fats: '#F472B6',
+  water: '#38BDF8',
+  waterSoft: '#E0F2FE',
   mpesa: '#E60000',
   emola: '#F57C00',
   navy: '#0B1F3A',
   navySoft: '#16335C',
-  danger: '#E53935',
+  danger: '#EF4444',
+  dangerSoft: '#FEF2F2',
 } as const;
 
 export const radius = {
-  card: 28,
-  md: 18,
+  sm: 10,
+  md: 14,
+  lg: 18,
+  card: 20,
   pill: 999,
 } as const;
 
+/** Escala tipográfica (px). Títulos fortes, texto de apoio mais pequeno e com menos contraste. */
+export const font = {
+  display: 30,
+  h1: 24,
+  h2: 18,
+  h3: 15,
+  body: 14,
+  small: 12,
+  tiny: 11,
+} as const;
+
+/** Espaçamentos (px): generosos, mas dimensionados para telemóvel. */
+export const space = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+} as const;
+
+/** Sombra suave (shadow-sm). */
 export const shadow = {
-  shadowColor: '#0B1F3A',
-  shadowOpacity: 0.08,
-  shadowRadius: 16,
-  shadowOffset: { width: 0, height: 6 },
-  elevation: 4,
+  shadowColor: '#0F172A',
+  shadowOpacity: 0.05,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 1,
+} as const;
+
+/** Cartão base: fundo branco, borda fina e sombra leve. */
+export const cardBase = {
+  backgroundColor: colors.card,
+  borderRadius: radius.card,
+  borderWidth: 1,
+  borderColor: colors.border,
+  ...shadow,
 } as const;
 
 /** Espaço reservado no fim dos ecrãs para a barra de abas flutuante. */
-export const TAB_BAR_SPACE = 120;
+export const TAB_BAR_SPACE = 96;
+
+export const SCREEN_PADDING = 20;
 
 export const petalPalette = [
   '#4CAF50',
-  '#FFB74D',
-  '#64B5F6',
-  '#F48FB1',
-  '#BA68C8',
-  '#4DB6AC',
-  '#FF8A65',
-  '#A1887F',
+  '#F5A524',
+  '#4C9AFF',
+  '#F472B6',
+  '#A78BFA',
+  '#2DD4BF',
+  '#FB923C',
+  '#A8A29E',
 ] as const;

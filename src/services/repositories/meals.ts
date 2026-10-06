@@ -14,9 +14,9 @@ function parseIngredients(value: Json): Ingredient[] {
   const result: Ingredient[] = [];
   for (const item of value) {
     if (typeof item !== 'object' || item === null || Array.isArray(item)) continue;
-    const { name, grams, icon } = item;
+    const { name, grams, icon, p100 } = item;
     if (typeof name === 'string' && typeof grams === 'number' && typeof icon === 'string') {
-      result.push({ name, grams, icon: icon as IconName });
+      result.push({ name, grams, icon: icon as IconName, ...(typeof p100 === 'number' ? { p100 } : {}) });
     }
   }
   return result;
@@ -33,6 +33,7 @@ function rowToMeal(row: MealRow, photoUri?: string): Meal {
       carbs_g: row.carbs_g,
       protein_g: row.protein_g,
       fats_g: row.fats_g,
+      ...(row.confidence !== null ? { confidence: row.confidence } : {}),
     },
     ingredients: parseIngredients(row.ingredients),
     photoUri,
@@ -99,7 +100,8 @@ export async function insertMeal(userId: string, meal: Meal): Promise<Meal> {
     carbs_g: analysis.carbs_g,
     protein_g: analysis.protein_g,
     fats_g: analysis.fats_g,
-    ingredients: meal.ingredients.map((i) => ({ name: i.name, grams: i.grams, icon: i.icon as string })),
+    ingredients: meal.ingredients.map((i) => ({ name: i.name, grams: i.grams, icon: i.icon as string, p100: i.p100 ?? null })),
+    confidence: analysis.confidence ?? null,
     photo_path: photoPath,
     created_at: new Date(meal.createdAt).toISOString(),
   });

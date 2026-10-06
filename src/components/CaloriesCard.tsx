@@ -1,6 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Flame } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, shadow } from '../constants/theme';
+import { cardBase, colors, font, radius } from '../constants/theme';
 import type { Totals } from '../services/dayUtils';
 import type { DailyGoals } from '../types';
 import { MacroLeftBar } from './MacroLeftBar';
@@ -11,7 +11,7 @@ interface Props {
   consumed: Totals;
 }
 
-/** Cartão "Calorias restantes" com anel e barras de macros (estilo NOOT). */
+/** Cartão "Calorias restantes" com anel e barras de macros. */
 export function CaloriesCard({ goals, consumed }: Props) {
   const left = Math.max(0, goals.calories - consumed.kcal);
   const over = consumed.kcal > goals.calories;
@@ -25,47 +25,24 @@ export function CaloriesCard({ goals, consumed }: Props) {
             {consumed.kcal} de {goals.calories} kcal
           </Text>
         </View>
-        <ProgressRing
-          size={92}
-          strokeWidth={10}
-          progress={consumed.kcal / goals.calories}
-          color={over ? colors.danger : colors.primary}
-        >
-          <View style={styles.flame}>
-            <Ionicons name="flame" size={22} color={over ? colors.danger : colors.primary} />
-          </View>
+        <ProgressRing size={76} strokeWidth={8} progress={consumed.kcal / goals.calories} color={over ? colors.danger : colors.primary}>
+          <Flame size={22} color={over ? colors.danger : colors.primary} />
         </ProgressRing>
       </View>
       <View style={styles.macros}>
-        <MacroLeftBar
-          label="Proteína"
-          leftG={goals.proteinG - consumed.protein}
-          progress={consumed.protein / goals.proteinG}
-          color={colors.primary}
-        />
-        <MacroLeftBar
-          label="Carbs"
-          leftG={goals.carbsG - consumed.carbs}
-          progress={consumed.carbs / goals.carbsG}
-          color={colors.carbs}
-        />
-        <MacroLeftBar
-          label="Gordura"
-          leftG={goals.fatsG - consumed.fats}
-          progress={consumed.fats / goals.fatsG}
-          color={colors.protein}
-        />
+        <MacroLeftBar label="Proteína" leftG={goals.proteinG - consumed.protein} progress={consumed.protein / goals.proteinG} color={colors.primary} />
+        <MacroLeftBar label="Carbs" leftG={goals.carbsG - consumed.carbs} progress={consumed.carbs / goals.carbsG} color={colors.carbs} />
+        <MacroLeftBar label="Gordura" leftG={goals.fatsG - consumed.fats} progress={consumed.fats / goals.fatsG} color={colors.protein} />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { backgroundColor: colors.card, borderRadius: radius.card, padding: 20, gap: 18, ...shadow },
+  card: { ...cardBase, padding: 16, gap: 14 },
   top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  big: { fontSize: 44, fontWeight: '800', color: colors.text, letterSpacing: -1 },
-  sub: { fontSize: 14, color: colors.textMuted, fontWeight: '600' },
-  meta: { fontSize: 12, color: colors.textMuted, marginTop: 4 },
-  flame: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
-  macros: { flexDirection: 'row', gap: 14, backgroundColor: colors.background, borderRadius: radius.md, padding: 14 },
+  big: { fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: -0.8 },
+  sub: { fontSize: font.body, color: colors.textMuted, fontWeight: '500' },
+  meta: { fontSize: font.small, color: colors.textFaint, marginTop: 2 },
+  macros: { flexDirection: 'row', gap: 12, backgroundColor: colors.surface, borderRadius: radius.md, padding: 12 },
 });

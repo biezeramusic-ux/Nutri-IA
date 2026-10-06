@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../constants/theme';
+import { colors, font } from '../constants/theme';
 
 interface Props {
   label: string;
@@ -24,8 +24,8 @@ export function MacroLeftBar({ label, leftG, progress, color }: Props) {
 
 const styles = StyleSheet.create({
   wrap: { flex: 1, gap: 2 },
-  value: { fontSize: 17, fontWeight: '800', color: colors.text },
-  label: { fontSize: 11, color: colors.textMuted, marginBottom: 4 },
-  track: { height: 6, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
-  fill: { height: 6, borderRadius: 3 },
+  value: { fontSize: font.h3, fontWeight: '700', color: colors.text },
+  label: { fontSize: font.tiny, color: colors.textMuted, marginBottom: 4 },
+  track: { height: 5, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
+  fill: { height: 5, borderRadius: 3 },
 });

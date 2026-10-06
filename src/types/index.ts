@@ -11,12 +11,16 @@ export interface FoodAnalysis {
   carbs_g: number;
   protein_g: number;
   fats_g: number;
+  /** Certeza da IA na identificação (0 a 100), quando disponível. */
+  confidence?: number;
 }
 
 export interface Ingredient {
   name: string;
   grams: number;
   icon: IconName;
+  /** Proteína aproximada por 100 g deste ingrediente (para mostrar a origem da proteína). */
+  p100?: number;
 }
 
 export interface MacroPercentages {
@@ -58,7 +62,25 @@ export interface AccessStatus {
 export type GoalType = 'lose_weight' | 'maintain' | 'gain_muscle' | 'eat_healthy' | 'track_calories';
 export type Sex = 'male' | 'female';
 export type ActivityLevel = 'sedentary' | 'light' | 'moderate' | 'very_active';
-export type DietPreference = 'vegetarian' | 'vegan' | 'gluten_free' | 'lactose_free' | 'halal' | 'no_pork';
+export type DietPreference =
+  | 'vegetarian'
+  | 'vegan'
+  | 'gluten_free'
+  | 'lactose_free'
+  | 'halal'
+  | 'no_pork'
+  | 'peanut_allergy'
+  | 'shellfish_allergy';
+export type HealthCondition = 'diabetes' | 'hypertension' | 'high_cholesterol' | 'pregnancy';
+
+/** Hábitos (respostas sim/não do quiz). */
+export interface Habits {
+  skipsMeals: boolean;
+  eatsOut: boolean;
+  sugaryDrinks: boolean;
+  eatsFruitVeg: boolean;
+  drinksEnoughWater: boolean;
+}
 
 /** Respostas do quiz inicial. */
 export interface QuizAnswers {
@@ -69,7 +91,11 @@ export interface QuizAnswers {
   weightKg: number;
   targetWeightKg: number;
   activity: ActivityLevel;
+  conditions: HealthCondition[];
+  habits: Habits;
   diet: DietPreference[];
+  /** Alimentos que come com mais frequência (ids em src/services/staples.ts). */
+  staples: string[];
 }
 
 /** Metas diárias calculadas a partir do quiz. */

@@ -1,4 +1,4 @@
--- Nutri AI · quiz inicial, metas diárias e lembretes de água.
+-- Nutri IA · quiz inicial, metas diárias e lembretes de água.
 -- Execute DEPOIS de 001_init.sql (SQL Editor do Supabase). É seguro correr mais de uma vez.
 
 -- ============================================================================

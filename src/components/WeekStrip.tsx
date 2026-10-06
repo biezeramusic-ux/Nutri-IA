@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, radius } from '../constants/theme';
+import { colors, font, radius } from '../constants/theme';
 import { todayKey } from '../services/date';
 import { WEEKDAY_LABELS } from '../services/dayUtils';
 import { ProgressRing } from './ProgressRing';
@@ -14,7 +14,6 @@ interface Props {
 
 /** Faixa da semana com um anel de progresso por dia. */
 export function WeekStrip({ days, selectedKey, onSelect, progressByDay }: Props) {
-  const today = todayKey();
   return (
     <View style={styles.row}>
       {days.map((day, i) => {
@@ -22,11 +21,9 @@ export function WeekStrip({ days, selectedKey, onSelect, progressByDay }: Props)
         const selected = key === selectedKey;
         return (
           <Pressable key={key} onPress={() => onSelect(day)} style={[styles.item, selected && styles.selected]}>
-            <Text style={[styles.label, selected && styles.labelSelected]}>
-              {key === today ? 'Hoje' : WEEKDAY_LABELS[i]}
-            </Text>
+            <Text style={[styles.label, selected && styles.labelSelected]}>{WEEKDAY_LABELS[i]}</Text>
             <ProgressRing
-              size={30}
+              size={28}
               strokeWidth={3}
               progress={progressByDay[key] ?? 0}
               color={colors.primary}
@@ -43,9 +40,9 @@ export function WeekStrip({ days, selectedKey, onSelect, progressByDay }: Props)
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between' },
-  item: { alignItems: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 6, borderRadius: radius.md },
+  item: { alignItems: 'center', gap: 6, paddingVertical: 8, width: 44, borderRadius: radius.md },
   selected: { backgroundColor: colors.lime },
-  label: { fontSize: 11, fontWeight: '600', color: colors.textMuted },
-  labelSelected: { color: colors.text, fontWeight: '800' },
-  number: { fontSize: 11, fontWeight: '700', color: colors.text },
+  label: { fontSize: font.tiny, fontWeight: '500', color: colors.textMuted },
+  labelSelected: { color: colors.text, fontWeight: '700' },
+  number: { fontSize: font.tiny, fontWeight: '600', color: colors.text },
 });
