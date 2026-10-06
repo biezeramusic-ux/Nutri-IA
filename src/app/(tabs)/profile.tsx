@@ -9,7 +9,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { GLASS_ML, glassesFromMl } from '../../services/goals';
-import { ensureNotificationPermission } from '../../services/notifications';
+import { ensureNotificationPermission, notificationsSupported } from '../../services/notifications';
 import type { GoalType } from '../../types';
 
 const GOAL_LABEL: Record<GoalType, string> = {
@@ -65,7 +65,12 @@ export default function ProfileScreen() {
   }, [waterMl, profile, saveWaterGoalMl]);
 
   const toggleReminders = async (value: boolean) => {
-    if (value && !(await ensureNotificationPermission(true))) {
+    if (value && !notificationsSupported) {
+      Alert.alert(
+        'Disponível na app instalada',
+        'As notificações não funcionam no Expo Go. Instale a app (APK) para receber os lembretes. A sua escolha fica guardada.',
+      );
+    } else if (value && !(await ensureNotificationPermission(true))) {
       Alert.alert('Notificações desligadas', 'Ative as notificações do Nutri AI nas definições do telemóvel para receber lembretes.');
     }
     setReminders(value);

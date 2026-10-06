@@ -7,6 +7,7 @@ import { TAB_BAR_SPACE, colors, radius, shadow } from '../../constants/theme';
 import { useProfile } from '../../hooks/useProfile';
 import { useWater } from '../../hooks/useWater';
 import { GLASS_ML } from '../../services/goals';
+import { notificationsSupported } from '../../services/notifications';
 import { planWaterReminders } from '../../services/waterReminderPlan';
 import type { GoalType } from '../../types';
 
@@ -108,7 +109,9 @@ export default function WaterScreen() {
         <View style={{ flex: 1, gap: 4 }}>
           <Text style={styles.infoTitle}>Lembretes de água</Text>
           <Text style={styles.infoText}>
-            {!profile?.waterReminders
+            {!notificationsSupported
+              ? 'Os lembretes funcionam na app instalada (APK). No Expo Go não estão disponíveis.'
+              : !profile?.waterReminders
               ? 'Desligados. Pode ligá-los no Perfil.'
               : done
                 ? 'Meta cumprida hoje. Voltamos a lembrá-lo amanhã.'
