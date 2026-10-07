@@ -30,3 +30,9 @@
 - `profiles`: o cliente só altera `full_name`; teste grátis e plano não são editáveis pelo cliente.
 - `daily_scans`: só escrita via `consume_scan()` (atómica, dia em `Africa/Maputo`, 3 dias de teste, 2 scans/dia).
 - Fotos: comprimidas a ~50 KB antes de arquivar; bucket privado, cada utilizador só acede à pasta `<uid>/`.
+
+## IA (Gemini) — Edge Function `ai`
+1. Instale o Supabase CLI e faça `supabase login` e `supabase link --project-ref <ref do projeto>`.
+2. Guarde a chave: `supabase secrets set GEMINI_API_KEY=<a sua chave>` (opcional: `GEMINI_MODEL=<modelo>`).
+3. Publique: `supabase functions deploy ai`.
+A app chama a função com a sessão do utilizador; a função valida o plano (`consume_scan`) antes de usar o Gemini.

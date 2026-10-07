@@ -22,7 +22,7 @@ export default function ScannerScreen() {
   const insets = useSafeAreaInsets();
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
-  const { canScan, lockReason, consumeScan, scansLeftToday, isPro } = useSubscription();
+  const { canScan, lockReason, refresh, scansLeftToday, isPro } = useSubscription();
   const { setCurrent } = useDiary();
   const [busy, setBusy] = useState(false);
   const [meal, setMeal] = useState<Meal | null>(null);
@@ -31,12 +31,12 @@ export default function ScannerScreen() {
   const analyze = async (uri: string) => {
     const small = await compressImage(uri);
     // O servidor valida e conta o scan (limite diário / teste grátis) antes de gastar a IA.
-    const access = await consumeScan();
-    if (!access.allowed) {
+    const { allowed, analysis, isFallback } = await recognizeFood(small.base64);
+    void refresh();
+    if (!allowed) {
       router.push('/paywall');
       return;
     }
-    const { analysis, isFallback } = await recognizeFood(small.base64);
     setFallback(isFallback);
     // A foto mostrada na app é a original; a IA recebeu só a versão pequena.
     const result = buildMeal(analysis, uri);

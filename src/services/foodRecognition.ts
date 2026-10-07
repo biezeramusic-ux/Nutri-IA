@@ -1,16 +1,5 @@
 import type { FoodAnalysis } from '../types';
-
-/**
- * ⚠️ AVISO DE SEGURANÇA (MVP): EXPO_PUBLIC_* é embutido no bundle da app e pode ser
- * extraído. Para produção, mova esta chamada para um backend/proxy próprio.
- */
-const API_KEY = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY ?? '';
-const MODEL = process.env.EXPO_PUBLIC_ANTHROPIC_MODEL ?? 'claude-sonnet-5-5';
-const API_URL = 'https://api.anthropic.com/v1/messages';
-const TIMEOUT_MS = 25000;
-
-export const SYSTEM_PROMPT =
-  "You are an expert Mozambican Nutritionist AI and core engine of 'Nutri IA'. Analyze the food image. You must accurately recognize typical Mozambican culinary dishes (e.g., matapa, xima, mucapata, caril de amendoim, cacana, badgias, peixe grelhado, etc.) and estimate the weight in grams. Return strictly a clean JSON object: { 'food_name': string, 'estimated_weight_grams': number, 'calories': number, 'carbs_g': number, 'protein_g': number, 'fats_g': number }. Write 'food_name' in Portuguese. Also add a 'confidence' number from 0 to 100 with your certainty about the identification, and 'fiber_g' (number) with the estimated dietary fiber in grams.";
+import { supabase } from './supabase';
 
 export const MOCK_VEGETABLE_SALAD: FoodAnalysis = {
   food_name: 'Salada de legumes',
@@ -59,52 +48,22 @@ function parseAnalysis(text: string): FoodAnalysis {
   };
 }
 
-interface AnthropicResponse {
-  content?: { type: string; text?: string }[];
+export interface ScanOutcome extends RecognitionResult {
+  /** false quando o servidor recusou o scan (teste terminado / limite diário). */
+  allowed: boolean;
 }
 
-export async function recognizeFood(imageBase64: string): Promise<RecognitionResult> {
-  if (!API_KEY) {
-    return { analysis: MOCK_VEGETABLE_SALAD, isFallback: true };
-  }
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+/**
+ * Reconhece o prato através da Edge Function "ai" (Gemini). O servidor também valida e consome
+ * o scan do plano. Sem função publicada ou sem rede, devolve um exemplo e não consome scans.
+ */
+export async function recognizeFood(imageBase64: string): Promise<ScanOutcome> {
   try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      signal: controller.signal,
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 300,
-        system: SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'image',
-                source: { type: 'base64', media_type: 'image/jpeg', data: imageBase64 },
-              },
-              { type: 'text', text: 'Analyze this meal. Reply with the JSON object only.' },
-            ],
-          },
-        ],
-      }),
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = (await response.json()) as AnthropicResponse;
-    const text = data.content?.find((b) => b.type === 'text')?.text ?? '';
-    return { analysis: parseAnalysis(text), isFallback: false };
+    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'scan', image: imageBase64 } });
+    if (error || !data) throw new Error('ai_unavailable');
+    if (data.allowed === false) return { allowed: false, analysis: MOCK_VEGETABLE_SALAD, isFallback: true };
+    return { allowed: true, analysis: parseAnalysis(String(data.text ?? '')), isFallback: false };
   } catch {
-    return { analysis: MOCK_VEGETABLE_SALAD, isFallback: true };
-  } finally {
-    clearTimeout(timer);
+    return { allowed: true, analysis: MOCK_VEGETABLE_SALAD, isFallback: true };
   }
 }
