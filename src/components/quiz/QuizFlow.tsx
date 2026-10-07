@@ -175,8 +175,9 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
       // Pede a permissão para os lembretes de água só no primeiro quiz.
       if (mode === 'first') await ensureNotificationPermission(true);
       router.replace('/');
-    } catch {
-      Alert.alert('Não foi possível guardar', 'Verifique a ligação à internet e tente novamente.');
+    } catch (e) {
+      const detail = e instanceof Error && e.message ? `\n\nDetalhe: ${e.message}` : '';
+      Alert.alert('Não foi possível guardar', `Verifique a ligação à internet e tente novamente.${detail}`);
     } finally {
       setSaving(false);
     }
