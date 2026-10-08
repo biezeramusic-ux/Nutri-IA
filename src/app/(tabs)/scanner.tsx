@@ -2,12 +2,13 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { Camera, X } from 'lucide-react-native';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LockOverlay } from '../../components/LockOverlay';
 import { MacroSquareCard } from '../../components/MacroSquareCard';
-import { colors, font, radius } from '../../constants/theme';
+import { font, radius, type ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import { useDiary } from '../../hooks/useDiary';
 import { useSubscription } from '../../hooks/useSubscription';
 import { buildMeal, macroPercentages } from '../../services/foodCatalog';
@@ -17,6 +18,8 @@ import { scheduleMealWaterNudge } from '../../services/notifications';
 import type { Meal } from '../../types';
 
 export default function ScannerScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const cameraRef = useRef<CameraView>(null);
@@ -151,7 +154,8 @@ export default function ScannerScreen() {
 }
 
 const CORNER = 30;
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: '#000' },
   center: { alignItems: 'center', justifyContent: 'center', padding: 32, gap: 10, backgroundColor: colors.background },
   permTitle: { fontSize: font.h2, fontWeight: '700', color: colors.text },

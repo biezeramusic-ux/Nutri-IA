@@ -7,7 +7,8 @@ import { LineChart } from '../../components/LineChart';
 import { ProGate } from '../../components/ProOverlay';
 import { NumberStepper } from '../../components/quiz/NumberStepper';
 import { SegmentedControl } from '../../components/SegmentedControl';
-import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, colors, font, radius } from '../../constants/theme';
+import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import { useDiary } from '../../hooks/useDiary';
 import { useProfile } from '../../hooks/useProfile';
 import { useWeightLogs } from '../../hooks/useWeightLogs';
@@ -28,6 +29,8 @@ const shortDate = (key: string) => {
 };
 
 export default function ProgressScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { meals } = useDiary();
@@ -137,11 +140,11 @@ export default function ProgressScreen() {
         </View>
 
         <View style={styles.statsRow}>
-          <View style={[styles.stat, { backgroundColor: colors.limeSoft, borderColor: '#E4F0BD' }]}>
+          <View style={[styles.stat, { backgroundColor: colors.limeSoft, borderColor: colors.border }]}>
             <Text style={styles.statValue}>{onTarget}</Text>
             <Text style={styles.statLabel}>dias dentro da meta</Text>
           </View>
-          <View style={[styles.stat, { backgroundColor: colors.waterSoft, borderColor: '#BAE6FD' }]}>
+          <View style={[styles.stat, { backgroundColor: colors.waterSoft, borderColor: colors.border }]}>
             <Text style={styles.statValue}>{logged.length}</Text>
             <Text style={styles.statLabel}>dias com registos</Text>
           </View>
@@ -226,10 +229,11 @@ export default function ProgressScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   title: { fontSize: font.h1, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
-  card: { ...cardBase, padding: 16, gap: 12 },
+  card: { ...cardBase(colors), padding: 16, gap: 12 },
   cardLabel: { fontSize: font.small, fontWeight: '500', color: colors.textMuted },
   cardTitle: { flex: 1, fontSize: font.h3, fontWeight: '600', color: colors.text },
   bigRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
@@ -255,6 +259,6 @@ const styles = StyleSheet.create({
   ghostText: { color: colors.textMuted, fontWeight: '600', fontSize: font.body },
   primary: { flex: 1.4, height: 44, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   primaryText: { color: '#fff', fontWeight: '600', fontSize: font.body },
-  summaryCard: { backgroundColor: colors.limeSoft, borderRadius: radius.card, borderWidth: 1, borderColor: '#E4F0BD', padding: 16, gap: 8 },
+  summaryCard: { backgroundColor: colors.limeSoft, borderRadius: radius.card, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 8 },
   summaryText: { fontSize: font.body, color: colors.text, lineHeight: 21 },
 });

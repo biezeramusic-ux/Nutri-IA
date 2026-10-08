@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
-import { font, radius } from '../constants/theme';
+import { font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props {
   title: string;
@@ -13,6 +15,8 @@ interface Props {
 }
 
 export function PayButton({ title, backgroundColor, onPress, loading, disabled, leading, trailing, style }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <Pressable
       onPress={onPress}
@@ -32,7 +36,8 @@ export function PayButton({ title, backgroundColor, onPress, loading, disabled, 
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   button: { minHeight: 48, borderRadius: radius.md, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 10 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   text: { color: '#fff', fontSize: font.body, fontWeight: '600', flexShrink: 1, textAlign: 'center' },

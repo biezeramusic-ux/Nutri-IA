@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import * as Haptics from 'expo-haptics';
 import { Camera } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { colors } from '../constants/theme';
+import { type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props {
   onPress?: (...args: never[]) => void;
@@ -10,6 +12,8 @@ interface Props {
 
 /** Botão central circular e proeminente da barra de abas. */
 export function ScannerFab({ onPress, accessibilityState }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const focused = accessibilityState?.selected;
   return (
     <View style={styles.slot}>
@@ -28,7 +32,8 @@ export function ScannerFab({ onPress, accessibilityState }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   slot: { flex: 1, alignItems: 'center' },
   fab: {
     position: 'absolute',

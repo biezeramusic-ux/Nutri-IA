@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Flame } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import { cardBase, colors, font, radius } from '../constants/theme';
+import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import type { Totals } from '../services/dayUtils';
 import type { DailyGoals } from '../types';
 import { MacroLeftBar } from './MacroLeftBar';
@@ -13,6 +15,8 @@ interface Props {
 
 /** Cartão "Calorias restantes" com anel e barras de macros. */
 export function CaloriesCard({ goals, consumed }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const left = Math.max(0, goals.calories - consumed.kcal);
   const over = consumed.kcal > goals.calories;
   return (
@@ -38,8 +42,9 @@ export function CaloriesCard({ goals, consumed }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: { ...cardBase, padding: 16, gap: 14 },
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+  card: { ...cardBase(colors), padding: 16, gap: 14 },
   top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   big: { fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: -0.8 },
   sub: { fontSize: font.body, color: colors.textMuted, fontWeight: '500' },

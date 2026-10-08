@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, font } from '../constants/theme';
+import { font, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 export interface Bar {
   key: string;
@@ -23,7 +25,11 @@ interface Props {
 }
 
 /** Gráfico de barras simples, sem bibliotecas. */
-export function BarChart({ bars, goal, height = 150, barColor = colors.lime, highlightColor = colors.primary, labelEvery = 1 }: Props) {
+export function BarChart({ bars, goal, height = 150, barColor: barColorProp, highlightColor: highlightProp, labelEvery = 1 }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const barColor = barColorProp ?? colors.lime;
+  const highlightColor = highlightProp ?? colors.primary;
   const max = Math.max(goal ? goal * 1.2 : 0, ...bars.map((b) => b.value), 1);
   const plot = height - 38;
   const h = (v: number) => (v / max) * plot;
@@ -58,7 +64,8 @@ export function BarChart({ bars, goal, height = 150, barColor = colors.lime, hig
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   row: { flex: 1, flexDirection: 'row', alignItems: 'flex-end', gap: 4 },
   col: { flex: 1, height: '100%', alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
   caption: { fontSize: 10, fontWeight: '600', color: colors.textMuted, height: 13 },

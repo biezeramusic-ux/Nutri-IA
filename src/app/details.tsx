@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Bookmark, CircleCheck, Drumstick, Pencil, ShieldCheck, Sparkles, Wheat } from 'lucide-react-native';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlowerChart } from '../components/FlowerChart';
@@ -9,18 +9,21 @@ import { MacroSquareCard } from '../components/MacroSquareCard';
 import { ProBadge } from '../components/ProOverlay';
 import { NumberStepper } from '../components/quiz/NumberStepper';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { SCREEN_PADDING, cardBase, colors, font, petalPalette, radius } from '../constants/theme';
+import { SCREEN_PADDING, cardBase, font, petalPalette, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import { useDiary } from '../hooks/useDiary';
 import { useSubscription } from '../hooks/useSubscription';
 import { macroPercentages, proteinSources, scaleMeal } from '../services/foodCatalog';
 
-function confidenceLabel(value: number): { text: string; color: string } {
+function confidenceLabel(value: number, colors: ThemeColors): { text: string; color: string } {
   if (value >= 80) return { text: 'Confiança alta', color: colors.primaryDark };
   if (value >= 55) return { text: 'Confiança média', color: colors.carbs };
   return { text: 'Confiança baixa', color: colors.danger };
 }
 
 export default function DetailsScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -47,7 +50,7 @@ export default function DetailsScreen() {
   const total = ingredients.reduce((s, i) => s + i.grams, 0) || 1;
   const saved = isSaved(meal.id);
   const sources = proteinSources(meal);
-  const confidence = analysis.confidence !== undefined ? confidenceLabel(analysis.confidence) : null;
+  const confidence = analysis.confidence !== undefined ? confidenceLabel(analysis.confidence, colors) : null;
 
   const askForPlans = (title: string, body: string) =>
     Alert.alert(title, body, [
@@ -234,7 +237,8 @@ export default function DetailsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   empty: { alignItems: 'center', justifyContent: 'center', gap: 12 },
   link: { color: colors.primary, fontWeight: '600' },
@@ -247,13 +251,13 @@ const styles = StyleSheet.create({
   confidence: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4, marginTop: 4 },
   confidenceText: { fontSize: font.small, fontWeight: '600' },
   macroRow: { flexDirection: 'row', gap: 10 },
-  card: { ...cardBase, padding: 16, gap: 12 },
+  card: { ...cardBase(colors), padding: 16, gap: 12 },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   cardTitle: { fontSize: font.h3, fontWeight: '600', color: colors.text },
   cardTotal: { fontSize: font.h3, fontWeight: '700', color: colors.protein },
   small: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
   input: { height: 46, borderRadius: radius.md, backgroundColor: colors.surface, paddingHorizontal: 14, fontSize: font.body, color: colors.text },
-  fiberCard: { ...cardBase, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: radius.lg },
+  fiberCard: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14, borderRadius: radius.lg },
   fiberText: { flex: 1, fontSize: font.body, fontWeight: '600', color: colors.text },
   fiberValue: { fontSize: font.h3, fontWeight: '700', color: colors.limeDark },
   legend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 6 },
@@ -267,13 +271,13 @@ const styles = StyleSheet.create({
   fill: { height: 6, borderRadius: 3, backgroundColor: colors.protein },
   hint: { fontSize: font.tiny, color: colors.textFaint },
   section: { fontSize: font.h2, fontWeight: '700', color: colors.text, marginTop: 4 },
-  list: { ...cardBase, paddingHorizontal: 14 },
+  list: { ...cardBase(colors), paddingHorizontal: 14 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
   thumb: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
   ingName: { flex: 1, fontSize: font.body, fontWeight: '500', color: colors.text },
   ingGrams: { fontSize: font.body, fontWeight: '600', color: colors.text },
-  teaser: { backgroundColor: colors.limeSoft, borderRadius: radius.card, borderWidth: 1, borderColor: '#E4F0BD', padding: 16, gap: 10 },
+  teaser: { backgroundColor: colors.limeSoft, borderRadius: radius.card, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 10 },
   teaserHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   teaserBtn: { height: 44, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   teaserBtnText: { color: '#fff', fontWeight: '600', fontSize: font.body },

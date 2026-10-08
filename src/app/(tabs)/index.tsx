@@ -13,7 +13,8 @@ import { SearchBar } from '../../components/SearchBar';
 import { WaterMiniCard } from '../../components/WaterMiniCard';
 import { WaterReminderCard } from '../../components/WaterReminderCard';
 import { WeekStrip } from '../../components/WeekStrip';
-import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, colors, font, radius } from '../../constants/theme';
+import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { useDiary } from '../../hooks/useDiary';
 import { useNotificationPermission } from '../../hooks/useNotificationPermission';
@@ -28,6 +29,8 @@ import { reminderPitch } from '../../services/reminderPitch';
 import type { Meal } from '../../types';
 
 export default function HomeScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { meals, setCurrent, loading: diaryLoading, error: diaryError, refresh } = useDiary();
@@ -234,27 +237,28 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   pad: { paddingHorizontal: SCREEN_PADDING },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   hello: { fontSize: font.h2, fontWeight: '700', color: colors.text },
   chipText: { fontSize: font.small, color: colors.textMuted, marginTop: 1 },
   row: { flexDirection: 'row', gap: 12 },
-  statCard: { ...cardBase, flex: 1, padding: 14, justifyContent: 'space-between', backgroundColor: colors.limeSoft, borderColor: '#E4F0BD' },
+  statCard: { ...cardBase(colors), flex: 1, padding: 14, justifyContent: 'space-between', backgroundColor: colors.limeSoft, borderColor: colors.border },
   statTitle: { fontSize: font.body, fontWeight: '600', color: colors.text },
   statValue: { fontSize: 24, fontWeight: '700', color: colors.text },
   statLabel: { fontSize: font.tiny, color: colors.textMuted },
-  lockedCard: { ...cardBase, flex: 1, padding: 14, gap: 8 },
+  lockedCard: { ...cardBase(colors), flex: 1, padding: 14, gap: 8 },
   lockedHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   shortcuts: { flexDirection: 'row', gap: 10 },
-  shortcut: { ...cardBase, flex: 1, borderRadius: radius.lg, paddingVertical: 12, alignItems: 'center', gap: 6 },
+  shortcut: { ...cardBase(colors), flex: 1, borderRadius: radius.lg, paddingVertical: 12, alignItems: 'center', gap: 6 },
   shortcutText: { fontSize: font.small, fontWeight: '600', color: colors.text },
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   section: { fontSize: font.h2, fontWeight: '700', color: colors.text },
   error: { fontSize: font.small, color: colors.danger },
   carousel: { paddingHorizontal: SCREEN_PADDING, paddingBottom: 4 },
-  empty: { ...cardBase, padding: 22, alignItems: 'center', gap: 4, borderRadius: radius.card },
+  empty: { ...cardBase(colors), padding: 22, alignItems: 'center', gap: 4, borderRadius: radius.card },
   emptyTitle: { fontSize: font.h3, fontWeight: '600', color: colors.text },
   emptyBody: { fontSize: font.body, color: colors.textMuted, textAlign: 'center' },
 });

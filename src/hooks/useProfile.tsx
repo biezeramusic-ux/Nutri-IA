@@ -11,11 +11,13 @@ import { DEFAULT_GOALS, calculateGoals } from '../services/goals';
 import {
   getProfile,
   saveCustomGoals,
+  saveFullName,
   saveOnboarding,
   saveReminderSettings,
   saveWaterGoal,
   type ReminderSettings,
 } from '../services/repositories/profile';
+import { supabase } from '../services/supabase';
 import type { DailyGoals, QuizAnswers, UserProfile } from '../types';
 import { useAuth } from './useAuth';
 
@@ -34,6 +36,7 @@ interface ProfileContextValue {
   saveWaterGoalMl: (ml: number) => Promise<void>;
   /** Metas personalizadas (PRO) + peso desejado. */
   saveGoals: (goals: DailyGoals, targetWeightKg: number) => Promise<void>;
+  saveName: (fullName: string) => Promise<void>;
 }
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
@@ -120,6 +123,17 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [userId],
   );
 
+  const saveName = useCallback(
+    async (fullName: string) => {
+      if (!userId) return;
+      await saveFullName(userId, fullName);
+      // O nome mostrado na app vem dos metadados da conta.
+      await supabase.auth.updateUser({ data: { full_name: fullName } });
+      setProfile((prev) => (prev ? { ...prev, fullName } : prev));
+    },
+    [userId],
+  );
+
   const value = useMemo<ProfileContextValue>(
     () => ({
       profile,
@@ -131,8 +145,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       saveReminders,
       saveWaterGoalMl,
       saveGoals,
+      saveName,
     }),
-    [profile, userId, loadedFor, refresh, completeOnboarding, saveReminders, saveWaterGoalMl, saveGoals],
+    [profile, userId, loadedFor, refresh, completeOnboarding, saveReminders, saveWaterGoalMl, saveGoals, saveName],
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;

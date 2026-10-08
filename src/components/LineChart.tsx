@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Polyline } from 'react-native-svg';
-import { colors, font } from '../constants/theme';
+import { font, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Point {
   label: string;
@@ -17,7 +19,10 @@ interface Props {
 }
 
 /** Gráfico de linha simples (evolução do peso). */
-export function LineChart({ points, width, height = 110, goal, color = colors.primary }: Props) {
+export function LineChart({ points, width, height = 110, goal, color: colorProp }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const color = colorProp ?? colors.primary;
   if (points.length === 0) return null;
   const values = points.map((p) => p.value).concat(goal !== undefined ? [goal] : []);
   const min = Math.min(...values) - 1;
@@ -48,7 +53,8 @@ export function LineChart({ points, width, height = 110, goal, color = colors.pr
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   axis: { flexDirection: 'row', justifyContent: 'space-between' },
   axisText: { fontSize: font.tiny, color: colors.textMuted },
 });

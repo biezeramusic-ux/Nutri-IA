@@ -1,5 +1,5 @@
 import { Flame, Footprints, Timer, Trash } from 'lucide-react-native';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProgressRing } from '../components/ProgressRing';
@@ -7,12 +7,15 @@ import { ProGate } from '../components/ProOverlay';
 import { NumberStepper } from '../components/quiz/NumberStepper';
 import { QuizChip } from '../components/quiz/QuizChip';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { SCREEN_PADDING, cardBase, colors, font, radius } from '../constants/theme';
+import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import { useActivity } from '../hooks/useActivity';
 import { useProfile } from '../hooks/useProfile';
 import { ACTIVITY_TYPES, STEPS_GOAL, estimateKcal } from '../services/activity';
 
 export default function ActivityScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const { profile } = useProfile();
   const { activities, steps, setSteps, totals, error, add, remove } = useActivity();
@@ -59,12 +62,12 @@ export default function ActivityScreen() {
           <NumberStepper label="Ajustar passos" value={steps} min={0} max={100000} step={500} onChange={setSteps} />
 
           <View style={styles.summaryRow}>
-            <View style={[styles.summary, { backgroundColor: colors.limeSoft, borderColor: '#E4F0BD' }]}>
+            <View style={[styles.summary, { backgroundColor: colors.limeSoft, borderColor: colors.border }]}>
               <Flame size={16} color={colors.limeDark} />
               <Text style={styles.summaryValue}>{totals.kcal}</Text>
               <Text style={styles.small}>kcal gastas</Text>
             </View>
-            <View style={[styles.summary, { backgroundColor: colors.waterSoft, borderColor: '#BAE6FD' }]}>
+            <View style={[styles.summary, { backgroundColor: colors.waterSoft, borderColor: colors.border }]}>
               <Timer size={16} color={colors.water} />
               <Text style={styles.summaryValue}>{totals.minutes}</Text>
               <Text style={styles.small}>minutos ativos</Text>
@@ -115,10 +118,11 @@ export default function ActivityScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   error: { fontSize: font.small, color: colors.danger },
-  card: { ...cardBase, padding: 14, gap: 12 },
+  card: { ...cardBase(colors), padding: 14, gap: 12 },
   stepsCard: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   cardLabel: { fontSize: font.small, fontWeight: '500', color: colors.textMuted },
   big: { fontSize: 28, fontWeight: '700', color: colors.text, letterSpacing: -0.5 },

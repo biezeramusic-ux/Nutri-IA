@@ -1,16 +1,19 @@
 import { Lock, Mail } from 'lucide-react-native';
 import { Link } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
 import { AuthButton } from '../../components/AuthButton';
 import { AuthInput } from '../../components/AuthInput';
 import { AuthScreenLayout } from '../../components/AuthScreenLayout';
 import { GoogleButton } from '../../components/GoogleButton';
-import { colors, font } from '../../constants/theme';
+import { font, type ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { validateEmail, validatePassword } from '../../services/validation';
 
 export default function LoginScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { signIn, signInWithGoogle } = useAuth();
   const passwordRef = useRef<TextInput>(null);
   const [email, setEmail] = useState('');
@@ -94,7 +97,8 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   form: { gap: 12 },
   footer: { flexDirection: 'row', justifyContent: 'center' },
   footerText: { color: colors.textMuted, fontSize: font.body },

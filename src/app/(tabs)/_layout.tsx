@@ -2,9 +2,11 @@ import { Tabs } from 'expo-router';
 import { BookOpen, ChartColumn, House, User } from 'lucide-react-native';
 import { Platform } from 'react-native';
 import { ScannerFab } from '../../components/ScannerFab';
-import { colors, font, shadow } from '../../constants/theme';
+import { font, shadow } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function TabsLayout() {
+  const { colors } = useTheme();
   return (
     <Tabs
       initialRouteName="index"
@@ -12,16 +14,16 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textFaint,
-        tabBarLabelStyle: { fontSize: font.tiny - 1, fontWeight: '600', marginBottom: 2 },
+        tabBarLabelStyle: { fontSize: font.tiny - 1, fontWeight: '600', marginBottom: 0 },
         tabBarItemStyle: { paddingHorizontal: 0 },
         tabBarStyle: {
           position: 'absolute',
           left: 16,
           right: 16,
           bottom: Platform.OS === 'ios' ? 22 : 12,
-          height: 64,
+          height: 70,
           paddingTop: 8,
-          paddingBottom: 8,
+          paddingBottom: 10,
           borderRadius: 22,
           backgroundColor: colors.card,
           borderTopWidth: 0,

@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, Ellipse, G, Text as SvgText } from 'react-native-svg';
-import { colors, petalPalette } from '../constants/theme';
+import { petalPalette, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import type { Ingredient } from '../types';
 
 interface Props {
@@ -18,6 +20,8 @@ const toRad = (deg: number) => (deg * Math.PI) / 180;
  * e a percentagem exata aparece escrita dentro da pétala.
  */
 export function FlowerChart({ ingredients, centerValue, centerLabel, size = 260 }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const total = ingredients.reduce((sum, i) => sum + i.grams, 0) || 1;
   const count = Math.max(1, ingredients.length);
   const c = size / 2;
@@ -72,7 +76,7 @@ export function FlowerChart({ ingredients, centerValue, centerLabel, size = 260 
             </SvgText>
           </G>
         ))}
-        <Circle cx={c} cy={c} r={innerR} fill="#fff" />
+        <Circle cx={c} cy={c} r={innerR} fill={colors.card} />
         <SvgText x={c} y={c + 3} fontSize={19} fontWeight="700" fill={colors.text} textAnchor="middle">
           {centerValue}
         </SvgText>
@@ -84,6 +88,7 @@ export function FlowerChart({ ingredients, centerValue, centerLabel, size = 260 
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   wrap: { alignItems: 'center', justifyContent: 'center' },
 });

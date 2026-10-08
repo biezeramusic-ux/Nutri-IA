@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Plus, type LucideIcon } from 'lucide-react-native';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { cardBase, colors, font, radius } from '../constants/theme';
+import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import { mealIcon } from '../services/foodCatalog';
 import type { Meal } from '../types';
 
@@ -15,6 +17,8 @@ interface Props {
 
 /** Linha de uma refeição do dia (pequeno-almoço, almoço…) com + para adicionar. */
 export function MealSection({ label, icon: Icon, meals, onAdd, onOpenMeal }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const kcal = meals.reduce((s, m) => s + m.analysis.calories, 0);
   return (
     <View style={styles.card}>
@@ -45,8 +49,9 @@ export function MealSection({ label, icon: Icon, meals, onAdd, onOpenMeal }: Pro
   );
 }
 
-const styles = StyleSheet.create({
-  card: { ...cardBase, flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: radius.lg, padding: 12 },
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+  card: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: radius.lg, padding: 12 },
   iconWrap: { width: 36, height: 36, borderRadius: radius.md, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
   info: { flex: 1 },
   label: { fontSize: font.body, fontWeight: '600', color: colors.text },

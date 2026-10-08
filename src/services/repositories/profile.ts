@@ -165,3 +165,7 @@ export function saveCustomGoals(userId: string, goals: DailyGoals, targetWeightK
     target_weight_kg: targetWeightKg,
   });
 }
+
+export function saveFullName(userId: string, fullName: string): Promise<void> {
+  return updateProfile(userId, { full_name: fullName });
+}

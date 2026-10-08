@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
-import { colors, font, radius } from '../constants/theme';
+import { font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props {
   onPress: () => void;
@@ -23,6 +25,8 @@ function GoogleG({ size = 18 }: { size?: number }) {
 
 /** Botão "Continuar com Google" + separador "ou". */
 export function GoogleButton({ onPress, loading, disabled, title = 'Continuar com Google' }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.wrap}>
       <View style={styles.dividerRow}>
@@ -49,7 +53,8 @@ export function GoogleButton({ onPress, loading, disabled, title = 'Continuar co
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   wrap: { gap: 12 },
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   line: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: colors.border },

@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Lock } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { cardBase, colors, font, radius } from '../constants/theme';
+import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import type { LockReason } from '../types';
 
 const MESSAGES: Record<Exclude<LockReason, null>, { title: string; body: string }> = {
@@ -18,10 +20,12 @@ const MESSAGES: Record<Exclude<LockReason, null>, { title: string; body: string 
 
 /** Efeito de vidro fosco que "congela" a funcionalidade e abre o paywall. */
 export function LockOverlay({ reason }: { reason: Exclude<LockReason, null> }) {
+  const { colors, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { title, body } = MESSAGES[reason];
   return (
-    <BlurView intensity={45} tint="light" style={StyleSheet.absoluteFill}>
+    <BlurView intensity={45} tint={isDark ? "dark" : "light"} style={StyleSheet.absoluteFill}>
       <View style={styles.center}>
         <View style={styles.card}>
           <View style={styles.iconWrap}>
@@ -38,9 +42,10 @@ export function LockOverlay({ reason }: { reason: Exclude<LockReason, null> }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  card: { ...cardBase, padding: 20, alignItems: 'center', gap: 8, alignSelf: 'stretch' },
+  card: { ...cardBase(colors), padding: 20, alignItems: 'center', gap: 8, alignSelf: 'stretch' },
   iconWrap: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
   title: { fontSize: font.h2, fontWeight: '700', color: colors.text, textAlign: 'center' },
   body: { fontSize: font.body, color: colors.textMuted, textAlign: 'center', marginBottom: 6, lineHeight: 20 },

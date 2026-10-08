@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, font } from '../constants/theme';
+import { font, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props {
   label: string;
@@ -11,6 +13,8 @@ interface Props {
 }
 
 export function MacroLeftBar({ label, leftG, progress, color }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.wrap}>
       <Text style={styles.value}>{Math.max(0, Math.round(leftG))}g</Text>
@@ -22,7 +26,8 @@ export function MacroLeftBar({ label, leftG, progress, color }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   wrap: { flex: 1, gap: 2 },
   value: { fontSize: font.h3, fontWeight: '700', color: colors.text },
   label: { fontSize: font.tiny, color: colors.textMuted, marginBottom: 4 },

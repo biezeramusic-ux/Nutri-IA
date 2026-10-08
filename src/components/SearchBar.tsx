@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Search, X } from 'lucide-react-native';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
-import { cardBase, colors, font, radius } from '../constants/theme';
+import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props {
   value: string;
@@ -9,6 +11,8 @@ interface Props {
 }
 
 export function SearchBar({ value, onChangeText, onSubmit }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.wrap}>
       <Search size={18} color={colors.textFaint} />
@@ -30,9 +34,10 @@ export function SearchBar({ value, onChangeText, onSubmit }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   wrap: {
-    ...cardBase,
+    ...cardBase(colors),
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,

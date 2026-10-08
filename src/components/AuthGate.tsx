@@ -1,7 +1,8 @@
 import { useRootNavigationState, useRouter, useSegments } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { colors } from '../constants/theme';
+import { type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../hooks/useAuth';
 import { useProfile } from '../hooks/useProfile';
 import { Logo } from './Logo';
@@ -12,6 +13,8 @@ import { Logo } from './Logo';
  * para que conteúdo protegido nunca "pisque".
  */
 export function AuthGate() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const { session, loading: authLoading } = useAuth();
   const { loading: profileLoading, needsOnboarding } = useProfile();
   const loading = authLoading || (!!session && profileLoading);
@@ -45,7 +48,8 @@ export function AuthGate() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   splash: {
     ...StyleSheet.absoluteFill,
     backgroundColor: colors.background,

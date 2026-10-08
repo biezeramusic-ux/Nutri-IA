@@ -1,28 +1,26 @@
 import { useRouter } from 'expo-router';
-import { Activity, Droplets, LogOut, RefreshCw, Target } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { Activity, ChevronRight, Crown, Droplets, LogOut, Moon, Pencil, RefreshCw, Sun, Target, type LucideIcon } from 'lucide-react-native';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NumberStepper } from '../../components/quiz/NumberStepper';
-import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, colors, font, radius } from '../../constants/theme';
+import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { GLASS_ML, glassesFromMl } from '../../services/goals';
 import { ensureNotificationPermission, notificationsSupported } from '../../services/notifications';
-import type { GoalType } from '../../types';
+import { GOAL_LABEL } from '../../constants/labels';
+import { SegmentedControl } from '../../components/SegmentedControl';
+import { type ThemeMode } from '../../hooks/useTheme';
 
-const GOAL_LABEL: Record<GoalType, string> = {
-  lose_weight: 'Perder peso',
-  maintain: 'Manter o peso',
-  gain_muscle: 'Ganhar massa muscular',
-  eat_healthy: 'Comer mais saudável',
-  track_calories: 'Saber as calorias dos meus pratos',
-};
 
 const SAVE_DELAY_MS = 700;
 
 export default function ProfileScreen() {
+  const { colors, mode, setMode, isDark } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, displayName, signOut } = useAuth();
@@ -88,129 +86,185 @@ export default function ProfileScreen() {
       ? 'Teste grátis terminado'
       : `Teste grátis: ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes`;
 
+  const initials = (displayName || '?')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w.charAt(0).toUpperCase())
+    .join('');
+
+  const Row = ({ icon: Icon, label, onPress, value }: { icon: LucideIcon; label: string; onPress: () => void; value?: string }) => (
+    <Pressable style={styles.row} onPress={onPress}>
+      <View style={styles.rowIcon}>
+        <Icon size={17} color={colors.primaryDark} />
+      </View>
+      <Text style={styles.rowLabel}>{label}</Text>
+      {!!value && <Text style={styles.rowValue}>{value}</Text>}
+      <ChevronRight size={18} color={colors.textFaint} />
+    </Pressable>
+  );
+
   return (
     <ScrollView
       style={styles.root}
-      contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: SCREEN_PADDING, paddingBottom: TAB_BAR_SPACE + 24, gap: 14 }}
+      contentContainerStyle={{ paddingBottom: TAB_BAR_SPACE + 24 }}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.head}>
+      <View style={[styles.hero, { paddingTop: insets.top + 16 }]}>
+        <View style={styles.decoA} />
+        <View style={styles.decoB} />
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{(displayName || '?').charAt(0).toUpperCase()}</Text>
+          <Text style={styles.avatarText}>{initials}</Text>
         </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.name}>{displayName || 'Utilizador'}</Text>
-          <Text style={styles.email}>{user?.email}</Text>
-        </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>O meu plano</Text>
-        <Text style={styles.goal}>{profile?.goal ? GOAL_LABEL[profile.goal] : 'Quiz por fazer'}</Text>
-        <View style={styles.planRow}>
-          <View style={styles.planItem}>
-            <Text style={styles.planValue}>{goals.calories}</Text>
-            <Text style={styles.planLabel}>kcal</Text>
-          </View>
-          <View style={styles.planItem}>
-            <Text style={styles.planValue}>{goals.proteinG}g</Text>
-            <Text style={styles.planLabel}>proteína</Text>
-          </View>
-          <View style={styles.planItem}>
-            <Text style={styles.planValue}>{goals.carbsG}g</Text>
-            <Text style={styles.planLabel}>carbs</Text>
-          </View>
-          <View style={styles.planItem}>
-            <Text style={styles.planValue}>{goals.fatsG}g</Text>
-            <Text style={styles.planLabel}>gordura</Text>
+        <Text style={styles.name}>{displayName || 'Utilizador'}</Text>
+        <Text style={styles.email}>{user?.email}</Text>
+        <View style={styles.chipRow}>
+          <View style={[styles.planChip, isPremium && styles.planChipPro]}>
+            {isPremium && <Crown size={12} color="#14532D" />}
+            <Text style={[styles.planChipText, isPremium && { color: '#14532D' }]}>{isPremium ? 'Nutri IA Pro' : planText}</Text>
           </View>
         </View>
-        <Pressable style={styles.linkBtn} onPress={() => router.push('/quiz')}>
-          <RefreshCw size={14} color={colors.primaryDark} />
-          <Text style={styles.linkText}>Refazer o quiz e recalcular</Text>
-        </Pressable>
-        <Pressable style={styles.linkBtn} onPress={() => router.push('/goals')}>
-          <Target size={14} color={colors.primaryDark} />
-          <Text style={styles.linkText}>Objetivos</Text>
-        </Pressable>
-        <Pressable style={styles.linkBtn} onPress={() => router.push('/activity')}>
-          <Activity size={14} color={colors.primaryDark} />
-          <Text style={styles.linkText}>Atividade física</Text>
-        </Pressable>
-        <Pressable style={styles.linkBtn} onPress={() => router.push('/water')}>
-          <Droplets size={14} color={colors.primaryDark} />
-          <Text style={styles.linkText}>Registo de água</Text>
+        <Pressable style={styles.editBtn} onPress={() => router.push('/edit-profile')}>
+          <Pencil size={14} color="#fff" />
+          <Text style={styles.editText}>Editar perfil</Text>
         </Pressable>
       </View>
 
-      <View style={styles.card}>
-        <View style={styles.switchRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.cardTitle}>Lembretes de água</Text>
-            <Text style={styles.sub}>O Nutri IA avisa-o para beber água ao longo do dia.</Text>
+      <View style={styles.body}>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>O meu plano diário</Text>
+          <Text style={styles.goal}>{profile?.goal ? GOAL_LABEL[profile.goal] : 'Quiz por fazer'}</Text>
+          <View style={styles.planRow}>
+            <View style={styles.planItem}>
+              <Text style={styles.planValue}>{goals.calories}</Text>
+              <Text style={styles.planLabel}>kcal</Text>
+            </View>
+            <View style={styles.planItem}>
+              <Text style={[styles.planValue, { color: colors.protein }]}>{goals.proteinG}g</Text>
+              <Text style={styles.planLabel}>proteína</Text>
+            </View>
+            <View style={styles.planItem}>
+              <Text style={[styles.planValue, { color: colors.carbs }]}>{goals.carbsG}g</Text>
+              <Text style={styles.planLabel}>carbs</Text>
+            </View>
+            <View style={styles.planItem}>
+              <Text style={[styles.planValue, { color: colors.fats }]}>{goals.fatsG}g</Text>
+              <Text style={styles.planLabel}>gordura</Text>
+            </View>
           </View>
-          <Switch
-            value={reminders}
-            onValueChange={(v) => void toggleReminders(v)}
-            trackColor={{ true: colors.primary, false: colors.border }}
-            thumbColor="#fff"
+        </View>
+
+        <Text style={styles.section}>Atalhos</Text>
+        <View style={styles.group}>
+          <Row icon={Target} label="Objetivos" onPress={() => router.push('/goals')} />
+          <Row icon={Activity} label="Atividade física" onPress={() => router.push('/activity')} />
+          <Row icon={Droplets} label="Registo de água" onPress={() => router.push('/water')} />
+          <Row icon={RefreshCw} label="Refazer o quiz" onPress={() => router.push('/quiz')} />
+        </View>
+
+        <Text style={styles.section}>Aparência</Text>
+        <View style={styles.card}>
+          <View style={styles.themeHead}>
+            {isDark ? <Moon size={18} color={colors.primaryDark} /> : <Sun size={18} color={colors.primaryDark} />}
+            <Text style={styles.cardTitle}>Tema da app</Text>
+          </View>
+          <SegmentedControl<ThemeMode>
+            options={[
+              { key: 'light', label: 'Claro' },
+              { key: 'dark', label: 'Escuro' },
+              { key: 'system', label: 'Automático' },
+            ]}
+            value={mode}
+            onChange={setMode}
           />
         </View>
-        {reminders && (
-          <View style={{ gap: 10 }}>
-            <NumberStepper label="Acordo às (hora)" value={wake} unit="h" min={4} max={12} onChange={setWake} />
-            <NumberStepper label="Vou dormir às (hora)" value={sleep} unit="h" min={18} max={24} onChange={setSleep} />
+
+        <Text style={styles.section}>Lembretes</Text>
+        <View style={styles.card}>
+          <View style={styles.switchRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardTitle}>Lembretes de água</Text>
+              <Text style={styles.sub}>O Nutri IA avisa-o para beber água ao longo do dia.</Text>
+            </View>
+            <Switch
+              value={reminders}
+              onValueChange={(v) => void toggleReminders(v)}
+              trackColor={{ true: colors.primary, false: colors.border }}
+              thumbColor="#fff"
+            />
           </View>
-        )}
-        <NumberStepper
-          label={`Meta de água (${glassesFromMl(waterMl)} copos de ${GLASS_ML} ml)`}
-          value={waterMl}
-          unit="ml"
-          min={1000}
-          max={6000}
-          step={250}
-          onChange={setWaterMl}
-        />
-      </View>
+          {reminders && (
+            <View style={{ gap: 10 }}>
+              <NumberStepper label="Acordo às (hora)" value={wake} unit="h" min={4} max={12} onChange={setWake} />
+              <NumberStepper label="Vou dormir às (hora)" value={sleep} unit="h" min={18} max={24} onChange={setSleep} />
+            </View>
+          )}
+          <NumberStepper
+            label={`Meta de água (${glassesFromMl(waterMl)} copos de ${GLASS_ML} ml)`}
+            value={waterMl}
+            unit="ml"
+            min={1000}
+            max={6000}
+            step={250}
+            onChange={setWaterMl}
+          />
+        </View>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Subscrição</Text>
-        <Text style={styles.sub}>{planText}</Text>
-        {!isPremium && (
-          <Pressable style={styles.cta} onPress={() => router.push('/paywall')}>
-            <Text style={styles.ctaText}>Ver planos</Text>
-          </Pressable>
-        )}
-      </View>
+        <Text style={styles.section}>Subscrição</Text>
+        <View style={styles.card}>
+          <Text style={styles.sub}>{planText}</Text>
+          {!isPremium && (
+            <Pressable style={styles.cta} onPress={() => router.push('/paywall')}>
+              <Crown size={16} color="#fff" />
+              <Text style={styles.ctaText}>Ver planos Pro</Text>
+            </Pressable>
+          )}
+        </View>
 
-      <Pressable style={styles.signOut} onPress={confirmSignOut}>
-        <LogOut size={18} color={colors.danger} />
-        <Text style={styles.signOutText}>Terminar sessão</Text>
-      </Pressable>
+        <Pressable style={styles.signOut} onPress={confirmSignOut}>
+          <LogOut size={18} color={colors.danger} />
+          <Text style={styles.signOutText}>Terminar sessão</Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.background },
-  head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontSize: font.h2, fontWeight: '700', color: colors.text },
-  name: { fontSize: font.h2, fontWeight: '700', color: colors.text },
-  email: { fontSize: font.small, color: colors.textMuted },
-  card: { ...cardBase, padding: 16, gap: 10 },
-  cardTitle: { fontSize: font.h3, fontWeight: '600', color: colors.text },
-  sub: { fontSize: font.small, color: colors.textMuted, marginTop: 1, lineHeight: 17 },
-  goal: { fontSize: font.body, fontWeight: '600', color: colors.limeDark },
-  planRow: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radius.md, padding: 12 },
-  planItem: { alignItems: 'center', flex: 1 },
-  planValue: { fontSize: font.h3, fontWeight: '700', color: colors.text },
-  planLabel: { fontSize: font.tiny, color: colors.textMuted },
-  linkBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
-  linkText: { fontSize: font.small, fontWeight: '600', color: colors.primaryDark },
-  switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  cta: { height: 44, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
-  ctaText: { color: '#fff', fontWeight: '600', fontSize: font.body },
-  signOut: { flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', height: 46, borderRadius: radius.md, backgroundColor: colors.dangerSoft },
-  signOutText: { color: colors.danger, fontWeight: '600', fontSize: font.body },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    root: { flex: 1, backgroundColor: colors.background },
+    hero: { backgroundColor: '#14532D', paddingHorizontal: SCREEN_PADDING, paddingBottom: 26, alignItems: 'center', gap: 4, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
+    decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.25, top: -80, right: -70 },
+    decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
+    avatar: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.35)' },
+    avatarText: { fontSize: 28, fontWeight: '700', color: '#14532D' },
+    name: { fontSize: font.h1, fontWeight: '700', color: '#fff', marginTop: 8 },
+    email: { fontSize: font.small, color: 'rgba(255,255,255,0.75)' },
+    chipRow: { flexDirection: 'row', marginTop: 8 },
+    planChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 },
+    planChipPro: { backgroundColor: colors.lime },
+    planChipText: { fontSize: font.small, fontWeight: '600', color: '#fff' },
+    editBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.4)', borderRadius: radius.pill, paddingHorizontal: 16, height: 36 },
+    editText: { color: '#fff', fontWeight: '600', fontSize: font.body },
+    body: { paddingHorizontal: SCREEN_PADDING, paddingTop: 18, gap: 10 },
+    section: { fontSize: font.small, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 8 },
+    card: { ...cardBase(colors), padding: 16, gap: 12 },
+    cardTitle: { fontSize: font.h3, fontWeight: '600', color: colors.text },
+    goal: { fontSize: font.body, color: colors.textMuted },
+    planRow: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radius.md, padding: 12 },
+    planItem: { flex: 1, alignItems: 'center' },
+    planValue: { fontSize: font.h2, fontWeight: '700', color: colors.text },
+    planLabel: { fontSize: font.tiny, color: colors.textMuted, marginTop: 2 },
+    group: { ...cardBase(colors), paddingHorizontal: 4 },
+    row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 12 },
+    rowIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+    rowLabel: { flex: 1, fontSize: font.body, fontWeight: '500', color: colors.text },
+    rowValue: { fontSize: font.small, color: colors.textMuted },
+    themeHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    sub: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
+    cta: { flexDirection: 'row', gap: 8, backgroundColor: colors.primary, borderRadius: radius.md, height: 46, alignItems: 'center', justifyContent: 'center' },
+    ctaText: { color: '#fff', fontWeight: '700', fontSize: font.body },
+    signOut: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.dangerSoft, marginTop: 8 },
+    signOutText: { color: colors.danger, fontWeight: '600', fontSize: font.body },
+  });

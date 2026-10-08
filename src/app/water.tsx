@@ -5,7 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProgressRing } from '../components/ProgressRing';
 import { ProGate } from '../components/ProOverlay';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { SCREEN_PADDING, cardBase, colors, font, radius } from '../constants/theme';
+import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import { useProfile } from '../hooks/useProfile';
 import { useWater } from '../hooks/useWater';
 import { GLASS_ML } from '../services/goals';
@@ -27,6 +28,8 @@ function formatTime(date: Date): string {
 }
 
 export default function WaterScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const water = useWater();
   const { profile } = useProfile();
@@ -79,7 +82,7 @@ export default function WaterScreen() {
 
         <View style={styles.glassRow}>
           {Array.from({ length: water.goalGlasses }).map((_, i) => (
-            <GlassWater key={i} size={22} color={i < water.glasses ? colors.water : '#CBD5E1'} />
+            <GlassWater key={i} size={22} color={i < water.glasses ? colors.water : colors.border} />
           ))}
         </View>
 
@@ -122,11 +125,12 @@ export default function WaterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   title: { fontSize: font.h1, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   error: { fontSize: font.small, color: colors.danger },
-  card: { ...cardBase, padding: 18, alignItems: 'center', gap: 14 },
+  card: { ...cardBase(colors), padding: 18, alignItems: 'center', gap: 14 },
   ringValue: { fontSize: font.h1, fontWeight: '700', color: colors.text, marginTop: 2 },
   ringSub: { fontSize: font.small, color: colors.textMuted },
   status: { fontSize: font.body, fontWeight: '600', color: colors.text },
@@ -137,7 +141,7 @@ const styles = StyleSheet.create({
   big: { fontSize: 28, fontWeight: '700', color: colors.text },
   bigSub: { fontSize: font.h3, color: colors.textMuted, fontWeight: '500' },
   small: { fontSize: font.small, color: colors.textMuted },
-  infoCard: { ...cardBase, flexDirection: 'row', gap: 12, padding: 14, borderRadius: radius.lg },
+  infoCard: { ...cardBase(colors), flexDirection: 'row', gap: 12, padding: 14, borderRadius: radius.lg },
   infoTitle: { fontSize: font.body, fontWeight: '600', color: colors.text },
   infoText: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
 });

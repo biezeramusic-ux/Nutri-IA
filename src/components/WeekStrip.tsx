@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, font, radius } from '../constants/theme';
+import { font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import { todayKey } from '../services/date';
 import { WEEKDAY_LABELS } from '../services/dayUtils';
 import { ProgressRing } from './ProgressRing';
@@ -14,6 +16,8 @@ interface Props {
 
 /** Faixa da semana com um anel de progresso por dia. */
 export function WeekStrip({ days, selectedKey, onSelect, progressByDay }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.row}>
       {days.map((day, i) => {
@@ -38,7 +42,8 @@ export function WeekStrip({ days, selectedKey, onSelect, progressByDay }: Props)
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between' },
   item: { alignItems: 'center', gap: 6, paddingVertical: 8, width: 44, borderRadius: radius.md },
   selected: { backgroundColor: colors.lime },

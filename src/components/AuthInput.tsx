@@ -1,7 +1,8 @@
 import { Eye, EyeOff, type LucideIcon } from 'lucide-react-native';
-import { forwardRef, useState } from 'react';
+import { forwardRef, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
-import { colors, font, radius } from '../constants/theme';
+import { font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props extends TextInputProps {
   label: string;
@@ -15,6 +16,8 @@ export const AuthInput = forwardRef<TextInput, Props>(function AuthInput(
   { label, icon: Icon, error, passwordToggle, secureTextEntry, style, ...rest },
   ref,
 ) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const [hidden, setHidden] = useState(true);
   const secure = passwordToggle ? hidden : secureTextEntry;
   const ToggleIcon = hidden ? EyeOff : Eye;
@@ -46,7 +49,8 @@ export const AuthInput = forwardRef<TextInput, Props>(function AuthInput(
   );
 });
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   wrap: { gap: 6 },
   label: { fontSize: font.small, fontWeight: '500', color: colors.text },
   field: {

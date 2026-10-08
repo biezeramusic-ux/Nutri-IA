@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { cardBase, colors, font, radius } from '../constants/theme';
+import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props {
   label: string;
@@ -11,6 +13,8 @@ interface Props {
 }
 
 export function MacroSquareCard({ label, percent, grams, color, unitOnly }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.card}>
       <View style={[styles.bar, { backgroundColor: color }]} />
@@ -21,9 +25,10 @@ export function MacroSquareCard({ label, percent, grams, color, unitOnly }: Prop
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   card: {
-    ...cardBase,
+    ...cardBase(colors),
     flex: 1,
     borderRadius: radius.lg,
     paddingVertical: 14,

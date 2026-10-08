@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import {
   ImageBackground,
   KeyboardAvoidingView,
@@ -9,7 +9,8 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, font, radius } from '../constants/theme';
+import { font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import { isSupabaseConfigured } from '../services/supabase';
 import { Logo } from './Logo';
 
@@ -24,6 +25,8 @@ interface Props {
  * marca no topo e o formulário num cartão no fundo do ecrã.
  */
 export function AuthScreenLayout({ title, subtitle, children }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
 
   return (
@@ -64,7 +67,8 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.12)' },

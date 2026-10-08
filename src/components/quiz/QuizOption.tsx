@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Check, type LucideIcon } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { cardBase, colors, font, radius } from '../../constants/theme';
+import { cardBase, font, radius, type ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 interface Props {
   icon: LucideIcon;
@@ -12,6 +14,8 @@ interface Props {
 
 /** Cartão de resposta do quiz. */
 export function QuizOption({ icon: Icon, title, subtitle, selected, onPress }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <Pressable
       onPress={onPress}
@@ -32,9 +36,10 @@ export function QuizOption({ icon: Icon, title, subtitle, selected, onPress }: P
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   card: {
-    ...cardBase,
+    ...cardBase(colors),
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
@@ -43,7 +48,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderWidth: 1.5,
   },
-  selected: { borderColor: colors.primary, backgroundColor: '#F6FBF6' },
+  selected: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
   pressed: { opacity: 0.85 },
   icon: { width: 38, height: 38, borderRadius: radius.md, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
   iconSelected: { backgroundColor: colors.primary },

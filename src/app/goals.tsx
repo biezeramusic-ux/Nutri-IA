@@ -1,13 +1,14 @@
 import { useRouter } from 'expo-router';
 import { Camera, Dumbbell, HeartPulse, Leaf, Scale } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProGate } from '../components/ProOverlay';
 import { NumberStepper } from '../components/quiz/NumberStepper';
 import { QuizOption } from '../components/quiz/QuizOption';
 import { ScreenHeader } from '../components/ScreenHeader';
-import { SCREEN_PADDING, cardBase, colors, font, radius } from '../constants/theme';
+import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import { useProfile } from '../hooks/useProfile';
 import { calculateGoals } from '../services/goals';
 import type { GoalType } from '../types';
@@ -21,6 +22,8 @@ const GOALS: { value: GoalType; icon: typeof Scale; title: string; subtitle: str
 ];
 
 export default function GoalsScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile, goals, completeOnboarding, saveGoals } = useProfile();
@@ -150,10 +153,11 @@ export default function GoalsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   section: { fontSize: font.h2, fontWeight: '700', color: colors.text, marginTop: 6 },
-  card: { ...cardBase, padding: 14, gap: 10 },
+  card: { ...cardBase(colors), padding: 14, gap: 10 },
   planRow: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radius.md, padding: 12 },
   planItem: { alignItems: 'center', flex: 1 },
   planValue: { fontSize: font.h3, fontWeight: '700', color: colors.text },

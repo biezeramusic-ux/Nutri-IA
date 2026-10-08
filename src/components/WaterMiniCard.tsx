@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Droplets, Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { cardBase, colors, font } from '../constants/theme';
+import { cardBase, font, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props {
   glasses: number;
@@ -10,6 +12,8 @@ interface Props {
 }
 
 export function WaterMiniCard({ glasses, goalGlasses, onAdd, onOpen }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <Pressable onPress={onOpen} style={styles.card}>
       <View style={styles.head}>
@@ -34,8 +38,9 @@ export function WaterMiniCard({ glasses, goalGlasses, onAdd, onOpen }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: { ...cardBase, padding: 14, gap: 10, flex: 1 },
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+  card: { ...cardBase(colors), padding: 14, gap: 10, flex: 1 },
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontSize: font.body, fontWeight: '600', color: colors.text },
   icon: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.waterSoft, alignItems: 'center', justifyContent: 'center' },

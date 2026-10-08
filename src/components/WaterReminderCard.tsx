@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { BellRing } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, font, radius } from '../constants/theme';
+import { font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props {
   text: string;
@@ -11,6 +13,8 @@ interface Props {
 
 /** Convite para ativar os lembretes de água, com texto adaptado ao objetivo da pessoa. */
 export function WaterReminderCard({ text, onActivate, onDismiss, busy }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.card}>
       <View style={styles.head}>
@@ -32,12 +36,13 @@ export function WaterReminderCard({ text, onActivate, onDismiss, busy }: Props) 
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   card: {
     backgroundColor: colors.waterSoft,
     borderRadius: radius.card,
     borderWidth: 1,
-    borderColor: '#BAE6FD',
+    borderColor: colors.border,
     padding: 16,
     gap: 10,
   },

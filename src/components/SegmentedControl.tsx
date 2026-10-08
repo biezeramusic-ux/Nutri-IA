@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, font, radius } from '../constants/theme';
+import { useMemo } from 'react';
+import { font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props<T extends string> {
   options: { key: T; label: string }[];
@@ -8,6 +10,8 @@ interface Props<T extends string> {
 }
 
 export function SegmentedControl<T extends string>({ options, value, onChange }: Props<T>) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.wrap}>
       {options.map((o) => (
@@ -19,7 +23,8 @@ export function SegmentedControl<T extends string>({ options, value, onChange }:
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   wrap: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radius.md, padding: 3 },
   item: { flex: 1, height: 34, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
   active: { backgroundColor: colors.card, shadowColor: '#0F172A', shadowOpacity: 0.08, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 1 },

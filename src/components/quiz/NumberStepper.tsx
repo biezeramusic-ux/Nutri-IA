@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Minus, Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { cardBase, colors, font, radius } from '../../constants/theme';
+import { cardBase, font, radius, type ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 interface Props {
   label: string;
@@ -13,6 +15,8 @@ interface Props {
 }
 
 export function NumberStepper({ label, value, unit, min, max, step = 1, onChange }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const set = (next: number) => onChange(Math.min(max, Math.max(min, next)));
   return (
     <View style={styles.wrap}>
@@ -33,8 +37,9 @@ export function NumberStepper({ label, value, unit, min, max, step = 1, onChange
   );
 }
 
-const styles = StyleSheet.create({
-  wrap: { ...cardBase, borderRadius: radius.lg, padding: 14, gap: 6 },
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+  wrap: { ...cardBase(colors), borderRadius: radius.lg, padding: 14, gap: 6 },
   label: { fontSize: font.small, fontWeight: '500', color: colors.textMuted },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   btn: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },

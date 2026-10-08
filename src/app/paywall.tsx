@@ -1,12 +1,14 @@
 import { useRouter } from 'expo-router';
-import { Activity, Check, CreditCard, Droplets, Infinity as InfinityIcon, Leaf, Minus, ShieldCheck, Smartphone, TrendingUp, UtensilsCrossed, X } from 'lucide-react-native';
-import { useState } from 'react';
+import { Activity, Check, Droplets, Infinity as InfinityIcon, Leaf, Lock, Minus, ShieldCheck, TrendingUp, UtensilsCrossed, X } from 'lucide-react-native';
+import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Logo } from '../components/Logo';
+import { PaymentLogo } from '../components/PaymentLogos';
 import { PlanCard } from '../components/PlanCard';
 import { PLANS } from '../constants/plans';
-import { SCREEN_PADDING, colors, font, radius } from '../constants/theme';
+import { SCREEN_PADDING, font, formatMT, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import { useSubscription } from '../hooks/useSubscription';
 import { payWithCard, payWithEmola, payWithMpesa, type PaymentResult } from '../services/payments';
 import type { PlanId } from '../types';
@@ -33,13 +35,15 @@ const COMPARE: [string, string | boolean, string | boolean][] = [
   ['Duração', '3 dias', 'Enquanto durar o plano'],
 ];
 
-const METHODS: { id: Method; label: string }[] = [
-  { id: 'mpesa', label: 'M-Pesa' },
-  { id: 'emola', label: 'e-Mola' },
-  { id: 'card', label: 'Cartão' },
+const METHODS: { id: Method; label: string; hint: string }[] = [
+  { id: 'mpesa', label: 'M-Pesa', hint: 'Vodacom · 84 / 85' },
+  { id: 'emola', label: 'e-Mola', hint: 'Movitel · 86 / 87' },
+  { id: 'card', label: 'Cartão bancário', hint: 'Visa, Mastercard, IBAN' },
 ];
 
 function Cell({ value, pro }: { value: string | boolean; pro?: boolean }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   if (typeof value === 'boolean') {
     return value ? <Check size={16} color={pro ? colors.primaryDark : colors.textFaint} strokeWidth={3} /> : <Minus size={16} color={colors.textFaint} />;
   }
@@ -47,6 +51,8 @@ function Cell({ value, pro }: { value: string | boolean; pro?: boolean }) {
 }
 
 export default function PaywallScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { activatePlan } = useSubscription();
@@ -113,7 +119,7 @@ export default function PaywallScreen() {
           </View>
 
           <Text style={styles.section}>Escolha o seu plano</Text>
-          <View style={styles.plans}>
+          <View style={styles.plansRow}>
             {PLANS.map((p) => (
               <PlanCard key={p.id} plan={p} selected={p.id === planId} onPress={() => setPlanId(p.id)} />
             ))}
@@ -141,24 +147,40 @@ export default function PaywallScreen() {
 
           <Text style={styles.section}>Como quer pagar?</Text>
           <View style={styles.methods}>
-            {METHODS.map((m) => (
-              <Pressable key={m.id} onPress={() => setMethod(m.id)} style={[styles.method, method === m.id && styles.methodOn]}>
-                <Text style={[styles.methodText, method === m.id && styles.methodTextOn]}>{m.label}</Text>
-              </Pressable>
-            ))}
+            {METHODS.map((m) => {
+              const on = method === m.id;
+              return (
+                <Pressable key={m.id} onPress={() => setMethod(m.id)} style={[styles.method, on && styles.methodOn]}>
+                  {m.id === 'card' ? (
+                    <View style={styles.cardLogos}>
+                      <PaymentLogo brand="visa" height={26} />
+                      <PaymentLogo brand="mastercard" height={26} />
+                    </View>
+                  ) : (
+                    <PaymentLogo brand={m.id} height={30} />
+                  )}
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.methodText}>{m.label}</Text>
+                    <Text style={styles.methodHint}>{m.hint}</Text>
+                  </View>
+                  <View style={[styles.radio, on && styles.radioOn]}>{on && <Check size={12} color="#fff" strokeWidth={3.5} />}</View>
+                </Pressable>
+              );
+            })}
           </View>
-          {method !== 'card' ? (
-            <TextInput
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-              placeholder={method === 'mpesa' ? 'Número M-Pesa (84 / 85)' : 'Número e-Mola (86 / 87)'}
-              placeholderTextColor={colors.textFaint}
-              style={styles.input}
-              maxLength={13}
-            />
-          ) : (
-            <Text style={styles.hint}>Cartão bancário, Visa, Mastercard ou IBAN.</Text>
+          {method !== 'card' && (
+            <View style={styles.phoneField}>
+              <Text style={styles.prefix}>+258</Text>
+              <TextInput
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                placeholder={method === 'mpesa' ? '84 123 4567' : '86 123 4567'}
+                placeholderTextColor={colors.textFaint}
+                style={styles.phoneInput}
+                maxLength={13}
+              />
+            </View>
           )}
 
           <View style={styles.secure}>
@@ -175,9 +197,9 @@ export default function PaywallScreen() {
             <ActivityIndicator color="#fff" />
           ) : (
             <View style={styles.ctaRow}>
-              {method === 'card' ? <CreditCard size={18} color="#fff" /> : <Smartphone size={18} color="#fff" />}
+              <Lock size={16} color="#fff" />
               <Text style={styles.ctaText}>
-                Continuar · {plan.priceMT.toLocaleString('pt-PT')} MT {plan.period}
+                Pagar {formatMT(plan.priceMT)} MT {plan.period}
               </Text>
             </View>
           )}
@@ -187,7 +209,8 @@ export default function PaywallScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   hero: { backgroundColor: '#14532D', paddingHorizontal: SCREEN_PADDING, paddingBottom: 30, alignItems: 'center', gap: 6, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
   decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.25, top: -80, right: -70 },
@@ -202,7 +225,7 @@ const styles = StyleSheet.create({
   tileIcon: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
   tileText: { flex: 1, fontSize: font.small, fontWeight: '500', color: colors.text },
   section: { fontSize: font.h3, fontWeight: '600', color: colors.text, marginTop: 10 },
-  plans: { gap: 14, marginTop: 2 },
+  plansRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
   table: { backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 12 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
   rowLine: { borderBottomWidth: 1, borderBottomColor: colors.border },
@@ -212,13 +235,17 @@ const styles = StyleSheet.create({
   col: { flex: 1, alignItems: 'center', justifyContent: 'center', textAlign: 'center' },
   cellText: { fontSize: font.tiny, color: colors.textMuted, textAlign: 'center' },
   cellPro: { color: colors.primaryDark, fontWeight: '600' },
-  methods: { flexDirection: 'row', gap: 8 },
-  method: { flex: 1, height: 40, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  methods: { gap: 8 },
+  method: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: radius.lg, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.card, padding: 12 },
   methodOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
-  methodText: { fontSize: font.body, fontWeight: '500', color: colors.textMuted },
-  methodTextOn: { color: colors.primaryDark, fontWeight: '700' },
-  input: { height: 46, borderRadius: radius.md, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 14, fontSize: font.body, color: colors.text },
-  hint: { fontSize: font.small, color: colors.textMuted },
+  methodText: { fontSize: font.body, fontWeight: '600', color: colors.text },
+  methodHint: { fontSize: font.tiny, color: colors.textMuted, marginTop: 1 },
+  cardLogos: { flexDirection: 'row', gap: 4 },
+  radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  radioOn: { backgroundColor: colors.primary, borderColor: colors.primary },
+  phoneField: { flexDirection: 'row', alignItems: 'center', height: 48, borderRadius: radius.md, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 14, gap: 10 },
+  prefix: { fontSize: font.body, fontWeight: '600', color: colors.textMuted },
+  phoneInput: { flex: 1, fontSize: font.body, color: colors.text },
   secure: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 6 },
   secureText: { fontSize: font.small, color: colors.textMuted },
   disclaimer: { fontSize: font.tiny, color: colors.textFaint, textAlign: 'center' },

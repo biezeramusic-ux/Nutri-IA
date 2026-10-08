@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
-import { colors, font, radius } from '../constants/theme';
+import { font, radius, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 
 interface Props {
   title: string;
@@ -10,6 +12,8 @@ interface Props {
 
 /** Botão principal em Verde Saúde, com estado de carregamento. */
 export function AuthButton({ title, onPress, loading, disabled }: Props) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const inactive = loading || disabled;
   return (
     <Pressable
@@ -23,7 +27,8 @@ export function AuthButton({ title, onPress, loading, disabled }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   button: {
     height: 48,
     borderRadius: radius.md,

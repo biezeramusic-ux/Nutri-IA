@@ -12,10 +12,11 @@ import {
   Sofa,
   UserRound,
 } from 'lucide-react-native';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { cardBase, colors, font, radius, SCREEN_PADDING } from '../../constants/theme';
+import { cardBase, font, radius, SCREEN_PADDING, type ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import { useProfile } from '../../hooks/useProfile';
 import { GLASS_ML, calculateGoals, glassesFromMl, planTips } from '../../services/goals';
 import { ensureNotificationPermission } from '../../services/notifications';
@@ -114,6 +115,8 @@ function toggle<T>(list: T[], value: T): T[] {
 }
 
 export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile, completeOnboarding } = useProfile();
@@ -377,7 +380,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   topRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   back: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
@@ -398,7 +402,7 @@ const styles = StyleSheet.create({
   waterCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.waterSoft, borderRadius: radius.lg, padding: 14 },
   waterTitle: { fontSize: font.body, fontWeight: '600', color: colors.text },
   waterSub: { fontSize: font.small, color: colors.textMuted, marginTop: 2 },
-  tips: { ...cardBase, borderRadius: radius.lg, padding: 14, gap: 6 },
+  tips: { ...cardBase(colors), borderRadius: radius.lg, padding: 14, gap: 6 },
   tipsTitle: { fontSize: font.body, fontWeight: '600', color: colors.text },
   tip: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: SCREEN_PADDING, paddingTop: 10, backgroundColor: colors.background },

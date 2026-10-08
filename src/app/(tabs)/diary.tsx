@@ -6,7 +6,8 @@ import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'rea
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProBadge } from '../../components/ProOverlay';
 import { WeekStrip } from '../../components/WeekStrip';
-import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, colors, font, radius } from '../../constants/theme';
+import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 import { FREE_MEALS_TOTAL } from '../../constants/plans';
 import { useDiary } from '../../hooks/useDiary';
 import { useProfile } from '../../hooks/useProfile';
@@ -17,6 +18,8 @@ import { mealIcon } from '../../services/foodCatalog';
 import type { Meal } from '../../types';
 
 export default function DiaryScreen() {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { meals, setCurrent, removeMeal } = useDiary();
@@ -165,10 +168,11 @@ export default function DiaryScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   title: { fontSize: font.h1, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
-  card: { ...cardBase, padding: 16, gap: 12 },
+  card: { ...cardBase(colors), padding: 16, gap: 12 },
   totalTop: { flexDirection: 'row', justifyContent: 'space-between' },
   cardLabel: { fontSize: font.small, fontWeight: '500', color: colors.textMuted },
   big: { fontSize: 28, fontWeight: '700', color: colors.text, letterSpacing: -0.5 },
@@ -180,7 +184,7 @@ const styles = StyleSheet.create({
   macroValue: { fontSize: font.h3, fontWeight: '700', color: colors.text },
   macroLabel: { fontSize: font.tiny, color: colors.textMuted },
   limit: { fontSize: font.small, color: colors.textMuted },
-  section: { ...cardBase, padding: 14, gap: 10, borderRadius: radius.lg },
+  section: { ...cardBase(colors), padding: 14, gap: 10, borderRadius: radius.lg },
   sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   sectionIcon: { width: 30, height: 30, borderRadius: 10, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
   sectionTitle: { flex: 1, fontSize: font.h3, fontWeight: '600', color: colors.text },

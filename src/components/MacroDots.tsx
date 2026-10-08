@@ -1,8 +1,12 @@
+import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, font } from '../constants/theme';
+import { font, type ThemeColors } from '../constants/theme';
+import { useTheme } from '../hooks/useTheme';
 import type { MacroPercentages } from '../types';
 
 export function MacroDots({ macros }: { macros: MacroPercentages }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const items = [
     { key: 'C', value: macros.carbs, color: colors.carbs },
     { key: 'P', value: macros.protein, color: colors.protein },
@@ -22,7 +26,8 @@ export function MacroDots({ macros }: { macros: MacroPercentages }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
   row: { flexDirection: 'row', gap: 8, marginTop: 4 },
   item: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   dot: { width: 6, height: 6, borderRadius: 3 },
