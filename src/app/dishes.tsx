@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenHeader } from '../components/ScreenHeader';
@@ -9,7 +9,8 @@ import { SearchBar } from '../components/SearchBar';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useDiary } from '../hooks/useDiary';
 import { useTheme } from '../hooks/useTheme';
-import { buildMeal, mealEmoji, mozambicanDishes } from '../services/foodCatalog';
+import { DISH_IMAGES } from '../constants/dishImages';
+import { buildMeal, dishSlug, mealEmoji, mozambicanDishes } from '../services/foodCatalog';
 import { tr } from '../i18n';
 
 export default function DishesScreen() {
@@ -42,9 +43,13 @@ export default function DishesScreen() {
           const meal = buildMeal(d.analysis);
           return (
             <Pressable key={d.name} style={styles.row} onPress={() => open(i)}>
-              <View style={styles.icon}>
-                <Text style={{ fontSize: 22 }}>{mealEmoji(d.name)}</Text>
-              </View>
+              {DISH_IMAGES[dishSlug(d.name)] ? (
+                <Image source={DISH_IMAGES[dishSlug(d.name)]} style={styles.photo} />
+              ) : (
+                <View style={styles.icon}>
+                  <Text style={{ fontSize: 22 }}>{mealEmoji(d.name)}</Text>
+                </View>
+              )}
               <View style={{ flex: 1 }}>
                 <Text style={styles.name}>{d.name}</Text>
                 <Text style={styles.sub}>
@@ -66,6 +71,7 @@ const createStyles = (colors: ThemeColors) =>
     root: { flex: 1, backgroundColor: colors.background },
     row: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12 },
     icon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
+    photo: { width: 56, height: 56, borderRadius: radius.md, backgroundColor: colors.limeSoft },
     name: { fontSize: font.h3, fontWeight: '600', color: colors.text },
     sub: { fontSize: font.small, color: colors.textMuted },
   });

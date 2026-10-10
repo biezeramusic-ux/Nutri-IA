@@ -1,0 +1,24 @@
+Fotos dos pratos moçambicanos
+
+Coloque aqui uma foto por prato (jpg, png ou webp), com EXACTAMENTE estes nomes:
+
+  xima-com-matapa.jpg    (Xima com matapa)
+  xima-com-caril-de-amendoim.jpg    (Xima com caril de amendoim)
+  xima-com-peixe-grelhado.jpg    (Xima com peixe grelhado)
+  mucapata.jpg    (Mucapata)
+  cacana-com-peixe.jpg    (Cacana com peixe)
+  badgias.jpg    (Badgias)
+  matapa-com-arroz.jpg    (Matapa com arroz)
+  arroz-com-feijao.jpg    (Arroz com feijão)
+  feijao-nhemba-com-arroz.jpg    (Feijão nhemba com arroz)
+  peixe-grelhado-com-arroz.jpg    (Peixe grelhado com arroz)
+  camarao-grelhado-com-arroz.jpg    (Camarão grelhado com arroz)
+  frango-grelhado-com-batata-doce.jpg    (Frango grelhado com batata-doce)
+  batata-doce-cozida.jpg    (Batata-doce cozida)
+  salada-de-legumes.jpg    (Salada de legumes)
+
+Depois, no terminal, na pasta do projecto, corra:
+  npm run dishes
+
+Pratos sem foto continuam a mostrar o emoji.
+Use fotos pequenas (cerca de 400x400 px, abaixo de 100 KB cada) para a app não ficar pesada.

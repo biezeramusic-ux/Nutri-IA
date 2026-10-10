@@ -37,7 +37,8 @@
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
-    "ios": "expo start --ios"
+    "ios": "expo start --ios",
+    "dishes": "node scripts/gen-dish-images.js"
   },
   "private": true
 }
