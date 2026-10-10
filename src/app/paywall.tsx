@@ -79,7 +79,8 @@ export default function PaywallScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { activatePlan, isPro } = useSubscription();
+  const { activatePlan, isPro, activePlan } = useSubscription();
+  const activeInfo = activePlan ? PLANS.find((p) => p.id === activePlan.planId) : undefined;
   const { discountPct, invited, needed } = useReferral();
   const [planId, setPlanId] = useState<PlanId>('monthly');
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -94,7 +95,7 @@ export default function PaywallScreen() {
     else result = await payWithCard(plan);
     if (!result.success) return { ok: false, error: result.error };
     try {
-      await activatePlan(plan.id);
+      await activatePlan(plan.id, plan.priceMT);
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : 'Tente novamente.' };
     }
@@ -127,11 +128,26 @@ export default function PaywallScreen() {
           <View style={styles.logoWrap}>
             <Logo size={44} />
           </View>
-          <Text style={styles.title}>{tr('Nutri IA Pro 👑')}</Text>
+          <Text style={styles.title}>{tr(isPro ? 'Assinatura Pro 👑' : 'Nutri IA Pro 👑')}</Text>
           <Text style={styles.subtitle}>{tr('Coma melhor, sem adivinhar. Todos os planos têm os mesmos recursos.')}</Text>
         </View>
 
         <View style={styles.body}>
+          {isPro && (
+            <View style={styles.activeCard}>
+              <Text style={styles.activeLabel}>{tr('Plano activo')}</Text>
+              {activePlan && activeInfo ? (
+                <>
+                  <Text style={styles.activePrice}>
+                    {formatMT(activePlan.priceMT)} MT <Text style={styles.activePeriod}>{tr(activeInfo.period)}</Text>
+                  </Text>
+                  <Text style={styles.activeSub}>{tr('Plano')} {tr(activeInfo.label)}</Text>
+                </>
+              ) : (
+                <Text style={styles.activeSub}>{tr('Todos os recursos Pro desbloqueados')}</Text>
+              )}
+            </View>
+          )}
           <View style={styles.grid}>
             {HIGHLIGHTS.map(({ emoji, text }) => (
               <View key={text} style={styles.tile}>
@@ -246,6 +262,11 @@ const createStyles = (colors: ThemeColors) =>
   col: { flex: 1, alignItems: 'center', justifyContent: 'center', textAlign: 'center' },
   cellText: { fontSize: font.tiny, color: colors.textMuted, textAlign: 'center' },
   cellPro: { color: colors.primaryDark, fontWeight: '600' },
+  activeCard: { backgroundColor: colors.card, borderWidth: 1.5, borderColor: '#2F5BEA', borderRadius: radius.lg, padding: 16, gap: 2 },
+  activeLabel: { color: '#2F5BEA', fontWeight: '700', fontSize: font.small },
+  activePrice: { color: colors.text, fontWeight: '800', fontSize: 28 },
+  activePeriod: { fontSize: font.body, fontWeight: '500', color: colors.textMuted },
+  activeSub: { color: colors.textMuted, fontSize: font.body },
   promo: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 10 },
   promoOn: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
   promoText: { flex: 1, fontSize: font.small, fontWeight: '500', color: colors.text },

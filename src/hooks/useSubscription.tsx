@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppState } from 'react-native';
 import { TRIAL_DAYS } from '../constants/plans';
 import {
@@ -36,7 +37,9 @@ interface SubscriptionContextValue extends AccessStatus {
   refresh: () => Promise<void>;
   /** Consome um scan no servidor (atómico). Chamar antes da IA. Lança erro se offline. */
   consumeScan: () => Promise<ConsumeScanResult>;
-  activatePlan: (plan: PlanId) => Promise<void>;
+  activatePlan: (plan: PlanId, paidMT?: number) => Promise<void>;
+  /** Último plano pago neste aparelho (para mostrar o preço activo). */
+  activePlan: { planId: PlanId; priceMT: number } | null;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextValue | null>(null);
@@ -47,6 +50,16 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const userId = user?.id ?? null;
   const [status, setStatus] = useState<AccessStatus>(INITIAL);
   const [loading, setLoading] = useState(false);
+  const [activePlan, setActivePlan] = useState<{ planId: PlanId; priceMT: number } | null>(null);
+  const planKey = userId ? `nutria.activePlan.${userId}` : null;
+
+  useEffect(() => {
+    setActivePlan(null);
+    if (!planKey) return;
+    AsyncStorage.getItem(planKey)
+      .then((raw) => raw && setActivePlan(JSON.parse(raw)))
+      .catch(() => {});
+  }, [planKey]);
 
   const refresh = useCallback(async () => {
     if (!userId) return;
@@ -80,13 +93,21 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     return { allowed, ...next };
   }, []);
 
-  const activatePlan = useCallback(async (plan: PlanId) => {
-    setStatus(await activatePlanRemote(plan));
-  }, []);
+  const activatePlan = useCallback(
+    async (plan: PlanId, paidMT?: number) => {
+      setStatus(await activatePlanRemote(plan));
+      if (paidMT != null) {
+        const next = { planId: plan, priceMT: paidMT };
+        setActivePlan(next);
+        if (planKey) AsyncStorage.setItem(planKey, JSON.stringify(next)).catch(() => {});
+      }
+    },
+    [planKey],
+  );
 
   const value = useMemo<SubscriptionContextValue>(
-    () => ({ ...status, loading, isPro: status.isPremium, canScan: status.lockReason === null, refresh, consumeScan, activatePlan }),
-    [status, loading, refresh, consumeScan, activatePlan],
+    () => ({ ...status, loading, isPro: status.isPremium, canScan: status.lockReason === null, refresh, consumeScan, activatePlan, activePlan }),
+    [status, loading, refresh, consumeScan, activatePlan, activePlan],
   );
 
   return <SubscriptionContext.Provider value={value}>{children}</SubscriptionContext.Provider>;
