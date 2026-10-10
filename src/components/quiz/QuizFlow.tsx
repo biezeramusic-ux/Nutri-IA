@@ -32,7 +32,8 @@ import type {
   QuizAnswers,
   Sex,
 } from '../../types';
-import { Logo } from '../Logo';
+import { QuizResult } from './QuizResult';
+import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
 import { QuizChip } from './QuizChip';
@@ -138,6 +139,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile, completeOnboarding } = useProfile();
+  const { displayName } = useAuth();
   const [step, setStep] = useState(0);
   const [base, setBase] = useState<Base>(profile?.quiz ?? DEFAULTS);
   const [goalPicked, setGoalPicked] = useState(!!profile?.quiz);
@@ -216,6 +218,20 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const tips = answers ? planTips(answers) : [];
   const copy = current ? COPY[current] : null;
 
+  if (step === resultStep && answers && goals) {
+    return (
+      <QuizResult
+        answers={answers}
+        goals={goals}
+        tips={tips}
+        firstName={displayName.split(' ')[0] ?? ''}
+        saving={saving}
+        onStart={() => void finish()}
+        onBack={() => setStep(steps.length - 1)}
+      />
+    );
+  }
+
   return (
     <View style={styles.root}>
       <ScrollView
@@ -242,15 +258,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </Text>
         </View>
 
-        {copy ? (
+        {copy && (
           <View style={styles.head}>
             <Text style={styles.title}>{copy.title}</Text>
             {!!copy.subtitle && <Text style={styles.subtitle}>{copy.subtitle}</Text>}
-          </View>
-        ) : (
-          <View style={styles.resultHead}>
-            <Logo size={52} />
-            <Text style={styles.title}>{tr(base.goal === 'track_calories' ? 'A sua referência diária está pronta' : 'O seu plano está pronto')}</Text>
           </View>
         )}
 
@@ -353,59 +364,19 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </View>
         )}
 
-        {goals && (
-          <>
-            <View style={styles.kcalCard}>
-              <Text style={styles.kcalLabel}>{tr(wantsTarget ? 'Meta diária' : 'Calorias de referência')}</Text>
-              <Text style={styles.kcalValue}>{goals.calories}</Text>
-              <Text style={styles.kcalLabel}>{tr('calorias por dia')}</Text>
-            </View>
-            <Text style={styles.note}>
-              {base.goal === 'lose_weight'
-                ? tr('Meta com défice calórico saudável para chegar aos {kg} kg.', { kg: base.targetWeightKg })
-                : base.goal === 'gain_muscle'
-                  ? tr('Meta com ligeiro excedente de calorias e mais proteína para ganhar massa.')
-                  : tr('Calorias para manter o seu peso. Use o scanner para ver quanto cada prato representa.')}
-            </Text>
-            <View style={styles.macroRow}>
-              <MacroSquareCard label={tr('Proteína')} percent={0} grams={goals.proteinG} color={colors.primary} unitOnly />
-              <MacroSquareCard label={tr('Carbs')} percent={0} grams={goals.carbsG} color={colors.carbs} unitOnly />
-              <MacroSquareCard label={tr('Gordura')} percent={0} grams={goals.fatsG} color={colors.protein} unitOnly />
-            </View>
-            <View style={styles.waterCard}>
-              <Droplets size={22} color={colors.water} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.waterTitle}>{tr('{ml} ml de água por dia', { ml: goals.waterMl })}</Text>
-                <Text style={styles.waterSub}>
-                  {tr('{n} copos de {ml} ml. O Nutri IA vai lembrá-lo de beber.', { n: glassesFromMl(goals.waterMl), ml: GLASS_ML })}
-                </Text>
-              </View>
-            </View>
-            {tips.length > 0 && (
-              <View style={styles.tips}>
-                <Text style={styles.tipsTitle}>{tr('Para si')}</Text>
-                {tips.map((t) => (
-                  <Text key={t} style={styles.tip}>
-                    • {t}
-                  </Text>
-                ))}
-              </View>
-            )}
-          </>
-        )}
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         <Pressable
           disabled={!canContinue || saving}
           style={({ pressed }) => [styles.cta, (!canContinue || saving) && styles.ctaOff, pressed && styles.ctaPressed]}
-          onPress={() => (step === resultStep ? void finish() : setStep(step + 1))}
+          onPress={() => setStep(step + 1)}
         >
           {saving ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.ctaText}>
-              {step === resultStep ? 'Começar' : step === steps.length - 1 ? 'Ver o meu plano' : 'Continuar'}
+              {step === steps.length - 1 ? 'Ver o meu plano' : 'Continuar'}
             </Text>
           )}
         </Pressable>
