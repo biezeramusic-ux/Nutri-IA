@@ -41,14 +41,14 @@ function CountUp({ to, delay = 0, style, suffix = '' }: { to: number; delay?: nu
   );
 }
 
-/** Aparece de baixo para cima, em sequência. */
+/** Aparece devagar (fade in), com uma subida muito leve, um bloco de cada vez. */
 function Rise({ delay, children }: { delay: number; children: React.ReactNode }) {
   const a = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    Animated.timing(a, { toValue: 1, duration: 520, delay, easing: Easing.out(Easing.back(1.2)), useNativeDriver: native }).start();
+    Animated.timing(a, { toValue: 1, duration: 1100, delay, easing: Easing.out(Easing.cubic), useNativeDriver: native }).start();
   }, [a, delay]);
   return (
-    <Animated.View style={{ opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [28, 0] }) }, { scale: a.interpolate({ inputRange: [0, 1], outputRange: [0.94, 1] }) }] }}>
+    <Animated.View style={{ opacity: a, transform: [{ translateY: a.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }}>
       {children}
     </Animated.View>
   );
@@ -150,7 +150,7 @@ export function QuizResult({ answers, goals, tips, firstName, saving, onStart }:
         contentContainerStyle={{ paddingTop: insets.top + 28, paddingHorizontal: 20, paddingBottom: insets.bottom + 28, gap: 14 }}
         showsVerticalScrollIndicator={false}
       >
-        <Rise delay={0}>
+        <Rise delay={150}>
           <View style={styles.hello}>
             <View style={styles.checkWrap}>
               <CircleCheck size={34} color="#fff" strokeWidth={2.4} />
@@ -160,26 +160,26 @@ export function QuizResult({ answers, goals, tips, firstName, saving, onStart }:
           </View>
         </Rise>
 
-        <Rise delay={350}>
+        <Rise delay={650}>
           <View style={styles.goalChip}>
             <Text style={styles.goalChipLabel}>{tr('O seu objetivo')}</Text>
             <Text style={styles.goalChipText}>{goalText}</Text>
           </View>
         </Rise>
 
-        <Rise delay={650}>
+        <Rise delay={1200}>
           <View style={styles.kcalCard}>
             <Text style={styles.kcalLabel}>{tr(wantsTarget ? 'Meta diária' : 'Calorias de referência')}</Text>
-            <CountUp to={goals.calories} delay={700} style={styles.kcalValue} />
+            <CountUp to={goals.calories} delay={1250} style={styles.kcalValue} />
             <Text style={styles.kcalLabel}>{tr('calorias por dia')}</Text>
           </View>
         </Rise>
 
         <View style={styles.macroRow}>
           {[
-            { label: 'Proteína', value: goals.proteinG, color: colors.primary, delay: 950 },
-            { label: 'Carbs', value: goals.carbsG, color: colors.carbs, delay: 1100 },
-            { label: 'Gordura', value: goals.fatsG, color: colors.protein, delay: 1250 },
+            { label: 'Proteína', value: goals.proteinG, color: colors.primary, delay: 1750 },
+            { label: 'Carbs', value: goals.carbsG, color: colors.carbs, delay: 2100 },
+            { label: 'Gordura', value: goals.fatsG, color: colors.protein, delay: 2450 },
           ].map((m) => (
             <View key={m.label} style={{ flex: 1 }}>
               <Rise delay={m.delay}>
@@ -193,7 +193,7 @@ export function QuizResult({ answers, goals, tips, firstName, saving, onStart }:
           ))}
         </View>
 
-        <Rise delay={1450}>
+        <Rise delay={2850}>
           <View style={styles.waterCard}>
             <Droplets size={24} color={colors.water} />
             <View style={{ flex: 1 }}>
@@ -204,7 +204,7 @@ export function QuizResult({ answers, goals, tips, firstName, saving, onStart }:
         </Rise>
 
         {tips.length > 0 && (
-          <Rise delay={1650}>
+          <Rise delay={3200}>
             <View style={styles.tips}>
               <Text style={styles.tipsTitle}>{tr('Para si')}</Text>
               {tips.map((t) => (
@@ -216,7 +216,7 @@ export function QuizResult({ answers, goals, tips, firstName, saving, onStart }:
           </Rise>
         )}
 
-        <Rise delay={1900}>
+        <Rise delay={3550}>
           <View style={styles.askBox}>
             <Text style={styles.ask}>{tr('Quer embarcar connosco nesta nova jornada?')}</Text>
             <Animated.View style={{ transform: [{ scale: cta.interpolate({ inputRange: [0, 1], outputRange: [1, 1.04] }) }] }}>
