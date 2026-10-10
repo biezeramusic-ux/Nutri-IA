@@ -1,4 +1,3 @@
-import { Flame } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
@@ -25,7 +24,7 @@ export function StreakCard({ streak }: Props) {
   return (
     <View style={styles.card}>
       <View style={[styles.flame, current > 0 && styles.flameOn]}>
-        <Flame size={22} color={current > 0 ? '#fff' : colors.textFaint} />
+        <Text style={{ fontSize: 22, opacity: current > 0 ? 1 : 0.4 }}>🔥</Text>
       </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Text style={styles.title}>{title}</Text>
@@ -46,7 +45,7 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     card: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
     flame: { width: 46, height: 46, borderRadius: 23, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-    flameOn: { backgroundColor: colors.carbs },
+    flameOn: { backgroundColor: colors.limeSoft },
     title: { fontSize: font.h3, fontWeight: '700', color: colors.text },
     sub: { fontSize: font.small, color: colors.textMuted },
     badges: { flexDirection: 'row', gap: 6, marginTop: 6 },

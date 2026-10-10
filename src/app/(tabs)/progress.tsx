@@ -129,7 +129,7 @@ export default function ProgressScreen() {
         contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: SCREEN_PADDING, paddingBottom: TAB_BAR_SPACE + 24, gap: 14 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>Progresso</Text>
+        <Text style={styles.title}>Progresso 📈</Text>
         <StreakCard streak={streak} />
         <SegmentedControl
           options={[

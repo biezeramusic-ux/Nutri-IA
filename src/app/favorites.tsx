@@ -10,6 +10,7 @@ import { useFavorites } from '../hooks/useFavorites';
 import { useSubscription } from '../hooks/useSubscription';
 import { useTheme } from '../hooks/useTheme';
 import { favoriteToMeal } from '../services/favorites';
+import { mealEmoji } from '../services/foodCatalog';
 
 export default function FavoritesScreen() {
   const { colors } = useTheme();
@@ -49,13 +50,16 @@ export default function FavoritesScreen() {
         <ScreenHeader title="Refeições favoritas" />
         {favorites.length === 0 ? (
           <View style={[styles.card, { alignItems: 'center', gap: 8 }]}>
-            <Star size={28} color={colors.carbs} />
+            <Text style={{ fontSize: 34 }}>⭐</Text>
             <Text style={styles.title}>Ainda não tem favoritas</Text>
             <Text style={styles.sub}>Abra uma refeição e toque na estrela para a guardar. Depois registe-a com um toque, sem fotografar.</Text>
           </View>
         ) : (
           favorites.map((f, i) => (
             <View key={f.id} style={[styles.card, styles.row]}>
+              <View style={styles.emojiWrap}>
+                <Text style={{ fontSize: 22 }}>{mealEmoji(f.analysis.food_name)}</Text>
+              </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.title} numberOfLines={1}>{f.analysis.food_name}</Text>
                 <Text style={styles.sub}>
@@ -83,5 +87,6 @@ const createStyles = (colors: ThemeColors) =>
     row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     title: { fontSize: font.h3, fontWeight: '600', color: colors.text },
     sub: { fontSize: font.small, color: colors.textMuted, marginTop: 2, textAlign: 'left' },
+    emojiWrap: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
     add: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   });

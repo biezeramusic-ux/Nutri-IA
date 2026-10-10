@@ -1,29 +1,28 @@
 import { useMemo } from 'react';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Plus, type LucideIcon } from 'lucide-react-native';
+import { Plus } from 'lucide-react-native';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
-import { mealIcon } from '../services/foodCatalog';
+import { mealEmoji } from '../services/foodCatalog';
 import type { Meal } from '../types';
 
 interface Props {
   label: string;
-  icon: LucideIcon;
+  emoji: string;
   meals: Meal[];
   onAdd: () => void;
   onOpenMeal: (meal: Meal) => void;
 }
 
 /** Linha de uma refeição do dia (pequeno-almoço, almoço…) com + para adicionar. */
-export function MealSection({ label, icon: Icon, meals, onAdd, onOpenMeal }: Props) {
+export function MealSection({ label, emoji, meals, onAdd, onOpenMeal }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const kcal = meals.reduce((s, m) => s + m.analysis.calories, 0);
   return (
     <View style={styles.card}>
       <View style={styles.iconWrap}>
-        <Icon size={18} color={colors.limeDark} />
+        <Text style={styles.emoji}>{emoji}</Text>
       </View>
       <View style={styles.info}>
         <Text style={styles.label}>{label}</Text>
@@ -36,7 +35,7 @@ export function MealSection({ label, icon: Icon, meals, onAdd, onOpenMeal }: Pro
               <Image source={{ uri: m.photoUri }} style={styles.thumb} />
             ) : (
               <View style={[styles.thumb, styles.thumbPlaceholder]}>
-                <MaterialCommunityIcons name={mealIcon(m)} size={14} color={colors.primary} />
+                <Text style={{ fontSize: 14 }}>{mealEmoji(m.analysis.food_name)}</Text>
               </View>
             )}
           </Pressable>
@@ -60,5 +59,6 @@ const createStyles = (colors: ThemeColors) =>
   thumbWrap: { marginLeft: -8 },
   thumb: { width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: colors.card },
   thumbPlaceholder: { backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  emoji: { fontSize: 18 },
   add: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
 });

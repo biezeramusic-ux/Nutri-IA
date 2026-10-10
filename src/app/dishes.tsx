@@ -1,4 +1,3 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
@@ -9,7 +8,7 @@ import { SearchBar } from '../components/SearchBar';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useDiary } from '../hooks/useDiary';
 import { useTheme } from '../hooks/useTheme';
-import { buildMeal, mealIcon, mozambicanDishes } from '../services/foodCatalog';
+import { buildMeal, mealEmoji, mozambicanDishes } from '../services/foodCatalog';
 
 export default function DishesScreen() {
   const { colors } = useTheme();
@@ -42,7 +41,7 @@ export default function DishesScreen() {
           return (
             <Pressable key={d.name} style={styles.row} onPress={() => open(i)}>
               <View style={styles.icon}>
-                <MaterialCommunityIcons name={mealIcon(meal)} size={20} color={colors.primary} />
+                <Text style={{ fontSize: 22 }}>{mealEmoji(d.name)}</Text>
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.name}>{d.name}</Text>
@@ -64,7 +63,7 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: colors.background },
     row: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12 },
-    icon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+    icon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
     name: { fontSize: font.h3, fontWeight: '600', color: colors.text },
     sub: { fontSize: font.small, color: colors.textMuted },
   });

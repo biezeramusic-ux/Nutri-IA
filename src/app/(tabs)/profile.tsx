@@ -119,7 +119,7 @@ export default function ProfileScreen() {
   const Row = ({ icon: Icon, label, onPress, value }: { icon: LucideIcon; label: string; onPress: () => void; value?: string }) => (
     <Pressable style={styles.row} onPress={onPress}>
       <View style={styles.rowIcon}>
-        <Icon size={17} color={colors.primaryDark} />
+        <Icon size={17} color={colors.limeDark} />
       </View>
       <Text style={styles.rowLabel}>{label}</Text>
       {!!value && <Text style={styles.rowValue}>{value}</Text>}
@@ -147,8 +147,8 @@ export default function ProfileScreen() {
         <Text style={styles.email}>{user?.email}</Text>
         <View style={styles.chipRow}>
           <View style={[styles.planChip, isPremium && styles.planChipPro]}>
-            {isPremium && <Crown size={12} color="#14532D" />}
-            <Text style={[styles.planChipText, isPremium && { color: '#14532D' }]}>{isPremium ? 'Nutri IA Pro' : planText}</Text>
+            {isPremium && <Crown size={12} color="#0B1F3A" />}
+            <Text style={[styles.planChipText, isPremium && { color: '#0B1F3A' }]}>{isPremium ? 'Nutri IA Pro' : planText}</Text>
           </View>
         </View>
         <Pressable style={styles.editBtn} onPress={() => router.push('/edit-profile')}>
@@ -279,12 +279,12 @@ export default function ProfileScreen() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: colors.background },
-    hero: { backgroundColor: '#14532D', paddingHorizontal: SCREEN_PADDING, paddingBottom: 26, alignItems: 'center', gap: 4, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
-    decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.25, top: -80, right: -70 },
+    hero: { backgroundColor: '#0B1F3A', paddingHorizontal: SCREEN_PADDING, paddingBottom: 26, alignItems: 'center', gap: 4, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
+    decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.protein, opacity: 0.28, top: -80, right: -70 },
     decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
     avatar: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.35)' },
     avatarImg: { width: 70, height: 70, borderRadius: 35 },
-    avatarText: { fontSize: 28, fontWeight: '700', color: '#14532D' },
+    avatarText: { fontSize: 28, fontWeight: '700', color: '#0B1F3A' },
     name: { fontSize: font.h1, fontWeight: '700', color: '#fff', marginTop: 8 },
     email: { fontSize: font.small, color: 'rgba(255,255,255,0.75)' },
     chipRow: { flexDirection: 'row', marginTop: 8 },
@@ -304,7 +304,7 @@ const createStyles = (colors: ThemeColors) =>
     planLabel: { fontSize: font.tiny, color: colors.textMuted, marginTop: 2 },
     group: { ...cardBase(colors), paddingHorizontal: 4 },
     row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 12 },
-    rowIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+    rowIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
     rowLabel: { flex: 1, fontSize: font.body, fontWeight: '500', color: colors.text },
     rowValue: { fontSize: font.small, color: colors.textMuted },
     themeHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },

@@ -1,4 +1,3 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { CloudOff, Plus, Star, Trash } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
@@ -16,7 +15,7 @@ import { useSubscription } from '../../hooks/useSubscription';
 import { todayKey } from '../../services/date';
 import { MEAL_TYPES, dayKeyOf, getMealType, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
 import { favoriteToMeal } from '../../services/favorites';
-import { mealIcon } from '../../services/foodCatalog';
+import { mealEmoji } from '../../services/foodCatalog';
 import { dayScore } from '../../services/healthScore';
 import type { Meal } from '../../types';
 
@@ -104,7 +103,7 @@ export default function DiaryScreen() {
       contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: SCREEN_PADDING, paddingBottom: TAB_BAR_SPACE + 24, gap: 14 }}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Diário alimentar</Text>
+      <Text style={styles.title}>Diário alimentar 📖</Text>
       <WeekStrip days={days} selectedKey={selectedKey} onSelect={selectDay} progressByDay={progressByDay} />
 
       {pendingCount > 0 && (
@@ -178,12 +177,11 @@ export default function DiaryScreen() {
       {MEAL_TYPES.map((t) => {
         const list = dayMeals.filter((m) => getMealType(m.createdAt) === t.type);
         const kcal = list.reduce((s, m) => s + m.analysis.calories, 0);
-        const Icon = t.icon;
         return (
           <View key={t.type} style={styles.section}>
             <View style={styles.sectionHead}>
               <View style={styles.sectionIcon}>
-                <Icon size={16} color={colors.limeDark} />
+                <Text style={{ fontSize: 16 }}>{t.emoji}</Text>
               </View>
               <Text style={styles.sectionTitle}>{t.label}</Text>
               <Text style={styles.sectionKcal}>{kcal > 0 ? `${kcal} kcal` : ''}</Text>
@@ -200,7 +198,7 @@ export default function DiaryScreen() {
                     <Image source={{ uri: m.photoUri }} style={styles.thumb} />
                   ) : (
                     <View style={[styles.thumb, styles.thumbPlaceholder]}>
-                      <MaterialCommunityIcons name={mealIcon(m)} size={18} color={colors.primary} />
+                      <Text style={{ fontSize: 18 }}>{mealEmoji(m.analysis.food_name)}</Text>
                     </View>
                   )}
                   <View style={{ flex: 1 }}>

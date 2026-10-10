@@ -1,4 +1,4 @@
-import { Gift, Send, Users } from 'lucide-react-native';
+import { Send, Users } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -59,7 +59,7 @@ export default function InviteScreen() {
         <ScreenHeader title="Convidar amigos" />
 
         <View style={styles.hero}>
-          <Gift size={28} color="#14532D" />
+          <Text style={{ fontSize: 34 }}>🎁</Text>
           <Text style={styles.heroTitle}>Convide {needed} amigos e ganhe 5% de desconto</Text>
           <Text style={styles.heroSub}>O desconto vale para todos os planos Pro. Só contam amigos que criam a conta e concluem o quiz.</Text>
         </View>
@@ -126,8 +126,8 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: colors.background },
     hero: { backgroundColor: colors.lime, borderRadius: radius.card, padding: 18, gap: 6 },
-    heroTitle: { fontSize: font.h2, fontWeight: '800', color: '#14532D' },
-    heroSub: { fontSize: font.small, color: '#14532D', lineHeight: 18 },
+    heroTitle: { fontSize: font.h2, fontWeight: '800', color: '#0B1F3A' },
+    heroSub: { fontSize: font.small, color: '#0B1F3A', lineHeight: 18 },
     card: { ...cardBase(colors), padding: 16, gap: 12 },
     rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
     rowIcon: { flexDirection: 'row', alignItems: 'center', gap: 8 },

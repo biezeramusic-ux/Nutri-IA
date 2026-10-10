@@ -17,12 +17,12 @@ import type { PlanId } from '../types';
 type Method = 'mpesa' | 'emola' | 'card';
 
 const HIGHLIGHTS = [
-  { icon: InfinityIcon, text: 'Análises e registos ilimitados' },
-  { icon: Leaf, text: 'Fibras e análise detalhada' },
-  { icon: TrendingUp, text: 'Progresso e objetivos' },
-  { icon: Droplets, text: 'Registo de água' },
-  { icon: Activity, text: 'Atividade física' },
-  { icon: UtensilsCrossed, text: 'Pratos moçambicanos' },
+  { emoji: '♾️', text: 'Análises e registos ilimitados' },
+  { emoji: '🌿', text: 'Fibras e análise detalhada' },
+  { emoji: '📈', text: 'Progresso e objetivos' },
+  { emoji: '💧', text: 'Registo de água' },
+  { emoji: '🏃', text: 'Atividade física' },
+  { emoji: '🍲', text: 'Pratos moçambicanos' },
 ] as const;
 
 /** [recurso, grátis, pro] — texto = valor, true/false = tem/não tem. */
@@ -105,16 +105,16 @@ export default function PaywallScreen() {
           <View style={styles.logoWrap}>
             <Logo size={44} />
           </View>
-          <Text style={styles.title}>Nutri IA Pro</Text>
+          <Text style={styles.title}>Nutri IA Pro 👑</Text>
           <Text style={styles.subtitle}>Coma melhor, sem adivinhar. Todos os planos têm os mesmos recursos.</Text>
         </View>
 
         <View style={styles.body}>
           <View style={styles.grid}>
-            {HIGHLIGHTS.map(({ icon: Icon, text }) => (
+            {HIGHLIGHTS.map(({ emoji, text }) => (
               <View key={text} style={styles.tile}>
                 <View style={styles.tileIcon}>
-                  <Icon size={16} color={colors.primaryDark} />
+                  <Text style={{ fontSize: 15 }}>{emoji}</Text>
                 </View>
                 <Text style={styles.tileText}>{text}</Text>
               </View>
@@ -223,8 +223,8 @@ export default function PaywallScreen() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  hero: { backgroundColor: '#14532D', paddingHorizontal: SCREEN_PADDING, paddingBottom: 30, alignItems: 'center', gap: 6, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
-  decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.25, top: -80, right: -70 },
+  hero: { backgroundColor: '#0B1F3A', paddingHorizontal: SCREEN_PADDING, paddingBottom: 30, alignItems: 'center', gap: 6, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
+  decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.protein, opacity: 0.28, top: -80, right: -70 },
   decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
   close: { alignSelf: 'flex-end', width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' },
   logoWrap: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginTop: 2 },
@@ -233,7 +233,7 @@ const createStyles = (colors: ThemeColors) =>
   body: { paddingHorizontal: SCREEN_PADDING, paddingTop: 20, gap: 12 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tile: { width: '48.5%', flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, padding: 10 },
-  tileIcon: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  tileIcon: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
   tileText: { flex: 1, fontSize: font.small, fontWeight: '500', color: colors.text },
   section: { fontSize: font.h3, fontWeight: '600', color: colors.text, marginTop: 10 },
   plansRow: { flexDirection: 'row', gap: 8, marginTop: 8 },

@@ -14,7 +14,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useDiary } from '../hooks/useDiary';
 import { useFavorites } from '../hooks/useFavorites';
 import { useSubscription } from '../hooks/useSubscription';
-import { deriveIngredients, macroPercentages, proteinSources, scaleMeal } from '../services/foodCatalog';
+import { deriveIngredients, macroPercentages, mealEmoji, proteinSources, scaleMeal } from '../services/foodCatalog';
 import { refineAnalysis } from '../services/foodRecognition';
 import { mealScore } from '../services/healthScore';
 
@@ -138,6 +138,7 @@ export default function DetailsScreen() {
         />
 
         <View style={{ alignItems: 'center', gap: 4 }}>
+          <Text style={{ fontSize: 44 }}>{mealEmoji(analysis.food_name)}</Text>
           <Text style={styles.name}>{analysis.food_name}</Text>
           <Text style={styles.weight}>{analysis.estimated_weight_grams} g</Text>
           <Text style={styles.kcal}>

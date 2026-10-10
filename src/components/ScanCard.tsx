@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { cardBase, font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
-import { macroPercentages, mealIcon } from '../services/foodCatalog';
+import { macroPercentages, mealEmoji } from '../services/foodCatalog';
 import type { Meal } from '../types';
 import { MacroDots } from './MacroDots';
 
@@ -17,7 +16,7 @@ export function ScanCard({ meal, onPress }: { meal: Meal; onPress: () => void })
         <Image source={{ uri: meal.photoUri }} style={styles.photo} />
       ) : (
         <View style={[styles.photo, styles.placeholder]}>
-          <MaterialCommunityIcons name={mealIcon(meal)} size={32} color={colors.primary} />
+          <Text style={{ fontSize: 32 }}>{mealEmoji(meal.analysis.food_name)}</Text>
         </View>
       )}
       <Text style={styles.name} numberOfLines={2}>

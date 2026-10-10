@@ -302,3 +302,26 @@ export function mozambicanDishes(): DishEntry[] {
     (d): d is DishEntry => d.analysis !== null,
   );
 }
+
+/** Emoji do prato (pelo nome), usado quando não há foto. */
+export function mealEmoji(name: string): string {
+  const n = name.toLowerCase();
+  const rules: [RegExp, string][] = [
+    [/camar|marisc|lagosta/, '🍤'],
+    [/peixe|tilápia|sardinha|cacana/, '🐟'],
+    [/frango|galinha/, '🍗'],
+    [/caril|amendoim/, '🥜'],
+    [/matapa|folha|couve|verdura/, '🥬'],
+    [/xima|milho|sadza/, '🌽'],
+    [/mucapata/, '🥣'],
+    [/badgia/, '🥟'],
+    [/feij/, '🫘'],
+    [/batata/, '🍠'],
+    [/arroz/, '🍚'],
+    [/salada|legume/, '🥗'],
+    [/ovo/, '🍳'],
+    [/fruta|banana|manga|papaia|maçã/, '🍎'],
+    [/pão|pao/, '🍞'],
+  ];
+  return rules.find(([re]) => re.test(n))?.[1] ?? '🍽️';
+}

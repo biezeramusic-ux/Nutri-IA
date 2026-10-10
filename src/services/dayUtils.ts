@@ -20,11 +20,11 @@ export function getMealType(timestamp: number): MealType {
   return 'dinner';
 }
 
-export const MEAL_TYPES: { type: MealType; label: string; icon: LucideIcon }[] = [
-  { type: 'breakfast', label: 'Pequeno-almoço', icon: Coffee },
-  { type: 'lunch', label: 'Almoço', icon: UtensilsCrossed },
-  { type: 'snack', label: 'Lanche', icon: Apple },
-  { type: 'dinner', label: 'Jantar', icon: Soup },
+export const MEAL_TYPES: { type: MealType; label: string; icon: LucideIcon; emoji: string }[] = [
+  { type: 'breakfast', label: 'Pequeno-almoço', icon: Coffee, emoji: '🥐' },
+  { type: 'lunch', label: 'Almoço', icon: UtensilsCrossed, emoji: '🍲' },
+  { type: 'snack', label: 'Lanche', icon: Apple, emoji: '🍎' },
+  { type: 'dinner', label: 'Jantar', icon: Soup, emoji: '🌙' },
 ];
 
 export interface Totals {

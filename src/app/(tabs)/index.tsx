@@ -129,7 +129,7 @@ export default function HomeScreen() {
         <View style={[styles.pad, styles.header]}>
           <Logo size={34} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.hello}>{firstName ? `Olá, ${firstName}` : 'Olá'}</Text>
+            <Text style={styles.hello}>{firstName ? `Olá, ${firstName} 👋` : 'Olá 👋'}</Text>
             <Text style={styles.chipText}>{chipLabel}</Text>
           </View>
         </View>
@@ -212,12 +212,12 @@ export default function HomeScreen() {
         </View>
 
         <View style={[styles.pad, { gap: 10 }]}>
-          <Text style={styles.section}>{isToday ? 'Refeições de hoje' : 'Refeições do dia'}</Text>
+          <Text style={styles.section}>{isToday ? 'Refeições de hoje 🍽️' : 'Refeições do dia 🍽️'}</Text>
           {MEAL_TYPES.map((t) => (
             <MealSection
               key={t.type}
               label={t.label}
-              icon={t.icon}
+              emoji={t.emoji}
               meals={dayMeals.filter((m) => getMealType(m.createdAt) === t.type)}
               onAdd={() => router.navigate('/scanner')}
               onOpenMeal={openMeal}

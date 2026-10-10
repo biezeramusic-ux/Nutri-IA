@@ -130,7 +130,7 @@ const createStyles = (colors: ThemeColors) =>
     avatarWrap: { alignItems: 'center', gap: 10 },
     avatar: { width: 112, height: 112, borderRadius: 56, borderWidth: 3, borderColor: colors.card },
     avatarEmpty: { backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
-    initials: { fontSize: 36, fontWeight: '700', color: '#14532D' },
+    initials: { fontSize: 36, fontWeight: '700', color: '#0B1F3A' },
     camBadge: { position: 'absolute', right: 0, bottom: 2, width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.background },
     changeText: { fontSize: font.body, fontWeight: '600', color: colors.primaryDark },
     card: { ...cardBase(colors), padding: 16, gap: 10 },
