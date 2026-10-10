@@ -29,7 +29,7 @@ function ThemedApp() {
                 <Stack.Screen name="auth" options={{ animation: 'fade' }} />
                 <Stack.Screen name="onboarding" options={{ animation: 'fade', gestureEnabled: false }} />
                 <Stack.Screen name="quiz" options={{ presentation: 'modal' }} />
-                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
                 <Stack.Screen name="details" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="water" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="activity" options={{ animation: 'slide_from_right' }} />

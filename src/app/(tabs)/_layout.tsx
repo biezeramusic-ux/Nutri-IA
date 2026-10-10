@@ -13,6 +13,7 @@ export default function TabsLayout() {
       initialRouteName="index"
       screenOptions={{
         headerShown: false,
+        animation: 'fade',
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textFaint,
         tabBarLabelStyle: { fontSize: font.tiny - 1, fontWeight: '600', marginBottom: 0 },

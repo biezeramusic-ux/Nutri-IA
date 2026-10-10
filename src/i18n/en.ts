@@ -637,4 +637,5 @@ export const en: Record<string, string> = {
   "Quer embarcar connosco nesta nova jornada?": "Ready to join us on this new journey?",
   "Sim, vamos! 🚀": "Yes, let's go! 🚀",
   "Voltar e ajustar": "Go back and adjust",
+  "Sim, vamos!": "Yes, let's go!",
 };
