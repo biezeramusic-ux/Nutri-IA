@@ -1,4 +1,4 @@
-import { Camera, Droplets, Star, UtensilsCrossed } from 'lucide-react-native';
+import { Camera, Droplets, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -186,10 +186,6 @@ export default function HomeScreen() {
           <Text style={styles.title}>{tr('Vamos ver a sua refeição juntos')}</Text>
           <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
           <View style={styles.links}>
-            <Pressable style={styles.linkChip} onPress={() => router.push('/dishes')}>
-              <UtensilsCrossed size={14} color={colors.primaryDark} />
-              <Text style={styles.linkChipText}>{tr('Pratos moçambicanos')}</Text>
-            </Pressable>
             <Pressable style={styles.linkChip} onPress={() => router.push('/favorites')}>
               <Star size={14} color={colors.carbs} />
               <Text style={styles.linkChipText}>{tr('Favoritas')}</Text>

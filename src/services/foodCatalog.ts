@@ -303,16 +303,6 @@ export function mozambicanDishes(): DishEntry[] {
   );
 }
 
-/** Nome do ficheiro da foto do prato (sem extensão): minúsculas, sem acentos, com hífenes. */
-export function dishSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 /** Emoji do prato (pelo nome), usado quando não há foto. */
 export function mealEmoji(name: string): string {
   const n = name.toLowerCase();
