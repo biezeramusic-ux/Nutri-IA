@@ -2,10 +2,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { Activity, Camera, ChevronRight, Crown, Droplets, Gift, LogOut, Moon, Pencil, RefreshCw, Star, Sun, Target, UtensilsCrossed, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NumberStepper } from '../../components/quiz/NumberStepper';
 import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
+import { useAvatar } from '../../hooks/useAvatar';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { useProfile } from '../../hooks/useProfile';
@@ -21,6 +22,7 @@ const SAVE_DELAY_MS = 700;
 
 export default function ProfileScreen() {
   const { colors, mode, setMode, isDark } = useTheme();
+  const avatar = useAvatar();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -134,9 +136,13 @@ export default function ProfileScreen() {
       <View style={[styles.hero, { paddingTop: insets.top + 16 }]}>
         <View style={styles.decoA} />
         <View style={styles.decoB} />
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials}</Text>
-        </View>
+        <Pressable style={styles.avatar} onPress={() => router.push('/edit-profile')} accessibilityLabel="Editar perfil">
+          {avatar.uri ? (
+            <Image source={{ uri: avatar.uri }} style={styles.avatarImg} />
+          ) : (
+            <Text style={styles.avatarText}>{initials}</Text>
+          )}
+        </Pressable>
         <Text style={styles.name}>{displayName || 'Utilizador'}</Text>
         <Text style={styles.email}>{user?.email}</Text>
         <View style={styles.chipRow}>
@@ -277,6 +283,7 @@ const createStyles = (colors: ThemeColors) =>
     decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.25, top: -80, right: -70 },
     decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
     avatar: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.35)' },
+    avatarImg: { width: 70, height: 70, borderRadius: 35 },
     avatarText: { fontSize: 28, fontWeight: '700', color: '#14532D' },
     name: { fontSize: font.h1, fontWeight: '700', color: '#fff', marginTop: 8 },
     email: { fontSize: font.small, color: 'rgba(255,255,255,0.75)' },
