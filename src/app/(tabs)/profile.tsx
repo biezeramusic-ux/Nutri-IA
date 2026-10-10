@@ -16,10 +16,8 @@ import { useSubscription } from '../../hooks/useSubscription';
 import { GLASS_ML, glassesFromMl } from '../../services/goals';
 import { ensureNotificationPermission, notificationsSupported, scheduleMealReminders } from '../../services/notifications';
 import { GOAL_LABEL } from '../../constants/labels';
-import { AccentPicker } from '../../components/AccentPicker';
 import { LanguageSelector } from '../../components/LanguageSelector';
-import { SegmentedControl } from '../../components/SegmentedControl';
-import { type ThemeMode } from '../../hooks/useTheme';
+import { ThemeChoice } from '../../components/ThemeChoice';
 import { tr } from '../../i18n';
 
 
@@ -202,19 +200,9 @@ export default function ProfileScreen() {
         <View style={styles.card}>
           <View style={styles.themeHead}>
             {isDark ? <Moon size={18} color={colors.primaryDark} /> : <Sun size={18} color={colors.primaryDark} />}
-            <Text style={styles.cardTitle}>{tr('Tema da app')}</Text>
+            <Text style={styles.cardTitle}>{tr('Cor da app')}</Text>
           </View>
-          <SegmentedControl<ThemeMode>
-            options={[
-              { key: 'light', label: tr('Claro') },
-              { key: 'dark', label: tr('Escuro') },
-              { key: 'system', label: tr('Automático') },
-            ]}
-            value={mode}
-            onChange={setMode}
-          />
-          <Text style={styles.subLabel}>{tr('Cor da app')}</Text>
-          <AccentPicker />
+          <ThemeChoice />
         </View>
 
         <Text style={styles.section}>{tr('Idioma')}</Text>

@@ -620,4 +620,5 @@ export const en: Record<string, string> = {
   "2 por dia": "2 per day",
   "3 dias": "3 days",
   "Enquanto durar o plano": "While the plan lasts",
+  "Branco": "White",
 };

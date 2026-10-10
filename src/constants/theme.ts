@@ -30,31 +30,31 @@ export const lightColors = {
 export type ThemeColors = { [K in keyof typeof lightColors]: string };
 
 export const darkColors: ThemeColors = {
-  background: '#0B1120',
-  card: '#131C2E',
-  surface: '#1B2538',
+  background: '#000000',
+  card: '#111111',
+  surface: '#1A1A1A',
   primary: '#4CAF50',
   primaryDark: '#7BD87F',
-  primarySoft: '#16301B',
+  primarySoft: '#14231A',
   lime: '#FBBF24',
-  limeSoft: '#2B2412',
+  limeSoft: '#241E0E',
   limeDark: '#FCD34D',
-  text: '#F1F5F9',
-  textMuted: '#94A3B8',
-  textFaint: '#64748B',
-  border: '#243049',
+  text: '#FAFAFA',
+  textMuted: '#A3A3A3',
+  textFaint: '#6B6B6B',
+  border: '#262626',
   carbs: '#F5A524',
   protein: '#4C9AFF',
   fats: '#F472B6',
   water: '#38BDF8',
-  waterSoft: '#0C2A3D',
+  waterSoft: '#0A2230',
   mpesa: '#E60000',
   emola: '#F57C00',
   navy: '#0B1F3A',
   navySoft: '#16335C',
-  hero: '#0B1F3A',
+  hero: '#111111',
   danger: '#F87171',
-  dangerSoft: '#3A1517',
+  dangerSoft: '#2A1213',
 };
 
 export const radius = {
@@ -123,64 +123,3 @@ export const petalPalette = [
 
 /** Formata valores em MT com ponto nos milhares (1.999). */
 export const formatMT = (value: number): string => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-/** Cor de destaque escolhida pelo utilizador (botões, separadores, realces). */
-export type AccentId = 'green' | 'blue' | 'purple' | 'orange' | 'pink' | 'black';
-
-interface AccentSet {
-  primary: string;
-  primaryDark: string;
-  primarySoft: string;
-  hero: string;
-}
-
-export const ACCENTS: { id: AccentId; label: string; swatch: string; light: AccentSet; dark: AccentSet }[] = [
-  {
-    id: 'green',
-    label: 'Verde',
-    swatch: '#4CAF50',
-    light: { primary: '#4CAF50', primaryDark: '#2E7D32', primarySoft: '#ECF7ED', hero: '#0B1F3A' },
-    dark: { primary: '#4CAF50', primaryDark: '#7BD87F', primarySoft: '#16301B', hero: '#0B1F3A' },
-  },
-  {
-    id: 'blue',
-    label: 'Azul',
-    swatch: '#3B82F6',
-    light: { primary: '#3B82F6', primaryDark: '#1D4ED8', primarySoft: '#E8F0FE', hero: '#0F2A5C' },
-    dark: { primary: '#3B82F6', primaryDark: '#93C5FD', primarySoft: '#142544', hero: '#0F2A5C' },
-  },
-  {
-    id: 'purple',
-    label: 'Roxo',
-    swatch: '#8B5CF6',
-    light: { primary: '#8B5CF6', primaryDark: '#6D28D9', primarySoft: '#F1EBFE', hero: '#2E1065' },
-    dark: { primary: '#8B5CF6', primaryDark: '#C4B5FD', primarySoft: '#271B4A', hero: '#2E1065' },
-  },
-  {
-    id: 'orange',
-    label: 'Laranja',
-    swatch: '#F97316',
-    light: { primary: '#F97316', primaryDark: '#C2410C', primarySoft: '#FFF1E6', hero: '#431407' },
-    dark: { primary: '#F97316', primaryDark: '#FDBA74', primarySoft: '#3A2210', hero: '#431407' },
-  },
-  {
-    id: 'pink',
-    label: 'Rosa',
-    swatch: '#EC4899',
-    light: { primary: '#EC4899', primaryDark: '#BE185D', primarySoft: '#FDEAF3', hero: '#500724' },
-    dark: { primary: '#EC4899', primaryDark: '#F9A8D4', primarySoft: '#3D1730', hero: '#500724' },
-  },
-  {
-    id: 'black',
-    label: 'Preto',
-    swatch: '#111827',
-    light: { primary: '#111827', primaryDark: '#111827', primarySoft: '#F1F5F9', hero: '#0A0A0A' },
-    // No tema escuro o "preto" não se vê: usa cinzento grafite.
-    dark: { primary: '#4B5563', primaryDark: '#E5E7EB', primarySoft: '#1F2937', hero: '#0A0A0A' },
-  },
-];
-
-export function applyAccent(base: ThemeColors, accent: AccentId, isDark: boolean): ThemeColors {
-  const entry = ACCENTS.find((a) => a.id === accent) ?? ACCENTS[0];
-  return { ...base, ...(isDark ? entry.dark : entry.light) };
-}
