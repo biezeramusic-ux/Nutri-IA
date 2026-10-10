@@ -239,7 +239,6 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         firstName={displayName.split(' ')[0] ?? ''}
         saving={saving}
         onStart={() => void finish()}
-        onBack={() => goTo(steps.length - 1)}
       />
     );
   }

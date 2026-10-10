@@ -18,7 +18,6 @@ interface Props {
   firstName: string;
   saving: boolean;
   onStart: () => void;
-  onBack: () => void;
 }
 
 const native = Platform.OS !== 'web';
@@ -112,7 +111,7 @@ function Calculating({ colors, onDone }: { colors: ThemeColors; onDone: () => vo
   );
 }
 
-export function QuizResult({ answers, goals, tips, firstName, saving, onStart, onBack }: Props) {
+export function QuizResult({ answers, goals, tips, firstName, saving, onStart }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
@@ -225,9 +224,6 @@ export function QuizResult({ answers, goals, tips, firstName, saving, onStart, o
                 <Text style={styles.okText}>{saving ? '…' : tr('Sim, vamos!')}</Text>
               </Pressable>
             </Animated.View>
-            <Pressable onPress={onBack} disabled={saving} hitSlop={10}>
-              <Text style={styles.back}>{tr('Voltar e ajustar')}</Text>
-            </Pressable>
           </View>
         </Rise>
       </ScrollView>
@@ -271,5 +267,4 @@ const createStyles = (colors: ThemeColors) =>
     ask: { color: colors.text, fontSize: font.h2, fontWeight: '800', textAlign: 'center', lineHeight: 26 },
     okBtn: { backgroundColor: colors.primary, borderRadius: radius.pill, height: 56, paddingHorizontal: 44, alignItems: 'center', justifyContent: 'center', minWidth: 240 },
     okText: { color: '#fff', fontSize: font.h2, fontWeight: '800' },
-    back: { color: colors.textMuted, fontSize: font.body, fontWeight: '600', textDecorationLine: 'underline' },
   });
