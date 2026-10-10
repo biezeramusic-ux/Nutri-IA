@@ -16,6 +16,7 @@ import { useSubscription } from '../../hooks/useSubscription';
 import { GLASS_ML, glassesFromMl } from '../../services/goals';
 import { ensureNotificationPermission, notificationsSupported, scheduleMealReminders } from '../../services/notifications';
 import { GOAL_LABEL } from '../../constants/labels';
+import { SubscriptionCard } from '../../components/SubscriptionCard';
 import { LanguageSelector } from '../../components/LanguageSelector';
 import { ThemeChoice } from '../../components/ThemeChoice';
 import { tr } from '../../i18n';
@@ -257,15 +258,7 @@ export default function ProfileScreen() {
         </View>
 
         <Text style={styles.section}>{tr('Subscrição')}</Text>
-        <View style={styles.card}>
-          <Text style={styles.sub}>{planText}</Text>
-          {!isPremium && (
-            <Pressable style={styles.cta} onPress={() => router.push('/paywall')}>
-              <Crown size={16} color="#fff" />
-              <Text style={styles.ctaText}>{tr('Ver planos Pro')}</Text>
-            </Pressable>
-          )}
-        </View>
+        <SubscriptionCard />
 
         <Pressable style={styles.signOut} onPress={confirmSignOut}>
           <LogOut size={18} color={colors.danger} />

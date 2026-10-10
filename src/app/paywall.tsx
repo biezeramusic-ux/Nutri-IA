@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Activity, Check, Droplets, Gift, Infinity as InfinityIcon, Leaf, Lock, Minus, ShieldCheck, TrendingUp, UtensilsCrossed, X } from 'lucide-react-native';
+import { Check, ChevronDown, ChevronUp, Crown, Gift, Lock, Minus, ShieldCheck, X } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../components/AppText';
@@ -22,9 +22,11 @@ type Method = 'mpesa' | 'emola' | 'card';
 const HIGHLIGHTS = [
   { emoji: '♾️', text: 'Análises e registos ilimitados' },
   { emoji: '🌿', text: 'Fibras e análise detalhada' },
-  { emoji: '📈', text: 'Progresso e objetivos' },
-  { emoji: '💧', text: 'Registo de água' },
+  { emoji: '📈', text: 'Progresso, histórico e resumo semanal' },
+  { emoji: '🎯', text: 'Objetivos personalizados' },
+  { emoji: '💧', text: 'Registo de água e lembretes' },
   { emoji: '🏃', text: 'Atividade física' },
+  { emoji: '📸', text: 'Fotos de progresso' },
   { emoji: '🍲', text: 'Pratos moçambicanos' },
 ] as const;
 
@@ -33,10 +35,20 @@ const COMPARE: [string, string | boolean, string | boolean][] = [
   ['Análises de refeições', '2 por dia', 'Ilimitadas'],
   ['Registos de refeições', '5 no total', 'Ilimitados'],
   ['Calorias e macros', true, true],
+  ['Favoritas e sequência de dias', true, true],
   ['Fibras e análise detalhada', false, true],
   ['Progresso e histórico completo', false, true],
+  ['Objetivos personalizados', false, true],
   ['Água e atividade física', false, true],
+  ['Fotos de progresso', false, true],
   ['Duração', '3 dias', 'Enquanto durar o plano'],
+];
+
+const FAQ: [string, string][] = [
+  ['Os planos são diferentes?', 'Não. Todos os planos Pro têm exatamente os mesmos recursos; só muda o período.'],
+  ['O que acontece quando o teste grátis acaba?', 'Passados os 3 dias, o teste termina e precisa de um plano Pro para continuar a registar refeições e a analisar pratos.'],
+  ['Como posso pagar?', 'Com M-Pesa, e-Mola ou cartão. De momento os pagamentos estão em modo de teste (simulados).'],
+  ['Como funciona o desconto de convites?', 'Quando 10 amigos criam conta com o seu código e concluem o quiz, todos os planos ficam com 5% de desconto.'],
 ];
 
 const METHODS: { id: Method; label: string; hint: string }[] = [
@@ -54,12 +66,27 @@ function Cell({ value, pro }: { value: string | boolean; pro?: boolean }) {
   return <Text style={[styles.cellText, pro && styles.cellPro]}>{value}</Text>;
 }
 
+function FaqItem({ question, answer }: { question: string; answer: string }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const [open, setOpen] = useState(false);
+  return (
+    <Pressable style={styles.faqItem} onPress={() => setOpen((o) => !o)} accessibilityRole="button" accessibilityState={{ expanded: open }}>
+      <View style={styles.faqHead}>
+        <Text style={styles.faqQ}>{tr(question)}</Text>
+        {open ? <ChevronUp size={18} color={colors.textMuted} /> : <ChevronDown size={18} color={colors.textMuted} />}
+      </View>
+      {open && <Text style={styles.faqA}>{tr(answer)}</Text>}
+    </Pressable>
+  );
+}
+
 export default function PaywallScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { activatePlan } = useSubscription();
+  const { activatePlan, isPro } = useSubscription();
   const { discountPct, invited, needed } = useReferral();
   const [planId, setPlanId] = useState<PlanId>('monthly');
   const [method, setMethod] = useState<Method>('mpesa');
@@ -113,6 +140,15 @@ export default function PaywallScreen() {
         </View>
 
         <View style={styles.body}>
+          {isPro && (
+            <View style={styles.proBanner}>
+              <Crown size={18} color={colors.limeDark} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.proTitle}>{tr('O seu plano Pro está ativo')}</Text>
+                <Text style={styles.proSub}>{tr('Pode prolongar o plano abaixo quando quiser.')}</Text>
+              </View>
+            </View>
+          )}
           <View style={styles.grid}>
             {HIGHLIGHTS.map(({ emoji, text }) => (
               <View key={text} style={styles.tile}>
@@ -156,6 +192,13 @@ export default function PaywallScreen() {
                   <Cell value={pro} pro />
                 </View>
               </View>
+            ))}
+          </View>
+
+          <Text style={styles.section}>{tr('Perguntas frequentes')}</Text>
+          <View style={styles.faq}>
+            {FAQ.map(([q, a]) => (
+              <FaqItem key={q} question={q} answer={a} />
             ))}
           </View>
 
@@ -213,7 +256,7 @@ export default function PaywallScreen() {
             <View style={styles.ctaRow}>
               <Lock size={16} color="#fff" />
               <Text style={styles.ctaText}>
-                {tr('Pagar')} {formatMT(plan.priceMT)} MT {tr(plan.period)}
+                {tr(isPro ? 'Prolongar por' : 'Pagar')} {formatMT(plan.priceMT)} MT {tr(plan.period)}
               </Text>
             </View>
           )}
@@ -252,6 +295,14 @@ const createStyles = (colors: ThemeColors) =>
   promo: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 10 },
   promoOn: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
   promoText: { flex: 1, fontSize: font.small, fontWeight: '500', color: colors.text },
+  proBanner: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.limeSoft, borderWidth: 1, borderColor: colors.lime, borderRadius: radius.lg, padding: 12 },
+  proTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },
+  proSub: { fontSize: font.small, color: colors.textMuted, marginTop: 1 },
+  faq: { backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
+  faqItem: { paddingHorizontal: 14, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.border },
+  faqHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  faqQ: { flex: 1, fontSize: font.body, fontWeight: '600', color: colors.text },
+  faqA: { fontSize: font.small, color: colors.textMuted, lineHeight: 18, marginTop: 8 },
   methods: { gap: 8 },
   method: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: radius.lg, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.card, padding: 12 },
   methodOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
