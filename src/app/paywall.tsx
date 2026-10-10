@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
-import { Check, ChevronDown, ChevronUp, Crown, Gift, Lock, Minus, ShieldCheck, X } from 'lucide-react-native';
+import { Check, ChevronDown, ChevronUp, Gift, Lock, Minus, ShieldCheck, X } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
@@ -27,7 +28,7 @@ const HIGHLIGHTS = [
   { emoji: '💧', text: 'Registo de água e lembretes' },
   { emoji: '🏃', text: 'Atividade física' },
   { emoji: '📸', text: 'Fotos de progresso' },
-  { emoji: '🍲', text: 'Pratos moçambicanos' },
+  { emoji: '🗓️', text: 'Histórico completo das refeições' },
 ] as const;
 
 /** [recurso, grátis, pro] — texto = valor, true/false = tem/não tem. */
@@ -127,6 +128,16 @@ export default function PaywallScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.hero, { paddingTop: insets.top + 12 }]}>
+          <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" preserveAspectRatio="none">
+            <Defs>
+              <LinearGradient id="heroGrad" x1="0" y1="0" x2="1" y2="1">
+                <Stop offset="0" stopColor="#0B1F3A" />
+                <Stop offset="0.55" stopColor="#1A3A8F" />
+                <Stop offset="1" stopColor="#2F5BEA" />
+              </LinearGradient>
+            </Defs>
+            <Rect x="0" y="0" width="100%" height="100%" fill="url(#heroGrad)" />
+          </Svg>
           <View style={styles.decoA} />
           <View style={styles.decoB} />
           <Pressable style={styles.close} onPress={() => router.back()} accessibilityLabel={tr('Fechar')}>
@@ -140,15 +151,6 @@ export default function PaywallScreen() {
         </View>
 
         <View style={styles.body}>
-          {isPro && (
-            <View style={styles.proBanner}>
-              <Crown size={18} color={colors.limeDark} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.proTitle}>{tr('O seu plano Pro está ativo')}</Text>
-                <Text style={styles.proSub}>{tr('Pode prolongar o plano abaixo quando quiser.')}</Text>
-              </View>
-            </View>
-          )}
           <View style={styles.grid}>
             {HIGHLIGHTS.map(({ emoji, text }) => (
               <View key={text} style={styles.tile}>
@@ -270,8 +272,8 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   hero: { backgroundColor: colors.hero, paddingHorizontal: SCREEN_PADDING, paddingBottom: 30, alignItems: 'center', gap: 6, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
-  decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.3, top: -80, right: -70 },
-  decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
+  decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: '#FFFFFF', opacity: 0.1, top: -80, right: -70 },
+  decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: '#FFFFFF', opacity: 0.08, bottom: -50, left: -40 },
   close: { alignSelf: 'flex-end', width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' },
   logoWrap: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginTop: 2 },
   title: { fontSize: font.h1, fontWeight: '700', color: '#fff', letterSpacing: -0.3, marginTop: 6 },
@@ -295,9 +297,6 @@ const createStyles = (colors: ThemeColors) =>
   promo: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 10 },
   promoOn: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
   promoText: { flex: 1, fontSize: font.small, fontWeight: '500', color: colors.text },
-  proBanner: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.limeSoft, borderWidth: 1, borderColor: colors.lime, borderRadius: radius.lg, padding: 12 },
-  proTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },
-  proSub: { fontSize: font.small, color: colors.textMuted, marginTop: 1 },
   faq: { backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
   faqItem: { paddingHorizontal: 14, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: colors.border },
   faqHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
