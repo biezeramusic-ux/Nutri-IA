@@ -11,6 +11,8 @@ export interface ReminderPlanInput {
   firstName?: string;
   /** Quantos dias planear (hoje + seguintes). */
   days?: number;
+  /** Frases geradas pela IA; se existirem, substituem as frases fixas. */
+  messages?: string[] | null;
 }
 
 export interface PlannedReminder {
@@ -66,7 +68,8 @@ function evenSlots(start: Date, end: Date, count: number): Date[] {
   return Array.from({ length: count }, (_, i) => new Date(start.getTime() + ((i + 0.5) * span) / count));
 }
 
-function pickMessage(goal: GoalType | null, index: number): string {
+function pickMessage(goal: GoalType | null, index: number, ai?: string[] | null): string {
+  if (ai && ai.length > 0) return ai[index % ai.length];
   const bank = MESSAGES[goal ?? 'generic'];
   return tr(bank[index % bank.length]);
 }
@@ -111,8 +114,8 @@ export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] 
       const name = firstName && i % 2 === 0 ? `${firstName}, ` : '';
       const core =
         d === 0 && i === 0
-          ? `${tr('Faltam {glasses} para a sua meta de hoje.', { glasses: glassesWord(remaining) })} ${pickMessage(goal, i)}`
-          : pickMessage(goal, d + i);
+          ? `${tr('Faltam {glasses} para a sua meta de hoje.', { glasses: glassesWord(remaining) })} ${pickMessage(goal, i, input.messages)}`
+          : pickMessage(goal, d + i, input.messages);
       result.push({ at, title, body: name ? `${name}${core.charAt(0).toLowerCase()}${core.slice(1)}` : core });
     });
   }

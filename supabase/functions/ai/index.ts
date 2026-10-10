@@ -25,6 +25,9 @@ const REFINE_PROMPT =
 const INSIGHT_PROMPT =
   'És o nutricionista do Nutri IA. Com base nos números do utilizador, escreve em português de Moçambique um resumo curto (máx. 3 frases) e um conselho prático, tom amigável, sem diagnósticos médicos nem promessas. Responde só com o texto.';
 
+const WATER_PROMPT =
+  'You write push-notification texts for the Nutri IA app reminding the user to drink water. Return strictly a JSON array of 6 different strings. Each one is a friendly, motivating sentence of at most 110 characters, tailored to the user goal, without medical claims. Do not include emojis or the user name.';
+
 const langName = (lang?: string) => (lang === 'en' ? 'English' : 'Portuguese (Mozambique)');
 
 function json(body: unknown, status = 200) {
@@ -65,7 +68,7 @@ Deno.serve(async (req) => {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return json({ error: 'unauthorized' }, 401);
 
-  let body: { action?: string; image?: string; stats?: unknown; analysis?: unknown; instruction?: string; lang?: string };
+  let body: { action?: string; image?: string; stats?: unknown; analysis?: unknown; instruction?: string; lang?: string; goal?: string };
   try {
     body = await req.json();
   } catch {
@@ -107,6 +110,12 @@ Deno.serve(async (req) => {
       if (!access?.is_premium) return json({ error: 'pro_only' }, 403);
       const text = await gemini([{ text: JSON.stringify(body.stats ?? {}).slice(0, 4000) }], false, `${INSIGHT_PROMPT} Reply in ${langName(body.lang)}.`);
       return json({ text: text.trim() });
+    }
+
+    if (body.action === 'water') {
+      const goal = typeof body.goal === 'string' ? body.goal.slice(0, 30) : 'generic';
+      const text = await gemini([{ text: JSON.stringify({ goal }) }], true, `${WATER_PROMPT} Write in ${langName(body.lang)}.`);
+      return json({ text });
     }
 
     return json({ error: 'unknown_action' }, 400);

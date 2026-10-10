@@ -1,5 +1,5 @@
 import { Camera, Scale, Share2, Sparkles } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from '../../components/AppText';
@@ -20,6 +20,8 @@ import { useProfile } from '../../hooks/useProfile';
 import { useWeightLogs } from '../../hooks/useWeightLogs';
 import { todayKey } from '../../services/date';
 import { WEEKDAY_LABELS, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
+import { fetchProgressInsight } from '../../services/aiText';
+import { useSubscription } from '../../hooks/useSubscription';
 import { buildProgressSummary } from '../../services/progressSummary';
 import { computeStreak } from '../../services/streak';
 import { buildWeeklyReport } from '../../services/weeklyReport';
@@ -104,6 +106,32 @@ export default function ProgressScreen() {
     goal: profile?.goal ?? null,
     periodLabel: period === 'week' ? 'semana' : 'mês',
   });
+
+  const { isPro } = useSubscription();
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const aiKey = `${period}|${logged.length}|${Math.round(avgKcal)}|${Math.round(avgProtein)}|${weightDelta ?? ''}`;
+  useEffect(() => {
+    setAiSummary(null);
+    if (!isPro || logged.length === 0) return;
+    let alive = true;
+    const t = setTimeout(() => {
+      void fetchProgressInsight({
+        period: period === 'week' ? 'week' : 'month',
+        daysLogged: logged.length,
+        avgKcal: Math.round(avgKcal),
+        goalKcal: goals.calories,
+        avgProtein: Math.round(avgProtein),
+        goalProtein: goals.proteinG,
+        weightChangeKg: weightDelta,
+        goal: profile?.goal ?? null,
+      }).then((txt) => alive && setAiSummary(txt));
+    }, 600);
+    return () => {
+      alive = false;
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiKey, isPro]);
 
   const startLogging = () => {
     setDraftWeight(Math.round((latest?.weightKg ?? profile?.quiz?.weightKg ?? 65) * 2) / 2);
@@ -237,7 +265,7 @@ export default function ProgressScreen() {
             <Sparkles size={18} color={colors.limeDark} />
             <Text style={styles.cardTitle}>Resumo {period === 'week' ? 'da semana' : 'do mês'}</Text>
           </View>
-          <Text style={styles.summaryText}>{summary}</Text>
+          <Text style={styles.summaryText}>{aiSummary ?? summary}</Text>
         </View>
 
         <Pressable

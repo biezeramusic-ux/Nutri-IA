@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { useProfile } from '../hooks/useProfile';
 import { useWater } from '../hooks/useWater';
+import { getWaterMessages } from '../services/aiText';
 import { cancelWaterReminders, scheduleMealReminders, scheduleWaterReminders } from '../services/notifications';
 
 /**
@@ -29,10 +30,14 @@ export function RemindersSync() {
     }
     // Pequeno atraso: agrupa toques rápidos em + antes de reagendar.
     const timer = setTimeout(() => {
-      void scheduleWaterReminders(
-        { now: new Date(), glasses, goalGlasses, wakeHour, sleepHour, goal, firstName },
-        enabled,
-      );
+      void (async () => {
+        // Frases da IA (1 pedido por dia); sem rede, usa as frases fixas.
+        const messages = enabled ? await getWaterMessages(goal) : null;
+        await scheduleWaterReminders(
+          { now: new Date(), glasses, goalGlasses, wakeHour, sleepHour, goal, firstName, messages },
+          enabled,
+        );
+      })();
     }, 800);
     return () => clearTimeout(timer);
   }, [user, enabled, glasses, goalGlasses, wakeHour, sleepHour, goal, firstName, lang]);
