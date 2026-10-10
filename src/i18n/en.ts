@@ -621,4 +621,9 @@ export const en: Record<string, string> = {
   "3 dias": "3 days",
   "Enquanto durar o plano": "While the plan lasts",
   "Branco": "White",
+  "A sua referência diária está pronta": "Your daily reference is ready",
+  "Calorias de referência": "Reference calories",
+  "Meta com défice calórico saudável para chegar aos {kg} kg.": "Goal with a healthy calorie deficit to reach {kg} kg.",
+  "Meta com ligeiro excedente de calorias e mais proteína para ganhar massa.": "Goal with a slight calorie surplus and more protein to build muscle.",
+  "Calorias para manter o seu peso. Use o scanner para ver quanto cada prato representa.": "Calories to maintain your weight. Use the scanner to see what each dish adds up to.",
 };

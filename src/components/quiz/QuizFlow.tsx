@@ -40,9 +40,24 @@ import { QuizOption } from './QuizOption';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
-const STEPS = ['goal', 'about', 'body', 'activity', 'health', 'habits', 'diet', 'staples'] as const;
-type Step = (typeof STEPS)[number];
-const RESULT_STEP = STEPS.length;
+type Step = 'goal' | 'about' | 'body' | 'activity' | 'health' | 'habits' | 'diet' | 'staples';
+
+const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'health', 'habits', 'diet', 'staples'];
+
+/** O quiz adapta-se ao objetivo: quem só quer saber as calorias responde ao mínimo. */
+function stepsFor(goal: GoalType): Step[] {
+  switch (goal) {
+    case 'track_calories':
+      return ['goal', 'about', 'body', 'activity'];
+    case 'maintain':
+      return ['goal', 'about', 'body', 'activity', 'health', 'diet'];
+    case 'eat_healthy':
+    case 'lose_weight':
+    case 'gain_muscle':
+    default:
+      return FULL_STEPS;
+  }
+}
 
 const GOALS: { value: GoalType; icon: typeof Scale; title: string; subtitle: string }[] = [
   { value: 'lose_weight', icon: Scale, title: 'Perder peso', subtitle: 'Défice calórico saudável' },
@@ -147,6 +162,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   // O peso desejado só faz sentido para quem quer perder peso ou ganhar massa.
   const wantsTarget = base.goal === 'lose_weight' || base.goal === 'gain_muscle';
 
+  // Até escolher o objetivo, mostra o percurso completo; depois ajusta-se ao objetivo.
+  const steps = useMemo(() => (goalPicked ? stepsFor(base.goal) : FULL_STEPS), [goalPicked, base.goal]);
+  const resultStep = steps.length;
+
   const answeredAllHabits = HABIT_QUESTIONS.every((q) => habits[q.key] !== undefined);
 
   const buildAnswers = (): QuizAnswers => ({
@@ -169,7 +188,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     staples: base.staples,
   });
 
-  const current: Step | null = step < STEPS.length ? STEPS[step] : null;
+  const current: Step | null = step < steps.length ? steps[step] : null;
   const canContinue = current === 'goal' ? goalPicked : current === 'habits' ? answeredAllHabits : true;
 
   const goBack = () => {
@@ -192,7 +211,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     }
   };
 
-  const answers = step === RESULT_STEP ? buildAnswers() : null;
+  const answers = step === resultStep ? buildAnswers() : null;
   const goals = answers ? calculateGoals(answers) : null;
   const tips = answers ? planTips(answers) : [];
   const copy = current ? COPY[current] : null;
@@ -214,12 +233,12 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
             <ChevronLeft size={20} color={colors.text} />
           </Pressable>
           <View style={styles.progress}>
-            {STEPS.map((s, i) => (
-              <View key={s} style={[styles.segment, i <= Math.min(step, STEPS.length - 1) && styles.segmentOn]} />
+            {steps.map((s, i) => (
+              <View key={s} style={[styles.segment, i <= Math.min(step, steps.length - 1) && styles.segmentOn]} />
             ))}
           </View>
           <Text style={styles.count}>
-            {Math.min(step + 1, STEPS.length)}/{STEPS.length}
+            {Math.min(step + 1, steps.length)}/{steps.length}
           </Text>
         </View>
 
@@ -231,7 +250,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         ) : (
           <View style={styles.resultHead}>
             <Logo size={52} />
-            <Text style={styles.title}>{tr('O seu plano está pronto')}</Text>
+            <Text style={styles.title}>{tr(base.goal === 'track_calories' ? 'A sua referência diária está pronta' : 'O seu plano está pronto')}</Text>
           </View>
         )}
 
@@ -337,10 +356,17 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         {goals && (
           <>
             <View style={styles.kcalCard}>
-              <Text style={styles.kcalLabel}>{tr('Meta diária')}</Text>
+              <Text style={styles.kcalLabel}>{tr(wantsTarget ? 'Meta diária' : 'Calorias de referência')}</Text>
               <Text style={styles.kcalValue}>{goals.calories}</Text>
               <Text style={styles.kcalLabel}>{tr('calorias por dia')}</Text>
             </View>
+            <Text style={styles.note}>
+              {base.goal === 'lose_weight'
+                ? tr('Meta com défice calórico saudável para chegar aos {kg} kg.', { kg: base.targetWeightKg })
+                : base.goal === 'gain_muscle'
+                  ? tr('Meta com ligeiro excedente de calorias e mais proteína para ganhar massa.')
+                  : tr('Calorias para manter o seu peso. Use o scanner para ver quanto cada prato representa.')}
+            </Text>
             <View style={styles.macroRow}>
               <MacroSquareCard label={tr('Proteína')} percent={0} grams={goals.proteinG} color={colors.primary} unitOnly />
               <MacroSquareCard label={tr('Carbs')} percent={0} grams={goals.carbsG} color={colors.carbs} unitOnly />
@@ -373,13 +399,13 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         <Pressable
           disabled={!canContinue || saving}
           style={({ pressed }) => [styles.cta, (!canContinue || saving) && styles.ctaOff, pressed && styles.ctaPressed]}
-          onPress={() => (step === RESULT_STEP ? void finish() : setStep(step + 1))}
+          onPress={() => (step === resultStep ? void finish() : setStep(step + 1))}
         >
           {saving ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.ctaText}>
-              {step === RESULT_STEP ? 'Começar' : step === STEPS.length - 1 ? 'Ver o meu plano' : 'Continuar'}
+              {step === resultStep ? 'Começar' : step === steps.length - 1 ? 'Ver o meu plano' : 'Continuar'}
             </Text>
           )}
         </Pressable>
@@ -404,6 +430,7 @@ const createStyles = (colors: ThemeColors) =>
   resultHead: { alignItems: 'center', gap: 6, marginTop: 4 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   kcalCard: { backgroundColor: colors.lime, borderRadius: radius.card, paddingVertical: 18, alignItems: 'center' },
+  note: { fontSize: font.small, color: colors.textMuted, lineHeight: 18, textAlign: 'center' },
   kcalLabel: { fontSize: font.small, fontWeight: '600', color: colors.text },
   kcalValue: { fontSize: 44, fontWeight: '700', color: colors.text, letterSpacing: -1 },
   macroRow: { flexDirection: 'row', gap: 10 },
