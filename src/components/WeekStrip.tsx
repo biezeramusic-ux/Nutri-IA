@@ -20,7 +20,7 @@ export function WeekStrip({ days, selectedKey, onSelect, progressByDay }: Props)
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, { justifyContent: 'space-between' }]}>
       {days.map((day, i) => {
         const key = todayKey(day);
         const selected = key === selectedKey;
@@ -45,8 +45,8 @@ export function WeekStrip({ days, selectedKey, onSelect, progressByDay }: Props)
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'space-between' },
-  item: { alignItems: 'center', gap: 6, paddingVertical: 8, width: 44, borderRadius: radius.md },
+  row: { flexDirection: 'row', gap: 2 },
+  item: { flex: 1, maxWidth: 52, alignItems: 'center', gap: 6, paddingVertical: 8, borderRadius: radius.md },
   selected: { backgroundColor: colors.lime },
   label: { fontSize: font.tiny, fontWeight: '500', color: colors.textMuted },
   labelSelected: { color: colors.text, fontWeight: '700' },

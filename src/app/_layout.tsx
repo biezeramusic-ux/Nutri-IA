@@ -23,6 +23,8 @@ function ThemedApp() {
               <Stack
                 screenOptions={{
                   headerShown: false,
+                  animationDuration: 180,
+                  freezeOnBlur: true,
                   contentStyle: { backgroundColor: colors.background },
                 }}
               >
