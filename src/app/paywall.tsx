@@ -2,12 +2,11 @@ import { useRouter } from 'expo-router';
 import { Check, ChevronDown, ChevronUp, Gift, Lock, Minus, ShieldCheck, X } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
-import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Logo } from '../components/Logo';
-import { PaymentLogo } from '../components/PaymentLogos';
+import { PaymentSheet, type PayMethod, type PayOutcome } from '../components/PaymentSheet';
 import { PlanCard, discountedPrice } from '../components/PlanCard';
 import { PLANS } from '../constants/plans';
 import { SCREEN_PADDING, font, formatMT, radius, type ThemeColors } from '../constants/theme';
@@ -17,8 +16,6 @@ import { useSubscription } from '../hooks/useSubscription';
 import { payWithCard, payWithEmola, payWithMpesa, type PaymentResult } from '../services/payments';
 import type { PlanId } from '../types';
 import { tr } from '../i18n';
-
-type Method = 'mpesa' | 'emola' | 'card';
 
 const HIGHLIGHTS = [
   { emoji: '♾️', text: 'Análises e registos ilimitados' },
@@ -52,11 +49,6 @@ const FAQ: [string, string][] = [
   ['Como funciona o desconto de convites?', 'Quando 10 amigos criam conta com o seu código e concluem o quiz, todos os planos ficam com 5% de desconto.'],
 ];
 
-const METHODS: { id: Method; label: string; hint: string }[] = [
-  { id: 'mpesa', label: 'M-Pesa', hint: 'Vodacom · 84 / 85' },
-  { id: 'emola', label: 'e-Mola', hint: 'Movitel · 86 / 87' },
-  { id: 'card', label: 'Cartão bancário', hint: 'Visa, Mastercard, IBAN' },
-];
 
 function Cell({ value, pro }: { value: string | boolean; pro?: boolean }) {
   const { colors } = useTheme();
@@ -90,34 +82,23 @@ export default function PaywallScreen() {
   const { activatePlan, isPro } = useSubscription();
   const { discountPct, invited, needed } = useReferral();
   const [planId, setPlanId] = useState<PlanId>('monthly');
-  const [method, setMethod] = useState<Method>('mpesa');
-  const [phone, setPhone] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const basePlan = PLANS.find((p) => p.id === planId) ?? PLANS[1];
   const plan = { ...basePlan, priceMT: discountedPrice(basePlan.priceMT, discountPct) };
 
-  const pay = async () => {
-    setLoading(true);
+  const pay = async (method: PayMethod, phone: string): Promise<PayOutcome> => {
     let result: PaymentResult;
     if (method === 'mpesa') result = await payWithMpesa(plan, phone);
     else if (method === 'emola') result = await payWithEmola(plan, phone);
     else result = await payWithCard(plan);
-    if (!result.success) {
-      setLoading(false);
-      Alert.alert(tr('Pagamento não concluído'), result.error ?? 'Tente novamente.');
-      return;
-    }
+    if (!result.success) return { ok: false, error: result.error };
     try {
       await activatePlan(plan.id);
     } catch (e) {
-      setLoading(false);
-      Alert.alert(tr('Não foi possível ativar o plano'), e instanceof Error ? e.message : 'Tente novamente.');
-      return;
+      return { ok: false, error: e instanceof Error ? e.message : 'Tente novamente.' };
     }
-    setLoading(false);
-    Alert.alert(tr('Bem-vindo ao Nutri IA Pro'), tr('Plano {plan} ativo.', { plan: tr(plan.label) }) + `\nRef.: ${result.reference} ${tr('(pagamento simulado)')}`);
-    router.back();
+    return { ok: true, reference: result.reference };
   };
 
   return (
@@ -204,44 +185,6 @@ export default function PaywallScreen() {
             ))}
           </View>
 
-          <Text style={styles.section}>{tr('Como quer pagar?')}</Text>
-          <View style={styles.methods}>
-            {METHODS.map((m) => {
-              const on = method === m.id;
-              return (
-                <Pressable key={m.id} onPress={() => setMethod(m.id)} style={[styles.method, on && styles.methodOn]}>
-                  {m.id === 'card' ? (
-                    <View style={styles.cardLogos}>
-                      <PaymentLogo brand="visa" height={26} />
-                      <PaymentLogo brand="mastercard" height={26} />
-                    </View>
-                  ) : (
-                    <PaymentLogo brand={m.id} height={30} />
-                  )}
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.methodText}>{m.label}</Text>
-                    <Text style={styles.methodHint}>{m.hint}</Text>
-                  </View>
-                  <View style={[styles.radio, on && styles.radioOn]}>{on && <Check size={12} color="#fff" strokeWidth={3.5} />}</View>
-                </Pressable>
-              );
-            })}
-          </View>
-          {method !== 'card' && (
-            <View style={styles.phoneField}>
-              <Text style={styles.prefix}>+258</Text>
-              <TextInput
-                value={phone}
-                onChangeText={setPhone}
-                keyboardType="phone-pad"
-                placeholder={method === 'mpesa' ? '84 123 4567' : '86 123 4567'}
-                placeholderTextColor={colors.textFaint}
-                style={styles.phoneInput}
-                maxLength={13}
-              />
-            </View>
-          )}
-
           <View style={styles.secure}>
             <ShieldCheck size={14} color={colors.textMuted} />
             <Text style={styles.secureText}>{tr('Pagamento seguro · cancele quando quiser')}</Text>
@@ -251,19 +194,28 @@ export default function PaywallScreen() {
       </ScrollView>
 
       <View style={[styles.cta, { paddingBottom: insets.bottom + 12 }]}>
-        <Pressable onPress={() => void pay()} disabled={loading} style={({ pressed }) => [styles.ctaBtn, pressed && { opacity: 0.9 }, loading && { opacity: 0.7 }]}>
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <View style={styles.ctaRow}>
-              <Lock size={16} color="#fff" />
-              <Text style={styles.ctaText}>
-                {tr(isPro ? 'Prolongar por' : 'Pagar')} {formatMT(plan.priceMT)} MT {tr(plan.period)}
-              </Text>
-            </View>
-          )}
+        <Pressable onPress={() => setSheetOpen(true)} style={({ pressed }) => [styles.ctaBtn, pressed && { opacity: 0.9 }]}>
+          <View style={styles.ctaRow}>
+            <Lock size={16} color="#fff" />
+            <Text style={styles.ctaText}>
+              {tr(isPro ? 'Prolongar por' : 'Continuar com')} {formatMT(plan.priceMT)} MT {tr(plan.period)}
+            </Text>
+          </View>
         </Pressable>
       </View>
+
+      <PaymentSheet
+        visible={sheetOpen}
+        plan={plan}
+        originalPrice={basePlan.priceMT}
+        isExtending={isPro}
+        onClose={() => setSheetOpen(false)}
+        onPay={pay}
+        onDone={() => {
+          setSheetOpen(false);
+          router.back();
+        }}
+      />
     </View>
   );
 }

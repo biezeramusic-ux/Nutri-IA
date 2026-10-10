@@ -665,4 +665,13 @@ export const en: Record<string, string> = {
   "A partir de {price} MT por semana": "From {price} MT per week",
   "Fibras, progresso e histórico": "Fiber, progress and history",
   "Água, atividade e objetivos": "Water, activity and goals",
+  "Pagamento": "Payment",
+  "Plano ativo": "Plan active",
+  "Bem-vindo ao Nutri IA Pro 👑": "Welcome to Nutri IA Pro 👑",
+  "Plano": "Plan",
+  "Valor": "Amount",
+  "Referência": "Reference",
+  "Concluir": "Done",
+  "{n} dias": "{n} days",
+  "Continuar com": "Continue with",
 };
