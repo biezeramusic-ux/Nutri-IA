@@ -13,7 +13,7 @@ import {
   UserRound,
 } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -147,18 +147,6 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const [saving, setSaving] = useState(false);
   const touched = useRef(false);
 
-  // Transição entre perguntas: o conteúdo desliza e esmorece suavemente.
-  const enter = useRef(new Animated.Value(1)).current;
-  const direction = useRef(1);
-  const goTo = (next: number) => {
-    direction.current = next >= step ? 1 : -1;
-    setStep(next);
-  };
-  useEffect(() => {
-    enter.setValue(0);
-    Animated.timing(enter, { toValue: 1, duration: 320, easing: Easing.out(Easing.cubic), useNativeDriver: Platform.OS !== 'web' }).start();
-  }, [step, enter]);
-
   // Se o perfil só chegar depois de abrir o quiz (refazer), pré-carrega as respostas guardadas.
   useEffect(() => {
     if (profile?.quiz && !touched.current) {
@@ -206,7 +194,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const canContinue = current === 'goal' ? goalPicked : current === 'habits' ? answeredAllHabits : true;
 
   const goBack = () => {
-    if (step > 0) goTo(step - 1);
+    if (step > 0) setStep(step - 1);
     else if (mode === 'redo') router.back();
   };
 
@@ -269,7 +257,6 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </Text>
         </View>
 
-        <Animated.View style={{ gap: 12, opacity: enter, transform: [{ translateX: enter.interpolate({ inputRange: [0, 1], outputRange: [direction.current * 28, 0] }) }] }}>
         {copy && (
           <View style={styles.head}>
             <Text style={styles.title}>{copy.title}</Text>
@@ -376,14 +363,13 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </View>
         )}
 
-        </Animated.View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         <Pressable
           disabled={!canContinue || saving}
           style={({ pressed }) => [styles.cta, (!canContinue || saving) && styles.ctaOff, pressed && styles.ctaPressed]}
-          onPress={() => goTo(step + 1)}
+          onPress={() => setStep(step + 1)}
         >
           {saving ? (
             <ActivityIndicator color="#fff" />
