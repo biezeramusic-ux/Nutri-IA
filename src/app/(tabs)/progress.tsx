@@ -91,7 +91,8 @@ export default function ProgressScreen() {
   const periodLogs = logs.filter((l) => l.day >= sinceKey);
   const latest = logs[logs.length - 1];
   const weightDelta = periodLogs.length >= 2 ? periodLogs[periodLogs.length - 1].weightKg - periodLogs[0].weightKg : null;
-  const targetWeight = profile?.quiz?.targetWeightKg;
+  const wantsTarget = profile?.goal === 'lose_weight' || profile?.goal === 'gain_muscle';
+  const targetWeight = wantsTarget ? profile?.quiz?.targetWeightKg : undefined;
 
   const summary = buildProgressSummary({
     daysLogged: logged.length,

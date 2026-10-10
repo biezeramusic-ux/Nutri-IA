@@ -144,6 +144,9 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     setBase((prev) => ({ ...prev, [key]: value }));
   };
 
+  // O peso desejado só faz sentido para quem quer perder peso ou ganhar massa.
+  const wantsTarget = base.goal === 'lose_weight' || base.goal === 'gain_muscle';
+
   const answeredAllHabits = HABIT_QUESTIONS.every((q) => habits[q.key] !== undefined);
 
   const buildAnswers = (): QuizAnswers => ({
@@ -152,7 +155,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     age: base.age,
     heightCm: base.heightCm,
     weightKg: base.weightKg,
-    targetWeightKg: base.targetWeightKg,
+    targetWeightKg: wantsTarget ? base.targetWeightKg : base.weightKg,
     activity: base.activity,
     conditions: base.conditions,
     habits: {
@@ -259,7 +262,9 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           <>
             <NumberStepper label={tr('Altura')} value={base.heightCm} unit="cm" min={100} max={250} onChange={(v) => update('heightCm', v)} />
             <NumberStepper label={tr('Peso atual')} value={base.weightKg} unit="kg" min={30} max={300} onChange={(v) => update('weightKg', v)} />
-            <NumberStepper label={tr('Peso desejado')} value={base.targetWeightKg} unit="kg" min={30} max={300} onChange={(v) => update('targetWeightKg', v)} />
+            {wantsTarget && (
+              <NumberStepper label={tr('Peso desejado')} value={base.targetWeightKg} unit="kg" min={30} max={300} onChange={(v) => update('targetWeightKg', v)} />
+            )}
           </>
         )}
 
