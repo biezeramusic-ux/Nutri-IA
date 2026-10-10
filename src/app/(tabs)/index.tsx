@@ -1,8 +1,7 @@
 import { Activity, Camera, Droplets, Star, Target, UtensilsCrossed } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
-import { Pressable } from '../../components/AppPressable';
+import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -33,7 +32,6 @@ import { reminderPitch } from '../../services/reminderPitch';
 import { computeStreak } from '../../services/streak';
 import type { Meal } from '../../types';
 import { tr } from '../../i18n';
-import { FadeInUp } from '../../components/Motion';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -131,25 +129,25 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={diaryLoading} onRefresh={() => void refresh()} tintColor={colors.primary} />}
       >
-        <FadeInUp delay={0} style={[styles.pad, styles.header]}>
+        <View style={[styles.pad, styles.header]}>
           <Logo size={34} />
           <View style={{ flex: 1 }}>
             <Text style={styles.hello}>{firstName ? tr('Olá, {name} 👋', { name: firstName }) : tr('Olá 👋')}</Text>
             <Text style={styles.chipText}>{chipLabel}</Text>
           </View>
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={60} style={styles.pad}>
+        <View style={styles.pad}>
           <WeekStrip days={days} selectedKey={selectedKey} onSelect={setSelected} progressByDay={progressByDay} />
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={120} style={styles.pad}>
+        <View style={styles.pad}>
           <CaloriesCard goals={goals} consumed={consumed} />
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={180} style={styles.pad}>
+        <View style={styles.pad}>
           <StreakCard streak={streak} />
-        </FadeInUp>
+        </View>
 
         {showReminderCard && (
           <View style={styles.pad}>
@@ -162,7 +160,7 @@ export default function HomeScreen() {
           </View>
         )}
 
-        <FadeInUp delay={240} style={[styles.pad, styles.row]}>
+        <View style={[styles.pad, styles.row]}>
           {isPro ? (
             <WaterMiniCard glasses={water.glasses} goalGlasses={water.goalGlasses} onAdd={water.increment} onOpen={() => router.push('/water')} />
           ) : (
@@ -182,9 +180,9 @@ export default function HomeScreen() {
               <Text style={styles.statLabel}>{isToday ? 'registadas hoje' : 'registadas neste dia'}</Text>
             </View>
           </View>
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={300} style={[styles.pad, styles.shortcuts]}>
+        <View style={[styles.pad, styles.shortcuts]}>
           <Pressable style={styles.shortcut} onPress={() => router.push('/goals')}>
             <Target size={18} color={colors.primary} />
             <Text style={styles.shortcutText}>{tr('Objetivos')}</Text>
@@ -199,9 +197,9 @@ export default function HomeScreen() {
             <Text style={styles.shortcutText}>{tr('Água')}</Text>
             {!isPro && <ProBadge />}
           </Pressable>
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={360} style={[styles.pad, { gap: 12 }]}>
+        <View style={[styles.pad, { gap: 12 }]}>
           <Text style={styles.title}>{tr('Vamos ver a sua refeição juntos')}</Text>
           <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
           <View style={styles.links}>
@@ -214,9 +212,9 @@ export default function HomeScreen() {
               <Text style={styles.linkChipText}>{tr('Favoritas')}</Text>
             </Pressable>
           </View>
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={420} style={[styles.pad, { gap: 10 }]}>
+        <View style={[styles.pad, { gap: 10 }]}>
           <Text style={styles.section}>{isToday ? 'Refeições de hoje 🍽️' : 'Refeições do dia 🍽️'}</Text>
           {MEAL_TYPES.map((t) => (
             <MealSection
@@ -228,9 +226,9 @@ export default function HomeScreen() {
               onOpenMeal={openMeal}
             />
           ))}
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={480} style={{ gap: 10 }}>
+        <View style={{ gap: 10 }}>
           <Text style={[styles.section, styles.pad]}>{tr('Últimos scans')}</Text>
           {diaryError && <Text style={[styles.error, styles.pad]}>{diaryError}</Text>}
           {meals.length === 0 ? (
@@ -252,7 +250,7 @@ export default function HomeScreen() {
               renderItem={({ item }) => <ScanCard meal={item} onPress={() => openMeal(item)} />}
             />
           )}
-        </FadeInUp>
+        </View>
       </ScrollView>
       {lockReason === 'trial_expired' && <LockOverlay reason="trial_expired" />}
     </View>

@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Check, type LucideIcon } from 'lucide-react-native';
-import { StyleSheet, View } from 'react-native';
-import { Pressable } from '../../components/AppPressable';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';

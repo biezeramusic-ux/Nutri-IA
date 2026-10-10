@@ -1,7 +1,6 @@
 import { Flame, Footprints, Timer, Trash } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

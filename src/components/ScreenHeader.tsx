@@ -1,8 +1,7 @@
 import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { useMemo, type ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';

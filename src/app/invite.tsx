@@ -1,7 +1,6 @@
 import { Send, Users } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, Share, StyleSheet, TextInput, View } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { ActivityIndicator, Pressable, ScrollView, Share, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,7 +10,6 @@ import { useReferral } from '../hooks/useReferral';
 import { useTheme } from '../hooks/useTheme';
 import { REDEEM_MESSAGES, redeemReferral } from '../services/repositories/referral';
 import { tr } from '../i18n';
-import { FadeInUp } from '../components/Motion';
 
 export default function InviteScreen() {
   const { colors } = useTheme();
@@ -63,13 +61,13 @@ export default function InviteScreen() {
       >
         <ScreenHeader title={tr('Convidar amigos')} />
 
-        <FadeInUp delay={0} style={styles.hero}>
+        <View style={styles.hero}>
           <Text style={{ fontSize: 34 }}>🎁</Text>
           <Text style={styles.heroTitle}>{tr('Convide {needed} amigos e ganhe 5% de desconto', { needed })}</Text>
           <Text style={styles.heroSub}>{tr('O desconto vale para todos os planos Pro. Só contam amigos que criam a conta e concluem o quiz.')}</Text>
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={60} style={styles.card}>
+        <View style={styles.card}>
           <View style={styles.rowBetween}>
             <View style={styles.rowIcon}>
               <Users size={16} color={colors.primaryDark} />
@@ -90,9 +88,9 @@ export default function InviteScreen() {
               <Text style={styles.link}>{tr('Sem ligação ao servidor. Tocar para tentar de novo.')}</Text>
             </Pressable>
           )}
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={120} style={styles.card}>
+        <View style={styles.card}>
           <Text style={styles.cardTitle}>{tr('O seu código')}</Text>
           <View style={styles.codeBox}>
             <Text style={styles.code} selectable>
@@ -103,9 +101,9 @@ export default function InviteScreen() {
             <Send size={16} color="#fff" />
             <Text style={styles.ctaText}>{tr('Partilhar convite')}</Text>
           </Pressable>
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={180} style={styles.card}>
+        <View style={styles.card}>
           <Text style={styles.cardTitle}>{tr('Tenho um código de convite')}</Text>
           <TextInput
             value={entered}
@@ -121,7 +119,7 @@ export default function InviteScreen() {
             {busy ? <ActivityIndicator color={colors.primaryDark} /> : <Text style={styles.secondaryText}>{tr('Usar código')}</Text>}
           </Pressable>
           <Text style={styles.sub}>{tr('Só pode usar um código, nos primeiros 7 dias da conta.')}</Text>
-        </FadeInUp>
+        </View>
       </ScrollView>
     </View>
   );

@@ -13,8 +13,7 @@ import {
   UserRound,
 } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Platform, ScrollView, StyleSheet, View } from 'react-native';
-import { Pressable } from '../../components/AppPressable';
+import { ActivityIndicator, Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

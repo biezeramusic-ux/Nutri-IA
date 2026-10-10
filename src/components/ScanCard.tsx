@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { Image, StyleSheet, View } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { cardBase, font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';

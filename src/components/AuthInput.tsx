@@ -1,7 +1,6 @@
 import { Eye, EyeOff, type LucideIcon } from 'lucide-react-native';
 import { forwardRef, useMemo, useState } from 'react';
-import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 import { Text } from '../components/AppText';
 import { font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';

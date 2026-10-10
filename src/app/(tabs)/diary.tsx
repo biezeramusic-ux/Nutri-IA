@@ -1,8 +1,7 @@
 import { useRouter } from 'expo-router';
 import { CloudOff, Plus, Star, Trash } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
-import { Pressable } from '../../components/AppPressable';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,7 +21,6 @@ import { mealEmoji } from '../../services/foodCatalog';
 import { dayScore } from '../../services/healthScore';
 import type { Meal } from '../../types';
 import { tr } from '../../i18n';
-import { FadeInUp } from '../../components/Motion';
 
 export default function DiaryScreen() {
   const { colors } = useTheme();
@@ -120,7 +118,7 @@ export default function DiaryScreen() {
         </View>
       )}
 
-      <FadeInUp delay={0} style={styles.card}>
+      <View style={styles.card}>
         <View style={styles.totalTop}>
           <View>
             <Text style={styles.cardLabel}>{isToday ? 'Total de hoje' : 'Total do dia'}</Text>
@@ -160,7 +158,7 @@ export default function DiaryScreen() {
             {tr('Plano grátis: {n} de {total} registos disponíveis durante o teste.', { n: Math.max(0, mealsLeft), total: FREE_MEALS_TOTAL })}
           </Text>
         )}
-      </FadeInUp>
+      </View>
 
       {isToday && favorites.length > 0 && (
         <View style={{ gap: 8 }}>

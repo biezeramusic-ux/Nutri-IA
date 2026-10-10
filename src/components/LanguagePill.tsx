@@ -1,7 +1,6 @@
 import { Globe } from 'lucide-react-native';
 import { useMemo } from 'react';
-import { StyleSheet } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { Pressable, StyleSheet } from 'react-native';
 import { Text } from '../components/AppText';
 import { font, radius, type ThemeColors } from '../constants/theme';
 import { LANGUAGES } from '../i18n';

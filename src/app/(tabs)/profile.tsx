@@ -2,8 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { Activity, Camera, ChevronRight, Crown, Droplets, Gift, LogOut, Moon, Pencil, RefreshCw, Star, Sun, Target, UtensilsCrossed, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Switch, View } from 'react-native';
-import { Pressable } from '../../components/AppPressable';
+import { Image, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,7 +19,6 @@ import { GOAL_LABEL } from '../../constants/labels';
 import { LanguageSelector } from '../../components/LanguageSelector';
 import { ThemeChoice } from '../../components/ThemeChoice';
 import { tr } from '../../i18n';
-import { FadeInUp } from '../../components/Motion';
 
 
 const SAVE_DELAY_MS = 700;
@@ -150,12 +148,12 @@ export default function ProfileScreen() {
         </Pressable>
         <Text style={styles.name}>{displayName || 'Utilizador'}</Text>
         <Text style={styles.email}>{user?.email}</Text>
-        <FadeInUp delay={0} style={styles.chipRow}>
+        <View style={styles.chipRow}>
           <View style={[styles.planChip, isPremium && styles.planChipPro]}>
             {isPremium && <Crown size={12} color="#0B1F3A" />}
             <Text style={[styles.planChipText, isPremium && { color: '#0B1F3A' }]}>{isPremium ? 'Nutri IA Pro' : planText}</Text>
           </View>
-        </FadeInUp>
+        </View>
         <Pressable style={styles.editBtn} onPress={() => router.push('/edit-profile')}>
           <Pencil size={14} color="#fff" />
           <Text style={styles.editText}>{tr('Editar perfil')}</Text>
@@ -163,7 +161,7 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.body}>
-        <FadeInUp delay={60} style={styles.card}>
+        <View style={styles.card}>
           <Text style={styles.cardTitle}>{tr('O meu plano diário')}</Text>
           <Text style={styles.goal}>{profile?.goal ? GOAL_LABEL[profile.goal] : 'Quiz por fazer'}</Text>
           <View style={styles.planRow}>
@@ -184,10 +182,10 @@ export default function ProfileScreen() {
               <Text style={styles.planLabel}>{tr('gordura')}</Text>
             </View>
           </View>
-        </FadeInUp>
+        </View>
 
         <Text style={styles.section}>{tr('Atalhos')}</Text>
-        <FadeInUp delay={120} style={styles.group}>
+        <View style={styles.group}>
           <Row icon={Target} label={tr('Objetivos')} onPress={() => router.push('/goals')} />
           <Row icon={Activity} label={tr('Atividade física')} onPress={() => router.push('/activity')} />
           <Row icon={Droplets} label={tr('Registo de água')} onPress={() => router.push('/water')} />
@@ -196,24 +194,24 @@ export default function ProfileScreen() {
           <Row icon={Camera} label={tr('Fotos de progresso')} onPress={() => router.push('/progress-photos')} />
           <Row icon={Gift} label={tr('Convidar amigos (5% de desconto)')} onPress={() => router.push('/invite')} />
           <Row icon={RefreshCw} label={tr('Refazer o quiz')} onPress={() => router.push('/quiz')} />
-        </FadeInUp>
+        </View>
 
         <Text style={styles.section}>{tr('Aparência')}</Text>
-        <FadeInUp delay={180} style={styles.card}>
+        <View style={styles.card}>
           <View style={styles.themeHead}>
             {isDark ? <Moon size={18} color={colors.primaryDark} /> : <Sun size={18} color={colors.primaryDark} />}
             <Text style={styles.cardTitle}>{tr('Cor da app')}</Text>
           </View>
           <ThemeChoice />
-        </FadeInUp>
+        </View>
 
         <Text style={styles.section}>{tr('Idioma')}</Text>
-        <FadeInUp delay={240} style={styles.card}>
+        <View style={styles.card}>
           <LanguageSelector />
-        </FadeInUp>
+        </View>
 
         <Text style={styles.section}>{tr('Lembretes')}</Text>
-        <FadeInUp delay={300} style={styles.card}>
+        <View style={styles.card}>
           <View style={styles.switchRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardTitle}>{tr('Lembretes de água')}</Text>
@@ -241,9 +239,9 @@ export default function ProfileScreen() {
             step={250}
             onChange={setWaterMl}
           />
-        </FadeInUp>
+        </View>
 
-        <FadeInUp delay={360} style={styles.card}>
+        <View style={styles.card}>
           <View style={styles.switchRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardTitle}>{tr('Lembretes de refeição')}</Text>
@@ -256,10 +254,10 @@ export default function ProfileScreen() {
               thumbColor="#fff"
             />
           </View>
-        </FadeInUp>
+        </View>
 
         <Text style={styles.section}>{tr('Subscrição')}</Text>
-        <FadeInUp delay={420} style={styles.card}>
+        <View style={styles.card}>
           <Text style={styles.sub}>{planText}</Text>
           {!isPremium && (
             <Pressable style={styles.cta} onPress={() => router.push('/paywall')}>
@@ -267,7 +265,7 @@ export default function ProfileScreen() {
               <Text style={styles.ctaText}>{tr('Ver planos Pro')}</Text>
             </Pressable>
           )}
-        </FadeInUp>
+        </View>
 
         <Pressable style={styles.signOut} onPress={confirmSignOut}>
           <LogOut size={18} color={colors.danger} />
@@ -282,7 +280,7 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: colors.background },
     hero: { backgroundColor: colors.hero, paddingHorizontal: SCREEN_PADDING, paddingBottom: 26, alignItems: 'center', gap: 4, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
-    decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.protein, opacity: 0.28, top: -80, right: -70 },
+    decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.3, top: -80, right: -70 },
     decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
     avatar: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.35)' },
     avatarImg: { width: 70, height: 70, borderRadius: 35 },

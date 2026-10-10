@@ -1,8 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Activity, Check, Droplets, Gift, Infinity as InfinityIcon, Leaf, Lock, Minus, ShieldCheck, TrendingUp, UtensilsCrossed, X } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,7 +16,6 @@ import { useSubscription } from '../hooks/useSubscription';
 import { payWithCard, payWithEmola, payWithMpesa, type PaymentResult } from '../services/payments';
 import type { PlanId } from '../types';
 import { tr } from '../i18n';
-import { FadeInUp } from '../components/Motion';
 
 type Method = 'mpesa' | 'emola' | 'card';
 
@@ -116,13 +114,13 @@ export default function PaywallScreen() {
 
         <View style={styles.body}>
           <View style={styles.grid}>
-            {HIGHLIGHTS.map(({ emoji, text }, idx) => (
-              <FadeInUp key={text} delay={idx * 70} style={styles.tile}>
+            {HIGHLIGHTS.map(({ emoji, text }) => (
+              <View key={text} style={styles.tile}>
                 <View style={styles.tileIcon}>
                   <Text style={{ fontSize: 15 }}>{emoji}</Text>
                 </View>
                 <Text style={styles.tileText}>{text}</Text>
-              </FadeInUp>
+              </View>
             ))}
           </View>
 
@@ -136,10 +134,8 @@ export default function PaywallScreen() {
             </Text>
           </Pressable>
           <View style={styles.plansRow}>
-            {PLANS.map((p, idx) => (
-              <FadeInUp key={p.id} delay={350 + idx * 90} style={{ flex: 1 }}>
-                <PlanCard plan={p} selected={p.id === planId} onPress={() => setPlanId(p.id)} discountPct={discountPct} />
-              </FadeInUp>
+            {PLANS.map((p) => (
+              <PlanCard key={p.id} plan={p} selected={p.id === planId} onPress={() => setPlanId(p.id)} discountPct={discountPct} />
             ))}
           </View>
 
@@ -231,7 +227,7 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   hero: { backgroundColor: colors.hero, paddingHorizontal: SCREEN_PADDING, paddingBottom: 30, alignItems: 'center', gap: 6, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
-  decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.protein, opacity: 0.28, top: -80, right: -70 },
+  decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.3, top: -80, right: -70 },
   decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
   close: { alignSelf: 'flex-end', width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' },
   logoWrap: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginTop: 2 },

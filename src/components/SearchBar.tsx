@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Search, X } from 'lucide-react-native';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { tr } from '../i18n';

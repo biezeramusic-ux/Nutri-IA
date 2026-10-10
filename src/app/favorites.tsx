@@ -1,12 +1,10 @@
 import { Plus, Star, Trash } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FadeInUp } from '../components/Motion';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useDiary } from '../hooks/useDiary';
@@ -61,7 +59,7 @@ export default function FavoritesScreen() {
           </View>
         ) : (
           favorites.map((f, i) => (
-            <FadeInUp key={f.id} delay={Math.min(i * 50, 500)} style={[styles.card, styles.row]}>
+            <View key={f.id} style={[styles.card, styles.row]}>
               <View style={styles.emojiWrap}>
                 <Text style={{ fontSize: 22 }}>{mealEmoji(f.analysis.food_name)}</Text>
               </View>
@@ -77,7 +75,7 @@ export default function FavoritesScreen() {
               <Pressable onPress={() => void remove(f.id)} hitSlop={10} accessibilityLabel={tr('Remover')}>
                 <Trash size={18} color={colors.textFaint} />
               </Pressable>
-            </FadeInUp>
+            </View>
           ))
         )}
       </ScrollView>

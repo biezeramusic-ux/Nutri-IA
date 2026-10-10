@@ -7,7 +7,6 @@ import { useTheme } from '../hooks/useTheme';
 import type { Totals } from '../services/dayUtils';
 import type { DailyGoals } from '../types';
 import { MacroLeftBar } from './MacroLeftBar';
-import { AnimatedNumber } from './Motion';
 import { ProgressRing } from './ProgressRing';
 import { tr } from '../i18n';
 
@@ -26,7 +25,7 @@ export function CaloriesCard({ goals, consumed }: Props) {
     <View style={styles.card}>
       <View style={styles.top}>
         <View style={{ flex: 1 }}>
-          <AnimatedNumber style={styles.big} prefix={over ? '+' : ''} value={over ? consumed.kcal - goals.calories : left} />
+          <Text style={styles.big}>{over ? `+${consumed.kcal - goals.calories}` : left}</Text>
           <Text style={styles.sub}>{over ? 'Calorias acima da meta' : 'Calorias restantes'}</Text>
           <Text style={styles.meta}>
             {consumed.kcal} de {goals.calories} kcal

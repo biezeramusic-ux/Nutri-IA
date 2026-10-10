@@ -1,11 +1,9 @@
 import { useRouter } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Pressable } from '../components/AppPressable';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FadeInUp } from '../components/Motion';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SearchBar } from '../components/SearchBar';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
@@ -43,8 +41,7 @@ export default function DishesScreen() {
         {shown.map((d, i) => {
           const meal = buildMeal(d.analysis);
           return (
-            <FadeInUp key={d.name} delay={Math.min(i * 45, 500)}>
-            <Pressable style={styles.row} onPress={() => open(i)}>
+            <Pressable key={d.name} style={styles.row} onPress={() => open(i)}>
               <View style={styles.icon}>
                 <Text style={{ fontSize: 22 }}>{mealEmoji(d.name)}</Text>
               </View>
@@ -56,7 +53,6 @@ export default function DishesScreen() {
               </View>
               <ChevronRight size={18} color={colors.textFaint} />
             </Pressable>
-            </FadeInUp>
           );
         })}
         {shown.length === 0 && <Text style={styles.sub}>{tr('Nenhum prato encontrado.')}</Text>}
