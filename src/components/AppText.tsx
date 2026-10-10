@@ -21,9 +21,5 @@ export function Text({ children, ...rest }: TextProps) {
     if (isValidElement(c)) return cloneElement(c);
     return translateChild(c);
   });
-  return (
-    <RNText maxFontSizeMultiplier={1.2} {...rest}>
-      {content}
-    </RNText>
-  );
+  return <RNText {...rest}>{content}</RNText>;
 }

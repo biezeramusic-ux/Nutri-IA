@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { BookOpen, ChartColumn, House, User } from 'lucide-react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
 import { ScannerFab } from '../../components/ScannerFab';
 import { font, shadow } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
@@ -8,7 +8,6 @@ import { tr } from '../../i18n';
 
 export default function TabsLayout() {
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
   return (
     <Tabs
       initialRouteName="index"
@@ -17,16 +16,15 @@ export default function TabsLayout() {
         // Abas já montadas (toque imediato) e as que ficam em segundo plano não re-desenham.
         lazy: false,
         freezeOnBlur: true,
-        tabBarAllowFontScaling: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textFaint,
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginBottom: 0 },
+        tabBarLabelStyle: { fontSize: font.tiny - 1, fontWeight: '600', marginBottom: 0 },
         tabBarItemStyle: { paddingHorizontal: 0 },
         tabBarStyle: {
           position: 'absolute',
-          left: 12,
-          right: 12,
-          bottom: Math.max(insets.bottom, 12),
+          left: 16,
+          right: 16,
+          bottom: Platform.OS === 'ios' ? 22 : 12,
           height: 70,
           paddingTop: 8,
           paddingBottom: 10,
