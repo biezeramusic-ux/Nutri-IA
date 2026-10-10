@@ -1,4 +1,4 @@
-import { Activity, Camera, Droplets, Star, Target, UtensilsCrossed } from 'lucide-react-native';
+import { Camera, Droplets, Star, UtensilsCrossed } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -182,23 +182,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={[styles.pad, styles.shortcuts]}>
-          <Pressable style={styles.shortcut} onPress={() => router.push('/goals')}>
-            <Target size={18} color={colors.primary} />
-            <Text style={styles.shortcutText}>{tr('Objetivos')}</Text>
-          </Pressable>
-          <Pressable style={styles.shortcut} onPress={() => router.push(isPro ? '/activity' : '/paywall')}>
-            <Activity size={18} color={colors.primary} />
-            <Text style={styles.shortcutText}>{tr('Atividade')}</Text>
-            {!isPro && <ProBadge />}
-          </Pressable>
-          <Pressable style={styles.shortcut} onPress={() => router.push(isPro ? '/water' : '/paywall')}>
-            <Droplets size={18} color={colors.water} />
-            <Text style={styles.shortcutText}>{tr('Água')}</Text>
-            {!isPro && <ProBadge />}
-          </Pressable>
-        </View>
-
         <View style={[styles.pad, { gap: 12 }]}>
           <Text style={styles.title}>{tr('Vamos ver a sua refeição juntos')}</Text>
           <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
@@ -274,9 +257,6 @@ const createStyles = (colors: ThemeColors) =>
   statLabel: { fontSize: font.tiny, color: colors.textMuted },
   lockedCard: { ...cardBase(colors), flex: 1, padding: 14, gap: 8 },
   lockedHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  shortcuts: { flexDirection: 'row', gap: 10 },
-  shortcut: { ...cardBase(colors), flex: 1, borderRadius: radius.lg, paddingVertical: 12, alignItems: 'center', gap: 6 },
-  shortcutText: { fontSize: font.small, fontWeight: '600', color: colors.text },
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   section: { fontSize: font.h2, fontWeight: '700', color: colors.text },
   error: { fontSize: font.small, color: colors.danger },
