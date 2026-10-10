@@ -3,8 +3,13 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const GEMINI_KEY = Deno.env.get('GEMINI_API_KEY') ?? '';
-const MODEL = Deno.env.get('GEMINI_MODEL') ?? 'gemini-3.1-flash-lite';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+// Lista de modelos por ordem de preferência (separados por vírgula). Se um for desativado (404),
+// a função tenta o seguinte, por isso a app não pára quando o Google retira um modelo.
+const MODELS = (Deno.env.get('GEMINI_MODEL') ?? 'gemini-3.1-flash-lite,gemini-2.5-flash-lite')
+  .split(',')
+  .map((m) => m.trim())
+  .filter(Boolean);
+const geminiUrl = (model: string) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -22,18 +27,27 @@ function json(body: unknown, status = 200) {
 }
 
 async function gemini(parts: unknown[], asJson: boolean, system?: string): Promise<string> {
-  const res = await fetch(GEMINI_URL, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'x-goog-api-key': GEMINI_KEY },
-    body: JSON.stringify({
-      ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
-      contents: [{ role: 'user', parts }],
-      generationConfig: { temperature: 0.2, ...(asJson ? { responseMimeType: 'application/json' } : {}) },
-    }),
+  const body = JSON.stringify({
+    ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
+    contents: [{ role: 'user', parts }],
+    generationConfig: { temperature: 0.2, ...(asJson ? { responseMimeType: 'application/json' } : {}) },
   });
-  if (!res.ok) throw new Error(`gemini_${res.status}`);
-  const data = await res.json();
-  return data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('') ?? '';
+  let lastStatus = 0;
+  for (const model of MODELS) {
+    const res = await fetch(geminiUrl(model), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-goog-api-key': GEMINI_KEY },
+      body,
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text ?? '').join('') ?? '';
+    }
+    lastStatus = res.status;
+    // 404 = modelo retirado/inexistente; 429/5xx = limite ou falha temporária: tenta o próximo.
+    if (res.status !== 404 && res.status !== 429 && res.status < 500) break;
+  }
+  throw new Error(`gemini_${lastStatus}`);
 }
 
 Deno.serve(async (req) => {
