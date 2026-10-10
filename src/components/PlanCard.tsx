@@ -9,9 +9,14 @@ interface Props {
   plan: Plan;
   selected: boolean;
   onPress: () => void;
+  /** Desconto em % (ex.: 5 pelos convites). */
+  discountPct?: number;
 }
 
 const WEEKLY_PRICE = 50;
+
+/** Preço com desconto (arredondado ao metical). */
+export const discountedPrice = (price: number, pct: number): number => Math.round(price * (1 - pct / 100));
 
 /** Preço por mês e poupança face ao plano semanal (só informativo). */
 function priceInfo(plan: Plan): { perMonth: number; savePct: number } {
@@ -22,10 +27,11 @@ function priceInfo(plan: Plan): { perMonth: number; savePct: number } {
 }
 
 /** Cartão de plano em coluna: três cabem lado a lado no ecrã do telemóvel. */
-export function PlanCard({ plan, selected, onPress }: Props) {
+export function PlanCard({ plan, selected, onPress, discountPct = 0 }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const { perMonth, savePct } = priceInfo(plan);
+  const finalPrice = discountedPrice(plan.priceMT, discountPct);
+  const { perMonth, savePct } = priceInfo({ ...plan, priceMT: finalPrice });
   return (
     <Pressable onPress={onPress} style={[styles.card, selected && styles.selected]} accessibilityRole="button">
       {plan.badge && (
@@ -36,7 +42,8 @@ export function PlanCard({ plan, selected, onPress }: Props) {
         </View>
       )}
       <Text style={styles.label}>{plan.label}</Text>
-      <Text style={styles.price}>{formatMT(plan.priceMT)}</Text>
+      {discountPct > 0 && <Text style={styles.old}>{formatMT(plan.priceMT)}</Text>}
+      <Text style={styles.price}>{formatMT(finalPrice)}</Text>
       <Text style={styles.currency}>MT {plan.period}</Text>
       <Text style={styles.sub}>{plan.days > 7 ? `≈ ${perMonth} MT/mês` : 'Sem compromisso'}</Text>
       <View style={[styles.save, savePct === 0 && { opacity: 0 }]}>
@@ -55,6 +62,7 @@ const createStyles = (colors: ThemeColors) =>
     badgeAlt: { backgroundColor: colors.primaryDark === '#7BD87F' ? '#2E7D32' : colors.primaryDark },
     badgeText: { color: '#0F172A', fontSize: 9, fontWeight: '800' },
     label: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
+    old: { fontSize: font.tiny, color: colors.textFaint, textDecorationLine: 'line-through', marginBottom: -2 },
     price: { fontSize: 24, fontWeight: '800', color: colors.text, letterSpacing: -0.5 },
     currency: { fontSize: font.tiny, color: colors.textMuted },
     sub: { fontSize: 10, color: colors.textFaint, marginTop: 4 },

@@ -1,20 +1,26 @@
-import { Scale, Sparkles } from 'lucide-react-native';
+import { Camera, Scale, Share2, Sparkles } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BarChart, type Bar } from '../../components/BarChart';
 import { LineChart } from '../../components/LineChart';
 import { ProGate } from '../../components/ProOverlay';
 import { NumberStepper } from '../../components/quiz/NumberStepper';
 import { SegmentedControl } from '../../components/SegmentedControl';
+import { StreakCard } from '../../components/StreakCard';
 import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../hooks/useAuth';
 import { useDiary } from '../../hooks/useDiary';
+import { useReferral } from '../../hooks/useReferral';
 import { useProfile } from '../../hooks/useProfile';
 import { useWeightLogs } from '../../hooks/useWeightLogs';
 import { todayKey } from '../../services/date';
 import { WEEKDAY_LABELS, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
 import { buildProgressSummary } from '../../services/progressSummary';
+import { computeStreak } from '../../services/streak';
+import { buildWeeklyReport } from '../../services/weeklyReport';
 
 type Period = 'week' | 'month';
 
@@ -32,8 +38,12 @@ export default function ProgressScreen() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const { meals } = useDiary();
+  const { displayName } = useAuth();
+  const referral = useReferral();
+  const streak = useMemo(() => computeStreak(meals), [meals]);
   const { goals, profile } = useProfile();
   const { logs, addToday } = useWeightLogs(90);
   const [period, setPeriod] = useState<Period>('week');
@@ -120,6 +130,7 @@ export default function ProgressScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.title}>Progresso</Text>
+        <StreakCard streak={streak} />
         <SegmentedControl
           options={[
             { key: 'week', label: 'Semana' },
@@ -224,6 +235,20 @@ export default function ProgressScreen() {
           </View>
           <Text style={styles.summaryText}>{summary}</Text>
         </View>
+
+        <Pressable
+          style={styles.shareBtn}
+          onPress={() =>
+            void Share.share({ message: buildWeeklyReport(meals, goals, displayName.split(' ')[0] ?? '', referral.code || undefined) }).catch(() => undefined)
+          }
+        >
+          <Share2 size={16} color="#fff" />
+          <Text style={styles.shareText}>Partilhar resumo da semana</Text>
+        </Pressable>
+        <Pressable style={styles.photosBtn} onPress={() => router.push('/progress-photos')}>
+          <Camera size={16} color={colors.primaryDark} />
+          <Text style={styles.photosText}>Fotos de progresso (antes e depois)</Text>
+        </Pressable>
       </ScrollView>
     </ProGate>
   );
@@ -231,6 +256,10 @@ export default function ProgressScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
+  shareBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  shareText: { color: '#fff', fontWeight: '700', fontSize: font.body },
+  photosBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  photosText: { color: colors.primaryDark, fontWeight: '600', fontSize: font.body },
   root: { flex: 1, backgroundColor: colors.background },
   title: { fontSize: font.h1, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   card: { ...cardBase(colors), padding: 16, gap: 12 },

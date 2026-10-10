@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { Activity, ChevronRight, Crown, Droplets, LogOut, Moon, Pencil, RefreshCw, Sun, Target, type LucideIcon } from 'lucide-react-native';
+import { Activity, Camera, ChevronRight, Crown, Droplets, Gift, LogOut, Moon, Pencil, RefreshCw, Star, Sun, Target, UtensilsCrossed, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +11,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { GLASS_ML, glassesFromMl } from '../../services/goals';
-import { ensureNotificationPermission, notificationsSupported } from '../../services/notifications';
+import { ensureNotificationPermission, notificationsSupported, scheduleMealReminders } from '../../services/notifications';
 import { GOAL_LABEL } from '../../constants/labels';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { type ThemeMode } from '../../hooks/useTheme';
@@ -31,6 +32,26 @@ export default function ProfileScreen() {
   const [wake, setWake] = useState(profile?.wakeHour ?? 7);
   const [sleep, setSleep] = useState(profile?.sleepHour ?? 22);
   const [waterMl, setWaterMl] = useState(goals.waterMl);
+  const [mealReminders, setMealReminders] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem('nutria.mealReminders')
+      .then((v) => setMealReminders(v === '1'))
+      .catch(() => undefined);
+  }, []);
+
+  const toggleMealReminders = async (value: boolean) => {
+    if (value && !notificationsSupported) {
+      Alert.alert('Disponível na app instalada', 'As notificações não funcionam no Expo Go. Instale a app (APK) para receber os lembretes.');
+    } else if (value && !(await scheduleMealReminders(true))) {
+      Alert.alert('Notificações desligadas', 'Ative as notificações do Nutri IA nas definições do telemóvel.');
+      return;
+    } else if (!value) {
+      await scheduleMealReminders(false);
+    }
+    setMealReminders(value);
+    await AsyncStorage.setItem('nutria.mealReminders', value ? '1' : '0').catch(() => undefined);
+  };
 
   // Sincroniza quando o perfil chega do servidor.
   useEffect(() => {
@@ -159,6 +180,10 @@ export default function ProfileScreen() {
           <Row icon={Target} label="Objetivos" onPress={() => router.push('/goals')} />
           <Row icon={Activity} label="Atividade física" onPress={() => router.push('/activity')} />
           <Row icon={Droplets} label="Registo de água" onPress={() => router.push('/water')} />
+          <Row icon={Star} label="Refeições favoritas" onPress={() => router.push('/favorites')} />
+          <Row icon={UtensilsCrossed} label="Pratos moçambicanos" onPress={() => router.push('/dishes')} />
+          <Row icon={Camera} label="Fotos de progresso" onPress={() => router.push('/progress-photos')} />
+          <Row icon={Gift} label="Convidar amigos (5% de desconto)" onPress={() => router.push('/invite')} />
           <Row icon={RefreshCw} label="Refazer o quiz" onPress={() => router.push('/quiz')} />
         </View>
 
@@ -208,6 +233,21 @@ export default function ProfileScreen() {
             step={250}
             onChange={setWaterMl}
           />
+        </View>
+
+        <View style={styles.card}>
+          <View style={styles.switchRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.cardTitle}>Lembretes de refeição</Text>
+              <Text style={styles.sub}>Avisos às 8h15, 12h45 e 19h30 para registar o que comeu.</Text>
+            </View>
+            <Switch
+              value={mealReminders}
+              onValueChange={(v) => void toggleMealReminders(v)}
+              trackColor={{ true: colors.primary, false: colors.border }}
+              thumbColor="#fff"
+            />
+          </View>
         </View>
 
         <Text style={styles.section}>Subscrição</Text>

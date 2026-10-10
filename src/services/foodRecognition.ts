@@ -67,3 +67,20 @@ export async function recognizeFood(imageBase64: string): Promise<ScanOutcome> {
     return { allowed: true, analysis: MOCK_VEGETABLE_SALAD, isFallback: true };
   }
 }
+
+export type RefineOutcome =
+  | { status: 'ok'; analysis: FoodAnalysis }
+  | { status: 'blocked' }
+  | { status: 'unavailable' };
+
+/** Corrige a análise com um texto do utilizador ("foi sem arroz"), através da função "ai". */
+export async function refineAnalysis(current: FoodAnalysis, instruction: string): Promise<RefineOutcome> {
+  try {
+    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'refine', analysis: current, instruction } });
+    if (error || !data) return { status: 'unavailable' };
+    if (data.allowed === false) return { status: 'blocked' };
+    return { status: 'ok', analysis: parseAnalysis(String(data.text ?? '')) };
+  } catch {
+    return { status: 'unavailable' };
+  }
+}

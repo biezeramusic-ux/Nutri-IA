@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Plus, Trash } from 'lucide-react-native';
+import { CloudOff, Plus, Star, Trash } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,11 +10,14 @@ import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors
 import { useTheme } from '../../hooks/useTheme';
 import { FREE_MEALS_TOTAL } from '../../constants/plans';
 import { useDiary } from '../../hooks/useDiary';
+import { useFavorites } from '../../hooks/useFavorites';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { todayKey } from '../../services/date';
 import { MEAL_TYPES, dayKeyOf, getMealType, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
+import { favoriteToMeal } from '../../services/favorites';
 import { mealIcon } from '../../services/foodCatalog';
+import { dayScore } from '../../services/healthScore';
 import type { Meal } from '../../types';
 
 export default function DiaryScreen() {
@@ -22,7 +25,8 @@ export default function DiaryScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { meals, setCurrent, removeMeal } = useDiary();
+  const { meals, setCurrent, removeMeal, saveMeal, pendingCount } = useDiary();
+  const { favorites } = useFavorites();
   const { goals } = useProfile();
   const { isPro, mealsLeft, refresh } = useSubscription();
   const [selected, setSelected] = useState(() => new Date());
@@ -51,6 +55,27 @@ export default function DiaryScreen() {
       return;
     }
     setSelected(day);
+  };
+
+  const score = useMemo(() => dayScore(dayMeals.map((m) => m.analysis)), [dayMeals]);
+
+  const addFavorite = async (index: number) => {
+    const fav = favorites[index];
+    if (!fav) return;
+    try {
+      await saveMeal(favoriteToMeal(fav));
+      void refresh();
+    } catch (e) {
+      const message = e instanceof Error ? e.message : '';
+      if (message.includes('meal_limit_reached') || message.includes('trial_expired')) {
+        Alert.alert('Limite do teste grátis', 'Com o Nutri IA Pro os registos são ilimitados.', [
+          { text: 'Agora não', style: 'cancel' },
+          { text: 'Ver planos', onPress: () => router.push('/paywall') },
+        ]);
+      } else {
+        Alert.alert('Não foi possível registar', 'Tente novamente.');
+      }
+    }
   };
 
   const open = (meal: Meal) => {
@@ -82,6 +107,15 @@ export default function DiaryScreen() {
       <Text style={styles.title}>Diário alimentar</Text>
       <WeekStrip days={days} selectedKey={selectedKey} onSelect={selectDay} progressByDay={progressByDay} />
 
+      {pendingCount > 0 && (
+        <View style={styles.pending}>
+          <CloudOff size={14} color={colors.carbs} />
+          <Text style={styles.pendingText}>
+            {pendingCount} {pendingCount === 1 ? 'refeição por sincronizar' : 'refeições por sincronizar'} (sem ligação)
+          </Text>
+        </View>
+      )}
+
       <View style={styles.card}>
         <View style={styles.totalTop}>
           <View>
@@ -90,6 +124,11 @@ export default function DiaryScreen() {
               {totals.kcal} <Text style={styles.unit}>/ {goals.calories} kcal</Text>
             </Text>
           </View>
+          {score !== null && (
+            <View style={styles.scoreChip}>
+              <Text style={styles.scoreChipText}>Pontuação {String(score).replace('.', ',')}/10</Text>
+            </View>
+          )}
         </View>
         <View style={styles.track}>
           <View style={[styles.fill, { width: `${kcalPct * 100}%`, backgroundColor: totals.kcal > goals.calories ? colors.danger : colors.primary }]} />
@@ -118,6 +157,23 @@ export default function DiaryScreen() {
           </Text>
         )}
       </View>
+
+      {isToday && favorites.length > 0 && (
+        <View style={{ gap: 8 }}>
+          <View style={styles.favHead}>
+            <Star size={14} color={colors.carbs} fill={colors.carbs} />
+            <Text style={styles.favTitle}>Favoritas · registo rápido</Text>
+          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+            {favorites.slice(0, 12).map((f, i) => (
+              <Pressable key={f.id} style={styles.favChip} onPress={() => void addFavorite(i)}>
+                <Text style={styles.favName} numberOfLines={1}>{f.analysis.food_name}</Text>
+                <Text style={styles.favKcal}>{f.analysis.calories} kcal · +</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </View>
+      )}
 
       {MEAL_TYPES.map((t) => {
         const list = dayMeals.filter((m) => getMealType(m.createdAt) === t.type);
@@ -170,6 +226,16 @@ export default function DiaryScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
+  pending: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.limeSoft, borderRadius: radius.md, padding: 10 },
+  pendingText: { flex: 1, fontSize: font.small, color: colors.text },
+  scoreChip: { alignSelf: 'flex-start', backgroundColor: colors.primarySoft, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 },
+  scoreChipText: { fontSize: font.tiny, fontWeight: '700', color: colors.primaryDark },
+  favHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  favTitle: { fontSize: font.small, fontWeight: '700', color: colors.textMuted },
+  favChip: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, paddingHorizontal: 12, paddingVertical: 8, maxWidth: 190 },
+  favName: { fontSize: font.body, fontWeight: '600', color: colors.text },
+  favKcal: { fontSize: font.tiny, color: colors.textMuted, marginTop: 1 },
+
   root: { flex: 1, backgroundColor: colors.background },
   title: { fontSize: font.h1, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   card: { ...cardBase(colors), padding: 16, gap: 12 },

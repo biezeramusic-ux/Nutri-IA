@@ -117,3 +117,31 @@ export async function scheduleMealWaterNudge(): Promise<void> {
     // ignora
   }
 }
+
+const KIND_MEAL_SLOT = 'meal-slot';
+
+const MEAL_SLOTS = [
+  { hour: 8, minute: 15, title: '☀️ Bom dia!', body: 'Já tomou o pequeno-almoço? Registe-o em segundos com uma foto.' },
+  { hour: 12, minute: 45, title: '🍽️ Hora do almoço', body: 'Fotografe o seu prato para saber as calorias.' },
+  { hour: 19, minute: 30, title: '🌙 Hora do jantar', body: 'Não se esqueça de registar o jantar e fechar o dia.' },
+] as const;
+
+/** Lembretes diários para registar as refeições (pequeno-almoço, almoço e jantar). */
+export async function scheduleMealReminders(enabled: boolean): Promise<boolean> {
+  const N = await loadNotifications();
+  if (!N) return false;
+  try {
+    await cancelByKind(N, KIND_MEAL_SLOT);
+    if (!enabled) return true;
+    if (!(await ensureNotificationPermission(true))) return false;
+    for (const slot of MEAL_SLOTS) {
+      await N.scheduleNotificationAsync({
+        content: { title: slot.title, body: slot.body, data: { kind: KIND_MEAL_SLOT } },
+        trigger: { type: N.SchedulableTriggerInputTypes.DAILY, hour: slot.hour, minute: slot.minute, channelId: CHANNEL_ID },
+      });
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}

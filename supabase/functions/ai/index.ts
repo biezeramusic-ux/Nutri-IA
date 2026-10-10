@@ -19,6 +19,9 @@ const CORS = {
 const SCAN_PROMPT =
   "You are an expert Mozambican Nutritionist AI and core engine of 'Nutri IA'. Analyze the food image. You must accurately recognize typical Mozambican culinary dishes (e.g., matapa, xima, mucapata, caril de amendoim, cacana, badgias, peixe grelhado, etc.) and estimate the weight in grams. Return strictly a clean JSON object: { \"food_name\": string, \"estimated_weight_grams\": number, \"calories\": number, \"carbs_g\": number, \"protein_g\": number, \"fats_g\": number, \"fiber_g\": number, \"confidence\": number }. Write food_name in Portuguese (Mozambique). confidence is 0 to 100.";
 
+const REFINE_PROMPT =
+  "You are the Nutri IA nutritionist. You receive the current analysis of a meal (JSON) and a correction written by the user in Portuguese (e.g. 'foi sem arroz', 'a porção era maior', 'é xima com peixe'). Apply the correction and return strictly a clean JSON object with the same fields: { \"food_name\": string, \"estimated_weight_grams\": number, \"calories\": number, \"carbs_g\": number, \"protein_g\": number, \"fats_g\": number, \"fiber_g\": number, \"confidence\": number }. Keep food_name in Portuguese (Mozambique) and keep the numbers coherent with the new dish and portion.";
+
 const INSIGHT_PROMPT =
   'És o nutricionista do Nutri IA. Com base nos números do utilizador, escreve em português de Moçambique um resumo curto (máx. 3 frases) e um conselho prático, tom amigável, sem diagnósticos médicos nem promessas. Responde só com o texto.';
 
@@ -60,7 +63,7 @@ Deno.serve(async (req) => {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return json({ error: 'unauthorized' }, 401);
 
-  let body: { action?: string; image?: string; stats?: unknown };
+  let body: { action?: string; image?: string; stats?: unknown; analysis?: unknown; instruction?: string };
   try {
     body = await req.json();
   } catch {
@@ -78,6 +81,21 @@ Deno.serve(async (req) => {
         [{ inlineData: { mimeType: 'image/jpeg', data: body.image } }, { text: 'Analyze this meal. Reply with the JSON object only.' }],
         true,
         SCAN_PROMPT,
+      );
+      return json({ allowed: true, status: access, text });
+    }
+
+    if (body.action === 'refine') {
+      const instruction = typeof body.instruction === 'string' ? body.instruction.trim().slice(0, 300) : '';
+      if (!instruction || typeof body.analysis !== 'object' || body.analysis === null) return json({ error: 'bad_request' }, 400);
+      // A correção por texto também conta como uma análise do plano.
+      const { data: access, error } = await supabase.rpc('consume_scan');
+      if (error) return json({ error: 'access_error' }, 500);
+      if (!access?.allowed) return json({ allowed: false, status: access }, 200);
+      const text = await gemini(
+        [{ text: JSON.stringify({ current: body.analysis, correction: instruction }) }],
+        true,
+        REFINE_PROMPT,
       );
       return json({ allowed: true, status: access, text });
     }

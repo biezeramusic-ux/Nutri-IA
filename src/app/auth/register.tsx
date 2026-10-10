@@ -1,4 +1,4 @@
-import { Lock, Mail, User } from 'lucide-react-native';
+import { Gift, Lock, Mail, User } from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
@@ -27,6 +27,7 @@ export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [invite, setInvite] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -42,7 +43,7 @@ export default function RegisterScreen() {
 
     setLoading(true);
     try {
-      const outcome = await signUp(name, email, password);
+      const outcome = await signUp(name, email, password, invite);
       if (outcome === 'confirm_email') {
         Alert.alert(
           'Verifique o seu e-mail',
@@ -114,6 +115,18 @@ export default function RegisterScreen() {
           autoCapitalize="none"
           autoComplete="new-password"
           textContentType="newPassword"
+          returnKeyType="go"
+          onSubmitEditing={() => void submit()}
+        />
+        <AuthInput
+          label="Código de convite (opcional)"
+          icon={Gift}
+          placeholder="NUTRI-XXXXXX"
+          value={invite}
+          onChangeText={(t) => setInvite(t.toUpperCase())}
+          autoCapitalize="characters"
+          autoCorrect={false}
+          maxLength={14}
           returnKeyType="go"
           onSubmitEditing={() => void submit()}
         />

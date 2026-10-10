@@ -1,4 +1,4 @@
-import { Activity, Camera, Droplets, Target } from 'lucide-react-native';
+import { Activity, Camera, Droplets, Star, Target, UtensilsCrossed } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Alert, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -9,6 +9,7 @@ import { Logo } from '../../components/Logo';
 import { MealSection } from '../../components/MealSection';
 import { ProBadge } from '../../components/ProOverlay';
 import { ScanCard } from '../../components/ScanCard';
+import { StreakCard } from '../../components/StreakCard';
 import { SearchBar } from '../../components/SearchBar';
 import { WaterMiniCard } from '../../components/WaterMiniCard';
 import { WaterReminderCard } from '../../components/WaterReminderCard';
@@ -26,6 +27,7 @@ import { MEAL_TYPES, dayKeyOf, getMealType, mealsOfDay, sumMeals, weekDays } fro
 import { analyzeFromText, buildMeal } from '../../services/foodCatalog';
 import { ensureNotificationPermission, notificationsSupported } from '../../services/notifications';
 import { reminderPitch } from '../../services/reminderPitch';
+import { computeStreak } from '../../services/streak';
 import type { Meal } from '../../types';
 
 export default function HomeScreen() {
@@ -59,6 +61,7 @@ export default function HomeScreen() {
     return byDay;
   }, [meals, goals.calories]);
 
+  const streak = useMemo(() => computeStreak(meals), [meals]);
   const firstName = displayName.split(' ')[0];
 
   const chipLabel = accessLoading
@@ -139,6 +142,10 @@ export default function HomeScreen() {
           <CaloriesCard goals={goals} consumed={consumed} />
         </View>
 
+        <View style={styles.pad}>
+          <StreakCard streak={streak} />
+        </View>
+
         {showReminderCard && (
           <View style={styles.pad}>
             <WaterReminderCard
@@ -192,6 +199,16 @@ export default function HomeScreen() {
         <View style={[styles.pad, { gap: 12 }]}>
           <Text style={styles.title}>Vamos ver a sua refeição juntos</Text>
           <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
+          <View style={styles.links}>
+            <Pressable style={styles.linkChip} onPress={() => router.push('/dishes')}>
+              <UtensilsCrossed size={14} color={colors.primaryDark} />
+              <Text style={styles.linkChipText}>Pratos moçambicanos</Text>
+            </Pressable>
+            <Pressable style={styles.linkChip} onPress={() => router.push('/favorites')}>
+              <Star size={14} color={colors.carbs} />
+              <Text style={styles.linkChipText}>Favoritas</Text>
+            </Pressable>
+          </View>
         </View>
 
         <View style={[styles.pad, { gap: 10 }]}>
@@ -239,6 +256,9 @@ export default function HomeScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
+  links: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  linkChip: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
+  linkChipText: { fontSize: font.small, fontWeight: '600', color: colors.text },
   root: { flex: 1, backgroundColor: colors.background },
   pad: { paddingHorizontal: SCREEN_PADDING },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10 },

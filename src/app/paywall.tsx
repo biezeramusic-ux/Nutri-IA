@@ -1,14 +1,15 @@
 import { useRouter } from 'expo-router';
-import { Activity, Check, Droplets, Infinity as InfinityIcon, Leaf, Lock, Minus, ShieldCheck, TrendingUp, UtensilsCrossed, X } from 'lucide-react-native';
+import { Activity, Check, Droplets, Gift, Infinity as InfinityIcon, Leaf, Lock, Minus, ShieldCheck, TrendingUp, UtensilsCrossed, X } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Logo } from '../components/Logo';
 import { PaymentLogo } from '../components/PaymentLogos';
-import { PlanCard } from '../components/PlanCard';
+import { PlanCard, discountedPrice } from '../components/PlanCard';
 import { PLANS } from '../constants/plans';
 import { SCREEN_PADDING, font, formatMT, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+import { useReferral } from '../hooks/useReferral';
 import { useSubscription } from '../hooks/useSubscription';
 import { payWithCard, payWithEmola, payWithMpesa, type PaymentResult } from '../services/payments';
 import type { PlanId } from '../types';
@@ -56,12 +57,14 @@ export default function PaywallScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { activatePlan } = useSubscription();
+  const { discountPct, invited, needed } = useReferral();
   const [planId, setPlanId] = useState<PlanId>('monthly');
   const [method, setMethod] = useState<Method>('mpesa');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const plan = PLANS.find((p) => p.id === planId) ?? PLANS[1];
+  const basePlan = PLANS.find((p) => p.id === planId) ?? PLANS[1];
+  const plan = { ...basePlan, priceMT: discountedPrice(basePlan.priceMT, discountPct) };
 
   const pay = async () => {
     setLoading(true);
@@ -119,9 +122,17 @@ export default function PaywallScreen() {
           </View>
 
           <Text style={styles.section}>Escolha o seu plano</Text>
+          <Pressable style={[styles.promo, discountPct > 0 && styles.promoOn]} onPress={() => router.push('/invite')}>
+            <Gift size={16} color={colors.primaryDark} />
+            <Text style={styles.promoText}>
+              {discountPct > 0
+                ? `Desconto de ${discountPct}% aplicado pelos seus convites.`
+                : `Convide ${needed} amigos e ganhe 5% de desconto (${invited}/${needed}).`}
+            </Text>
+          </Pressable>
           <View style={styles.plansRow}>
             {PLANS.map((p) => (
-              <PlanCard key={p.id} plan={p} selected={p.id === planId} onPress={() => setPlanId(p.id)} />
+              <PlanCard key={p.id} plan={p} selected={p.id === planId} onPress={() => setPlanId(p.id)} discountPct={discountPct} />
             ))}
           </View>
 
@@ -235,6 +246,9 @@ const createStyles = (colors: ThemeColors) =>
   col: { flex: 1, alignItems: 'center', justifyContent: 'center', textAlign: 'center' },
   cellText: { fontSize: font.tiny, color: colors.textMuted, textAlign: 'center' },
   cellPro: { color: colors.primaryDark, fontWeight: '600' },
+  promo: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 10 },
+  promoOn: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
+  promoText: { flex: 1, fontSize: font.small, fontWeight: '500', color: colors.text },
   methods: { gap: 8 },
   method: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: radius.lg, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.card, padding: 12 },
   methodOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },

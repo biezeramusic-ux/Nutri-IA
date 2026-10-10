@@ -1,7 +1,7 @@
 # Supabase · setup do Nutri IA
 
 1. Crie um projeto em <https://supabase.com>.
-2. **SQL Editor** → cole todo o ficheiro `migrations/001_init.sql` → *Run*. Depois faça o mesmo, por ordem, com `migrations/002_onboarding_goals.sql` (quiz, metas diárias e lembretes de água) e `migrations/003_quiz_habits.sql` (saúde, hábitos, alimentos e confiança da IA) e por fim `migrations/004_free_pro_limits.sql` (plano grátis: 5 registos de refeição no total durante os 3 dias; PRO sem limites; fibras, peso, atividade e passos).
+2. **SQL Editor** → cole todo o ficheiro `migrations/001_init.sql` → *Run*. Depois faça o mesmo, por ordem, com `migrations/002_onboarding_goals.sql` (quiz, metas diárias e lembretes de água) e `migrations/003_quiz_habits.sql` (saúde, hábitos, alimentos e confiança da IA) e por fim `migrations/004_free_pro_limits.sql` (plano grátis: 5 registos de refeição no total durante os 3 dias; PRO sem limites; fibras, peso, atividade e passos) e `migrations/005_referrals.sql` (convites: código por utilizador e 5% de desconto com 10 convidados ativos).
    (Cria tabelas, RLS, trigger do perfil, RPCs `get_access_status` / `consume_scan` / `activate_plan` e o bucket privado `meal-photos`.)
 3. **Project Settings → API**: copie *Project URL* e *anon public key* para o `.env`:
    ```

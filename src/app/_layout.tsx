@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthGate } from '../components/AuthGate';
+import { ReferralRedeemer } from '../components/ReferralRedeemer';
 import { RemindersSync } from '../components/RemindersSync';
 import { ThemeProvider, useTheme } from '../hooks/useTheme';
 import { AuthProvider } from '../hooks/useAuth';
@@ -34,9 +35,14 @@ function ThemedApp() {
                 <Stack.Screen name="activity" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="edit-profile" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="goals" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="favorites" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="dishes" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="invite" options={{ animation: 'slide_from_right' }} />
+              <Stack.Screen name="progress-photos" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
               </Stack>
               <RemindersSync />
+              <ReferralRedeemer />
               <AuthGate />
             </WaterProvider>
           </DiaryProvider>

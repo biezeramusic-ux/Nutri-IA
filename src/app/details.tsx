@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Bookmark, CircleCheck, Drumstick, Pencil, ShieldCheck, Sparkles, Wheat } from 'lucide-react-native';
+import { Bookmark, CircleCheck, Drumstick, Pencil, ShieldCheck, Sparkles, Star, Wheat } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,8 +12,11 @@ import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, cardBase, font, petalPalette, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { useDiary } from '../hooks/useDiary';
+import { useFavorites } from '../hooks/useFavorites';
 import { useSubscription } from '../hooks/useSubscription';
-import { macroPercentages, proteinSources, scaleMeal } from '../services/foodCatalog';
+import { deriveIngredients, macroPercentages, proteinSources, scaleMeal } from '../services/foodCatalog';
+import { refineAnalysis } from '../services/foodRecognition';
+import { mealScore } from '../services/healthScore';
 
 function confidenceLabel(value: number, colors: ThemeColors): { text: string; color: string } {
   if (value >= 80) return { text: 'Confiança alta', color: colors.primaryDark };
@@ -31,6 +34,9 @@ export default function DetailsScreen() {
   const { isPro, refresh } = useSubscription();
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [correction, setCorrection] = useState('');
+  const [refining, setRefining] = useState(false);
+  const { add: addFavorite, remove: removeFavorite, favorites, isFavorite } = useFavorites();
 
   const meal = meals.find((m) => m.id === id) ?? current;
 
@@ -51,6 +57,36 @@ export default function DetailsScreen() {
   const saved = isSaved(meal.id);
   const sources = proteinSources(meal);
   const confidence = analysis.confidence !== undefined ? confidenceLabel(analysis.confidence, colors) : null;
+
+  const score = mealScore(analysis);
+  const favorite = isFavorite(meal);
+
+  const toggleFavorite = () => {
+    if (favorite) {
+      const fav = favorites.find((f) => f.analysis.food_name.trim().toLowerCase() === analysis.food_name.trim().toLowerCase());
+      if (fav) void removeFavorite(fav.id);
+    } else {
+      void addFavorite(meal);
+    }
+  };
+
+  const applyCorrection = async () => {
+    const text = correction.trim();
+    if (text.length < 3) return;
+    setRefining(true);
+    const result = await refineAnalysis(analysis, text);
+    setRefining(false);
+    if (result.status === 'ok') {
+      const next = result.analysis;
+      setCurrent({ ...meal, analysis: next, ingredients: deriveIngredients(next.food_name, next.estimated_weight_grams) });
+      setCorrection('');
+      void refresh();
+    } else if (result.status === 'blocked') {
+      askForPlans('Limite de análises', 'Atingiu o limite de análises do plano grátis. Com o Nutri IA Pro são ilimitadas.');
+    } else {
+      Alert.alert('Correção indisponível', 'Não foi possível corrigir agora. Use o nome e a porção abaixo, ou tente mais tarde.');
+    }
+  };
 
   const askForPlans = (title: string, body: string) =>
     Alert.alert(title, body, [
@@ -88,11 +124,16 @@ export default function DetailsScreen() {
         <ScreenHeader
           title="Detalhes"
           right={
-            !saved ? (
-              <Pressable style={[styles.editBtn, editing && styles.editBtnOn]} onPress={() => setEditing((e) => !e)} accessibilityLabel="Corrigir refeição">
-                <Pencil size={16} color={editing ? '#fff' : colors.text} />
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <Pressable style={styles.editBtn} onPress={toggleFavorite} accessibilityLabel={favorite ? 'Remover das favoritas' : 'Guardar como favorita'}>
+                <Star size={16} color={favorite ? colors.carbs : colors.text} fill={favorite ? colors.carbs : 'transparent'} />
               </Pressable>
-            ) : undefined
+              {!saved && (
+                <Pressable style={[styles.editBtn, editing && styles.editBtnOn]} onPress={() => setEditing((e) => !e)} accessibilityLabel="Corrigir refeição">
+                  <Pencil size={16} color={editing ? '#fff' : colors.text} />
+                </Pressable>
+              )}
+            </View>
           }
         />
 
@@ -132,8 +173,31 @@ export default function DetailsScreen() {
               step={10}
               onChange={(grams) => setCurrent(scaleMeal(meal, grams))}
             />
+            <Text style={styles.small}>Ou descreva o que mudou e a IA recalcula:</Text>
+            <TextInput
+              value={correction}
+              onChangeText={setCorrection}
+              placeholder="Ex.: foi sem arroz, com mais peixe"
+              placeholderTextColor={colors.textFaint}
+              style={styles.input}
+              maxLength={200}
+            />
+            <Pressable style={[styles.aiBtn, (refining || correction.trim().length < 3) && { opacity: 0.6 }]} disabled={refining || correction.trim().length < 3} onPress={() => void applyCorrection()}>
+              {refining ? <ActivityIndicator color="#fff" /> : <Text style={styles.aiBtnText}>Corrigir com IA</Text>}
+            </Pressable>
           </View>
         )}
+
+        <View style={styles.scoreCard}>
+          <View style={[styles.scoreBadge, { backgroundColor: score.score >= 6 ? colors.primary : score.score >= 4 ? colors.carbs : colors.danger }]}>
+            <Text style={styles.scoreNum}>{score.score}</Text>
+            <Text style={styles.scoreMax}>/10</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.scoreTitle}>{score.label}</Text>
+            <Text style={styles.small}>{score.tip}</Text>
+          </View>
+        </View>
 
         <View style={styles.macroRow}>
           <MacroSquareCard label="Carboidratos" percent={macros.carbs} grams={analysis.carbs_g} color={colors.carbs} />
@@ -243,6 +307,13 @@ const createStyles = (colors: ThemeColors) =>
   empty: { alignItems: 'center', justifyContent: 'center', gap: 12 },
   link: { color: colors.primary, fontWeight: '600' },
   editBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
+  scoreCard: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14 },
+  scoreBadge: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', flexDirection: 'row' },
+  scoreNum: { color: '#fff', fontSize: 20, fontWeight: '800' },
+  scoreMax: { color: 'rgba(255,255,255,0.8)', fontSize: 10, marginTop: 6 },
+  scoreTitle: { fontSize: font.h3, fontWeight: '700', color: colors.text },
+  aiBtn: { height: 44, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  aiBtnText: { color: '#fff', fontWeight: '700', fontSize: font.body },
   editBtnOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   name: { fontSize: font.h1, fontWeight: '700', color: colors.text, textAlign: 'center', letterSpacing: -0.3 },
   weight: { fontSize: font.body, color: colors.textMuted },

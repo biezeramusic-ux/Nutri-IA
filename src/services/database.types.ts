@@ -144,6 +144,8 @@ export interface Database {
       get_access_status: { Args: Record<PropertyKey, never>; Returns: Json };
       consume_scan: { Args: Record<PropertyKey, never>; Returns: Json };
       activate_plan: { Args: { p_plan: string }; Returns: Json };
+      redeem_referral: { Args: { p_code: string }; Returns: Json };
+      get_referral_info: { Args: Record<PropertyKey, never>; Returns: Json };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

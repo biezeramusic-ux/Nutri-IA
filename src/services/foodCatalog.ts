@@ -273,3 +273,32 @@ export function scaleMeal(meal: Meal, newWeightGrams: number): Meal {
     ingredients: meal.ingredients.map((i) => ({ ...i, grams: Math.max(1, Math.round(i.grams * k)) })),
   };
 }
+
+/** Pratos típicos moçambicanos (calculados com o catálogo local, funcionam sem internet). */
+export const MOZ_DISHES: string[] = [
+  'Xima com matapa',
+  'Xima com caril de amendoim',
+  'Xima com peixe grelhado',
+  'Mucapata',
+  'Cacana com peixe',
+  'Badgias',
+  'Matapa com arroz',
+  'Arroz com feijão',
+  'Feijão nhemba com arroz',
+  'Peixe grelhado com arroz',
+  'Camarão grelhado com arroz',
+  'Frango grelhado com batata-doce',
+  'Batata-doce cozida',
+  'Salada de legumes',
+];
+
+export interface DishEntry {
+  name: string;
+  analysis: FoodAnalysis;
+}
+
+export function mozambicanDishes(): DishEntry[] {
+  return MOZ_DISHES.map((name) => ({ name, analysis: analyzeFromText(name) })).filter(
+    (d): d is DishEntry => d.analysis !== null,
+  );
+}

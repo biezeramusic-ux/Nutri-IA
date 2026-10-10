@@ -20,7 +20,7 @@ interface AuthContextValue {
   /** true enquanto a sessão guardada ainda está a ser carregada. */
   loading: boolean;
   displayName: string;
-  signUp: (name: string, email: string, password: string) => Promise<SignUpOutcome>;
+  signUp: (name: string, email: string, password: string, referralCode?: string) => Promise<SignUpOutcome>;
   signIn: (email: string, password: string) => Promise<void>;
   /** Abre o login Google. Devolve false se o utilizador cancelou. */
   signInWithGoogle: () => Promise<boolean>;
@@ -56,11 +56,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signUp = useCallback<AuthContextValue['signUp']>(async (name, email, password) => {
+  const signUp = useCallback<AuthContextValue['signUp']>(async (name, email, password, referralCode) => {
     const { data, error } = await supabase.auth.signUp({
       email: email.trim().toLowerCase(),
       password,
-      options: { data: { full_name: name.trim() } },
+      options: { data: { full_name: name.trim(), ...(referralCode?.trim() ? { referral_code: referralCode.trim().toUpperCase() } : {}) } },
     });
     if (error) throw new Error(translateAuthError(error));
     // Com confirmação de e-mail ativa, um e-mail já registado devolve um utilizador sem identidades.
