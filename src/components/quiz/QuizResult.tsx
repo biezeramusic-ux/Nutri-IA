@@ -1,6 +1,7 @@
 import { CircleCheck, Droplets } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable } from '../../components/AppPressable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../AppText';
 import { GOAL_LABEL } from '../../constants/labels';

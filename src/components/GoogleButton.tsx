@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/AppPressable';
 import { Text } from '../components/AppText';
 import Svg, { Path } from 'react-native-svg';
 import { font, radius, type ThemeColors } from '../constants/theme';

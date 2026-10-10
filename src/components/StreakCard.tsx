@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
+import { usePulse } from './Motion';
 import { Text } from '../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
@@ -14,6 +15,7 @@ export function StreakCard({ streak }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { current, best, today, nextMilestone } = streak;
+  const flame = usePulse(1, 1.18, 700);
   const title = current === 0 ? tr('Comece a sua sequência') : tr(current === 1 ? '{n} dia seguido' : '{n} dias seguidos', { n: current });
   const sub = !today
     ? current > 0
@@ -26,7 +28,7 @@ export function StreakCard({ streak }: Props) {
   return (
     <View style={styles.card}>
       <View style={[styles.flame, current > 0 && styles.flameOn]}>
-        <Text style={{ fontSize: 22, opacity: current > 0 ? 1 : 0.4 }}>🔥</Text>
+        <Animated.Text style={{ fontSize: 22, opacity: current > 0 ? 1 : 0.4, transform: [{ scale: current > 0 ? flame : 1 }] }}>🔥</Animated.Text>
       </View>
       <View style={{ flex: 1, gap: 2 }}>
         <Text style={styles.title}>{title}</Text>

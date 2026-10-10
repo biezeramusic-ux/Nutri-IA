@@ -1,7 +1,8 @@
 import { tr } from '../i18n';
 import { Check } from 'lucide-react-native';
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Pressable } from '../components/AppPressable';
 import { Text } from '../components/AppText';
 import { font, formatMT, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
+import { useAnimatedTo } from './Motion';
 import { Text } from '../components/AppText';
 import { font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
@@ -35,6 +36,7 @@ export function BarChart({ bars, goal, height = 150, barColor: barColorProp, hig
   const plot = height - 38;
   const h = (v: number) => (v / max) * plot;
   const dense = bars.length > 10;
+  const grow = useAnimatedTo(1, 800, 100);
 
   return (
     <View style={{ height }}>
@@ -45,10 +47,10 @@ export function BarChart({ bars, goal, height = 150, barColor: barColorProp, hig
             {!dense && <Text style={styles.caption}>{b.value > 0 ? b.caption ?? '' : ''}</Text>}
             <View style={styles.track}>
               {b.value > 0 && (
-                <View
+                <Animated.View
                   style={{
                     width: dense ? '70%' : '64%',
-                    height: Math.max(4, h(b.value)),
+                    height: grow.interpolate({ inputRange: [0, 1], outputRange: [4, Math.max(4, h(b.value))] }),
                     borderRadius: dense ? 3 : 6,
                     backgroundColor: b.highlight ? highlightColor : barColor,
                   }}

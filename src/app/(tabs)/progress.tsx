@@ -1,7 +1,8 @@
 import { Camera, Scale, Share2, Sparkles } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Pressable } from '../../components/AppPressable';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,6 +25,7 @@ import { buildProgressSummary } from '../../services/progressSummary';
 import { computeStreak } from '../../services/streak';
 import { buildWeeklyReport } from '../../services/weeklyReport';
 import { tr } from '../../i18n';
+import { FadeInUp } from '../../components/Motion';
 
 type Period = 'week' | 'month';
 
@@ -144,7 +146,7 @@ export default function ProgressScreen() {
           onChange={setPeriod}
         />
 
-        <View style={styles.card}>
+        <FadeInUp delay={0} style={styles.card}>
           <Text style={styles.cardLabel}>{tr('Calorias · média dos dias com registos')}</Text>
           <View style={styles.bigRow}>
             <Text style={styles.big}>{avgKcal}</Text>
@@ -152,9 +154,9 @@ export default function ProgressScreen() {
             <Text style={styles.target}>Meta: {goals.calories} kcal</Text>
           </View>
           <BarChart bars={bars} goal={goals.calories} labelEvery={period === 'week' ? 1 : 5} />
-        </View>
+        </FadeInUp>
 
-        <View style={styles.statsRow}>
+        <FadeInUp delay={60} style={styles.statsRow}>
           <View style={[styles.stat, { backgroundColor: colors.limeSoft, borderColor: colors.border }]}>
             <Text style={styles.statValue}>{onTarget}</Text>
             <Text style={styles.statLabel}>{tr('dias dentro da meta')}</Text>
@@ -163,9 +165,9 @@ export default function ProgressScreen() {
             <Text style={styles.statValue}>{logged.length}</Text>
             <Text style={styles.statLabel}>{tr('dias com registos')}</Text>
           </View>
-        </View>
+        </FadeInUp>
 
-        <View style={styles.card}>
+        <FadeInUp delay={120} style={styles.card}>
           <Text style={styles.cardLabel}>{tr('Macros · média diária')}</Text>
           {macroRows.map((m) => (
             <View key={m.label} style={{ gap: 5 }}>
@@ -180,9 +182,9 @@ export default function ProgressScreen() {
               </View>
             </View>
           ))}
-        </View>
+        </FadeInUp>
 
-        <View style={styles.card}>
+        <FadeInUp delay={180} style={styles.card}>
           <View style={styles.weightHead}>
             <Scale size={18} color={colors.primary} />
             <Text style={styles.cardTitle}>{tr('Peso')}</Text>
@@ -230,15 +232,15 @@ export default function ProgressScreen() {
               </View>
             </View>
           )}
-        </View>
+        </FadeInUp>
 
-        <View style={styles.summaryCard}>
+        <FadeInUp delay={240} style={styles.summaryCard}>
           <View style={styles.weightHead}>
             <Sparkles size={18} color={colors.limeDark} />
             <Text style={styles.cardTitle}>Resumo {period === 'week' ? 'da semana' : 'do mês'}</Text>
           </View>
           <Text style={styles.summaryText}>{summary}</Text>
-        </View>
+        </FadeInUp>
 
         <Pressable
           style={styles.shareBtn}
