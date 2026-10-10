@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { Activity, Camera, ChevronRight, Crown, Droplets, Gift, LogOut, Moon, Pencil, RefreshCw, Star, Sun, Target, UtensilsCrossed, type LucideIcon } from 'lucide-react-native';
+import { ChevronRight, Crown, Gift, LogOut, Moon, Pencil, Sun, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { Text } from '../../components/AppText';
@@ -162,7 +162,7 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.body}>
-        <View style={styles.card}>
+        <Pressable style={styles.card} onPress={() => router.push('/goals')} accessibilityRole="button">
           <Text style={styles.cardTitle}>{tr('O meu plano diário')}</Text>
           <Text style={styles.goal}>{profile?.goal ? GOAL_LABEL[profile.goal] : 'Quiz por fazer'}</Text>
           <View style={styles.planRow}>
@@ -183,18 +183,11 @@ export default function ProfileScreen() {
               <Text style={styles.planLabel}>{tr('gordura')}</Text>
             </View>
           </View>
-        </View>
+        </Pressable>
 
         <Text style={styles.section}>{tr('Atalhos')}</Text>
         <View style={styles.group}>
-          <Row icon={Target} label={tr('Objetivos')} onPress={() => router.push('/goals')} />
-          <Row icon={Activity} label={tr('Atividade física')} onPress={() => router.push('/activity')} />
-          <Row icon={Droplets} label={tr('Registo de água')} onPress={() => router.push('/water')} />
-          <Row icon={Star} label={tr('Refeições favoritas')} onPress={() => router.push('/favorites')} />
-          <Row icon={UtensilsCrossed} label={tr('Pratos moçambicanos')} onPress={() => router.push('/dishes')} />
-          <Row icon={Camera} label={tr('Fotos de progresso')} onPress={() => router.push('/progress-photos')} />
           <Row icon={Gift} label={tr('Convidar amigos (5% de desconto)')} onPress={() => router.push('/invite')} />
-          <Row icon={RefreshCw} label={tr('Refazer o quiz')} onPress={() => router.push('/quiz')} />
         </View>
 
         <Text style={styles.section}>{tr('Aparência')}</Text>
