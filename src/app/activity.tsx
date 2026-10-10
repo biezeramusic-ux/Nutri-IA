@@ -1,6 +1,8 @@
 import { Flame, Footprints, Timer, Trash } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
+import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProgressRing } from '../components/ProgressRing';
 import { ProGate } from '../components/ProOverlay';
@@ -12,6 +14,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useActivity } from '../hooks/useActivity';
 import { useProfile } from '../hooks/useProfile';
 import { ACTIVITY_TYPES, STEPS_GOAL, estimateKcal } from '../services/activity';
+import { tr } from '../i18n';
 
 export default function ActivityScreen() {
   const { colors } = useTheme();
@@ -32,21 +35,21 @@ export default function ActivityScreen() {
     try {
       await add({ type: type.label, minutes, kcal });
     } catch {
-      Alert.alert('Não foi possível guardar', 'Verifique a ligação à internet e tente novamente.');
+      Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet e tente novamente.'));
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <ProGate feature="Registe exercícios e passos e veja quantas calorias gastou.">
+    <ProGate feature={tr('Registe exercícios e passos e veja quantas calorias gastou.')}>
       <View style={styles.root}>
         <ScrollView
           contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: SCREEN_PADDING, paddingBottom: insets.bottom + 32, gap: 14 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <ScreenHeader title="Atividade física" />
+          <ScreenHeader title={tr('Atividade física')} />
           {!!error && <Text style={styles.error}>{error}</Text>}
 
           <View style={[styles.card, styles.stepsCard]}>
@@ -54,43 +57,43 @@ export default function ActivityScreen() {
               <Footprints size={22} color={colors.primary} />
             </ProgressRing>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardLabel}>Passos de hoje</Text>
+              <Text style={styles.cardLabel}>{tr('Passos de hoje')}</Text>
               <Text style={styles.big}>{steps.toLocaleString('pt-PT')}</Text>
-              <Text style={styles.small}>Meta: {STEPS_GOAL.toLocaleString('pt-PT')} passos</Text>
+              <Text style={styles.small}>{tr('Meta: {n} passos', { n: STEPS_GOAL.toLocaleString('pt-PT') })}</Text>
             </View>
           </View>
-          <NumberStepper label="Ajustar passos" value={steps} min={0} max={100000} step={500} onChange={setSteps} />
+          <NumberStepper label={tr('Ajustar passos')} value={steps} min={0} max={100000} step={500} onChange={setSteps} />
 
           <View style={styles.summaryRow}>
             <View style={[styles.summary, { backgroundColor: colors.limeSoft, borderColor: colors.border }]}>
               <Flame size={16} color={colors.limeDark} />
               <Text style={styles.summaryValue}>{totals.kcal}</Text>
-              <Text style={styles.small}>kcal gastas</Text>
+              <Text style={styles.small}>{tr('kcal gastas')}</Text>
             </View>
             <View style={[styles.summary, { backgroundColor: colors.waterSoft, borderColor: colors.border }]}>
               <Timer size={16} color={colors.water} />
               <Text style={styles.summaryValue}>{totals.minutes}</Text>
-              <Text style={styles.small}>minutos ativos</Text>
+              <Text style={styles.small}>{tr('minutos ativos')}</Text>
             </View>
           </View>
 
-          <Text style={styles.section}>Registar atividade</Text>
+          <Text style={styles.section}>{tr('Registar atividade')}</Text>
           <View style={styles.card}>
             <View style={styles.chips}>
               {ACTIVITY_TYPES.map((t) => (
                 <QuizChip key={t.id} label={t.label} selected={t.id === typeId} onPress={() => setTypeId(t.id)} />
               ))}
             </View>
-            <NumberStepper label="Duração" value={minutes} unit="min" min={5} max={300} step={5} onChange={setMinutes} />
-            <Text style={styles.small}>Gasto estimado: cerca de {kcal} kcal (com base no seu peso de {weight} kg).</Text>
+            <NumberStepper label={tr('Duração')} value={minutes} unit="min" min={5} max={300} step={5} onChange={setMinutes} />
+            <Text style={styles.small}>{tr('Gasto estimado: cerca de {kcal} kcal (com base no seu peso de {weight} kg).', { kcal, weight })}</Text>
             <Pressable style={[styles.cta, saving && { opacity: 0.6 }]} onPress={() => void submit()} disabled={saving}>
-              <Text style={styles.ctaText}>Adicionar atividade</Text>
+              <Text style={styles.ctaText}>{tr('Adicionar atividade')}</Text>
             </Pressable>
           </View>
 
-          <Text style={styles.section}>Hoje</Text>
+          <Text style={styles.section}>{tr('Hoje')}</Text>
           {activities.length === 0 ? (
-            <Text style={styles.small}>Ainda não registou nenhuma atividade hoje.</Text>
+            <Text style={styles.small}>{tr('Ainda não registou nenhuma atividade hoje.')}</Text>
           ) : (
             <View style={styles.card}>
               {activities.map((a, i) => (
@@ -103,8 +106,8 @@ export default function ActivityScreen() {
                   </View>
                   <Pressable
                     hitSlop={10}
-                    accessibilityLabel="Apagar atividade"
-                    onPress={() => remove(a.id).catch(() => Alert.alert('Não foi possível apagar', 'Verifique a ligação à internet.'))}
+                    accessibilityLabel={tr('Apagar atividade')}
+                    onPress={() => remove(a.id).catch(() => Alert.alert(tr('Não foi possível apagar'), tr('Verifique a ligação à internet.')))}
                   >
                     <Trash size={16} color={colors.textFaint} />
                   </Pressable>

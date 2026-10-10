@@ -1,5 +1,6 @@
 import { FontAwesome } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import Svg, { Circle } from 'react-native-svg';
 import { radius } from '../constants/theme';
 

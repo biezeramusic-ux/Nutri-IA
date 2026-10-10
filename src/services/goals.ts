@@ -1,4 +1,5 @@
 import type { ActivityLevel, DailyGoals, GoalType, QuizAnswers } from '../types';
+import { tr } from '../i18n';
 
 export const GLASS_ML = 250;
 
@@ -79,14 +80,14 @@ export const glassesFromMl = (ml: number): number => Math.max(4, Math.round(ml /
 export function planTips(a: QuizAnswers): string[] {
   const tips: string[] = [];
   if (a.conditions.includes('pregnancy')) {
-    tips.push('Na gravidez ou amamentação não aplicamos défice calórico. Fale com o seu médico sobre a sua alimentação.');
+    tips.push(tr('Na gravidez ou amamentação não aplicamos défice calórico. Fale com o seu médico sobre a sua alimentação.'));
   } else if (a.conditions.length > 0) {
-    tips.push('O Nutri IA não substitui o seu médico. Confirme estas metas com um profissional de saúde.');
+    tips.push(tr('O Nutri IA não substitui o seu médico. Confirme estas metas com um profissional de saúde.'));
   }
-  if (a.habits.sugaryDrinks) tips.push('Trocar refrigerantes e sumos açucarados por água pode poupar muitas calorias por dia.');
-  if (a.habits.skipsMeals) tips.push('Saltar refeições costuma aumentar a fome à noite. Vamos ajudá-lo a distribuir as calorias.');
-  if (a.habits.eatsOut) tips.push('Quando comer fora, faça o scan do prato para ver as calorias antes de comer.');
-  if (!a.habits.eatsFruitVeg) tips.push('Tente juntar fruta ou legumes a uma refeição por dia.');
-  if (!a.habits.drinksEnoughWater) tips.push('Vai receber lembretes para chegar à sua meta de água.');
+  if (a.habits.sugaryDrinks) tips.push(tr('Trocar refrigerantes e sumos açucarados por água pode poupar muitas calorias por dia.'));
+  if (a.habits.skipsMeals) tips.push(tr('Saltar refeições costuma aumentar a fome à noite. Vamos ajudá-lo a distribuir as calorias.'));
+  if (a.habits.eatsOut) tips.push(tr('Quando comer fora, faça o scan do prato para ver as calorias antes de comer.'));
+  if (!a.habits.eatsFruitVeg) tips.push(tr('Tente juntar fruta ou legumes a uma refeição por dia.'));
+  if (!a.habits.drinksEnoughWater) tips.push(tr('Vai receber lembretes para chegar à sua meta de água.'));
   return tips.slice(0, 3);
 }

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import Svg, { Circle, Line, Polyline } from 'react-native-svg';
 import { font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';

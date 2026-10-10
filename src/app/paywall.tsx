@@ -1,7 +1,9 @@
 import { useRouter } from 'expo-router';
 import { Activity, Check, Droplets, Gift, Infinity as InfinityIcon, Leaf, Lock, Minus, ShieldCheck, TrendingUp, UtensilsCrossed, X } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../components/AppText';
+import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Logo } from '../components/Logo';
 import { PaymentLogo } from '../components/PaymentLogos';
@@ -13,6 +15,7 @@ import { useReferral } from '../hooks/useReferral';
 import { useSubscription } from '../hooks/useSubscription';
 import { payWithCard, payWithEmola, payWithMpesa, type PaymentResult } from '../services/payments';
 import type { PlanId } from '../types';
+import { tr } from '../i18n';
 
 type Method = 'mpesa' | 'emola' | 'card';
 
@@ -74,18 +77,18 @@ export default function PaywallScreen() {
     else result = await payWithCard(plan);
     if (!result.success) {
       setLoading(false);
-      Alert.alert('Pagamento não concluído', result.error ?? 'Tente novamente.');
+      Alert.alert(tr('Pagamento não concluído'), result.error ?? 'Tente novamente.');
       return;
     }
     try {
       await activatePlan(plan.id);
     } catch (e) {
       setLoading(false);
-      Alert.alert('Não foi possível ativar o plano', e instanceof Error ? e.message : 'Tente novamente.');
+      Alert.alert(tr('Não foi possível ativar o plano'), e instanceof Error ? e.message : 'Tente novamente.');
       return;
     }
     setLoading(false);
-    Alert.alert('Bem-vindo ao Nutri IA Pro', `Plano ${plan.label} ativo.\nRef.: ${result.reference} (pagamento simulado)`);
+    Alert.alert(tr('Bem-vindo ao Nutri IA Pro'), tr('Plano {plan} ativo.', { plan: tr(plan.label) }) + `\nRef.: ${result.reference} ${tr('(pagamento simulado)')}`);
     router.back();
   };
 
@@ -99,14 +102,14 @@ export default function PaywallScreen() {
         <View style={[styles.hero, { paddingTop: insets.top + 12 }]}>
           <View style={styles.decoA} />
           <View style={styles.decoB} />
-          <Pressable style={styles.close} onPress={() => router.back()} accessibilityLabel="Fechar">
+          <Pressable style={styles.close} onPress={() => router.back()} accessibilityLabel={tr('Fechar')}>
             <X size={18} color="#fff" />
           </Pressable>
           <View style={styles.logoWrap}>
             <Logo size={44} />
           </View>
-          <Text style={styles.title}>Nutri IA Pro 👑</Text>
-          <Text style={styles.subtitle}>Coma melhor, sem adivinhar. Todos os planos têm os mesmos recursos.</Text>
+          <Text style={styles.title}>{tr('Nutri IA Pro 👑')}</Text>
+          <Text style={styles.subtitle}>{tr('Coma melhor, sem adivinhar. Todos os planos têm os mesmos recursos.')}</Text>
         </View>
 
         <View style={styles.body}>
@@ -121,13 +124,13 @@ export default function PaywallScreen() {
             ))}
           </View>
 
-          <Text style={styles.section}>Escolha o seu plano</Text>
+          <Text style={styles.section}>{tr('Escolha o seu plano')}</Text>
           <Pressable style={[styles.promo, discountPct > 0 && styles.promoOn]} onPress={() => router.push('/invite')}>
             <Gift size={16} color={colors.primaryDark} />
             <Text style={styles.promoText}>
               {discountPct > 0
-                ? `Desconto de ${discountPct}% aplicado pelos seus convites.`
-                : `Convide ${needed} amigos e ganhe 5% de desconto (${invited}/${needed}).`}
+                ? tr('Desconto de {pct}% aplicado pelos seus convites.', { pct: discountPct })
+                : tr('Convide {needed} amigos e ganhe 5% de desconto ({invited}/{needed}).', { needed, invited })}
             </Text>
           </Pressable>
           <View style={styles.plansRow}>
@@ -136,12 +139,12 @@ export default function PaywallScreen() {
             ))}
           </View>
 
-          <Text style={styles.section}>Grátis vs Pro</Text>
+          <Text style={styles.section}>{tr('Grátis vs Pro')}</Text>
           <View style={styles.table}>
             <View style={[styles.row, styles.headRow]}>
               <Text style={[styles.rowLabel, styles.headText]} />
-              <Text style={[styles.col, styles.headText]}>Grátis</Text>
-              <Text style={[styles.col, styles.headText, styles.cellPro]}>Pro</Text>
+              <Text style={[styles.col, styles.headText]}>{tr('Grátis')}</Text>
+              <Text style={[styles.col, styles.headText, styles.cellPro]}>{tr('Pro')}</Text>
             </View>
             {COMPARE.map(([label, free, pro], i) => (
               <View key={label} style={[styles.row, i < COMPARE.length - 1 && styles.rowLine]}>
@@ -156,7 +159,7 @@ export default function PaywallScreen() {
             ))}
           </View>
 
-          <Text style={styles.section}>Como quer pagar?</Text>
+          <Text style={styles.section}>{tr('Como quer pagar?')}</Text>
           <View style={styles.methods}>
             {METHODS.map((m) => {
               const on = method === m.id;
@@ -196,9 +199,9 @@ export default function PaywallScreen() {
 
           <View style={styles.secure}>
             <ShieldCheck size={14} color={colors.textMuted} />
-            <Text style={styles.secureText}>Pagamento seguro · cancele quando quiser</Text>
+            <Text style={styles.secureText}>{tr('Pagamento seguro · cancele quando quiser')}</Text>
           </View>
-          <Text style={styles.disclaimer}>MVP: os pagamentos estão simulados e nenhuma cobrança real é efetuada.</Text>
+          <Text style={styles.disclaimer}>{tr('MVP: os pagamentos estão simulados e nenhuma cobrança real é efetuada.')}</Text>
         </View>
       </ScrollView>
 
@@ -210,7 +213,7 @@ export default function PaywallScreen() {
             <View style={styles.ctaRow}>
               <Lock size={16} color="#fff" />
               <Text style={styles.ctaText}>
-                Pagar {formatMT(plan.priceMT)} MT {plan.period}
+                {tr('Pagar')} {formatMT(plan.priceMT)} MT {tr(plan.period)}
               </Text>
             </View>
           )}
@@ -223,8 +226,8 @@ export default function PaywallScreen() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  hero: { backgroundColor: '#0B1F3A', paddingHorizontal: SCREEN_PADDING, paddingBottom: 30, alignItems: 'center', gap: 6, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
-  decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.protein, opacity: 0.28, top: -80, right: -70 },
+  hero: { backgroundColor: colors.hero, paddingHorizontal: SCREEN_PADDING, paddingBottom: 30, alignItems: 'center', gap: 6, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
+  decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.3, top: -80, right: -70 },
   decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
   close: { alignSelf: 'flex-end', width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' },
   logoWrap: { width: 64, height: 64, borderRadius: 32, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginTop: 2 },

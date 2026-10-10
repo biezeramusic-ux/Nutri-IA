@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router';
 import { ChevronRight } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SearchBar } from '../components/SearchBar';
@@ -9,6 +10,7 @@ import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../con
 import { useDiary } from '../hooks/useDiary';
 import { useTheme } from '../hooks/useTheme';
 import { buildMeal, mealEmoji, mozambicanDishes } from '../services/foodCatalog';
+import { tr } from '../i18n';
 
 export default function DishesScreen() {
   const { colors } = useTheme();
@@ -33,8 +35,8 @@ export default function DishesScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Pratos moçambicanos" />
-        <Text style={styles.sub}>Valores aproximados por porção típica. Funciona sem internet.</Text>
+        <ScreenHeader title={tr('Pratos moçambicanos')} />
+        <Text style={styles.sub}>{tr('Valores aproximados por porção típica. Funciona sem internet.')}</Text>
         <SearchBar value={query} onChangeText={setQuery} onSubmit={() => undefined} />
         {shown.map((d, i) => {
           const meal = buildMeal(d.analysis);
@@ -53,7 +55,7 @@ export default function DishesScreen() {
             </Pressable>
           );
         })}
-        {shown.length === 0 && <Text style={styles.sub}>Nenhum prato encontrado.</Text>}
+        {shown.length === 0 && <Text style={styles.sub}>{tr('Nenhum prato encontrado.')}</Text>}
       </ScrollView>
     </View>
   );

@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
+import { tr } from '../../i18n';
 
 interface Props {
   question: string;
@@ -18,10 +20,10 @@ export function YesNoRow({ question, value, onChange }: Props) {
       <Text style={styles.question}>{question}</Text>
       <View style={styles.buttons}>
         <Pressable onPress={() => onChange(true)} style={[styles.btn, value === true && styles.btnOn]}>
-          <Text style={[styles.btnText, value === true && styles.btnTextOn]}>Sim</Text>
+          <Text style={[styles.btnText, value === true && styles.btnTextOn]}>{tr('Sim')}</Text>
         </Pressable>
         <Pressable onPress={() => onChange(false)} style={[styles.btn, value === false && styles.btnOn]}>
-          <Text style={[styles.btnText, value === false && styles.btnTextOn]}>Não</Text>
+          <Text style={[styles.btnText, value === false && styles.btnTextOn]}>{tr('Não')}</Text>
         </Pressable>
       </View>
     </View>

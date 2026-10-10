@@ -1,9 +1,11 @@
 import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import { useMemo, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+import { tr } from '../i18n';
 
 interface Props {
   title: string;
@@ -17,7 +19,7 @@ export function ScreenHeader({ title, right }: Props) {
   const router = useRouter();
   return (
     <View style={styles.row}>
-      <Pressable style={styles.back} onPress={() => router.back()} accessibilityLabel="Voltar">
+      <Pressable style={styles.back} onPress={() => router.back()} accessibilityLabel={tr('Voltar')}>
         <ChevronLeft size={20} color={colors.text} />
       </Pressable>
       <Text style={styles.title}>{title}</Text>

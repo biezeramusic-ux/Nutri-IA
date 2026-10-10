@@ -1,7 +1,9 @@
 import { useRouter } from 'expo-router';
 import { Camera, Dumbbell, HeartPulse, Leaf, Scale } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
+import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProGate } from '../components/ProOverlay';
 import { NumberStepper } from '../components/quiz/NumberStepper';
@@ -12,6 +14,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useProfile } from '../hooks/useProfile';
 import { calculateGoals } from '../services/goals';
 import type { GoalType } from '../types';
+import { tr } from '../i18n';
 
 const GOALS: { value: GoalType; icon: typeof Scale; title: string; subtitle: string }[] = [
   { value: 'lose_weight', icon: Scale, title: 'Perder peso', subtitle: 'Défice calórico saudável' },
@@ -49,20 +52,20 @@ export default function GoalsScreen() {
 
   const chooseGoal = (value: GoalType) => {
     if (!quiz) {
-      Alert.alert('Faça o quiz primeiro', 'Precisamos dos seus dados para calcular as metas.', [
-        { text: 'Agora não', style: 'cancel' },
-        { text: 'Fazer o quiz', onPress: () => router.push('/quiz') },
+      Alert.alert(tr('Faça o quiz primeiro'), tr('Precisamos dos seus dados para calcular as metas.'), [
+        { text: tr('Agora não'), style: 'cancel' },
+        { text: tr('Fazer o quiz'), onPress: () => router.push('/quiz') },
       ]);
       return;
     }
     if (value === quiz.goal) return;
-    Alert.alert('Mudar de objetivo', 'As suas metas diárias vão ser recalculadas. Continuar?', [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert(tr('Mudar de objetivo'), tr('As suas metas diárias vão ser recalculadas. Continuar?'), [
+      { text: tr('Cancelar'), style: 'cancel' },
       {
-        text: 'Continuar',
+        text: tr('Continuar'),
         onPress: () =>
           completeOnboarding({ ...quiz, goal: value }).catch(() =>
-            Alert.alert('Não foi possível guardar', 'Verifique a ligação à internet.'),
+            Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet.')),
           ),
       },
     ]);
@@ -72,9 +75,9 @@ export default function GoalsScreen() {
     setSaving(true);
     try {
       await saveGoals({ calories, proteinG: protein, carbsG: carbs, fatsG: fats, waterMl: water }, target);
-      Alert.alert('Metas guardadas', 'As suas metas personalizadas já estão ativas.');
+      Alert.alert(tr('Metas guardadas'), tr('As suas metas personalizadas já estão ativas.'));
     } catch {
-      Alert.alert('Não foi possível guardar', 'Verifique a ligação à internet e tente novamente.');
+      Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet e tente novamente.'));
     } finally {
       setSaving(false);
     }
@@ -87,7 +90,7 @@ export default function GoalsScreen() {
     try {
       await saveGoals(auto, quiz.targetWeightKg);
     } catch {
-      Alert.alert('Não foi possível guardar', 'Verifique a ligação à internet.');
+      Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet.'));
     } finally {
       setSaving(false);
     }
@@ -99,51 +102,51 @@ export default function GoalsScreen() {
         contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: SCREEN_PADDING, paddingBottom: insets.bottom + 32, gap: 12 }}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Objetivos" />
+        <ScreenHeader title={tr('Objetivos')} />
 
-        <Text style={styles.section}>O seu objetivo</Text>
+        <Text style={styles.section}>{tr('O seu objetivo')}</Text>
         {GOALS.map((g) => (
           <QuizOption key={g.value} icon={g.icon} title={g.title} subtitle={g.subtitle} selected={quiz?.goal === g.value} onPress={() => chooseGoal(g.value)} />
         ))}
 
-        <Text style={styles.section}>Metas diárias</Text>
+        <Text style={styles.section}>{tr('Metas diárias')}</Text>
         <View style={styles.card}>
           <View style={styles.planRow}>
             <View style={styles.planItem}>
               <Text style={styles.planValue}>{goals.calories}</Text>
-              <Text style={styles.planLabel}>kcal</Text>
+              <Text style={styles.planLabel}>{tr('kcal')}</Text>
             </View>
             <View style={styles.planItem}>
               <Text style={styles.planValue}>{goals.proteinG}g</Text>
-              <Text style={styles.planLabel}>proteína</Text>
+              <Text style={styles.planLabel}>{tr('proteína')}</Text>
             </View>
             <View style={styles.planItem}>
               <Text style={styles.planValue}>{goals.carbsG}g</Text>
-              <Text style={styles.planLabel}>carbs</Text>
+              <Text style={styles.planLabel}>{tr('carbs')}</Text>
             </View>
             <View style={styles.planItem}>
               <Text style={styles.planValue}>{goals.fatsG}g</Text>
-              <Text style={styles.planLabel}>gordura</Text>
+              <Text style={styles.planLabel}>{tr('gordura')}</Text>
             </View>
           </View>
-          <Text style={styles.small}>Calculadas automaticamente a partir do seu quiz e do seu objetivo.</Text>
+          <Text style={styles.small}>{tr('Calculadas automaticamente a partir do seu quiz e do seu objetivo.')}</Text>
         </View>
 
-        <Text style={styles.section}>Personalizar metas</Text>
-        <ProGate inline feature="Ajuste as calorias, os macros, a água e o peso desejado.">
+        <Text style={styles.section}>{tr('Personalizar metas')}</Text>
+        <ProGate inline feature={tr('Ajuste as calorias, os macros, a água e o peso desejado.')}>
           <View style={[styles.card, { gap: 10 }]}>
-            <NumberStepper label="Calorias" value={calories} unit="kcal" min={1000} max={5000} step={50} onChange={setCalories} />
-            <NumberStepper label="Proteína" value={protein} unit="g" min={20} max={300} step={5} onChange={setProtein} />
-            <NumberStepper label="Carboidratos" value={carbs} unit="g" min={50} max={600} step={5} onChange={setCarbs} />
-            <NumberStepper label="Gorduras" value={fats} unit="g" min={20} max={200} step={5} onChange={setFats} />
-            <NumberStepper label="Água" value={water} unit="ml" min={1000} max={6000} step={250} onChange={setWater} />
-            <NumberStepper label="Peso desejado" value={target} unit="kg" min={30} max={300} step={0.5} onChange={setTarget} />
+            <NumberStepper label={tr('Calorias')} value={calories} unit="kcal" min={1000} max={5000} step={50} onChange={setCalories} />
+            <NumberStepper label={tr('Proteína')} value={protein} unit="g" min={20} max={300} step={5} onChange={setProtein} />
+            <NumberStepper label={tr('Carboidratos')} value={carbs} unit="g" min={50} max={600} step={5} onChange={setCarbs} />
+            <NumberStepper label={tr('Gorduras')} value={fats} unit="g" min={20} max={200} step={5} onChange={setFats} />
+            <NumberStepper label={tr('Água')} value={water} unit="ml" min={1000} max={6000} step={250} onChange={setWater} />
+            <NumberStepper label={tr('Peso desejado')} value={target} unit="kg" min={30} max={300} step={0.5} onChange={setTarget} />
             <Pressable style={[styles.cta, saving && { opacity: 0.6 }]} onPress={() => void saveCustom()} disabled={saving}>
-              <Text style={styles.ctaText}>Guardar metas</Text>
+              <Text style={styles.ctaText}>{tr('Guardar metas')}</Text>
             </Pressable>
             {!!quiz && (
               <Pressable onPress={() => void resetAuto()} disabled={saving} style={styles.link}>
-                <Text style={styles.linkText}>Repor metas automáticas</Text>
+                <Text style={styles.linkText}>{tr('Repor metas automáticas')}</Text>
               </Pressable>
             )}
           </View>

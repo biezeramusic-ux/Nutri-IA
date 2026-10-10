@@ -2,7 +2,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { Camera } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../components/AppText';
+import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
@@ -10,6 +12,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useAvatar } from '../hooks/useAvatar';
 import { useProfile } from '../hooks/useProfile';
 import { useTheme } from '../hooks/useTheme';
+import { tr } from '../i18n';
 
 export default function EditProfileScreen() {
   const { colors } = useTheme();
@@ -40,27 +43,27 @@ export default function EditProfileScreen() {
     const perm =
       source === 'camera' ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!perm.granted) {
-      Alert.alert('Permissão necessária', source === 'camera' ? 'Permita o acesso à câmera nas definições do telemóvel.' : 'Permita o acesso às fotos nas definições do telemóvel.');
+      Alert.alert(tr('Permissão necessária'), source === 'camera' ? 'Permita o acesso à câmera nas definições do telemóvel.' : 'Permita o acesso às fotos nas definições do telemóvel.');
       return;
     }
     const options: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.8 };
     const res = source === 'camera' ? await ImagePicker.launchCameraAsync(options) : await ImagePicker.launchImageLibraryAsync(options);
     if (res.canceled) return;
-    if (!(await avatar.set(res.assets[0].uri))) Alert.alert('Não foi possível guardar a foto', 'Tente novamente.');
+    if (!(await avatar.set(res.assets[0].uri))) Alert.alert(tr('Não foi possível guardar a foto'), tr('Tente novamente.'));
   };
 
   const changePhoto = () =>
-    Alert.alert('Foto de perfil', undefined, [
-      { text: 'Tirar foto', onPress: () => void pick('camera') },
-      { text: 'Escolher da galeria', onPress: () => void pick('library') },
-      ...(avatar.uri ? [{ text: 'Remover foto', style: 'destructive' as const, onPress: avatar.clear }] : []),
-      { text: 'Cancelar', style: 'cancel' as const },
+    Alert.alert(tr('Foto de perfil'), undefined, [
+      { text: tr('Tirar foto'), onPress: () => void pick('camera') },
+      { text: tr('Escolher da galeria'), onPress: () => void pick('library') },
+      ...(avatar.uri ? [{ text: tr('Remover foto'), style: 'destructive' as const, onPress: avatar.clear }] : []),
+      { text: tr('Cancelar'), style: 'cancel' as const },
     ]);
 
   const save = async () => {
     const trimmed = name.trim();
     if (trimmed.length < 2) {
-      Alert.alert('Nome inválido', 'Escreva o seu nome (mínimo 2 letras).');
+      Alert.alert(tr('Nome inválido'), tr('Escreva o seu nome (mínimo 2 letras).'));
       return;
     }
     setSaving(true);
@@ -68,7 +71,7 @@ export default function EditProfileScreen() {
       if (trimmed !== current) await saveName(trimmed);
       router.back();
     } catch {
-      Alert.alert('Não foi possível guardar', 'Verifique a ligação à internet e tente novamente.');
+      Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet e tente novamente.'));
     } finally {
       setSaving(false);
     }
@@ -81,10 +84,10 @@ export default function EditProfileScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Editar perfil" />
+        <ScreenHeader title={tr('Editar perfil')} />
 
         <View style={styles.avatarWrap}>
-          <Pressable onPress={changePhoto} accessibilityLabel="Alterar foto de perfil">
+          <Pressable onPress={changePhoto} accessibilityLabel={tr('Alterar foto de perfil')}>
             {avatar.uri ? (
               <Image source={{ uri: avatar.uri }} style={styles.avatar} />
             ) : (
@@ -102,11 +105,11 @@ export default function EditProfileScreen() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.label}>Nome</Text>
+          <Text style={styles.label}>{tr('Nome')}</Text>
           <TextInput
             value={name}
             onChangeText={setName}
-            placeholder="O seu nome"
+            placeholder={tr('O seu nome')}
             placeholderTextColor={colors.textFaint}
             style={styles.input}
             maxLength={60}
@@ -117,7 +120,7 @@ export default function EditProfileScreen() {
 
       <View style={[styles.bar, { paddingBottom: insets.bottom + 12 }]}>
         <Pressable onPress={() => void save()} disabled={saving} style={({ pressed }) => [styles.cta, (pressed || saving) && { opacity: 0.85 }]}>
-          {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>Guardar</Text>}
+          {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>{tr('Guardar')}</Text>}
         </Pressable>
       </View>
     </KeyboardAvoidingView>

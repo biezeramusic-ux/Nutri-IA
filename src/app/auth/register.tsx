@@ -1,7 +1,9 @@
 import { Gift, Lock, Mail, User } from 'lucide-react-native';
 import { Link, useRouter } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../../components/AppText';
+import { Alert } from '../../i18n/alert';
 import { AuthButton } from '../../components/AuthButton';
 import { AuthInput } from '../../components/AuthInput';
 import { AuthScreenLayout } from '../../components/AuthScreenLayout';
@@ -10,6 +12,7 @@ import { font, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { validateEmail, validateName, validatePassword } from '../../services/validation';
+import { tr } from '../../i18n';
 
 interface FormErrors {
   name?: string | null;
@@ -47,13 +50,13 @@ export default function RegisterScreen() {
       if (outcome === 'confirm_email') {
         Alert.alert(
           'Verifique o seu e-mail',
-          'Enviámos um link de confirmação. Confirme o e-mail e depois inicie sessão.',
+          tr('Enviámos um link de confirmação. Confirme o e-mail e depois inicie sessão.'),
         );
         router.replace('/auth/login');
       }
       // 'signed_in': o guard do Root Layout leva o utilizador para a Home.
     } catch (e) {
-      Alert.alert('Não foi possível criar a conta', e instanceof Error ? e.message : 'Tente novamente.');
+      Alert.alert(tr('Não foi possível criar a conta'), e instanceof Error ? e.message : 'Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -65,19 +68,19 @@ export default function RegisterScreen() {
       // Em caso de sucesso, o guard do Root Layout redireciona para a Home.
       await signInWithGoogle();
     } catch (e) {
-      Alert.alert('Login com Google', e instanceof Error ? e.message : 'Tente novamente.');
+      Alert.alert(tr('Login com Google'), e instanceof Error ? e.message : 'Tente novamente.');
     } finally {
       setGoogleLoading(false);
     }
   };
 
   return (
-    <AuthScreenLayout title="Criar Conta" subtitle="3 dias grátis para experimentar o Nutri IA.">
+    <AuthScreenLayout title={tr('Criar Conta')} subtitle={tr('3 dias grátis para experimentar o Nutri IA.')}>
       <View style={styles.form}>
         <AuthInput
-          label="Nome"
+          label={tr('Nome')}
           icon={User}
-          placeholder="O seu nome"
+          placeholder={tr('O seu nome')}
           value={name}
           onChangeText={setName}
           error={errors.name}
@@ -89,9 +92,9 @@ export default function RegisterScreen() {
         />
         <AuthInput
           ref={emailRef}
-          label="E-mail"
+          label={tr('E-mail')}
           icon={Mail}
-          placeholder="o.seu@email.com"
+          placeholder={tr('o.seu@email.com')}
           value={email}
           onChangeText={setEmail}
           error={errors.email}
@@ -105,9 +108,9 @@ export default function RegisterScreen() {
         />
         <AuthInput
           ref={passwordRef}
-          label="Senha"
+          label={tr('Senha')}
           icon={Lock}
-          placeholder="Mínimo 6 caracteres"
+          placeholder={tr('Mínimo 6 caracteres')}
           value={password}
           onChangeText={setPassword}
           error={errors.password}
@@ -119,9 +122,9 @@ export default function RegisterScreen() {
           onSubmitEditing={() => void submit()}
         />
         <AuthInput
-          label="Código de convite (opcional)"
+          label={tr('Código de convite (opcional)')}
           icon={Gift}
-          placeholder="NUTRI-XXXXXX"
+          placeholder={tr('NUTRI-XXXXXX')}
           value={invite}
           onChangeText={(t) => setInvite(t.toUpperCase())}
           autoCapitalize="characters"
@@ -130,15 +133,13 @@ export default function RegisterScreen() {
           returnKeyType="go"
           onSubmitEditing={() => void submit()}
         />
-        <AuthButton title="Criar Conta" onPress={() => void submit()} loading={loading} disabled={googleLoading} />
-        <GoogleButton onPress={() => void handleGoogle()} loading={googleLoading} disabled={loading} title="Registar com Google" />
+        <AuthButton title={tr('Criar Conta')} onPress={() => void submit()} loading={loading} disabled={googleLoading} />
+        <GoogleButton onPress={() => void handleGoogle()} loading={googleLoading} disabled={loading} title={tr('Registar com Google')} />
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Já tem conta? </Text>
-        <Link href="/auth/login" replace style={styles.link}>
-          Entrar
-        </Link>
+        <Text style={styles.footerText}>{tr('Já tem conta?')} </Text>
+        <Link href="/auth/login" replace style={styles.link}>{tr('Entrar')}</Link>
       </View>
     </AuthScreenLayout>
   );

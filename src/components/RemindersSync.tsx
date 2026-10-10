@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../hooks/useTheme';
 import { useProfile } from '../hooks/useProfile';
 import { useWater } from '../hooks/useWater';
-import { cancelWaterReminders, scheduleWaterReminders } from '../services/notifications';
+import { cancelWaterReminders, scheduleMealReminders, scheduleWaterReminders } from '../services/notifications';
 
 /**
  * Mantém os lembretes de água sincronizados: sempre que o progresso, a meta, o objetivo
@@ -12,6 +14,7 @@ export function RemindersSync() {
   const { user } = useAuth();
   const { profile, onboardingDone } = useReminderInputs();
   const { glasses, goalGlasses } = useWater();
+  const { lang } = useTheme();
 
   const enabled = !!user && onboardingDone && (profile?.waterReminders ?? false);
   const wakeHour = profile?.wakeHour ?? 7;
@@ -32,7 +35,15 @@ export function RemindersSync() {
       );
     }, 800);
     return () => clearTimeout(timer);
-  }, [user, enabled, glasses, goalGlasses, wakeHour, sleepHour, goal, firstName]);
+  }, [user, enabled, glasses, goalGlasses, wakeHour, sleepHour, goal, firstName, lang]);
+
+  // Os lembretes de refeição são reagendados quando o idioma muda (o texto vai na notificação).
+  useEffect(() => {
+    if (!user) return;
+    AsyncStorage.getItem('nutria.mealReminders')
+      .then((v) => (v === '1' ? scheduleMealReminders(true) : undefined))
+      .catch(() => undefined);
+  }, [user, lang]);
 
   return null;
 }

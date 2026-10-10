@@ -2,10 +2,12 @@ import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Sparkles } from 'lucide-react-native';
 import { useMemo, type ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { useSubscription } from '../hooks/useSubscription';
+import { tr } from '../i18n';
 
 interface Props {
   children: ReactNode;
@@ -35,12 +37,12 @@ export function ProGate({ children, feature, inline }: Props) {
             <View style={styles.icon}>
               <Sparkles size={20} color={colors.primary} />
             </View>
-            <Text style={styles.title}>Recurso Nutri IA Pro</Text>
+            <Text style={styles.title}>{tr('Recurso Nutri IA Pro')}</Text>
             <Text style={styles.body}>
-              {feature} Todos os planos Pro têm os mesmos recursos; só muda o período.
+              {tr(feature)} {tr('Todos os planos Pro têm os mesmos recursos; só muda o período.')}
             </Text>
             <Pressable style={styles.button} onPress={() => router.push('/paywall')}>
-              <Text style={styles.buttonText}>Ver planos</Text>
+              <Text style={styles.buttonText}>{tr('Ver planos')}</Text>
             </Pressable>
           </View>
         </View>
@@ -55,7 +57,7 @@ export function ProBadge() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <View style={styles.badge}>
-      <Text style={styles.badgeText}>PRO</Text>
+      <Text style={styles.badgeText}>{tr('PRO')}</Text>
     </View>
   );
 }

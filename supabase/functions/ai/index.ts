@@ -25,6 +25,8 @@ const REFINE_PROMPT =
 const INSIGHT_PROMPT =
   'És o nutricionista do Nutri IA. Com base nos números do utilizador, escreve em português de Moçambique um resumo curto (máx. 3 frases) e um conselho prático, tom amigável, sem diagnósticos médicos nem promessas. Responde só com o texto.';
 
+const langName = (lang?: string) => (lang === 'en' ? 'English' : 'Portuguese (Mozambique)');
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...CORS, 'content-type': 'application/json' } });
 }
@@ -63,7 +65,7 @@ Deno.serve(async (req) => {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return json({ error: 'unauthorized' }, 401);
 
-  let body: { action?: string; image?: string; stats?: unknown; analysis?: unknown; instruction?: string };
+  let body: { action?: string; image?: string; stats?: unknown; analysis?: unknown; instruction?: string; lang?: string };
   try {
     body = await req.json();
   } catch {
@@ -80,7 +82,7 @@ Deno.serve(async (req) => {
       const text = await gemini(
         [{ inlineData: { mimeType: 'image/jpeg', data: body.image } }, { text: 'Analyze this meal. Reply with the JSON object only.' }],
         true,
-        SCAN_PROMPT,
+        `${SCAN_PROMPT} Write food_name in ${langName(body.lang)}.`,
       );
       return json({ allowed: true, status: access, text });
     }
@@ -95,7 +97,7 @@ Deno.serve(async (req) => {
       const text = await gemini(
         [{ text: JSON.stringify({ current: body.analysis, correction: instruction }) }],
         true,
-        REFINE_PROMPT,
+        `${REFINE_PROMPT} Write food_name in ${langName(body.lang)}.`,
       );
       return json({ allowed: true, status: access, text });
     }
@@ -103,7 +105,7 @@ Deno.serve(async (req) => {
     if (body.action === 'insight') {
       const { data: access } = await supabase.rpc('get_access_status');
       if (!access?.is_premium) return json({ error: 'pro_only' }, 403);
-      const text = await gemini([{ text: JSON.stringify(body.stats ?? {}).slice(0, 4000) }], false, INSIGHT_PROMPT);
+      const text = await gemini([{ text: JSON.stringify(body.stats ?? {}).slice(0, 4000) }], false, `${INSIGHT_PROMPT} Reply in ${langName(body.lang)}.`);
       return json({ text: text.trim() });
     }
 

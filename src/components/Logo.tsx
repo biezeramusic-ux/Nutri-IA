@@ -1,4 +1,5 @@
 import { Image, type ImageStyle, type StyleProp } from 'react-native';
+import { tr } from '../i18n';
 
 interface Props {
   size?: number;
@@ -12,7 +13,7 @@ export function Logo({ size = 72, style }: Props) {
       source={require('../../assets/logo-mark.png')}
       style={[{ width: size, height: size }, style]}
       resizeMode="contain"
-      accessibilityLabel="Nutri IA"
+      accessibilityLabel={tr('Nutri IA')}
     />
   );
 }

@@ -13,7 +13,9 @@ import {
   UserRound,
 } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/AppText';
+import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { cardBase, font, radius, SCREEN_PADDING, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
@@ -36,6 +38,7 @@ import { NumberStepper } from './NumberStepper';
 import { QuizChip } from './QuizChip';
 import { QuizOption } from './QuizOption';
 import { YesNoRow } from './YesNoRow';
+import { tr } from '../../i18n';
 
 const STEPS = ['goal', 'about', 'body', 'activity', 'health', 'habits', 'diet', 'staples'] as const;
 type Step = (typeof STEPS)[number];
@@ -179,8 +182,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
       if (mode === 'first') await ensureNotificationPermission(true);
       router.replace('/');
     } catch (e) {
-      const detail = e instanceof Error && e.message ? `\n\nDetalhe: ${e.message}` : '';
-      Alert.alert('Não foi possível guardar', `Verifique a ligação à internet e tente novamente.${detail}`);
+      const detail = e instanceof Error && e.message ? `\n\n${tr('Detalhe')}: ${e.message}` : '';
+      Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet e tente novamente.') + detail);
     } finally {
       setSaving(false);
     }
@@ -203,7 +206,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
             onPress={goBack}
             style={[styles.back, step === 0 && mode === 'first' && styles.hidden]}
             disabled={step === 0 && mode === 'first'}
-            accessibilityLabel="Voltar"
+            accessibilityLabel={tr('Voltar')}
           >
             <ChevronLeft size={20} color={colors.text} />
           </Pressable>
@@ -225,7 +228,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         ) : (
           <View style={styles.resultHead}>
             <Logo size={52} />
-            <Text style={styles.title}>O seu plano está pronto</Text>
+            <Text style={styles.title}>{tr('O seu plano está pronto')}</Text>
           </View>
         )}
 
@@ -246,17 +249,17 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 
         {current === 'about' && (
           <>
-            <QuizOption icon={UserRound} title="Mulher" selected={base.sex === 'female'} onPress={() => update('sex', 'female')} />
-            <QuizOption icon={UserRound} title="Homem" selected={base.sex === 'male'} onPress={() => update('sex', 'male')} />
-            <NumberStepper label="Idade" value={base.age} unit="anos" min={10} max={100} onChange={(v) => update('age', v)} />
+            <QuizOption icon={UserRound} title={tr('Mulher')} selected={base.sex === 'female'} onPress={() => update('sex', 'female')} />
+            <QuizOption icon={UserRound} title={tr('Homem')} selected={base.sex === 'male'} onPress={() => update('sex', 'male')} />
+            <NumberStepper label={tr('Idade')} value={base.age} unit="anos" min={10} max={100} onChange={(v) => update('age', v)} />
           </>
         )}
 
         {current === 'body' && (
           <>
-            <NumberStepper label="Altura" value={base.heightCm} unit="cm" min={100} max={250} onChange={(v) => update('heightCm', v)} />
-            <NumberStepper label="Peso atual" value={base.weightKg} unit="kg" min={30} max={300} onChange={(v) => update('weightKg', v)} />
-            <NumberStepper label="Peso desejado" value={base.targetWeightKg} unit="kg" min={30} max={300} onChange={(v) => update('targetWeightKg', v)} />
+            <NumberStepper label={tr('Altura')} value={base.heightCm} unit="cm" min={100} max={250} onChange={(v) => update('heightCm', v)} />
+            <NumberStepper label={tr('Peso atual')} value={base.weightKg} unit="kg" min={30} max={300} onChange={(v) => update('weightKg', v)} />
+            <NumberStepper label={tr('Peso desejado')} value={base.targetWeightKg} unit="kg" min={30} max={300} onChange={(v) => update('targetWeightKg', v)} />
           </>
         )}
 
@@ -282,7 +285,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
                 onPress={() => update('conditions', toggle(base.conditions, c.value))}
               />
             ))}
-            <QuizChip label="Nenhuma" selected={base.conditions.length === 0} onPress={() => update('conditions', [])} />
+            <QuizChip label={tr('Nenhuma')} selected={base.conditions.length === 0} onPress={() => update('conditions', [])} />
           </View>
         )}
 
@@ -309,7 +312,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
                 onPress={() => update('diet', toggle(base.diet, d.value))}
               />
             ))}
-            <QuizChip label="Sem restrições" selected={base.diet.length === 0} onPress={() => update('diet', [])} />
+            <QuizChip label={tr('Sem restrições')} selected={base.diet.length === 0} onPress={() => update('diet', [])} />
           </View>
         )}
 
@@ -329,27 +332,27 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         {goals && (
           <>
             <View style={styles.kcalCard}>
-              <Text style={styles.kcalLabel}>Meta diária</Text>
+              <Text style={styles.kcalLabel}>{tr('Meta diária')}</Text>
               <Text style={styles.kcalValue}>{goals.calories}</Text>
-              <Text style={styles.kcalLabel}>calorias por dia</Text>
+              <Text style={styles.kcalLabel}>{tr('calorias por dia')}</Text>
             </View>
             <View style={styles.macroRow}>
-              <MacroSquareCard label="Proteína" percent={0} grams={goals.proteinG} color={colors.primary} unitOnly />
-              <MacroSquareCard label="Carbs" percent={0} grams={goals.carbsG} color={colors.carbs} unitOnly />
-              <MacroSquareCard label="Gordura" percent={0} grams={goals.fatsG} color={colors.protein} unitOnly />
+              <MacroSquareCard label={tr('Proteína')} percent={0} grams={goals.proteinG} color={colors.primary} unitOnly />
+              <MacroSquareCard label={tr('Carbs')} percent={0} grams={goals.carbsG} color={colors.carbs} unitOnly />
+              <MacroSquareCard label={tr('Gordura')} percent={0} grams={goals.fatsG} color={colors.protein} unitOnly />
             </View>
             <View style={styles.waterCard}>
               <Droplets size={22} color={colors.water} />
               <View style={{ flex: 1 }}>
-                <Text style={styles.waterTitle}>{goals.waterMl} ml de água por dia</Text>
+                <Text style={styles.waterTitle}>{tr('{ml} ml de água por dia', { ml: goals.waterMl })}</Text>
                 <Text style={styles.waterSub}>
-                  {glassesFromMl(goals.waterMl)} copos de {GLASS_ML} ml. O Nutri IA vai lembrá-lo de beber.
+                  {tr('{n} copos de {ml} ml. O Nutri IA vai lembrá-lo de beber.', { n: glassesFromMl(goals.waterMl), ml: GLASS_ML })}
                 </Text>
               </View>
             </View>
             {tips.length > 0 && (
               <View style={styles.tips}>
-                <Text style={styles.tipsTitle}>Para si</Text>
+                <Text style={styles.tipsTitle}>{tr('Para si')}</Text>
                 {tips.map((t) => (
                   <Text key={t} style={styles.tip}>
                     • {t}

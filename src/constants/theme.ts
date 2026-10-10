@@ -22,6 +22,7 @@ export const lightColors = {
   emola: '#F57C00',
   navy: '#0B1F3A',
   navySoft: '#16335C',
+  hero: '#0B1F3A',
   danger: '#EF4444',
   dangerSoft: '#FEF2F2',
 }
@@ -51,6 +52,7 @@ export const darkColors: ThemeColors = {
   emola: '#F57C00',
   navy: '#0B1F3A',
   navySoft: '#16335C',
+  hero: '#0B1F3A',
   danger: '#F87171',
   dangerSoft: '#3A1517',
 };
@@ -121,3 +123,64 @@ export const petalPalette = [
 
 /** Formata valores em MT com ponto nos milhares (1.999). */
 export const formatMT = (value: number): string => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+/** Cor de destaque escolhida pelo utilizador (botões, separadores, realces). */
+export type AccentId = 'green' | 'blue' | 'purple' | 'orange' | 'pink' | 'black';
+
+interface AccentSet {
+  primary: string;
+  primaryDark: string;
+  primarySoft: string;
+  hero: string;
+}
+
+export const ACCENTS: { id: AccentId; label: string; swatch: string; light: AccentSet; dark: AccentSet }[] = [
+  {
+    id: 'green',
+    label: 'Verde',
+    swatch: '#4CAF50',
+    light: { primary: '#4CAF50', primaryDark: '#2E7D32', primarySoft: '#ECF7ED', hero: '#0B1F3A' },
+    dark: { primary: '#4CAF50', primaryDark: '#7BD87F', primarySoft: '#16301B', hero: '#0B1F3A' },
+  },
+  {
+    id: 'blue',
+    label: 'Azul',
+    swatch: '#3B82F6',
+    light: { primary: '#3B82F6', primaryDark: '#1D4ED8', primarySoft: '#E8F0FE', hero: '#0F2A5C' },
+    dark: { primary: '#3B82F6', primaryDark: '#93C5FD', primarySoft: '#142544', hero: '#0F2A5C' },
+  },
+  {
+    id: 'purple',
+    label: 'Roxo',
+    swatch: '#8B5CF6',
+    light: { primary: '#8B5CF6', primaryDark: '#6D28D9', primarySoft: '#F1EBFE', hero: '#2E1065' },
+    dark: { primary: '#8B5CF6', primaryDark: '#C4B5FD', primarySoft: '#271B4A', hero: '#2E1065' },
+  },
+  {
+    id: 'orange',
+    label: 'Laranja',
+    swatch: '#F97316',
+    light: { primary: '#F97316', primaryDark: '#C2410C', primarySoft: '#FFF1E6', hero: '#431407' },
+    dark: { primary: '#F97316', primaryDark: '#FDBA74', primarySoft: '#3A2210', hero: '#431407' },
+  },
+  {
+    id: 'pink',
+    label: 'Rosa',
+    swatch: '#EC4899',
+    light: { primary: '#EC4899', primaryDark: '#BE185D', primarySoft: '#FDEAF3', hero: '#500724' },
+    dark: { primary: '#EC4899', primaryDark: '#F9A8D4', primarySoft: '#3D1730', hero: '#500724' },
+  },
+  {
+    id: 'black',
+    label: 'Preto',
+    swatch: '#111827',
+    light: { primary: '#111827', primaryDark: '#111827', primarySoft: '#F1F5F9', hero: '#0A0A0A' },
+    // No tema escuro o "preto" não se vê: usa cinzento grafite.
+    dark: { primary: '#4B5563', primaryDark: '#E5E7EB', primarySoft: '#1F2937', hero: '#0A0A0A' },
+  },
+];
+
+export function applyAccent(base: ThemeColors, accent: AccentId, isDark: boolean): ThemeColors {
+  const entry = ACCENTS.find((a) => a.id === accent) ?? ACCENTS[0];
+  return { ...base, ...(isDark ? entry.dark : entry.light) };
+}

@@ -1,4 +1,5 @@
 import type { GoalType } from '../types';
+import { tr } from '../i18n';
 
 export interface ReminderPlanInput {
   now: Date;
@@ -67,11 +68,11 @@ function evenSlots(start: Date, end: Date, count: number): Date[] {
 
 function pickMessage(goal: GoalType | null, index: number): string {
   const bank = MESSAGES[goal ?? 'generic'];
-  return bank[index % bank.length];
+  return tr(bank[index % bank.length]);
 }
 
 function glassesWord(n: number): string {
-  return n === 1 ? '1 copo' : `${n} copos`;
+  return n === 1 ? tr('1 copo') : tr('{n} copos', { n });
 }
 
 /**
@@ -84,7 +85,7 @@ export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] 
   const { now, glasses, goalGlasses, wakeHour, sleepHour, goal, firstName } = input;
   const days = input.days ?? 3;
   const result: PlannedReminder[] = [];
-  const title = '💧 Hora de beber água';
+  const title = tr('💧 Hora de beber água');
 
   for (let d = 0; d < days; d++) {
     const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d);
@@ -110,7 +111,7 @@ export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] 
       const name = firstName && i % 2 === 0 ? `${firstName}, ` : '';
       const core =
         d === 0 && i === 0
-          ? `Faltam ${glassesWord(remaining)} para a sua meta de hoje. ${pickMessage(goal, i)}`
+          ? `${tr('Faltam {glasses} para a sua meta de hoje.', { glasses: glassesWord(remaining) })} ${pickMessage(goal, i)}`
           : pickMessage(goal, d + i);
       result.push({ at, title, body: name ? `${name}${core.charAt(0).toLowerCase()}${core.slice(1)}` : core });
     });

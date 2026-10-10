@@ -1,12 +1,14 @@
 import { useMemo } from 'react';
 import { Flame } from 'lucide-react-native';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import type { Totals } from '../services/dayUtils';
 import type { DailyGoals } from '../types';
 import { MacroLeftBar } from './MacroLeftBar';
 import { ProgressRing } from './ProgressRing';
+import { tr } from '../i18n';
 
 interface Props {
   goals: DailyGoals;
@@ -34,9 +36,9 @@ export function CaloriesCard({ goals, consumed }: Props) {
         </ProgressRing>
       </View>
       <View style={styles.macros}>
-        <MacroLeftBar label="Proteína" leftG={goals.proteinG - consumed.protein} progress={consumed.protein / goals.proteinG} color={colors.primary} />
-        <MacroLeftBar label="Carbs" leftG={goals.carbsG - consumed.carbs} progress={consumed.carbs / goals.carbsG} color={colors.carbs} />
-        <MacroLeftBar label="Gordura" leftG={goals.fatsG - consumed.fats} progress={consumed.fats / goals.fatsG} color={colors.protein} />
+        <MacroLeftBar label={tr('Proteína')} leftG={goals.proteinG - consumed.protein} progress={consumed.protein / goals.proteinG} color={colors.primary} />
+        <MacroLeftBar label={tr('Carbs')} leftG={goals.carbsG - consumed.carbs} progress={consumed.carbs / goals.carbsG} color={colors.carbs} />
+        <MacroLeftBar label={tr('Gordura')} leftG={goals.fatsG - consumed.fats} progress={consumed.fats / goals.fatsG} color={colors.protein} />
       </View>
     </View>
   );

@@ -3,6 +3,7 @@ import { Search, X } from 'lucide-react-native';
 import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+import { tr } from '../i18n';
 
 interface Props {
   value: string;
@@ -20,13 +21,13 @@ export function SearchBar({ value, onChangeText, onSubmit }: Props) {
         value={value}
         onChangeText={onChangeText}
         onSubmitEditing={onSubmit}
-        placeholder="Pesquisar alimento (ex.: xima com matapa)"
+        placeholder={tr('Pesquisar alimento (ex.: xima com matapa)')}
         placeholderTextColor={colors.textFaint}
         returnKeyType="search"
         style={styles.input}
       />
       {value.length > 0 && (
-        <Pressable onPress={() => onChangeText('')} hitSlop={10} accessibilityLabel="Limpar pesquisa">
+        <Pressable onPress={() => onChangeText('')} hitSlop={10} accessibilityLabel={tr('Limpar pesquisa')}>
           <X size={18} color={colors.textFaint} />
         </Pressable>
       )}

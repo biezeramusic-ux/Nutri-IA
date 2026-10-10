@@ -2,7 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { Activity, Camera, ChevronRight, Crown, Droplets, Gift, LogOut, Moon, Pencil, RefreshCw, Star, Sun, Target, UtensilsCrossed, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Text } from '../../components/AppText';
+import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NumberStepper } from '../../components/quiz/NumberStepper';
 import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
@@ -14,8 +16,11 @@ import { useSubscription } from '../../hooks/useSubscription';
 import { GLASS_ML, glassesFromMl } from '../../services/goals';
 import { ensureNotificationPermission, notificationsSupported, scheduleMealReminders } from '../../services/notifications';
 import { GOAL_LABEL } from '../../constants/labels';
+import { AccentPicker } from '../../components/AccentPicker';
+import { LanguageSelector } from '../../components/LanguageSelector';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { type ThemeMode } from '../../hooks/useTheme';
+import { tr } from '../../i18n';
 
 
 const SAVE_DELAY_MS = 700;
@@ -44,9 +49,9 @@ export default function ProfileScreen() {
 
   const toggleMealReminders = async (value: boolean) => {
     if (value && !notificationsSupported) {
-      Alert.alert('Disponível na app instalada', 'As notificações não funcionam no Expo Go. Instale a app (APK) para receber os lembretes.');
+      Alert.alert(tr('Disponível na app instalada'), tr('As notificações não funcionam no Expo Go. Instale a app (APK) para receber os lembretes.'));
     } else if (value && !(await scheduleMealReminders(true))) {
-      Alert.alert('Notificações desligadas', 'Ative as notificações do Nutri IA nas definições do telemóvel.');
+      Alert.alert(tr('Notificações desligadas'), tr('Ative as notificações do Nutri IA nas definições do telemóvel.'));
       return;
     } else if (!value) {
       await scheduleMealReminders(false);
@@ -71,7 +76,7 @@ export default function ProfileScreen() {
     if (reminders === profile.waterReminders && wake === profile.wakeHour && sleep === profile.sleepHour) return;
     const timer = setTimeout(() => {
       saveReminders({ waterReminders: reminders, wakeHour: wake, sleepHour: sleep }).catch(() =>
-        Alert.alert('Não foi possível guardar', 'Verifique a ligação à internet.'),
+        Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet.')),
       );
     }, SAVE_DELAY_MS);
     return () => clearTimeout(timer);
@@ -80,7 +85,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (!profile?.goals || waterMl === profile.goals.waterMl) return;
     const timer = setTimeout(() => {
-      saveWaterGoalMl(waterMl).catch(() => Alert.alert('Não foi possível guardar', 'Verifique a ligação à internet.'));
+      saveWaterGoalMl(waterMl).catch(() => Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet.')));
     }, SAVE_DELAY_MS);
     return () => clearTimeout(timer);
   }, [waterMl, profile, saveWaterGoalMl]);
@@ -89,25 +94,25 @@ export default function ProfileScreen() {
     if (value && !notificationsSupported) {
       Alert.alert(
         'Disponível na app instalada',
-        'As notificações não funcionam no Expo Go. Instale a app (APK) para receber os lembretes. A sua escolha fica guardada.',
+        tr('As notificações não funcionam no Expo Go. Instale a app (APK) para receber os lembretes. A sua escolha fica guardada.'),
       );
     } else if (value && !(await ensureNotificationPermission(true))) {
-      Alert.alert('Notificações desligadas', 'Ative as notificações do Nutri IA nas definições do telemóvel para receber lembretes.');
+      Alert.alert(tr('Notificações desligadas'), tr('Ative as notificações do Nutri IA nas definições do telemóvel para receber lembretes.'));
     }
     setReminders(value);
   };
 
   const confirmSignOut = () =>
-    Alert.alert('Terminar sessão', 'Deseja sair da sua conta?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: () => void signOut() },
+    Alert.alert(tr('Terminar sessão'), tr('Deseja sair da sua conta?'), [
+      { text: tr('Cancelar'), style: 'cancel' },
+      { text: tr('Sair'), style: 'destructive', onPress: () => void signOut() },
     ]);
 
   const planText = isPremium
     ? 'Premium ativo'
     : lockReason === 'trial_expired'
       ? 'Teste grátis terminado'
-      : `Teste grátis: ${trialDaysLeft} ${trialDaysLeft === 1 ? 'dia' : 'dias'} restantes`;
+      : tr(trialDaysLeft === 1 ? 'Teste grátis: 1 dia restante' : 'Teste grátis: {n} dias restantes', { n: trialDaysLeft });
 
   const initials = (displayName || '?')
     .split(' ')
@@ -136,7 +141,7 @@ export default function ProfileScreen() {
       <View style={[styles.hero, { paddingTop: insets.top + 16 }]}>
         <View style={styles.decoA} />
         <View style={styles.decoB} />
-        <Pressable style={styles.avatar} onPress={() => router.push('/edit-profile')} accessibilityLabel="Editar perfil">
+        <Pressable style={styles.avatar} onPress={() => router.push('/edit-profile')} accessibilityLabel={tr('Editar perfil')}>
           {avatar.uri ? (
             <Image source={{ uri: avatar.uri }} style={styles.avatarImg} />
           ) : (
@@ -153,69 +158,76 @@ export default function ProfileScreen() {
         </View>
         <Pressable style={styles.editBtn} onPress={() => router.push('/edit-profile')}>
           <Pencil size={14} color="#fff" />
-          <Text style={styles.editText}>Editar perfil</Text>
+          <Text style={styles.editText}>{tr('Editar perfil')}</Text>
         </Pressable>
       </View>
 
       <View style={styles.body}>
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>O meu plano diário</Text>
+          <Text style={styles.cardTitle}>{tr('O meu plano diário')}</Text>
           <Text style={styles.goal}>{profile?.goal ? GOAL_LABEL[profile.goal] : 'Quiz por fazer'}</Text>
           <View style={styles.planRow}>
             <View style={styles.planItem}>
               <Text style={styles.planValue}>{goals.calories}</Text>
-              <Text style={styles.planLabel}>kcal</Text>
+              <Text style={styles.planLabel}>{tr('kcal')}</Text>
             </View>
             <View style={styles.planItem}>
               <Text style={[styles.planValue, { color: colors.protein }]}>{goals.proteinG}g</Text>
-              <Text style={styles.planLabel}>proteína</Text>
+              <Text style={styles.planLabel}>{tr('proteína')}</Text>
             </View>
             <View style={styles.planItem}>
               <Text style={[styles.planValue, { color: colors.carbs }]}>{goals.carbsG}g</Text>
-              <Text style={styles.planLabel}>carbs</Text>
+              <Text style={styles.planLabel}>{tr('carbs')}</Text>
             </View>
             <View style={styles.planItem}>
               <Text style={[styles.planValue, { color: colors.fats }]}>{goals.fatsG}g</Text>
-              <Text style={styles.planLabel}>gordura</Text>
+              <Text style={styles.planLabel}>{tr('gordura')}</Text>
             </View>
           </View>
         </View>
 
-        <Text style={styles.section}>Atalhos</Text>
+        <Text style={styles.section}>{tr('Atalhos')}</Text>
         <View style={styles.group}>
-          <Row icon={Target} label="Objetivos" onPress={() => router.push('/goals')} />
-          <Row icon={Activity} label="Atividade física" onPress={() => router.push('/activity')} />
-          <Row icon={Droplets} label="Registo de água" onPress={() => router.push('/water')} />
-          <Row icon={Star} label="Refeições favoritas" onPress={() => router.push('/favorites')} />
-          <Row icon={UtensilsCrossed} label="Pratos moçambicanos" onPress={() => router.push('/dishes')} />
-          <Row icon={Camera} label="Fotos de progresso" onPress={() => router.push('/progress-photos')} />
-          <Row icon={Gift} label="Convidar amigos (5% de desconto)" onPress={() => router.push('/invite')} />
-          <Row icon={RefreshCw} label="Refazer o quiz" onPress={() => router.push('/quiz')} />
+          <Row icon={Target} label={tr('Objetivos')} onPress={() => router.push('/goals')} />
+          <Row icon={Activity} label={tr('Atividade física')} onPress={() => router.push('/activity')} />
+          <Row icon={Droplets} label={tr('Registo de água')} onPress={() => router.push('/water')} />
+          <Row icon={Star} label={tr('Refeições favoritas')} onPress={() => router.push('/favorites')} />
+          <Row icon={UtensilsCrossed} label={tr('Pratos moçambicanos')} onPress={() => router.push('/dishes')} />
+          <Row icon={Camera} label={tr('Fotos de progresso')} onPress={() => router.push('/progress-photos')} />
+          <Row icon={Gift} label={tr('Convidar amigos (5% de desconto)')} onPress={() => router.push('/invite')} />
+          <Row icon={RefreshCw} label={tr('Refazer o quiz')} onPress={() => router.push('/quiz')} />
         </View>
 
-        <Text style={styles.section}>Aparência</Text>
+        <Text style={styles.section}>{tr('Aparência')}</Text>
         <View style={styles.card}>
           <View style={styles.themeHead}>
             {isDark ? <Moon size={18} color={colors.primaryDark} /> : <Sun size={18} color={colors.primaryDark} />}
-            <Text style={styles.cardTitle}>Tema da app</Text>
+            <Text style={styles.cardTitle}>{tr('Tema da app')}</Text>
           </View>
           <SegmentedControl<ThemeMode>
             options={[
-              { key: 'light', label: 'Claro' },
-              { key: 'dark', label: 'Escuro' },
-              { key: 'system', label: 'Automático' },
+              { key: 'light', label: tr('Claro') },
+              { key: 'dark', label: tr('Escuro') },
+              { key: 'system', label: tr('Automático') },
             ]}
             value={mode}
             onChange={setMode}
           />
+          <Text style={styles.subLabel}>{tr('Cor da app')}</Text>
+          <AccentPicker />
         </View>
 
-        <Text style={styles.section}>Lembretes</Text>
+        <Text style={styles.section}>{tr('Idioma')}</Text>
+        <View style={styles.card}>
+          <LanguageSelector />
+        </View>
+
+        <Text style={styles.section}>{tr('Lembretes')}</Text>
         <View style={styles.card}>
           <View style={styles.switchRow}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>Lembretes de água</Text>
-              <Text style={styles.sub}>O Nutri IA avisa-o para beber água ao longo do dia.</Text>
+              <Text style={styles.cardTitle}>{tr('Lembretes de água')}</Text>
+              <Text style={styles.sub}>{tr('O Nutri IA avisa-o para beber água ao longo do dia.')}</Text>
             </View>
             <Switch
               value={reminders}
@@ -226,12 +238,12 @@ export default function ProfileScreen() {
           </View>
           {reminders && (
             <View style={{ gap: 10 }}>
-              <NumberStepper label="Acordo às (hora)" value={wake} unit="h" min={4} max={12} onChange={setWake} />
-              <NumberStepper label="Vou dormir às (hora)" value={sleep} unit="h" min={18} max={24} onChange={setSleep} />
+              <NumberStepper label={tr('Acordo às (hora)')} value={wake} unit="h" min={4} max={12} onChange={setWake} />
+              <NumberStepper label={tr('Vou dormir às (hora)')} value={sleep} unit="h" min={18} max={24} onChange={setSleep} />
             </View>
           )}
           <NumberStepper
-            label={`Meta de água (${glassesFromMl(waterMl)} copos de ${GLASS_ML} ml)`}
+            label={tr('Meta de água ({n} copos de {ml} ml)', { n: glassesFromMl(waterMl), ml: GLASS_ML })}
             value={waterMl}
             unit="ml"
             min={1000}
@@ -244,8 +256,8 @@ export default function ProfileScreen() {
         <View style={styles.card}>
           <View style={styles.switchRow}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>Lembretes de refeição</Text>
-              <Text style={styles.sub}>Avisos às 8h15, 12h45 e 19h30 para registar o que comeu.</Text>
+              <Text style={styles.cardTitle}>{tr('Lembretes de refeição')}</Text>
+              <Text style={styles.sub}>{tr('Avisos às 8h15, 12h45 e 19h30 para registar o que comeu.')}</Text>
             </View>
             <Switch
               value={mealReminders}
@@ -256,20 +268,20 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <Text style={styles.section}>Subscrição</Text>
+        <Text style={styles.section}>{tr('Subscrição')}</Text>
         <View style={styles.card}>
           <Text style={styles.sub}>{planText}</Text>
           {!isPremium && (
             <Pressable style={styles.cta} onPress={() => router.push('/paywall')}>
               <Crown size={16} color="#fff" />
-              <Text style={styles.ctaText}>Ver planos Pro</Text>
+              <Text style={styles.ctaText}>{tr('Ver planos Pro')}</Text>
             </Pressable>
           )}
         </View>
 
         <Pressable style={styles.signOut} onPress={confirmSignOut}>
           <LogOut size={18} color={colors.danger} />
-          <Text style={styles.signOutText}>Terminar sessão</Text>
+          <Text style={styles.signOutText}>{tr('Terminar sessão')}</Text>
         </Pressable>
       </View>
     </ScrollView>
@@ -279,8 +291,8 @@ export default function ProfileScreen() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: colors.background },
-    hero: { backgroundColor: '#0B1F3A', paddingHorizontal: SCREEN_PADDING, paddingBottom: 26, alignItems: 'center', gap: 4, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
-    decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.protein, opacity: 0.28, top: -80, right: -70 },
+    hero: { backgroundColor: colors.hero, paddingHorizontal: SCREEN_PADDING, paddingBottom: 26, alignItems: 'center', gap: 4, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
+    decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.3, top: -80, right: -70 },
     decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
     avatar: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.35)' },
     avatarImg: { width: 70, height: 70, borderRadius: 35 },
@@ -307,6 +319,7 @@ const createStyles = (colors: ThemeColors) =>
     rowIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
     rowLabel: { flex: 1, fontSize: font.body, fontWeight: '500', color: colors.text },
     rowValue: { fontSize: font.small, color: colors.textMuted },
+    subLabel: { fontSize: font.small, fontWeight: '600', color: colors.textMuted, marginTop: 4 },
     themeHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     sub: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },

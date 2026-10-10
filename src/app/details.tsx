@@ -2,7 +2,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Bookmark, CircleCheck, Drumstick, Pencil, ShieldCheck, Sparkles, Star, Wheat } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../components/AppText';
+import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlowerChart } from '../components/FlowerChart';
 import { MacroSquareCard } from '../components/MacroSquareCard';
@@ -17,6 +19,7 @@ import { useSubscription } from '../hooks/useSubscription';
 import { deriveIngredients, macroPercentages, mealEmoji, proteinSources, scaleMeal } from '../services/foodCatalog';
 import { refineAnalysis } from '../services/foodRecognition';
 import { mealScore } from '../services/healthScore';
+import { tr } from '../i18n';
 
 function confidenceLabel(value: number, colors: ThemeColors): { text: string; color: string } {
   if (value >= 80) return { text: 'Confiança alta', color: colors.primaryDark };
@@ -43,9 +46,9 @@ export default function DetailsScreen() {
   if (!meal) {
     return (
       <View style={[styles.root, styles.empty]}>
-        <Text style={styles.name}>Refeição não encontrada</Text>
+        <Text style={styles.name}>{tr('Refeição não encontrada')}</Text>
         <Pressable onPress={() => router.back()}>
-          <Text style={styles.link}>Voltar</Text>
+          <Text style={styles.link}>{tr('Voltar')}</Text>
         </Pressable>
       </View>
     );
@@ -84,14 +87,14 @@ export default function DetailsScreen() {
     } else if (result.status === 'blocked') {
       askForPlans('Limite de análises', 'Atingiu o limite de análises do plano grátis. Com o Nutri IA Pro são ilimitadas.');
     } else {
-      Alert.alert('Correção indisponível', 'Não foi possível corrigir agora. Use o nome e a porção abaixo, ou tente mais tarde.');
+      Alert.alert(tr('Correção indisponível'), tr('Não foi possível corrigir agora. Use o nome e a porção abaixo, ou tente mais tarde.'));
     }
   };
 
   const askForPlans = (title: string, body: string) =>
     Alert.alert(title, body, [
-      { text: 'Agora não', style: 'cancel' },
-      { text: 'Ver planos', onPress: () => router.push('/paywall') },
+      { text: tr('Agora não'), style: 'cancel' },
+      { text: tr('Ver planos'), onPress: () => router.push('/paywall') },
     ]);
 
   const handleSave = async () => {
@@ -107,7 +110,7 @@ export default function DetailsScreen() {
       } else if (message.includes('trial_expired')) {
         askForPlans('O seu teste terminou', 'Assine o Nutri IA Pro para continuar a registar refeições.');
       } else {
-        Alert.alert('Não foi possível salvar', 'Verifique a ligação à internet e tente novamente.');
+        Alert.alert(tr('Não foi possível salvar'), tr('Verifique a ligação à internet e tente novamente.'));
       }
     } finally {
       setSaving(false);
@@ -122,14 +125,14 @@ export default function DetailsScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <ScreenHeader
-          title="Detalhes"
+          title={tr('Detalhes')}
           right={
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <Pressable style={styles.editBtn} onPress={toggleFavorite} accessibilityLabel={favorite ? 'Remover das favoritas' : 'Guardar como favorita'}>
                 <Star size={16} color={favorite ? colors.carbs : colors.text} fill={favorite ? colors.carbs : 'transparent'} />
               </Pressable>
               {!saved && (
-                <Pressable style={[styles.editBtn, editing && styles.editBtnOn]} onPress={() => setEditing((e) => !e)} accessibilityLabel="Corrigir refeição">
+                <Pressable style={[styles.editBtn, editing && styles.editBtnOn]} onPress={() => setEditing((e) => !e)} accessibilityLabel={tr('Corrigir refeição')}>
                   <Pencil size={16} color={editing ? '#fff' : colors.text} />
                 </Pressable>
               )}
@@ -142,7 +145,7 @@ export default function DetailsScreen() {
           <Text style={styles.name}>{analysis.food_name}</Text>
           <Text style={styles.weight}>{analysis.estimated_weight_grams} g</Text>
           <Text style={styles.kcal}>
-            {analysis.calories} <Text style={styles.kcalUnit}>kcal</Text>
+            {analysis.calories} <Text style={styles.kcalUnit}>{tr('kcal')}</Text>
           </Text>
           {confidence && (
             <View style={styles.confidence}>
@@ -156,17 +159,17 @@ export default function DetailsScreen() {
 
         {editing && !saved && (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>Corrigir refeição</Text>
-            <Text style={styles.small}>Se a IA errou o prato ou a porção, corrija aqui. Calorias e macros ajustam-se sozinhos.</Text>
+            <Text style={styles.cardTitle}>{tr('Corrigir refeição')}</Text>
+            <Text style={styles.small}>{tr('Se a IA errou o prato ou a porção, corrija aqui. Calorias e macros ajustam-se sozinhos.')}</Text>
             <TextInput
               value={analysis.food_name}
               onChangeText={(text) => setCurrent({ ...meal, analysis: { ...analysis, food_name: text } })}
-              placeholder="Nome do prato"
+              placeholder={tr('Nome do prato')}
               placeholderTextColor={colors.textFaint}
               style={styles.input}
             />
             <NumberStepper
-              label="Porção"
+              label={tr('Porção')}
               value={analysis.estimated_weight_grams}
               unit="g"
               min={20}
@@ -174,17 +177,17 @@ export default function DetailsScreen() {
               step={10}
               onChange={(grams) => setCurrent(scaleMeal(meal, grams))}
             />
-            <Text style={styles.small}>Ou descreva o que mudou e a IA recalcula:</Text>
+            <Text style={styles.small}>{tr('Ou descreva o que mudou e a IA recalcula:')}</Text>
             <TextInput
               value={correction}
               onChangeText={setCorrection}
-              placeholder="Ex.: foi sem arroz, com mais peixe"
+              placeholder={tr('Ex.: foi sem arroz, com mais peixe')}
               placeholderTextColor={colors.textFaint}
               style={styles.input}
               maxLength={200}
             />
             <Pressable style={[styles.aiBtn, (refining || correction.trim().length < 3) && { opacity: 0.6 }]} disabled={refining || correction.trim().length < 3} onPress={() => void applyCorrection()}>
-              {refining ? <ActivityIndicator color="#fff" /> : <Text style={styles.aiBtnText}>Corrigir com IA</Text>}
+              {refining ? <ActivityIndicator color="#fff" /> : <Text style={styles.aiBtnText}>{tr('Corrigir com IA')}</Text>}
             </Pressable>
           </View>
         )}
@@ -201,9 +204,9 @@ export default function DetailsScreen() {
         </View>
 
         <View style={styles.macroRow}>
-          <MacroSquareCard label="Carboidratos" percent={macros.carbs} grams={analysis.carbs_g} color={colors.carbs} />
-          <MacroSquareCard label="Proteínas" percent={macros.protein} grams={analysis.protein_g} color={colors.protein} />
-          <MacroSquareCard label="Gorduras" percent={macros.fats} grams={analysis.fats_g} color={colors.fats} />
+          <MacroSquareCard label={tr('Carboidratos')} percent={macros.carbs} grams={analysis.carbs_g} color={colors.carbs} />
+          <MacroSquareCard label={tr('Proteínas')} percent={macros.protein} grams={analysis.protein_g} color={colors.protein} />
+          <MacroSquareCard label={tr('Gorduras')} percent={macros.fats} grams={analysis.fats_g} color={colors.fats} />
         </View>
 
         {isPro ? (
@@ -211,7 +214,7 @@ export default function DetailsScreen() {
             {analysis.fiber_g !== undefined && (
               <View style={styles.fiberCard}>
                 <Wheat size={18} color={colors.limeDark} />
-                <Text style={styles.fiberText}>Fibras</Text>
+                <Text style={styles.fiberText}>{tr('Fibras')}</Text>
                 <Text style={styles.fiberValue}>{analysis.fiber_g} g</Text>
               </View>
             )}
@@ -234,7 +237,7 @@ export default function DetailsScreen() {
               <View style={styles.card}>
                 <View style={styles.cardHead}>
                   <Drumstick size={18} color={colors.protein} />
-                  <Text style={[styles.cardTitle, { flex: 1 }]}>Proteína neste prato</Text>
+                  <Text style={[styles.cardTitle, { flex: 1 }]}>{tr('Proteína neste prato')}</Text>
                   <Text style={styles.cardTotal}>{analysis.protein_g} g</Text>
                 </View>
                 {sources.map((s) => (
@@ -250,11 +253,11 @@ export default function DetailsScreen() {
                     </View>
                   </View>
                 ))}
-                <Text style={styles.hint}>Valores aproximados, com base nos ingredientes identificados.</Text>
+                <Text style={styles.hint}>{tr('Valores aproximados, com base nos ingredientes identificados.')}</Text>
               </View>
             )}
 
-            <Text style={styles.section}>Ingredientes</Text>
+            <Text style={styles.section}>{tr('Ingredientes')}</Text>
             <View style={styles.list}>
               {ingredients.map((ing, idx) => (
                 <View key={`${ing.name}-${idx}`} style={[styles.row, idx > 0 && styles.rowBorder]}>
@@ -271,12 +274,12 @@ export default function DetailsScreen() {
           <View style={styles.teaser}>
             <View style={styles.teaserHead}>
               <Sparkles size={18} color={colors.limeDark} />
-              <Text style={styles.cardTitle}>Análise nutricional detalhada</Text>
+              <Text style={styles.cardTitle}>{tr('Análise nutricional detalhada')}</Text>
               <ProBadge />
             </View>
-            <Text style={styles.small}>Veja os ingredientes, as fibras e de onde vem a proteína de cada prato, com o gráfico em flor.</Text>
+            <Text style={styles.small}>{tr('Veja os ingredientes, as fibras e de onde vem a proteína de cada prato, com o gráfico em flor.')}</Text>
             <Pressable style={styles.teaserBtn} onPress={() => router.push('/paywall')}>
-              <Text style={styles.teaserBtnText}>Ver planos Pro</Text>
+              <Text style={styles.teaserBtnText}>{tr('Ver planos Pro')}</Text>
             </Pressable>
           </View>
         )}

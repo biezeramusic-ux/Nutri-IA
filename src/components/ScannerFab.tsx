@@ -4,6 +4,7 @@ import { Camera } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+import { tr } from '../i18n';
 
 interface Props {
   onPress?: (...args: never[]) => void;
@@ -19,7 +20,7 @@ export function ScannerFab({ onPress, accessibilityState }: Props) {
     <View style={styles.slot}>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Scanner"
+        accessibilityLabel={tr('Scanner')}
         onPress={(e) => {
           void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           (onPress as ((ev: unknown) => void) | undefined)?.(e);

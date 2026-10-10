@@ -1,7 +1,9 @@
 import { useRouter } from 'expo-router';
 import { CloudOff, Plus, Star, Trash } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/AppText';
+import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProBadge } from '../../components/ProOverlay';
 import { WeekStrip } from '../../components/WeekStrip';
@@ -18,6 +20,7 @@ import { favoriteToMeal } from '../../services/favorites';
 import { mealEmoji } from '../../services/foodCatalog';
 import { dayScore } from '../../services/healthScore';
 import type { Meal } from '../../types';
+import { tr } from '../../i18n';
 
 export default function DiaryScreen() {
   const { colors } = useTheme();
@@ -47,9 +50,9 @@ export default function DiaryScreen() {
 
   const selectDay = (day: Date) => {
     if (!isPro && todayKey(day) !== todayKey()) {
-      Alert.alert('Histórico completo é Pro', 'No teste grátis só vê o dia de hoje. Com o Nutri IA Pro tem o histórico completo das refeições.', [
-        { text: 'Agora não', style: 'cancel' },
-        { text: 'Ver planos', onPress: () => router.push('/paywall') },
+      Alert.alert(tr('Histórico completo é Pro'), tr('No teste grátis só vê o dia de hoje. Com o Nutri IA Pro tem o histórico completo das refeições.'), [
+        { text: tr('Agora não'), style: 'cancel' },
+        { text: tr('Ver planos'), onPress: () => router.push('/paywall') },
       ]);
       return;
     }
@@ -67,12 +70,12 @@ export default function DiaryScreen() {
     } catch (e) {
       const message = e instanceof Error ? e.message : '';
       if (message.includes('meal_limit_reached') || message.includes('trial_expired')) {
-        Alert.alert('Limite do teste grátis', 'Com o Nutri IA Pro os registos são ilimitados.', [
-          { text: 'Agora não', style: 'cancel' },
-          { text: 'Ver planos', onPress: () => router.push('/paywall') },
+        Alert.alert(tr('Limite do teste grátis'), tr('Com o Nutri IA Pro os registos são ilimitados.'), [
+          { text: tr('Agora não'), style: 'cancel' },
+          { text: tr('Ver planos'), onPress: () => router.push('/paywall') },
         ]);
       } else {
-        Alert.alert('Não foi possível registar', 'Tente novamente.');
+        Alert.alert(tr('Não foi possível registar'), tr('Tente novamente.'));
       }
     }
   };
@@ -83,15 +86,15 @@ export default function DiaryScreen() {
   };
 
   const confirmDelete = (meal: Meal) =>
-    Alert.alert('Apagar refeição', `Quer apagar "${meal.analysis.food_name}" do diário?`, [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert(tr('Apagar refeição'), tr('Quer apagar "{name}" do diário?', { name: meal.analysis.food_name }), [
+      { text: tr('Cancelar'), style: 'cancel' },
       {
-        text: 'Apagar',
+        text: tr('Apagar'),
         style: 'destructive',
         onPress: () =>
           removeMeal(meal.id)
             .then(() => refresh())
-            .catch(() => Alert.alert('Não foi possível apagar', 'Verifique a ligação à internet.')),
+            .catch(() => Alert.alert(tr('Não foi possível apagar'), tr('Verifique a ligação à internet.'))),
       },
     ]);
 
@@ -103,14 +106,14 @@ export default function DiaryScreen() {
       contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: SCREEN_PADDING, paddingBottom: TAB_BAR_SPACE + 24, gap: 14 }}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Diário alimentar 📖</Text>
+      <Text style={styles.title}>{tr('Diário alimentar 📖')}</Text>
       <WeekStrip days={days} selectedKey={selectedKey} onSelect={selectDay} progressByDay={progressByDay} />
 
       {pendingCount > 0 && (
         <View style={styles.pending}>
           <CloudOff size={14} color={colors.carbs} />
           <Text style={styles.pendingText}>
-            {pendingCount} {pendingCount === 1 ? 'refeição por sincronizar' : 'refeições por sincronizar'} (sem ligação)
+            {pendingCount} {tr(pendingCount === 1 ? 'refeição por sincronizar' : 'refeições por sincronizar')} {tr('(sem ligação)')}
           </Text>
         </View>
       )}
@@ -125,7 +128,7 @@ export default function DiaryScreen() {
           </View>
           {score !== null && (
             <View style={styles.scoreChip}>
-              <Text style={styles.scoreChipText}>Pontuação {String(score).replace('.', ',')}/10</Text>
+              <Text style={styles.scoreChipText}>{tr('Pontuação {score}/10', { score: String(score).replace('.', ',') })}</Text>
             </View>
           )}
         </View>
@@ -135,24 +138,24 @@ export default function DiaryScreen() {
         <View style={styles.macros}>
           <View style={styles.macro}>
             <Text style={styles.macroValue}>{totals.carbs}g</Text>
-            <Text style={styles.macroLabel}>Carbs</Text>
+            <Text style={styles.macroLabel}>{tr('Carbs')}</Text>
           </View>
           <View style={styles.macro}>
             <Text style={styles.macroValue}>{totals.protein}g</Text>
-            <Text style={styles.macroLabel}>Proteínas</Text>
+            <Text style={styles.macroLabel}>{tr('Proteínas')}</Text>
           </View>
           <View style={styles.macro}>
             <Text style={styles.macroValue}>{totals.fats}g</Text>
-            <Text style={styles.macroLabel}>Gorduras</Text>
+            <Text style={styles.macroLabel}>{tr('Gorduras')}</Text>
           </View>
           <View style={styles.macro}>
             {isPro ? <Text style={styles.macroValue}>{Math.round(totals.fiber * 10) / 10}g</Text> : <ProBadge />}
-            <Text style={styles.macroLabel}>Fibras</Text>
+            <Text style={styles.macroLabel}>{tr('Fibras')}</Text>
           </View>
         </View>
         {!isPro && mealsLeft !== null && (
           <Text style={styles.limit}>
-            Plano grátis: {Math.max(0, mealsLeft)} de {FREE_MEALS_TOTAL} registos disponíveis durante o teste.
+            {tr('Plano grátis: {n} de {total} registos disponíveis durante o teste.', { n: Math.max(0, mealsLeft), total: FREE_MEALS_TOTAL })}
           </Text>
         )}
       </View>
@@ -161,7 +164,7 @@ export default function DiaryScreen() {
         <View style={{ gap: 8 }}>
           <View style={styles.favHead}>
             <Star size={14} color={colors.carbs} fill={colors.carbs} />
-            <Text style={styles.favTitle}>Favoritas · registo rápido</Text>
+            <Text style={styles.favTitle}>{tr('Favoritas · registo rápido')}</Text>
           </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             {favorites.slice(0, 12).map((f, i) => (
@@ -190,7 +193,7 @@ export default function DiaryScreen() {
               </Pressable>
             </View>
             {list.length === 0 ? (
-              <Text style={styles.empty}>Nada registado</Text>
+              <Text style={styles.empty}>{tr('Nada registado')}</Text>
             ) : (
               list.map((m) => (
                 <Pressable key={m.id} onPress={() => open(m)} style={styles.row}>
@@ -209,7 +212,7 @@ export default function DiaryScreen() {
                       {m.analysis.estimated_weight_grams} g · {m.analysis.calories} kcal
                     </Text>
                   </View>
-                  <Pressable onPress={() => confirmDelete(m)} hitSlop={10} accessibilityLabel="Apagar refeição">
+                  <Pressable onPress={() => confirmDelete(m)} hitSlop={10} accessibilityLabel={tr('Apagar refeição')}>
                     <Trash size={16} color={colors.textFaint} />
                   </Pressable>
                 </Pressable>

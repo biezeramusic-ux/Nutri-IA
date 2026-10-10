@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import Svg, { Path } from 'react-native-svg';
 import { font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+import { tr } from '../i18n';
 
 interface Props {
   onPress: () => void;
@@ -31,7 +33,7 @@ export function GoogleButton({ onPress, loading, disabled, title = 'Continuar co
     <View style={styles.wrap}>
       <View style={styles.dividerRow}>
         <View style={styles.line} />
-        <Text style={styles.or}>ou</Text>
+        <Text style={styles.or}>{tr('ou')}</Text>
         <View style={styles.line} />
       </View>
       <Pressable

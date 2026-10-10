@@ -1,3 +1,4 @@
+import { tr } from '../i18n';
 import type { GoalType, Habits } from '../types';
 
 const BY_GOAL: Record<GoalType, string> = {
@@ -10,9 +11,9 @@ const BY_GOAL: Record<GoalType, string> = {
 
 /** Texto do cartão "Ative os lembretes de água", adaptado ao que a pessoa respondeu no quiz. */
 export function reminderPitch(goal: GoalType | null, habits: Habits | null, waterMl: number): string {
-  let lead = goal ? BY_GOAL[goal] : 'Beber água ao longo do dia faz bem ao corpo e à concentração.';
-  if (habits?.sugaryDrinks) lead = 'Trocar refrigerantes e sumos açucarados por água faz uma grande diferença.';
-  else if (habits && !habits.drinksEnoughWater) lead = 'Vimos que bebe pouca água. Pequenos lembretes ajudam a criar o hábito.';
+  let lead = tr(goal ? BY_GOAL[goal] : 'Beber água ao longo do dia faz bem ao corpo e à concentração.');
+  if (habits?.sugaryDrinks) lead = tr('Trocar refrigerantes e sumos açucarados por água faz uma grande diferença.');
+  else if (habits && !habits.drinksEnoughWater) lead = tr('Vimos que bebe pouca água. Pequenos lembretes ajudam a criar o hábito.');
   const liters = (waterMl / 1000).toFixed(1).replace('.', ',');
-  return `${lead} A sua meta é ${liters} L por dia e o Nutri IA avisa-o nas horas certas.`;
+  return `${lead} ${tr('A sua meta é {liters} L por dia e o Nutri IA avisa-o nas horas certas.', { liters })}`;
 }

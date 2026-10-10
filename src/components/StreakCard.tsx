@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { STREAK_MILESTONES, type StreakInfo } from '../services/streak';
+import { tr } from '../i18n';
 
 interface Props {
   streak: StreakInfo;
@@ -12,13 +14,13 @@ export function StreakCard({ streak }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { current, best, today, nextMilestone } = streak;
-  const title = current === 0 ? 'Comece a sua sequência' : `${current} ${current === 1 ? 'dia seguido' : 'dias seguidos'}`;
+  const title = current === 0 ? tr('Comece a sua sequência') : tr(current === 1 ? '{n} dia seguido' : '{n} dias seguidos', { n: current });
   const sub = !today
     ? current > 0
       ? 'Registe uma refeição hoje para manter a sequência.'
       : 'Registe uma refeição hoje para começar.'
     : nextMilestone
-      ? `Faltam ${nextMilestone - current} ${nextMilestone - current === 1 ? 'dia' : 'dias'} para a próxima conquista.`
+      ? tr(nextMilestone - current === 1 ? 'Falta 1 dia para a próxima conquista.' : 'Faltam {n} dias para a próxima conquista.', { n: nextMilestone - current })
       : 'Conquista máxima alcançada. Parabéns!';
 
   return (

@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 import { BellRing } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+import { tr } from '../i18n';
 
 interface Props {
   text: string;
@@ -21,15 +23,15 @@ export function WaterReminderCard({ text, onActivate, onDismiss, busy }: Props) 
         <View style={styles.icon}>
           <BellRing size={18} color={colors.water} />
         </View>
-        <Text style={styles.title}>Ative os lembretes de água</Text>
+        <Text style={styles.title}>{tr('Ative os lembretes de água')}</Text>
       </View>
       <Text style={styles.text}>{text}</Text>
       <View style={styles.actions}>
         <Pressable onPress={onDismiss} style={styles.ghost}>
-          <Text style={styles.ghostText}>Agora não</Text>
+          <Text style={styles.ghostText}>{tr('Agora não')}</Text>
         </Pressable>
         <Pressable onPress={onActivate} disabled={busy} style={[styles.primary, busy && { opacity: 0.6 }]}>
-          <Text style={styles.primaryText}>Ativar lembretes</Text>
+          <Text style={styles.primaryText}>{tr('Ativar lembretes')}</Text>
         </Pressable>
       </View>
     </View>

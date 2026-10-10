@@ -1,7 +1,9 @@
 import { Plus, Star, Trash } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
+import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
@@ -11,6 +13,7 @@ import { useSubscription } from '../hooks/useSubscription';
 import { useTheme } from '../hooks/useTheme';
 import { favoriteToMeal } from '../services/favorites';
 import { mealEmoji } from '../services/foodCatalog';
+import { tr } from '../i18n';
 
 export default function FavoritesScreen() {
   const { colors } = useTheme();
@@ -27,16 +30,16 @@ export default function FavoritesScreen() {
     try {
       await saveMeal(favoriteToMeal(fav));
       void refresh();
-      Alert.alert('Registado', `${fav.analysis.food_name} foi adicionado ao diário de hoje.`);
+      Alert.alert(tr('Registado'), tr('{name} foi adicionado ao diário de hoje.', { name: fav.analysis.food_name }));
     } catch (e) {
       const message = e instanceof Error ? e.message : '';
       if (message.includes('meal_limit_reached') || message.includes('trial_expired')) {
-        Alert.alert('Limite do teste grátis', 'Com o Nutri IA Pro os registos são ilimitados.', [
-          { text: 'Agora não', style: 'cancel' },
-          { text: 'Ver planos', onPress: () => router.push('/paywall') },
+        Alert.alert(tr('Limite do teste grátis'), tr('Com o Nutri IA Pro os registos são ilimitados.'), [
+          { text: tr('Agora não'), style: 'cancel' },
+          { text: tr('Ver planos'), onPress: () => router.push('/paywall') },
         ]);
       } else {
-        Alert.alert('Não foi possível registar', 'Tente novamente.');
+        Alert.alert(tr('Não foi possível registar'), tr('Tente novamente.'));
       }
     }
   };
@@ -47,12 +50,12 @@ export default function FavoritesScreen() {
         contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: SCREEN_PADDING, paddingBottom: insets.bottom + 32, gap: 12 }}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Refeições favoritas" />
+        <ScreenHeader title={tr('Refeições favoritas')} />
         {favorites.length === 0 ? (
           <View style={[styles.card, { alignItems: 'center', gap: 8 }]}>
             <Text style={{ fontSize: 34 }}>⭐</Text>
-            <Text style={styles.title}>Ainda não tem favoritas</Text>
-            <Text style={styles.sub}>Abra uma refeição e toque na estrela para a guardar. Depois registe-a com um toque, sem fotografar.</Text>
+            <Text style={styles.title}>{tr('Ainda não tem favoritas')}</Text>
+            <Text style={styles.sub}>{tr('Abra uma refeição e toque na estrela para a guardar. Depois registe-a com um toque, sem fotografar.')}</Text>
           </View>
         ) : (
           favorites.map((f, i) => (
@@ -66,10 +69,10 @@ export default function FavoritesScreen() {
                   {f.analysis.estimated_weight_grams} g · {f.analysis.calories} kcal · P {f.analysis.protein_g}g · C {f.analysis.carbs_g}g · G {f.analysis.fats_g}g
                 </Text>
               </View>
-              <Pressable style={styles.add} onPress={() => void addToToday(i)} accessibilityLabel="Registar hoje">
+              <Pressable style={styles.add} onPress={() => void addToToday(i)} accessibilityLabel={tr('Registar hoje')}>
                 <Plus size={18} color="#fff" />
               </Pressable>
-              <Pressable onPress={() => void remove(f.id)} hitSlop={10} accessibilityLabel="Remover">
+              <Pressable onPress={() => void remove(f.id)} hitSlop={10} accessibilityLabel={tr('Remover')}>
                 <Trash size={18} color={colors.textFaint} />
               </Pressable>
             </View>

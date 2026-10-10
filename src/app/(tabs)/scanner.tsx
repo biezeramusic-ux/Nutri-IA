@@ -3,7 +3,9 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { Camera, X } from 'lucide-react-native';
 import { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/AppText';
+import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LockOverlay } from '../../components/LockOverlay';
 import { MacroSquareCard } from '../../components/MacroSquareCard';
@@ -16,6 +18,7 @@ import { recognizeFood } from '../../services/foodRecognition';
 import { compressImage } from '../../services/imageCompressor';
 import { scheduleMealWaterNudge } from '../../services/notifications';
 import type { Meal } from '../../types';
+import { tr } from '../../i18n';
 
 export default function ScannerScreen() {
   const { colors } = useTheme();
@@ -58,7 +61,7 @@ export default function ScannerScreen() {
       const uri = await getUri();
       if (uri) await analyze(uri);
     } catch {
-      Alert.alert('Erro', 'Não foi possível analisar a foto. Verifique a ligação e tente novamente.');
+      Alert.alert(tr('Erro'), tr('Não foi possível analisar a foto. Verifique a ligação e tente novamente.'));
     } finally {
       setBusy(false);
     }
@@ -78,10 +81,10 @@ export default function ScannerScreen() {
     return (
       <View style={[styles.root, styles.center]}>
         <Camera size={44} color={colors.primary} strokeWidth={1.5} />
-        <Text style={styles.permTitle}>Precisamos da sua câmera</Text>
-        <Text style={styles.permBody}>Para reconhecer a sua refeição e calcular as calorias.</Text>
+        <Text style={styles.permTitle}>{tr('Precisamos da sua câmera')}</Text>
+        <Text style={styles.permBody}>{tr('Para reconhecer a sua refeição e calcular as calorias.')}</Text>
         <Pressable style={styles.permButton} onPress={() => void requestPermission()}>
-          <Text style={styles.permButtonText}>Permitir câmera</Text>
+          <Text style={styles.permButtonText}>{tr('Permitir câmera')}</Text>
         </Pressable>
       </View>
     );
@@ -98,7 +101,7 @@ export default function ScannerScreen() {
           <X size={20} color="#fff" />
         </Pressable>
         <Text style={styles.hint}>
-          {!isPro && scansLeftToday != null ? `${scansLeftToday} análises restantes hoje` : 'Enquadre o prato dentro do visor'}
+          {!isPro && scansLeftToday != null ? tr('{n} análises restantes hoje', { n: scansLeftToday }) : 'Enquadre o prato dentro do visor'}
         </Text>
         <View style={styles.roundBtn} />
       </View>
@@ -118,16 +121,16 @@ export default function ScannerScreen() {
             {meal.analysis.food_name} - {meal.analysis.estimated_weight_grams}g
           </Text>
           <Text style={styles.kcal}>
-            {meal.analysis.calories} kcal{fallback ? ' · exemplo (sem ligação à IA)' : ''}
+            {meal.analysis.calories} kcal{fallback ? ` · ${tr('exemplo (sem ligação à IA)')}` : ''}
           </Text>
           <View style={styles.macroRow}>
-            <MacroSquareCard label="Carboidratos" percent={macros.carbs} grams={meal.analysis.carbs_g} color={colors.carbs} />
-            <MacroSquareCard label="Proteínas" percent={macros.protein} grams={meal.analysis.protein_g} color={colors.protein} />
-            <MacroSquareCard label="Gorduras" percent={macros.fats} grams={meal.analysis.fats_g} color={colors.fats} />
+            <MacroSquareCard label={tr('Carboidratos')} percent={macros.carbs} grams={meal.analysis.carbs_g} color={colors.carbs} />
+            <MacroSquareCard label={tr('Proteínas')} percent={macros.protein} grams={meal.analysis.protein_g} color={colors.protein} />
+            <MacroSquareCard label={tr('Gorduras')} percent={macros.fats} grams={meal.analysis.fats_g} color={colors.fats} />
           </View>
           <View style={styles.actions}>
             <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => setMeal(null)}>
-              <Text style={styles.btnGhostText}>Novo scan</Text>
+              <Text style={styles.btnGhostText}>{tr('Novo scan')}</Text>
             </Pressable>
             <Pressable
               style={[styles.btn, styles.btnPrimary]}
@@ -135,7 +138,7 @@ export default function ScannerScreen() {
                 router.push({ pathname: '/details', params: { id: meal.id } });
               }}
             >
-              <Text style={styles.btnPrimaryText}>Ver detalhes</Text>
+              <Text style={styles.btnPrimaryText}>{tr('Ver detalhes')}</Text>
             </Pressable>
           </View>
         </View>
@@ -144,7 +147,7 @@ export default function ScannerScreen() {
           <Pressable onPress={() => void capture()} style={styles.shutterOuter} disabled={busy}>
             {busy ? <ActivityIndicator color={colors.primary} /> : <View style={styles.shutterInner} />}
           </Pressable>
-          {busy && <Text style={styles.busy}>A analisar o prato…</Text>}
+          {busy && <Text style={styles.busy}>{tr('A analisar o prato…')}</Text>}
         </View>
       )}
 

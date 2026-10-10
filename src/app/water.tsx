@@ -1,6 +1,7 @@
 import { BellRing, Droplets, GlassWater, Minus, Plus, Sparkles } from 'lucide-react-native';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProgressRing } from '../components/ProgressRing';
 import { ProGate } from '../components/ProOverlay';
@@ -13,6 +14,7 @@ import { GLASS_ML } from '../services/goals';
 import { notificationsSupported } from '../services/notifications';
 import { planWaterReminders } from '../services/waterReminderPlan';
 import type { GoalType } from '../types';
+import { tr } from '../i18n';
 
 const TIPS: Record<GoalType | 'generic', string> = {
   lose_weight: 'Beber água antes das refeições ajuda a controlar a fome e apoia a perda de peso.',
@@ -58,17 +60,17 @@ export default function WaterScreen() {
       : done
         ? 'Meta cumprida hoje. Voltamos a lembrá-lo amanhã.'
         : nextReminder
-          ? `Próximo lembrete às ${formatTime(nextReminder.at)}${nextReminder.at.getDate() !== new Date().getDate() ? ' (amanhã)' : ''}.`
+          ? tr('Próximo lembrete às {time}{tomorrow}.', { time: formatTime(nextReminder.at), tomorrow: nextReminder.at.getDate() !== new Date().getDate() ? ` ${tr('(amanhã)')}` : '' })
           : 'Sem lembretes pendentes por agora.';
 
   return (
-    <ProGate feature="Registe a água que bebe e receba lembretes personalizados.">
+    <ProGate feature={tr('Registe a água que bebe e receba lembretes personalizados.')}>
     <ScrollView
       style={styles.root}
       contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: SCREEN_PADDING, paddingBottom: insets.bottom + 32, gap: 16 }}
       showsVerticalScrollIndicator={false}
     >
-      <ScreenHeader title="Água" />
+      <ScreenHeader title={tr('Água')} />
       {!!water.error && <Text style={styles.error}>{water.error}</Text>}
 
       <View style={styles.card}>
@@ -78,7 +80,7 @@ export default function WaterScreen() {
           <Text style={styles.ringSub}>de {water.goalMl} ml</Text>
         </ProgressRing>
 
-        <Text style={styles.status}>{done ? 'Meta de hoje cumprida' : `Faltam ${water.goalGlasses - water.glasses} copos para a meta`}</Text>
+        <Text style={styles.status}>{done ? 'Meta de hoje cumprida' : tr('Faltam {n} copos para a meta', { n: water.goalGlasses - water.glasses })}</Text>
 
         <View style={styles.glassRow}>
           {Array.from({ length: water.goalGlasses }).map((_, i) => (
@@ -87,7 +89,7 @@ export default function WaterScreen() {
         </View>
 
         <View style={styles.counter}>
-          <Pressable style={styles.roundBtn} onPress={water.decrement} accessibilityLabel="Menos um copo">
+          <Pressable style={styles.roundBtn} onPress={water.decrement} accessibilityLabel={tr('Menos um copo')}>
             <Minus size={20} color={colors.text} />
           </Pressable>
           <View style={{ alignItems: 'center' }}>
@@ -95,9 +97,9 @@ export default function WaterScreen() {
               {water.glasses}
               <Text style={styles.bigSub}> / {water.goalGlasses}</Text>
             </Text>
-            <Text style={styles.small}>copos de {GLASS_ML} ml</Text>
+            <Text style={styles.small}>{tr('copos de {ml} ml', { ml: GLASS_ML })}</Text>
           </View>
-          <Pressable style={[styles.roundBtn, styles.roundPrimary]} onPress={water.increment} accessibilityLabel="Mais um copo">
+          <Pressable style={[styles.roundBtn, styles.roundPrimary]} onPress={water.increment} accessibilityLabel={tr('Mais um copo')}>
             <Plus size={20} color="#fff" />
           </Pressable>
         </View>
@@ -106,9 +108,9 @@ export default function WaterScreen() {
       <View style={styles.infoCard}>
         <Sparkles size={18} color={colors.limeDark} />
         <View style={{ flex: 1, gap: 2 }}>
-          <Text style={styles.infoTitle}>Meta calculada pelo Nutri IA</Text>
+          <Text style={styles.infoTitle}>{tr('Meta calculada pelo Nutri IA')}</Text>
           <Text style={styles.infoText}>
-            {water.goalMl} ml por dia, com base no seu peso, atividade e no calor de Moçambique. {TIPS[goal ?? 'generic']}
+            {tr('{ml} ml por dia, com base no seu peso, atividade e no calor de Moçambique.', { ml: water.goalMl })} {tr(TIPS[goal ?? 'generic'])}
           </Text>
         </View>
       </View>
@@ -116,7 +118,7 @@ export default function WaterScreen() {
       <View style={styles.infoCard}>
         <BellRing size={18} color={colors.water} />
         <View style={{ flex: 1, gap: 2 }}>
-          <Text style={styles.infoTitle}>Lembretes de água</Text>
+          <Text style={styles.infoTitle}>{tr('Lembretes de água')}</Text>
           <Text style={styles.infoText}>{reminderText}</Text>
         </View>
       </View>

@@ -1,5 +1,6 @@
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
+import { tr } from '../i18n';
 import { planWaterReminders, type ReminderPlanInput } from './waterReminderPlan';
 
 type NotificationsModule = typeof import('expo-notifications');
@@ -44,7 +45,7 @@ export async function ensureNotificationPermission(request: boolean): Promise<bo
   try {
     if (Platform.OS === 'android') {
       await N.setNotificationChannelAsync(CHANNEL_ID, {
-        name: 'Lembretes de água',
+        name: tr('Lembretes de água'),
         importance: N.AndroidImportance.DEFAULT,
       });
     }
@@ -103,8 +104,8 @@ export async function scheduleMealWaterNudge(): Promise<void> {
     await cancelByKind(N, KIND_MEAL);
     await N.scheduleNotificationAsync({
       content: {
-        title: '🥤 Refeição registada',
-        body: 'Beba um copo de água com a sua refeição.',
+        title: tr('🥤 Refeição registada'),
+        body: tr('Beba um copo de água com a sua refeição.'),
         data: { kind: KIND_MEAL },
       },
       trigger: {
@@ -136,7 +137,7 @@ export async function scheduleMealReminders(enabled: boolean): Promise<boolean> 
     if (!(await ensureNotificationPermission(true))) return false;
     for (const slot of MEAL_SLOTS) {
       await N.scheduleNotificationAsync({
-        content: { title: slot.title, body: slot.body, data: { kind: KIND_MEAL_SLOT } },
+        content: { title: tr(slot.title), body: tr(slot.body), data: { kind: KIND_MEAL_SLOT } },
         trigger: { type: N.SchedulableTriggerInputTypes.DAILY, hour: slot.hour, minute: slot.minute, channelId: CHANNEL_ID },
       });
     }

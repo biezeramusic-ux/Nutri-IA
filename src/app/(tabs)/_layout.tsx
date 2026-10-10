@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import { ScannerFab } from '../../components/ScannerFab';
 import { font, shadow } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
+import { tr } from '../../i18n';
 
 export default function TabsLayout() {
   const { colors } = useTheme();
@@ -35,16 +36,16 @@ export default function TabsLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: 'Início', tabBarIcon: ({ color }) => <House size={20} color={color} /> }}
+        options={{ title: tr('Início'), tabBarIcon: ({ color }) => <House size={20} color={color} /> }}
       />
       <Tabs.Screen
         name="diary"
-        options={{ title: 'Diário', tabBarIcon: ({ color }) => <BookOpen size={20} color={color} /> }}
+        options={{ title: tr('Diário'), tabBarIcon: ({ color }) => <BookOpen size={20} color={color} /> }}
       />
       <Tabs.Screen
         name="scanner"
         options={{
-          title: 'Scanner',
+          title: tr('Scanner'),
           tabBarLabel: () => null,
           tabBarStyle: { display: 'none' },
           tabBarButton: (props) => (
@@ -54,11 +55,11 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="progress"
-        options={{ title: 'Progresso', tabBarIcon: ({ color }) => <ChartColumn size={20} color={color} /> }}
+        options={{ title: tr('Progresso'), tabBarIcon: ({ color }) => <ChartColumn size={20} color={color} /> }}
       />
       <Tabs.Screen
         name="profile"
-        options={{ title: 'Perfil', tabBarIcon: ({ color }) => <User size={20} color={color} /> }}
+        options={{ title: tr('Perfil'), tabBarIcon: ({ color }) => <User size={20} color={color} /> }}
       />
     </Tabs>
   );

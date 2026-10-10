@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 import { Droplets, Plus } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { cardBase, font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
+import { tr } from '../i18n';
 
 interface Props {
   glasses: number;
@@ -17,7 +19,7 @@ export function WaterMiniCard({ glasses, goalGlasses, onAdd, onOpen }: Props) {
   return (
     <Pressable onPress={onOpen} style={styles.card}>
       <View style={styles.head}>
-        <Text style={styles.title}>Água</Text>
+        <Text style={styles.title}>{tr('Água')}</Text>
         <View style={styles.icon}>
           <Droplets size={16} color={colors.water} />
         </View>
@@ -28,9 +30,9 @@ export function WaterMiniCard({ glasses, goalGlasses, onAdd, onOpen }: Props) {
             {glasses}
             <Text style={styles.of}> / {goalGlasses}</Text>
           </Text>
-          <Text style={styles.sub}>copos hoje</Text>
+          <Text style={styles.sub}>{tr('copos hoje')}</Text>
         </View>
-        <Pressable style={styles.add} onPress={onAdd} hitSlop={8} accessibilityLabel="Adicionar um copo">
+        <Pressable style={styles.add} onPress={onAdd} hitSlop={8} accessibilityLabel={tr('Adicionar um copo')}>
           <Plus size={18} color="#fff" />
         </Pressable>
       </View>

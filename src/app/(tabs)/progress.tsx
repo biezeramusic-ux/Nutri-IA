@@ -1,7 +1,9 @@
 import { Camera, Scale, Share2, Sparkles } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Alert, Pressable, ScrollView, Share, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Text } from '../../components/AppText';
+import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BarChart, type Bar } from '../../components/BarChart';
 import { LineChart } from '../../components/LineChart';
@@ -21,6 +23,7 @@ import { WEEKDAY_LABELS, mealsOfDay, sumMeals, weekDays } from '../../services/d
 import { buildProgressSummary } from '../../services/progressSummary';
 import { computeStreak } from '../../services/streak';
 import { buildWeeklyReport } from '../../services/weeklyReport';
+import { tr } from '../../i18n';
 
 type Period = 'week' | 'month';
 
@@ -111,7 +114,7 @@ export default function ProgressScreen() {
       await addToday(draftWeight);
       setLogging(false);
     } catch {
-      Alert.alert('Não foi possível guardar', 'Verifique a ligação à internet e tente novamente.');
+      Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet e tente novamente.'));
     }
   };
 
@@ -123,28 +126,28 @@ export default function ProgressScreen() {
   ];
 
   return (
-    <ProGate feature="Acompanhe calorias, macros e peso ao longo da semana e do mês.">
+    <ProGate feature={tr('Acompanhe calorias, macros e peso ao longo da semana e do mês.')}>
       <ScrollView
         style={styles.root}
         contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: SCREEN_PADDING, paddingBottom: TAB_BAR_SPACE + 24, gap: 14 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>Progresso 📈</Text>
+        <Text style={styles.title}>{tr('Progresso 📈')}</Text>
         <StreakCard streak={streak} />
         <SegmentedControl
           options={[
-            { key: 'week', label: 'Semana' },
-            { key: 'month', label: 'Mês' },
+            { key: 'week', label: tr('Semana') },
+            { key: 'month', label: tr('Mês') },
           ]}
           value={period}
           onChange={setPeriod}
         />
 
         <View style={styles.card}>
-          <Text style={styles.cardLabel}>Calorias · média dos dias com registos</Text>
+          <Text style={styles.cardLabel}>{tr('Calorias · média dos dias com registos')}</Text>
           <View style={styles.bigRow}>
             <Text style={styles.big}>{avgKcal}</Text>
-            <Text style={styles.unit}>kcal</Text>
+            <Text style={styles.unit}>{tr('kcal')}</Text>
             <Text style={styles.target}>Meta: {goals.calories} kcal</Text>
           </View>
           <BarChart bars={bars} goal={goals.calories} labelEvery={period === 'week' ? 1 : 5} />
@@ -153,16 +156,16 @@ export default function ProgressScreen() {
         <View style={styles.statsRow}>
           <View style={[styles.stat, { backgroundColor: colors.limeSoft, borderColor: colors.border }]}>
             <Text style={styles.statValue}>{onTarget}</Text>
-            <Text style={styles.statLabel}>dias dentro da meta</Text>
+            <Text style={styles.statLabel}>{tr('dias dentro da meta')}</Text>
           </View>
           <View style={[styles.stat, { backgroundColor: colors.waterSoft, borderColor: colors.border }]}>
             <Text style={styles.statValue}>{logged.length}</Text>
-            <Text style={styles.statLabel}>dias com registos</Text>
+            <Text style={styles.statLabel}>{tr('dias com registos')}</Text>
           </View>
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardLabel}>Macros · média diária</Text>
+          <Text style={styles.cardLabel}>{tr('Macros · média diária')}</Text>
           {macroRows.map((m) => (
             <View key={m.label} style={{ gap: 5 }}>
               <View style={styles.macroTop}>
@@ -181,16 +184,16 @@ export default function ProgressScreen() {
         <View style={styles.card}>
           <View style={styles.weightHead}>
             <Scale size={18} color={colors.primary} />
-            <Text style={styles.cardTitle}>Peso</Text>
+            <Text style={styles.cardTitle}>{tr('Peso')}</Text>
             <Pressable onPress={startLogging} style={styles.smallBtn}>
-              <Text style={styles.smallBtnText}>Registar peso</Text>
+              <Text style={styles.smallBtnText}>{tr('Registar peso')}</Text>
             </Pressable>
           </View>
           {latest ? (
             <>
               <View style={styles.bigRow}>
                 <Text style={styles.big}>{latest.weightKg.toString().replace('.', ',')}</Text>
-                <Text style={styles.unit}>kg</Text>
+                <Text style={styles.unit}>{tr('kg')}</Text>
                 {weightDelta !== null && (
                   <Text style={[styles.target, { color: colors.text }]}>
                     {weightDelta > 0 ? '+' : ''}
@@ -205,23 +208,23 @@ export default function ProgressScreen() {
                   goal={targetWeight}
                 />
               ) : (
-                <Text style={styles.muted}>Sem registos de peso neste período.</Text>
+                <Text style={styles.muted}>{tr('Sem registos de peso neste período.')}</Text>
               )}
               {targetWeight !== undefined && <Text style={styles.muted}>Peso desejado: {targetWeight.toString().replace('.', ',')} kg (linha tracejada)</Text>}
             </>
           ) : (
-            <Text style={styles.muted}>Ainda não registou o peso. Toque em "Registar peso" para começar.</Text>
+            <Text style={styles.muted}>{tr('Ainda não registou o peso. Toque em "Registar peso" para começar.')}</Text>
           )}
 
           {logging && draftWeight !== null && (
             <View style={{ gap: 10 }}>
-              <NumberStepper label="O seu peso hoje" value={draftWeight} unit="kg" min={30} max={300} step={0.5} onChange={setDraftWeight} />
+              <NumberStepper label={tr('O seu peso hoje')} value={draftWeight} unit="kg" min={30} max={300} step={0.5} onChange={setDraftWeight} />
               <View style={styles.actions}>
                 <Pressable style={styles.ghost} onPress={() => setLogging(false)}>
-                  <Text style={styles.ghostText}>Cancelar</Text>
+                  <Text style={styles.ghostText}>{tr('Cancelar')}</Text>
                 </Pressable>
                 <Pressable style={styles.primary} onPress={() => void saveWeight()}>
-                  <Text style={styles.primaryText}>Guardar</Text>
+                  <Text style={styles.primaryText}>{tr('Guardar')}</Text>
                 </Pressable>
               </View>
             </View>
@@ -243,11 +246,11 @@ export default function ProgressScreen() {
           }
         >
           <Share2 size={16} color="#fff" />
-          <Text style={styles.shareText}>Partilhar resumo da semana</Text>
+          <Text style={styles.shareText}>{tr('Partilhar resumo da semana')}</Text>
         </Pressable>
         <Pressable style={styles.photosBtn} onPress={() => router.push('/progress-photos')}>
           <Camera size={16} color={colors.primaryDark} />
-          <Text style={styles.photosText}>Fotos de progresso (antes e depois)</Text>
+          <Text style={styles.photosText}>{tr('Fotos de progresso (antes e depois)')}</Text>
         </Pressable>
       </ScrollView>
     </ProGate>

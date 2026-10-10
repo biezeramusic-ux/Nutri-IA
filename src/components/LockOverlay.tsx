@@ -2,10 +2,12 @@ import { useMemo } from 'react';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Lock } from 'lucide-react-native';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import type { LockReason } from '../types';
+import { tr } from '../i18n';
 
 const MESSAGES: Record<Exclude<LockReason, null>, { title: string; body: string }> = {
   trial_expired: {
@@ -34,7 +36,7 @@ export function LockOverlay({ reason }: { reason: Exclude<LockReason, null> }) {
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.body}>{body}</Text>
           <Pressable style={styles.button} onPress={() => router.push('/paywall')}>
-            <Text style={styles.buttonText}>Desbloquear Nutri IA</Text>
+            <Text style={styles.buttonText}>{tr('Desbloquear Nutri IA')}</Text>
           </Pressable>
         </View>
       </View>

@@ -1,7 +1,9 @@
 import { Activity, Camera, Droplets, Star, Target, UtensilsCrossed } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Alert, FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/AppText';
+import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CaloriesCard } from '../../components/CaloriesCard';
 import { LockOverlay } from '../../components/LockOverlay';
@@ -29,6 +31,7 @@ import { ensureNotificationPermission, notificationsSupported } from '../../serv
 import { reminderPitch } from '../../services/reminderPitch';
 import { computeStreak } from '../../services/streak';
 import type { Meal } from '../../types';
+import { tr } from '../../i18n';
 
 export default function HomeScreen() {
   const { colors } = useTheme();
@@ -70,7 +73,7 @@ export default function HomeScreen() {
       ? 'Premium'
       : lockReason === 'trial_expired'
         ? 'Teste terminado'
-        : `Teste: ${trialDaysLeft} d · ${scansLeftToday ?? 0} scans hoje`;
+        : tr('Teste: {days} d · {scans} scans hoje', { days: trialDaysLeft, scans: scansLeftToday ?? 0 });
 
   const remindersActive = !!profile?.waterReminders && permission.granted;
   const showReminderCard = isPro && !!profile?.onboardingCompleted && !reminderDismissed && !remindersActive;
@@ -79,14 +82,14 @@ export default function HomeScreen() {
     if (!notificationsSupported) {
       Alert.alert(
         'Disponível na app instalada',
-        'As notificações não funcionam no Expo Go. Quando instalar a app (APK), os lembretes funcionam.',
+        tr('As notificações não funcionam no Expo Go. Quando instalar a app (APK), os lembretes funcionam.'),
       );
       return;
     }
     setActivating(true);
     try {
       if (!(await ensureNotificationPermission(true))) {
-        Alert.alert('Notificações desligadas', 'Ative as notificações do Nutri IA nas definições do telemóvel.');
+        Alert.alert(tr('Notificações desligadas'), tr('Ative as notificações do Nutri IA nas definições do telemóvel.'));
         return;
       }
       if (profile) {
@@ -94,7 +97,7 @@ export default function HomeScreen() {
       }
       await permission.refresh();
     } catch {
-      Alert.alert('Não foi possível ativar', 'Verifique a ligação à internet e tente novamente.');
+      Alert.alert(tr('Não foi possível ativar'), tr('Verifique a ligação à internet e tente novamente.'));
     } finally {
       setActivating(false);
     }
@@ -111,7 +114,7 @@ export default function HomeScreen() {
     if (!text) return;
     const analysis = analyzeFromText(text);
     if (!analysis) {
-      Alert.alert('Alimento não encontrado', 'Tente por exemplo: "xima com matapa", "peixe grelhado" ou "arroz com feijão".');
+      Alert.alert(tr('Alimento não encontrado'), tr('Tente por exemplo: "xima com matapa", "peixe grelhado" ou "arroz com feijão".'));
       return;
     }
     setQuery('');
@@ -129,7 +132,7 @@ export default function HomeScreen() {
         <View style={[styles.pad, styles.header]}>
           <Logo size={34} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.hello}>{firstName ? `Olá, ${firstName} 👋` : 'Olá 👋'}</Text>
+            <Text style={styles.hello}>{firstName ? tr('Olá, {name} 👋', { name: firstName }) : tr('Olá 👋')}</Text>
             <Text style={styles.chipText}>{chipLabel}</Text>
           </View>
         </View>
@@ -163,15 +166,15 @@ export default function HomeScreen() {
           ) : (
             <Pressable style={styles.lockedCard} onPress={() => router.push('/paywall')}>
               <View style={styles.lockedHead}>
-                <Text style={styles.statTitle}>Água</Text>
+                <Text style={styles.statTitle}>{tr('Água')}</Text>
                 <ProBadge />
               </View>
               <Droplets size={22} color={colors.water} />
-              <Text style={styles.statLabel}>Registo de água e lembretes no plano Pro</Text>
+              <Text style={styles.statLabel}>{tr('Registo de água e lembretes no plano Pro')}</Text>
             </Pressable>
           )}
           <View style={styles.statCard}>
-            <Text style={styles.statTitle}>Refeições</Text>
+            <Text style={styles.statTitle}>{tr('Refeições')}</Text>
             <View>
               <Text style={styles.statValue}>{dayMeals.length}</Text>
               <Text style={styles.statLabel}>{isToday ? 'registadas hoje' : 'registadas neste dia'}</Text>
@@ -182,31 +185,31 @@ export default function HomeScreen() {
         <View style={[styles.pad, styles.shortcuts]}>
           <Pressable style={styles.shortcut} onPress={() => router.push('/goals')}>
             <Target size={18} color={colors.primary} />
-            <Text style={styles.shortcutText}>Objetivos</Text>
+            <Text style={styles.shortcutText}>{tr('Objetivos')}</Text>
           </Pressable>
           <Pressable style={styles.shortcut} onPress={() => router.push(isPro ? '/activity' : '/paywall')}>
             <Activity size={18} color={colors.primary} />
-            <Text style={styles.shortcutText}>Atividade</Text>
+            <Text style={styles.shortcutText}>{tr('Atividade')}</Text>
             {!isPro && <ProBadge />}
           </Pressable>
           <Pressable style={styles.shortcut} onPress={() => router.push(isPro ? '/water' : '/paywall')}>
             <Droplets size={18} color={colors.water} />
-            <Text style={styles.shortcutText}>Água</Text>
+            <Text style={styles.shortcutText}>{tr('Água')}</Text>
             {!isPro && <ProBadge />}
           </Pressable>
         </View>
 
         <View style={[styles.pad, { gap: 12 }]}>
-          <Text style={styles.title}>Vamos ver a sua refeição juntos</Text>
+          <Text style={styles.title}>{tr('Vamos ver a sua refeição juntos')}</Text>
           <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
           <View style={styles.links}>
             <Pressable style={styles.linkChip} onPress={() => router.push('/dishes')}>
               <UtensilsCrossed size={14} color={colors.primaryDark} />
-              <Text style={styles.linkChipText}>Pratos moçambicanos</Text>
+              <Text style={styles.linkChipText}>{tr('Pratos moçambicanos')}</Text>
             </Pressable>
             <Pressable style={styles.linkChip} onPress={() => router.push('/favorites')}>
               <Star size={14} color={colors.carbs} />
-              <Text style={styles.linkChipText}>Favoritas</Text>
+              <Text style={styles.linkChipText}>{tr('Favoritas')}</Text>
             </Pressable>
           </View>
         </View>
@@ -226,14 +229,14 @@ export default function HomeScreen() {
         </View>
 
         <View style={{ gap: 10 }}>
-          <Text style={[styles.section, styles.pad]}>Últimos scans</Text>
+          <Text style={[styles.section, styles.pad]}>{tr('Últimos scans')}</Text>
           {diaryError && <Text style={[styles.error, styles.pad]}>{diaryError}</Text>}
           {meals.length === 0 ? (
             <View style={styles.pad}>
               <View style={styles.empty}>
                 <Camera size={28} color={colors.primary} />
-                <Text style={styles.emptyTitle}>Ainda sem scans</Text>
-                <Text style={styles.emptyBody}>Toque no botão verde para fotografar a sua primeira refeição.</Text>
+                <Text style={styles.emptyTitle}>{tr('Ainda sem scans')}</Text>
+                <Text style={styles.emptyBody}>{tr('Toque no botão verde para fotografar a sua primeira refeição.')}</Text>
               </View>
             </View>
           ) : (

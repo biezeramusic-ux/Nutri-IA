@@ -1,6 +1,8 @@
+import { tr } from '../i18n';
 import { Check } from 'lucide-react-native';
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from '../components/AppText';
 import { font, formatMT, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import type { Plan } from '../types';
@@ -45,7 +47,7 @@ export function PlanCard({ plan, selected, onPress, discountPct = 0 }: Props) {
       {discountPct > 0 && <Text style={styles.old}>{formatMT(plan.priceMT)}</Text>}
       <Text style={styles.price}>{formatMT(finalPrice)}</Text>
       <Text style={styles.currency}>MT {plan.period}</Text>
-      <Text style={styles.sub}>{plan.days > 7 ? `≈ ${perMonth} MT/mês` : 'Sem compromisso'}</Text>
+      <Text style={styles.sub}>{plan.days > 7 ? tr('≈ {n} MT/mês', { n: perMonth }) : 'Sem compromisso'}</Text>
       <View style={[styles.save, savePct === 0 && { opacity: 0 }]}>
         <Text style={styles.saveText}>-{savePct}%</Text>
       </View>

@@ -1,7 +1,9 @@
 import { Lock, Mail } from 'lucide-react-native';
 import { Link } from 'expo-router';
 import { useMemo, useRef, useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
+import { Text } from '../../components/AppText';
+import { Alert } from '../../i18n/alert';
 import { AuthButton } from '../../components/AuthButton';
 import { AuthInput } from '../../components/AuthInput';
 import { AuthScreenLayout } from '../../components/AuthScreenLayout';
@@ -10,6 +12,7 @@ import { font, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { validateEmail, validatePassword } from '../../services/validation';
+import { tr } from '../../i18n';
 
 export default function LoginScreen() {
   const { colors } = useTheme();
@@ -32,7 +35,7 @@ export default function LoginScreen() {
       // Em caso de sucesso, o guard do Root Layout redireciona para a Home.
       await signIn(email, password);
     } catch (e) {
-      Alert.alert('Não foi possível entrar', e instanceof Error ? e.message : 'Tente novamente.');
+      Alert.alert(tr('Não foi possível entrar'), e instanceof Error ? e.message : 'Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -44,19 +47,19 @@ export default function LoginScreen() {
       // Em caso de sucesso, o guard do Root Layout redireciona para a Home.
       await signInWithGoogle();
     } catch (e) {
-      Alert.alert('Login com Google', e instanceof Error ? e.message : 'Tente novamente.');
+      Alert.alert(tr('Login com Google'), e instanceof Error ? e.message : 'Tente novamente.');
     } finally {
       setGoogleLoading(false);
     }
   };
 
   return (
-    <AuthScreenLayout title="Bem-vindo de volta" subtitle="Inicie sessão para continuar a contar as suas calorias.">
+    <AuthScreenLayout title={tr('Bem-vindo de volta')} subtitle={tr('Inicie sessão para continuar a contar as suas calorias.')}>
       <View style={styles.form}>
         <AuthInput
-          label="E-mail"
+          label={tr('E-mail')}
           icon={Mail}
-          placeholder="o.seu@email.com"
+          placeholder={tr('o.seu@email.com')}
           value={email}
           onChangeText={setEmail}
           error={errors.email}
@@ -70,9 +73,9 @@ export default function LoginScreen() {
         />
         <AuthInput
           ref={passwordRef}
-          label="Senha"
+          label={tr('Senha')}
           icon={Lock}
-          placeholder="A sua senha"
+          placeholder={tr('A sua senha')}
           value={password}
           onChangeText={setPassword}
           error={errors.password}
@@ -83,15 +86,13 @@ export default function LoginScreen() {
           returnKeyType="go"
           onSubmitEditing={() => void submit()}
         />
-        <AuthButton title="Entrar" onPress={() => void submit()} loading={loading} disabled={googleLoading} />
-        <GoogleButton onPress={() => void handleGoogle()} loading={googleLoading} disabled={loading} title="Continuar com Google" />
+        <AuthButton title={tr('Entrar')} onPress={() => void submit()} loading={loading} disabled={googleLoading} />
+        <GoogleButton onPress={() => void handleGoogle()} loading={googleLoading} disabled={loading} title={tr('Continuar com Google')} />
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Não tem conta? </Text>
-        <Link href="/auth/register" replace style={styles.link}>
-          Criar conta
-        </Link>
+        <Text style={styles.footerText}>{tr('Não tem conta?')} </Text>
+        <Link href="/auth/register" replace style={styles.link}>{tr('Criar conta')}</Link>
       </View>
     </AuthScreenLayout>
   );
