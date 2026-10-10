@@ -182,16 +182,19 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={[styles.pad, { gap: 12 }]}>
-          <Text style={styles.title}>{tr('Vamos ver a sua refeição juntos')}</Text>
-          <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
-          <View style={styles.links}>
-            <Pressable style={styles.linkChip} onPress={() => router.push('/favorites')}>
-              <Star size={14} color={colors.carbs} />
-              <Text style={styles.linkChipText}>{tr('Favoritas')}</Text>
-            </Pressable>
+        {/* A pesquisa de pratos só aparece depois de a pessoa registar o primeiro prato no diário. */}
+        {meals.length > 0 && (
+          <View style={[styles.pad, { gap: 12 }]}>
+            <Text style={styles.title}>{tr('Vamos ver a sua refeição juntos')}</Text>
+            <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
+            <View style={styles.links}>
+              <Pressable style={styles.linkChip} onPress={() => router.push('/favorites')}>
+                <Star size={14} color={colors.carbs} />
+                <Text style={styles.linkChipText}>{tr('Favoritas')}</Text>
+              </Pressable>
+            </View>
           </View>
-        </View>
+        )}
 
         <View style={[styles.pad, { gap: 10 }]}>
           <Text style={styles.section}>{isToday ? 'Refeições de hoje 🍽️' : 'Refeições do dia 🍽️'}</Text>
