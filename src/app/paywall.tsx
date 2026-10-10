@@ -210,13 +210,17 @@ export default function PaywallScreen() {
       </ScrollView>
 
       <View style={[styles.cta, { paddingBottom: insets.bottom + 12 }]}>
+        <View style={styles.ctaInfo}>
+          <Text style={styles.ctaPlan} numberOfLines={1}>
+            Nutri IA Pro · {tr(plan.label)}
+          </Text>
+          <Text style={styles.ctaPrice} numberOfLines={1}>
+            {formatMT(plan.priceMT)} MT {tr(plan.period)}
+          </Text>
+        </View>
         <Pressable onPress={() => setSheetOpen(true)} style={({ pressed }) => [styles.ctaBtn, pressed && { opacity: 0.9 }]}>
-          <View style={styles.ctaRow}>
-            <Lock size={16} color="#fff" />
-            <Text style={styles.ctaText}>
-              {tr(isPro ? 'Prolongar por' : 'Continuar com')} {formatMT(plan.priceMT)} MT {tr(plan.period)}
-            </Text>
-          </View>
+          <Lock size={15} color="#fff" />
+          <Text style={styles.ctaText}>{tr(isPro ? 'Prolongar' : 'Continuar')}</Text>
         </Pressable>
       </View>
 
@@ -289,8 +293,10 @@ const createStyles = (colors: ThemeColors) =>
   secure: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 6 },
   secureText: { fontSize: font.small, color: colors.textMuted },
   disclaimer: { fontSize: font.tiny, color: colors.textFaint, textAlign: 'center' },
-  cta: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: SCREEN_PADDING, paddingTop: 12 },
-  ctaBtn: { height: 50, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  ctaRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  cta: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: colors.card, borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: SCREEN_PADDING, paddingTop: 12 },
+  ctaInfo: { flex: 1, gap: 1 },
+  ctaPlan: { color: colors.textMuted, fontSize: font.small, fontWeight: '600' },
+  ctaPrice: { color: colors.text, fontSize: font.h2, fontWeight: '800' },
+  ctaBtn: { height: 50, borderRadius: radius.md, backgroundColor: '#2F5BEA', paddingHorizontal: 22, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   ctaText: { color: '#fff', fontSize: font.h3, fontWeight: '700' },
 });

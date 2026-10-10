@@ -667,6 +667,7 @@ export const en: Record<string, string> = {
   "Água, atividade e objetivos": "Water, activity and goals",
   "Pagamento": "Payment",
   "Plano ativo": "Plan active",
+  "Flexível": "Flexible",
   "Assinatura Pro 👑": "Pro subscription 👑",
   "Plano activo": "Active plan",
   "Todos os recursos Pro desbloqueados": "All Pro features unlocked",
