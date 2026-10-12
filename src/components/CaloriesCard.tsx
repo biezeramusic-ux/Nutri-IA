@@ -13,14 +13,37 @@ import { tr } from '../i18n';
 interface Props {
   goals: DailyGoals;
   consumed: Totals;
+  /** Objetivo "só saber as calorias": sem meta diária, mostra apenas o que foi consumido. */
+  noGoal?: boolean;
 }
 
 /** Cartão "Calorias restantes" com anel e barras de macros. */
-export function CaloriesCard({ goals, consumed }: Props) {
+export function CaloriesCard({ goals, consumed, noGoal = false }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const left = Math.max(0, goals.calories - consumed.kcal);
   const over = consumed.kcal > goals.calories;
+  if (noGoal) {
+    return (
+      <View style={styles.card}>
+        <View style={styles.top}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.big}>{consumed.kcal}</Text>
+            <Text style={styles.sub}>{tr('Calorias de hoje')}</Text>
+            <Text style={styles.meta}>{tr('Sem meta diária')}</Text>
+          </View>
+          <View style={styles.plainRing}>
+            <Flame size={22} color={colors.primary} />
+          </View>
+        </View>
+        <View style={styles.macros}>
+          <MacroLeftBar noGoal label={tr('Proteína')} leftG={consumed.protein} progress={1} color={colors.primary} />
+          <MacroLeftBar noGoal label={tr('Carbs')} leftG={consumed.carbs} progress={1} color={colors.carbs} />
+          <MacroLeftBar noGoal label={tr('Gordura')} leftG={consumed.fats} progress={1} color={colors.protein} />
+        </View>
+      </View>
+    );
+  }
   return (
     <View style={styles.card}>
       <View style={styles.top}>
@@ -51,5 +74,6 @@ const createStyles = (colors: ThemeColors) =>
   big: { fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: -0.8 },
   sub: { fontSize: font.body, color: colors.textMuted, fontWeight: '500' },
   meta: { fontSize: font.small, color: colors.textFaint, marginTop: 2 },
+  plainRing: { width: 76, height: 76, borderRadius: 38, borderWidth: 8, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   macros: { flexDirection: 'row', gap: 12, backgroundColor: colors.surface, borderRadius: radius.md, padding: 12 },
 });

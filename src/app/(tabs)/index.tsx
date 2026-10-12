@@ -55,14 +55,16 @@ export default function HomeScreen() {
   const dayMeals = useMemo(() => mealsOfDay(meals, selectedKey), [meals, selectedKey]);
   const consumed = useMemo(() => sumMeals(dayMeals), [dayMeals]);
 
+  const noGoal = profile?.goal === 'track_calories';
   const progressByDay = useMemo(() => {
     const byDay: Record<string, number> = {};
     meals.forEach((m) => {
       const key = dayKeyOf(m.createdAt);
-      byDay[key] = (byDay[key] ?? 0) + m.analysis.calories / goals.calories;
+      // Sem meta: o anel do dia fica cheio quando há refeições registadas.
+      byDay[key] = noGoal ? 1 : (byDay[key] ?? 0) + m.analysis.calories / goals.calories;
     });
     return byDay;
-  }, [meals, goals.calories]);
+  }, [meals, goals.calories, noGoal]);
 
   const streak = useMemo(() => computeStreak(meals), [meals]);
   const firstName = displayName.split(' ')[0];
@@ -142,7 +144,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.pad}>
-          <CaloriesCard goals={goals} consumed={consumed} />
+          <CaloriesCard goals={goals} consumed={consumed} noGoal={noGoal} />
         </View>
 
         <View style={styles.pad}>

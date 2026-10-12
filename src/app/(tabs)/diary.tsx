@@ -29,7 +29,8 @@ export default function DiaryScreen() {
   const insets = useSafeAreaInsets();
   const { meals, setCurrent, removeMeal, saveMeal, pendingCount } = useDiary();
   const { favorites } = useFavorites();
-  const { goals } = useProfile();
+  const { goals, profile } = useProfile();
+  const noGoal = profile?.goal === 'track_calories';
   const { isPro, mealsLeft, refresh } = useSubscription();
   const [selected, setSelected] = useState(() => new Date());
 
@@ -43,10 +44,10 @@ export default function DiaryScreen() {
     const byDay: Record<string, number> = {};
     meals.forEach((m) => {
       const key = dayKeyOf(m.createdAt);
-      byDay[key] = (byDay[key] ?? 0) + m.analysis.calories / goals.calories;
+      byDay[key] = noGoal ? 1 : (byDay[key] ?? 0) + m.analysis.calories / goals.calories;
     });
     return byDay;
-  }, [meals, goals.calories]);
+  }, [meals, goals.calories, noGoal]);
 
   const selectDay = (day: Date) => {
     if (!isPro && todayKey(day) !== todayKey()) {
@@ -123,7 +124,7 @@ export default function DiaryScreen() {
           <View>
             <Text style={styles.cardLabel}>{isToday ? 'Total de hoje' : 'Total do dia'}</Text>
             <Text style={styles.big}>
-              {totals.kcal} <Text style={styles.unit}>/ {goals.calories} kcal</Text>
+              {totals.kcal} <Text style={styles.unit}>{noGoal ? 'kcal' : `/ ${goals.calories} kcal`}</Text>
             </Text>
           </View>
           {score !== null && (
@@ -132,9 +133,11 @@ export default function DiaryScreen() {
             </View>
           )}
         </View>
-        <View style={styles.track}>
-          <View style={[styles.fill, { width: `${kcalPct * 100}%`, backgroundColor: totals.kcal > goals.calories ? colors.danger : colors.primary }]} />
-        </View>
+        {!noGoal && (
+          <View style={styles.track}>
+            <View style={[styles.fill, { width: `${kcalPct * 100}%`, backgroundColor: totals.kcal > goals.calories ? colors.danger : colors.primary }]} />
+          </View>
+        )}
         <View style={styles.macros}>
           <View style={styles.macro}>
             <Text style={styles.macroValue}>{totals.carbs}g</Text>

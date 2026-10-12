@@ -76,6 +76,7 @@ export default function ProgressScreen() {
   const avgProtein = avg((t) => t.protein);
   const avgCarbs = avg((t) => t.carbs);
   const avgFats = avg((t) => t.fats);
+  const noGoal = profile?.goal === 'track_calories';
   const onTarget = logged.filter((d) => {
     const p = d.totals.kcal / goals.calories;
     return p >= 0.8 && p <= 1.1;
@@ -86,7 +87,7 @@ export default function ProgressScreen() {
     label: d.label,
     value: d.totals.kcal,
     highlight: d.isToday,
-    caption: `${Math.round((d.totals.kcal / goals.calories) * 100)}%`,
+    caption: noGoal ? undefined : `${Math.round((d.totals.kcal / goals.calories) * 100)}%`,
   }));
 
   const sinceKey = todayKey(lastDays(period === 'week' ? 7 : 30)[0]);
@@ -177,16 +178,18 @@ export default function ProgressScreen() {
           <View style={styles.bigRow}>
             <Text style={styles.big}>{avgKcal}</Text>
             <Text style={styles.unit}>{tr('kcal')}</Text>
-            <Text style={styles.target}>Meta: {goals.calories} kcal</Text>
+            {!noGoal && <Text style={styles.target}>Meta: {goals.calories} kcal</Text>}
           </View>
-          <BarChart bars={bars} goal={goals.calories} labelEvery={period === 'week' ? 1 : 5} />
+          <BarChart bars={bars} goal={noGoal ? undefined : goals.calories} labelEvery={period === 'week' ? 1 : 5} />
         </View>
 
         <View style={styles.statsRow}>
-          <View style={[styles.stat, { backgroundColor: colors.limeSoft, borderColor: colors.border }]}>
-            <Text style={styles.statValue}>{onTarget}</Text>
-            <Text style={styles.statLabel}>{tr('dias dentro da meta')}</Text>
-          </View>
+          {!noGoal && (
+            <View style={[styles.stat, { backgroundColor: colors.limeSoft, borderColor: colors.border }]}>
+              <Text style={styles.statValue}>{onTarget}</Text>
+              <Text style={styles.statLabel}>{tr('dias dentro da meta')}</Text>
+            </View>
+          )}
           <View style={[styles.stat, { backgroundColor: colors.waterSoft, borderColor: colors.border }]}>
             <Text style={styles.statValue}>{logged.length}</Text>
             <Text style={styles.statLabel}>{tr('dias com registos')}</Text>
@@ -200,12 +203,14 @@ export default function ProgressScreen() {
               <View style={styles.macroTop}>
                 <Text style={styles.macroName}>{m.label}</Text>
                 <Text style={styles.macroValue}>
-                  {m.value} g <Text style={styles.macroGoal}>/ {m.goal} g</Text>
+                  {m.value} g {!noGoal && <Text style={styles.macroGoal}>/ {m.goal} g</Text>}
                 </Text>
               </View>
-              <View style={styles.track}>
-                <View style={[styles.fill, { width: `${Math.min(1, m.value / m.goal) * 100}%`, backgroundColor: m.color }]} />
-              </View>
+              {!noGoal && (
+                <View style={styles.track}>
+                  <View style={[styles.fill, { width: `${Math.min(1, m.value / m.goal) * 100}%`, backgroundColor: m.color }]} />
+                </View>
+              )}
             </View>
           ))}
         </View>
