@@ -20,9 +20,6 @@ export function buildProgressSummary(i: Input): string {
   if (i.daysLogged === 0) {
     return tr(i.periodLabel === 'semana' ? 'Ainda não há refeições registadas nesta semana. Fotografe a sua próxima refeição para começar a ver o progresso.' : 'Ainda não há refeições registadas neste mês. Fotografe a sua próxima refeição para começar a ver o progresso.');
   }
-  if (i.goal === 'track_calories') {
-    return tr('Em média registou {kcal} kcal por dia, em {days} dias com refeições.', { kcal: Math.round(i.avgKcal), days: i.daysLogged });
-  }
   const parts: string[] = [];
   const ratio = i.avgKcal / i.goalKcal;
   if (ratio < 0.8) parts.push(tr('Em média comeu abaixo da meta de calorias ({pct}%).', { pct: Math.round(ratio * 100) }));

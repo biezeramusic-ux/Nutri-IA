@@ -165,28 +165,24 @@ export default function ProfileScreen() {
         <Pressable style={styles.card} onPress={() => router.push('/goals')} accessibilityRole="button">
           <Text style={styles.cardTitle}>{tr('O meu plano diário')}</Text>
           <Text style={styles.goal}>{profile?.goal ? GOAL_LABEL[profile.goal] : 'Quiz por fazer'}</Text>
-          {profile?.goal === 'track_calories' ? (
-            <Text style={styles.goal}>{tr('Sem meta diária: a app mostra as calorias dos seus pratos.')}</Text>
-          ) : (
-            <View style={styles.planRow}>
-              <View style={styles.planItem}>
-                <Text style={styles.planValue}>{goals.calories}</Text>
-                <Text style={styles.planLabel}>{tr('kcal')}</Text>
-              </View>
-              <View style={styles.planItem}>
-                <Text style={[styles.planValue, { color: colors.protein }]}>{goals.proteinG}g</Text>
-                <Text style={styles.planLabel}>{tr('proteína')}</Text>
-              </View>
-              <View style={styles.planItem}>
-                <Text style={[styles.planValue, { color: colors.carbs }]}>{goals.carbsG}g</Text>
-                <Text style={styles.planLabel}>{tr('carbs')}</Text>
-              </View>
-              <View style={styles.planItem}>
-                <Text style={[styles.planValue, { color: colors.fats }]}>{goals.fatsG}g</Text>
-                <Text style={styles.planLabel}>{tr('gordura')}</Text>
-              </View>
+          <View style={styles.planRow}>
+            <View style={styles.planItem}>
+              <Text style={styles.planValue}>{goals.calories}</Text>
+              <Text style={styles.planLabel}>{tr('kcal')}</Text>
             </View>
-          )}
+            <View style={styles.planItem}>
+              <Text style={[styles.planValue, { color: colors.protein }]}>{goals.proteinG}g</Text>
+              <Text style={styles.planLabel}>{tr('proteína')}</Text>
+            </View>
+            <View style={styles.planItem}>
+              <Text style={[styles.planValue, { color: colors.carbs }]}>{goals.carbsG}g</Text>
+              <Text style={styles.planLabel}>{tr('carbs')}</Text>
+            </View>
+            <View style={styles.planItem}>
+              <Text style={[styles.planValue, { color: colors.fats }]}>{goals.fatsG}g</Text>
+              <Text style={styles.planLabel}>{tr('gordura')}</Text>
+            </View>
+          </View>
         </Pressable>
 
         <Text style={styles.section}>{tr('Atalhos')}</Text>
