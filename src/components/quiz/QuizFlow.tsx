@@ -3,7 +3,6 @@ import {
   Activity,
   Camera,
   ArrowLeft,
-  Crown,
   Droplets,
   Dumbbell,
   Footprints,
@@ -38,6 +37,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
 import { QuizChip } from './QuizChip';
+import { CrownMark } from '../CrownMark';
 import { Logo } from '../Logo';
 import { QuizRow } from './QuizRow';
 import { YesNoRow } from './YesNoRow';
@@ -276,8 +276,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
       >
         {current === 'goal' && (
           <View style={styles.brand}>
-            <Logo size={44} />
-            <Crown size={26} color="#FBBF24" fill="#FBBF24" strokeWidth={1.5} />
+            <Logo size={36} />
+            <CrownMark size={14} />
           </View>
         )}
         <Text style={styles.section}>{current ? tr(SECTION[current]) : ''}</Text>
@@ -412,7 +412,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  brand: { alignItems: 'center', gap: 4 },
+  brand: { alignItems: 'center', gap: 2, marginBottom: -6 },
   section: { textAlign: 'center', fontSize: font.h3, fontWeight: '600', color: colors.text, marginBottom: 4 },
   progress: { flex: 1, flexDirection: 'row', gap: 4 },
   segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border },
