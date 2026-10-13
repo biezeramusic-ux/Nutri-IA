@@ -67,8 +67,6 @@ const GOAL_ROWS: { id: string; goal: GoalType; title: string }[] = [
   { id: 'muscle', goal: 'gain_muscle', title: 'Ganhar massa muscular' },
   { id: 'maintain', goal: 'maintain', title: 'Manter o meu peso' },
   { id: 'diet', goal: 'eat_healthy', title: 'Melhorar a minha alimentação' },
-  { id: 'active', goal: 'maintain', title: 'Ter um estilo de vida ativo' },
-  { id: 'scan', goal: 'track_calories', title: 'Escanear os meus pratos para saber as kcal' },
 ];
 
 
@@ -160,7 +158,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const { displayName } = useAuth();
   const [step, setStep] = useState(0);
   const [base, setBase] = useState<Base>(profile?.quiz ?? DEFAULTS);
-  const idForGoal = (g: GoalType) => GOAL_ROWS.find((r) => r.goal === g)?.id;
+  // Quem tinha escolhido "só saber as calorias" (opção retirada) volta a ver "Manter o meu peso" marcado.
+  const idForGoal = (g: GoalType) => GOAL_ROWS.find((r) => r.goal === (g === 'track_calories' ? 'maintain' : g))?.id;
   const [pickedIds, setPickedIds] = useState<string[]>(() => {
     const id = profile?.quiz ? idForGoal(profile.quiz.goal) : undefined;
     return id ? [id] : [];
