@@ -60,13 +60,17 @@ function stepsFor(goal: GoalType): Step[] {
   }
 }
 
-const GOALS: { value: GoalType; icon: typeof Scale; title: string; subtitle: string }[] = [
-  { value: 'lose_weight', icon: Scale, title: 'Perder peso', subtitle: 'Défice calórico saudável' },
-  { value: 'track_calories', icon: Camera, title: 'Escanear os meus pratos para saber as kcal', subtitle: 'Para ter uma alimentação saudável' },
-  { value: 'maintain', icon: HeartPulse, title: 'Manter o meu peso', subtitle: 'Equilíbrio no dia a dia' },
-  { value: 'gain_muscle', icon: Dumbbell, title: 'Ganhar massa muscular', subtitle: 'Mais proteína e energia' },
-  { value: 'eat_healthy', icon: Leaf, title: 'Comer mais saudável', subtitle: 'Melhores escolhas' },
+/** Metas que a pessoa pode escolher (até 3). Cada uma corresponde a um tipo de objetivo da app. */
+const GOAL_ROWS: { id: string; goal: GoalType; title: string }[] = [
+  { id: 'lose', goal: 'lose_weight', title: 'Perder peso' },
+  { id: 'gain', goal: 'gain_muscle', title: 'Ganhar peso' },
+  { id: 'muscle', goal: 'gain_muscle', title: 'Ganhar massa muscular' },
+  { id: 'maintain', goal: 'maintain', title: 'Manter o meu peso' },
+  { id: 'diet', goal: 'eat_healthy', title: 'Melhorar a minha alimentação' },
+  { id: 'active', goal: 'maintain', title: 'Ter um estilo de vida ativo' },
+  { id: 'scan', goal: 'track_calories', title: 'Escanear os meus pratos para saber as kcal' },
 ];
+
 
 const ACTIVITIES: { value: ActivityLevel; icon: typeof Scale; title: string; subtitle: string }[] = [
   { value: 'sedentary', icon: Sofa, title: 'Pouco ativo', subtitle: 'Trabalho sentado, quase sem exercício' },
@@ -156,8 +160,13 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const { displayName } = useAuth();
   const [step, setStep] = useState(0);
   const [base, setBase] = useState<Base>(profile?.quiz ?? DEFAULTS);
-  const [pickedGoals, setPickedGoals] = useState<GoalType[]>(profile?.quiz ? [profile.quiz.goal] : []);
-  const goalPicked = pickedGoals.length > 0;
+  const idForGoal = (g: GoalType) => GOAL_ROWS.find((r) => r.goal === g)?.id;
+  const [pickedIds, setPickedIds] = useState<string[]>(() => {
+    const id = profile?.quiz ? idForGoal(profile.quiz.goal) : undefined;
+    return id ? [id] : [];
+  });
+  const pickedGoals = useMemo(() => GOAL_ROWS.filter((r) => pickedIds.includes(r.id)).map((r) => r.goal), [pickedIds]);
+  const goalPicked = pickedIds.length > 0;
   const [habits, setHabits] = useState<HabitAnswers>(profile?.quiz?.habits ?? {});
   const [saving, setSaving] = useState(false);
   const touched = useRef(false);
@@ -167,7 +176,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     if (profile?.quiz && !touched.current) {
       setBase(profile.quiz);
       setHabits(profile.quiz.habits);
-      setPickedGoals([profile.quiz.goal]);
+      const id = idForGoal(profile.quiz.goal);
+      if (id) setPickedIds([id]);
     }
   }, [profile?.quiz]);
 
@@ -209,14 +219,13 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const canContinue = current === 'goal' ? goalPicked : current === 'habits' ? answeredAllHabits : true;
 
   // Até 3 metas; a principal (que define as calorias) segue esta ordem de prioridade.
-  const toggleGoal = (g: GoalType) => {
+  const toggleGoal = (id: string) => {
     touched.current = true;
-    setPickedGoals((prev) => {
-      const next = prev.includes(g) ? prev.filter((x) => x !== g) : prev.length >= 3 ? prev : [...prev, g];
-      const main = GOAL_PRIORITY.find((p) => next.includes(p));
-      if (main) setBase((b) => ({ ...b, goal: main }));
-      return next;
-    });
+    const next = pickedIds.includes(id) ? pickedIds.filter((x) => x !== id) : pickedIds.length >= 3 ? pickedIds : [...pickedIds, id];
+    setPickedIds(next);
+    const nextGoals = GOAL_ROWS.filter((r) => next.includes(r.id)).map((r) => r.goal);
+    const main = GOAL_PRIORITY.find((p) => nextGoals.includes(p));
+    if (main) setBase((b) => ({ ...b, goal: main }));
   };
 
   const goBack = () => {
@@ -279,8 +288,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         )}
 
         {current === 'goal' &&
-          GOALS.map((g) => (
-            <QuizRow key={g.value} multi title={g.title} selected={pickedGoals.includes(g.value)} onPress={() => toggleGoal(g.value)} />
+          GOAL_ROWS.map((g) => (
+            <QuizRow key={g.id} multi title={g.title} selected={pickedIds.includes(g.id)} onPress={() => toggleGoal(g.id)} />
           ))}
 
         {current === 'about' && (
