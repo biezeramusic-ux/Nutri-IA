@@ -5,7 +5,7 @@ export const GOAL_LABEL: Record<GoalType, string> = {
   maintain: 'Manter o peso',
   gain_muscle: 'Ganhar massa muscular',
   eat_healthy: 'Comer mais saudável',
-  track_calories: 'Saber as calorias dos meus pratos',
+  track_calories: 'Escanear pratos e saber as kcal',
 };
 
 export const ACTIVITY_LABEL: Record<ActivityLevel, string> = {

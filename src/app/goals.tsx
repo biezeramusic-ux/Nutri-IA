@@ -18,7 +18,7 @@ import { tr } from '../i18n';
 
 const GOALS: { value: GoalType; icon: typeof Scale; title: string; subtitle: string }[] = [
   { value: 'lose_weight', icon: Scale, title: 'Perder peso', subtitle: 'Défice calórico saudável' },
-  { value: 'track_calories', icon: Camera, title: 'Saber as calorias dos meus pratos', subtitle: 'Scanner e diário alimentar' },
+  { value: 'track_calories', icon: Camera, title: 'Escanear os meus pratos para saber as kcal', subtitle: 'Para ter uma alimentação saudável' },
   { value: 'maintain', icon: HeartPulse, title: 'Manter o meu peso', subtitle: 'Equilíbrio no dia a dia' },
   { value: 'gain_muscle', icon: Dumbbell, title: 'Ganhar massa muscular', subtitle: 'Mais proteína e energia' },
   { value: 'eat_healthy', icon: Leaf, title: 'Comer mais saudável', subtitle: 'Melhores escolhas' },
