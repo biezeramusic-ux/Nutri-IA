@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import {
   Activity,
   Camera,
-  ChevronLeft,
+  ArrowLeft,
   Droplets,
   Dumbbell,
   Footprints,
@@ -37,7 +37,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
 import { QuizChip } from './QuizChip';
-import { QuizOption } from './QuizOption';
+import { QuizRow } from './QuizRow';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
@@ -102,7 +102,7 @@ const DIETS: { value: DietPreference; label: string }[] = [
 ];
 
 const COPY: Record<Step, { title: string; subtitle?: string }> = {
-  goal: { title: 'O que veio procurar no Nutri IA?', subtitle: 'Vamos adaptar tudo ao seu objetivo.' },
+  goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
   about: { title: 'Fale-nos de si', subtitle: 'Usamos isto para calcular as suas calorias.' },
   body: { title: 'A sua altura e peso', subtitle: 'Pode ajustar mais tarde no Perfil.' },
   activity: { title: 'Como é o seu dia a dia?', subtitle: 'Quanto mais ativo, mais calorias e água precisa.' },
@@ -110,6 +110,20 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
   habits: { title: 'Os seus hábitos', subtitle: 'Responda sim ou não.' },
   diet: { title: 'Restrições e alergias', subtitle: 'Opcional. Escolha o que se aplica.' },
   staples: { title: 'O que come mais no dia a dia?', subtitle: 'Opcional. Ajuda-nos a sugerir melhores escolhas.' },
+};
+
+/** Quando há várias metas, a primeira desta lista é a que define as calorias. */
+const GOAL_PRIORITY: GoalType[] = ['lose_weight', 'gain_muscle', 'maintain', 'eat_healthy', 'track_calories'];
+
+const SECTION: Record<Step, string> = {
+  goal: 'Metas',
+  about: 'Sobre si',
+  body: 'Medidas',
+  activity: 'Atividade',
+  health: 'Saúde',
+  habits: 'Hábitos',
+  diet: 'Alimentação',
+  staples: 'Rotina alimentar',
 };
 
 type Base = Omit<QuizAnswers, 'habits'>;
@@ -142,7 +156,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const { displayName } = useAuth();
   const [step, setStep] = useState(0);
   const [base, setBase] = useState<Base>(profile?.quiz ?? DEFAULTS);
-  const [goalPicked, setGoalPicked] = useState(!!profile?.quiz);
+  const [pickedGoals, setPickedGoals] = useState<GoalType[]>(profile?.quiz ? [profile.quiz.goal] : []);
+  const goalPicked = pickedGoals.length > 0;
   const [habits, setHabits] = useState<HabitAnswers>(profile?.quiz?.habits ?? {});
   const [saving, setSaving] = useState(false);
   const touched = useRef(false);
@@ -152,7 +167,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     if (profile?.quiz && !touched.current) {
       setBase(profile.quiz);
       setHabits(profile.quiz.habits);
-      setGoalPicked(true);
+      setPickedGoals([profile.quiz.goal]);
     }
   }, [profile?.quiz]);
 
@@ -162,7 +177,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   };
 
   // O peso desejado só faz sentido para quem quer perder peso ou ganhar massa.
-  const wantsTarget = base.goal === 'lose_weight' || base.goal === 'gain_muscle';
+  const wantsTarget = pickedGoals.includes('lose_weight') || pickedGoals.includes('gain_muscle');
 
   // Até escolher o objetivo, mostra o percurso completo; depois ajusta-se ao objetivo.
   const steps = useMemo(() => (goalPicked ? stepsFor(base.goal) : FULL_STEPS), [goalPicked, base.goal]);
@@ -192,6 +207,17 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 
   const current: Step | null = step < steps.length ? steps[step] : null;
   const canContinue = current === 'goal' ? goalPicked : current === 'habits' ? answeredAllHabits : true;
+
+  // Até 3 metas; a principal (que define as calorias) segue esta ordem de prioridade.
+  const toggleGoal = (g: GoalType) => {
+    touched.current = true;
+    setPickedGoals((prev) => {
+      const next = prev.includes(g) ? prev.filter((x) => x !== g) : prev.length >= 3 ? prev : [...prev, g];
+      const main = GOAL_PRIORITY.find((p) => next.includes(p));
+      if (main) setBase((b) => ({ ...b, goal: main }));
+      return next;
+    });
+  };
 
   const goBack = () => {
     if (step > 0) setStep(step - 1);
@@ -238,23 +264,11 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.topRow}>
-          <Pressable
-            onPress={goBack}
-            style={[styles.back, step === 0 && mode === 'first' && styles.hidden]}
-            disabled={step === 0 && mode === 'first'}
-            accessibilityLabel={tr('Voltar')}
-          >
-            <ChevronLeft size={20} color={colors.text} />
-          </Pressable>
-          <View style={styles.progress}>
-            {steps.map((s, i) => (
-              <View key={s} style={[styles.segment, i <= Math.min(step, steps.length - 1) && styles.segmentOn]} />
-            ))}
-          </View>
-          <Text style={styles.count}>
-            {Math.min(step + 1, steps.length)}/{steps.length}
-          </Text>
+        <Text style={styles.section}>{current ? tr(SECTION[current]) : ''}</Text>
+        <View style={styles.progress}>
+          {steps.map((s, i) => (
+            <View key={s} style={[styles.segment, i <= Math.min(step, steps.length - 1) && styles.segmentOn]} />
+          ))}
         </View>
 
         {copy && (
@@ -266,23 +280,13 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 
         {current === 'goal' &&
           GOALS.map((g) => (
-            <QuizOption
-              key={g.value}
-              icon={g.icon}
-              title={g.title}
-              subtitle={g.subtitle}
-              selected={goalPicked && base.goal === g.value}
-              onPress={() => {
-                update('goal', g.value);
-                setGoalPicked(true);
-              }}
-            />
+            <QuizRow key={g.value} multi title={g.title} selected={pickedGoals.includes(g.value)} onPress={() => toggleGoal(g.value)} />
           ))}
 
         {current === 'about' && (
           <>
-            <QuizOption icon={UserRound} title={tr('Mulher')} selected={base.sex === 'female'} onPress={() => update('sex', 'female')} />
-            <QuizOption icon={UserRound} title={tr('Homem')} selected={base.sex === 'male'} onPress={() => update('sex', 'male')} />
+            <QuizRow title={tr('Mulher')} selected={base.sex === 'female'} onPress={() => update('sex', 'female')} />
+            <QuizRow title={tr('Homem')} selected={base.sex === 'male'} onPress={() => update('sex', 'male')} />
             <NumberStepper label={tr('Idade')} value={base.age} unit="anos" min={10} max={100} onChange={(v) => update('age', v)} />
           </>
         )}
@@ -299,9 +303,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 
         {current === 'activity' &&
           ACTIVITIES.map((a) => (
-            <QuizOption
+            <QuizRow
               key={a.value}
-              icon={a.icon}
               title={a.title}
               subtitle={a.subtitle}
               selected={base.activity === a.value}
@@ -367,6 +370,14 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         <Pressable
+          onPress={goBack}
+          disabled={step === 0 && mode === 'first'}
+          style={[styles.backBtn, step === 0 && mode === 'first' && styles.backOff]}
+          accessibilityLabel={tr('Voltar')}
+        >
+          <ArrowLeft size={22} color={colors.primaryDark} />
+        </Pressable>
+        <Pressable
           disabled={!canContinue || saving}
           style={({ pressed }) => [styles.cta, (!canContinue || saving) && styles.ctaOff, pressed && styles.ctaPressed]}
           onPress={() => setStep(step + 1)}
@@ -374,9 +385,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           {saving ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.ctaText}>
-              {step === steps.length - 1 ? 'Ver o meu plano' : 'Continuar'}
-            </Text>
+            <Text style={styles.ctaText}>{step === steps.length - 1 ? 'Ver o meu plano' : 'Próximo'}</Text>
           )}
         </Pressable>
       </View>
@@ -387,13 +396,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  topRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  back: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
-  hidden: { opacity: 0 },
+  section: { textAlign: 'center', fontSize: font.h3, fontWeight: '600', color: colors.text, marginBottom: 4 },
   progress: { flex: 1, flexDirection: 'row', gap: 4 },
-  segment: { flex: 1, height: 4, borderRadius: 2, backgroundColor: colors.border },
+  segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border },
   segmentOn: { backgroundColor: colors.primary },
-  count: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
   head: { gap: 4, marginTop: 8, marginBottom: 4 },
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   subtitle: { fontSize: font.body, color: colors.textMuted, lineHeight: 20 },
@@ -410,8 +416,10 @@ const createStyles = (colors: ThemeColors) =>
   tips: { ...cardBase(colors), borderRadius: radius.lg, padding: 14, gap: 6 },
   tipsTitle: { fontSize: font.body, fontWeight: '600', color: colors.text },
   tip: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
-  footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: SCREEN_PADDING, paddingTop: 10, backgroundColor: colors.background },
-  cta: { height: 48, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  footer: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: SCREEN_PADDING, paddingTop: 10, backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border },
+  backBtn: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  backOff: { opacity: 0.35 },
+  cta: { flex: 1, height: 56, borderRadius: 28, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   ctaOff: { opacity: 0.45 },
   ctaPressed: { opacity: 0.9 },
   ctaText: { color: '#fff', fontSize: font.h3, fontWeight: '600' },
