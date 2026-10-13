@@ -412,7 +412,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  brand: { alignItems: 'center', gap: 2, marginBottom: -6 },
+  brand: { alignItems: 'center', gap: 0, marginBottom: -11 },
   section: { textAlign: 'center', fontSize: font.h3, fontWeight: '600', color: colors.text, marginBottom: 4 },
   progress: { flex: 1, flexDirection: 'row', gap: 4 },
   segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border },
