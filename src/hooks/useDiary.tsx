@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { AppState } from 'react-native';
 import { deleteMealById, insertMeal, listMeals } from '../services/repositories/meals';
-import type { Meal } from '../types';
+import type { Meal, MealType } from '../types';
 import { useAuth } from './useAuth';
 
 interface DiaryContextValue {
@@ -49,6 +49,18 @@ async function loadPending(userId: string): Promise<Meal[]> {
 const storePending = (userId: string, items: Meal[]) =>
   AsyncStorage.setItem(pendingKey(userId), JSON.stringify(items)).catch(() => undefined);
 
+const typesKey = (userId: string) => `nutria.meal-types.${userId}`;
+
+async function loadTypes(userId: string): Promise<Record<string, MealType>> {
+  try {
+    const raw = await AsyncStorage.getItem(typesKey(userId));
+    const parsed: unknown = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, MealType>) : {};
+  } catch {
+    return {};
+  }
+}
+
 const DiaryContext = createContext<DiaryContextValue | null>(null);
 
 export function DiaryProvider({ children }: { children: ReactNode }) {
@@ -60,22 +72,26 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<Meal[]>([]);
   const flushing = useRef(false);
+  // Refeição escolhida no scanner para cada registo (id -> tipo). Fica só no telemóvel.
+  const types = useRef<Record<string, MealType>>({});
+  const withType = useCallback((m: Meal): Meal => (types.current[m.id] ? { ...m, mealType: types.current[m.id] } : m), []);
 
   const refresh = useCallback(async () => {
     if (!userId) return;
     setLoading(true);
     try {
+      types.current = await loadTypes(userId);
       const queued = await loadPending(userId);
       setPending(queued);
       const remote = await listMeals();
-      setMeals([...queued.filter((q) => !remote.some((r) => r.id === q.id)), ...remote]);
+      setMeals([...queued.filter((q) => !remote.some((r) => r.id === q.id)), ...remote].map(withType));
       setError(null);
     } catch {
       setError('Não foi possível carregar o histórico. Verifique a ligação.');
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, withType]);
 
   useEffect(() => {
     if (!userId) {
@@ -98,7 +114,12 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
       for (const meal of queue) {
         try {
           const saved = await insertMeal(userId, meal);
-          setMeals((prev) => [saved, ...prev.filter((m) => m.id !== meal.id && m.id !== saved.id)]);
+          const t = meal.mealType ?? types.current[meal.id];
+          if (t && saved.id !== meal.id) {
+            types.current = { ...types.current, [saved.id]: t };
+            await AsyncStorage.setItem(typesKey(userId), JSON.stringify(types.current)).catch(() => undefined);
+          }
+          setMeals((prev) => [withType(saved), ...prev.filter((m) => m.id !== meal.id && m.id !== saved.id)]);
         } catch (e) {
           const message = e instanceof Error ? e.message : '';
           if (LIMIT_ERROR.test(message)) {
@@ -114,7 +135,7 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
     } finally {
       flushing.current = false;
     }
-  }, [userId]);
+  }, [userId, withType]);
 
   useEffect(() => {
     if (!userId) return;
@@ -132,9 +153,15 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
   const saveMeal = useCallback(
     async (meal: Meal) => {
       if (!userId) throw new Error('Sessão inválida. Inicie sessão novamente.');
+      const rememberType = async (id: string) => {
+        if (!meal.mealType) return;
+        types.current = { ...types.current, [id]: meal.mealType };
+        await AsyncStorage.setItem(typesKey(userId), JSON.stringify(types.current)).catch(() => undefined);
+      };
       try {
         const saved = await insertMeal(userId, meal);
-        setMeals((prev) => [saved, ...prev.filter((m) => m.id !== saved.id)]);
+        await rememberType(saved.id);
+        setMeals((prev) => [withType(saved), ...prev.filter((m) => m.id !== saved.id)]);
       } catch (e) {
         const message = e instanceof Error ? e.message : '';
         if (!NETWORK_ERROR.test(message) || LIMIT_ERROR.test(message)) throw e;
@@ -142,10 +169,11 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
         const queued = [...(await loadPending(userId)).filter((m) => m.id !== meal.id), meal];
         await storePending(userId, queued);
         setPending(queued);
+        await rememberType(meal.id);
         setMeals((prev) => [meal, ...prev.filter((m) => m.id !== meal.id)]);
       }
     },
-    [userId],
+    [userId, withType],
   );
 
   const removeMeal = useCallback(

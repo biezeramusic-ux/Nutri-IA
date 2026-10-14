@@ -20,6 +20,9 @@ export function getMealType(timestamp: number): MealType {
   return 'dinner';
 }
 
+/** Tipo da refeição: o escolhido no scanner ou, se não houver, o da hora do registo. */
+export const mealTypeOf = (m: Meal): MealType => m.mealType ?? getMealType(m.createdAt);
+
 export const MEAL_TYPES: { type: MealType; label: string; icon: LucideIcon; emoji: string }[] = [
   { type: 'breakfast', label: 'Pequeno-almoço', icon: Coffee, emoji: '🥐' },
   { type: 'lunch', label: 'Almoço', icon: UtensilsCrossed, emoji: '🍲' },

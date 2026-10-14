@@ -37,6 +37,8 @@ export interface Meal {
   analysis: FoodAnalysis;
   ingredients: Ingredient[];
   photoUri?: string;
+  /** Refeição escolhida no scanner (senão deduz-se pela hora). Guardada no telemóvel. */
+  mealType?: MealType;
 }
 
 export type PlanId = 'weekly' | 'monthly' | 'yearly';

@@ -15,7 +15,7 @@ import { useFavorites } from '../../hooks/useFavorites';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { todayKey } from '../../services/date';
-import { MEAL_TYPES, dayKeyOf, getMealType, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
+import { MEAL_TYPES, dayKeyOf, mealTypeOf, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
 import { favoriteToMeal } from '../../services/favorites';
 import { mealEmoji } from '../../services/foodCatalog';
 import { dayScore } from '../../services/healthScore';
@@ -178,7 +178,7 @@ export default function DiaryScreen() {
       )}
 
       {MEAL_TYPES.map((t) => {
-        const list = dayMeals.filter((m) => getMealType(m.createdAt) === t.type);
+        const list = dayMeals.filter((m) => mealTypeOf(m) === t.type);
         const kcal = list.reduce((s, m) => s + m.analysis.calories, 0);
         return (
           <View key={t.type} style={styles.section}>
@@ -188,7 +188,7 @@ export default function DiaryScreen() {
               </View>
               <Text style={styles.sectionTitle}>{t.label}</Text>
               <Text style={styles.sectionKcal}>{kcal > 0 ? `${kcal} kcal` : ''}</Text>
-              <Pressable style={styles.add} onPress={() => router.navigate('/scanner')} hitSlop={8} accessibilityLabel={`Adicionar ${t.label}`}>
+              <Pressable style={styles.add} onPress={() => router.navigate({ pathname: '/scanner', params: { meal: t.type } })} hitSlop={8} accessibilityLabel={`Adicionar ${t.label}`}>
                 <Plus size={16} color={colors.text} />
               </Pressable>
             </View>

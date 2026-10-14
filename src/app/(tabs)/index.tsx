@@ -25,7 +25,7 @@ import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { useWater } from '../../hooks/useWater';
 import { todayKey } from '../../services/date';
-import { MEAL_TYPES, dayKeyOf, getMealType, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
+import { MEAL_TYPES, dayKeyOf, mealTypeOf, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
 import { analyzeFromText, buildMeal } from '../../services/foodCatalog';
 import { ensureNotificationPermission, notificationsSupported } from '../../services/notifications';
 import { reminderPitch } from '../../services/reminderPitch';
@@ -203,8 +203,8 @@ export default function HomeScreen() {
               key={t.type}
               label={t.label}
               emoji={t.emoji}
-              meals={dayMeals.filter((m) => getMealType(m.createdAt) === t.type)}
-              onAdd={() => router.navigate('/scanner')}
+              meals={dayMeals.filter((m) => mealTypeOf(m) === t.type)}
+              onAdd={() => router.navigate({ pathname: '/scanner', params: { meal: t.type } })}
               onOpenMeal={openMeal}
             />
           ))}

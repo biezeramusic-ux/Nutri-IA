@@ -1,8 +1,8 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Camera, X } from 'lucide-react-native';
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
@@ -17,7 +17,8 @@ import { buildMeal, macroPercentages } from '../../services/foodCatalog';
 import { recognizeFood } from '../../services/foodRecognition';
 import { compressImage } from '../../services/imageCompressor';
 import { scheduleMealWaterNudge } from '../../services/notifications';
-import type { Meal } from '../../types';
+import { MEAL_TYPES, getMealType } from '../../services/dayUtils';
+import type { Meal, MealType } from '../../types';
 import { tr } from '../../i18n';
 
 export default function ScannerScreen() {
@@ -32,6 +33,18 @@ export default function ScannerScreen() {
   const [busy, setBusy] = useState(false);
   const [meal, setMeal] = useState<Meal | null>(null);
   const [fallback, setFallback] = useState(false);
+  // A refeição vem do botão "+" do diário (ex.: Lanche); senão deduz-se pela hora.
+  const { meal: mealParam } = useLocalSearchParams<{ meal?: string }>();
+  const [mealType, setMealType] = useState<MealType>(() => getMealType(Date.now()));
+  // Refeição vinda do botão "+" (uma só vez) e, ao sair do scanner, volta à da hora atual.
+  useEffect(() => {
+    const wanted = MEAL_TYPES.find((t) => t.type === mealParam)?.type;
+    if (wanted) {
+      setMealType(wanted);
+      router.setParams({ meal: undefined });
+    }
+  }, [mealParam, router]);
+  useFocusEffect(useCallback(() => () => setMealType(getMealType(Date.now())), []));
 
   const analyze = async (uri: string) => {
     const small = await compressImage(uri);
@@ -44,7 +57,7 @@ export default function ScannerScreen() {
     }
     setFallback(isFallback);
     // A foto mostrada na app é a original; a IA recebeu só a versão pequena.
-    const result = buildMeal(analysis, uri);
+    const result = { ...buildMeal(analysis, uri), mealType };
     setMeal(result);
     setCurrent(result);
     void scheduleMealWaterNudge();

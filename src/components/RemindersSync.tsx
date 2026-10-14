@@ -7,7 +7,7 @@ import { useProfile } from '../hooks/useProfile';
 import { useDiary } from '../hooks/useDiary';
 import { useWater } from '../hooks/useWater';
 import { waterProfileFromQuiz } from '../services/waterReminderPlan';
-import { dayKeyOf, getMealType } from '../services/dayUtils';
+import { dayKeyOf, mealTypeOf } from '../services/dayUtils';
 import { todayKey } from '../services/date';
 import { cancelWaterReminders, scheduleMealReminders, scheduleWaterReminders } from '../services/notifications';
 
@@ -47,7 +47,7 @@ export function RemindersSync() {
   // Refeições de hoje já registadas (ex.: "breakfast,lunch"): não se lembra o que já está feito.
   const loggedKey = useMemo(() => {
     const today = todayKey();
-    return [...new Set(meals.filter((m) => dayKeyOf(m.createdAt) === today).map((m) => getMealType(m.createdAt)))].sort().join(',');
+    return [...new Set(meals.filter((m) => dayKeyOf(m.createdAt) === today).map((m) => mealTypeOf(m)))].sort().join(',');
   }, [meals]);
 
   // Os lembretes de refeição são reagendados quando muda o idioma, o nome ou o que já foi registado hoje.
