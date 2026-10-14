@@ -19,7 +19,7 @@ const IN_MS = 1300;
 
 /**
  * Fundo animado do ecrã de entrada/registo: as fotografias passam uma depois da outra,
- * como um vídeo a rolar (entram pela direita, com um zoom lento). A camada verde fica por cima.
+ * como um vídeo a rolar (a nova foto entra por cima da anterior, com um zoom lento). A camada verde fica por cima.
  */
 export function AuthPhotoBackdrop() {
   const { width, height } = useWindowDimensions();
@@ -32,29 +32,33 @@ export function AuthPhotoBackdrop() {
   const slide = useRef(PHOTOS.map(() => new Animated.Value(70))).current;
   const zoom = useRef(PHOTOS.map(() => new Animated.Value(1))).current;
 
+  // A foto que chega fica por cima das outras; a anterior fica quieta por baixo até a nova estar completa.
+  const layer = useRef<number[]>(PHOTOS.map((_, i) => (i === 0 ? 1 : 0))).current;
+  const counter = useRef(1);
+  const [, force] = useState(0);
+
   useEffect(() => {
-    // Foto que entra: aparece, desliza da direita e faz zoom lento.
-    slide[active].setValue(70);
+    counter.current += 1;
+    layer[active] = counter.current;
+    force((n) => n + 1);
+
+    opacity[active].setValue(0);
+    slide[active].setValue(60);
     zoom[active].setValue(1);
     Animated.parallel([
       Animated.timing(opacity[active], { toValue: 1, duration: IN_MS, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-      Animated.timing(slide[active], { toValue: 0, duration: IN_MS + 400, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(slide[active], { toValue: 0, duration: IN_MS + 300, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
       Animated.timing(zoom[active], { toValue: 1.14, duration: HOLD_MS + IN_MS * 2, easing: Easing.linear, useNativeDriver: true }),
-    ]).start();
-
-    // Foto anterior: desvanece e continua a deslizar para a esquerda.
-    const p = prev.current;
-    if (p !== null && p !== active) {
-      Animated.parallel([
-        Animated.timing(opacity[p], { toValue: 0, duration: IN_MS, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-        Animated.timing(slide[p], { toValue: -60, duration: IN_MS + 400, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }),
-      ]).start();
-    }
-    prev.current = active;
+    ]).start(() => {
+      // Nova foto já cobre tudo: esconde a anterior sem qualquer efeito visível.
+      const p = prev.current;
+      if (p !== null && p !== active) opacity[p].setValue(0);
+      prev.current = active;
+    });
 
     const t = setTimeout(() => setActive((a) => (a + 1) % PHOTOS.length), HOLD_MS + IN_MS);
     return () => clearTimeout(t);
-  }, [active, opacity, slide, zoom]);
+  }, [active, opacity, slide, zoom, layer]);
 
   return (
     <View style={[StyleSheet.absoluteFill, { backgroundColor: '#243B2A' }]} pointerEvents="none">
@@ -69,6 +73,7 @@ export function AuthPhotoBackdrop() {
             height: imgH,
             left: width / 2 - imgW * FOCUS[i].x,
             top: height * 0.25 - imgH * FOCUS[i].y,
+            zIndex: layer[i],
             opacity: opacity[i],
             transform: [{ translateX: slide[i] }, { scale: zoom[i] }],
           }}
