@@ -6,7 +6,8 @@ import { useProfile } from '../hooks/useProfile';
 import { useTheme } from '../hooks/useTheme';
 import { todayKey } from '../services/date';
 import { mealsOfDay, sumMeals } from '../services/dayUtils';
-import { WIDGET_NAME, saveWidgetSnapshot, type WidgetSnapshot } from '../widgets/widgetData';
+import { useWater } from '../hooks/useWater';
+import { WIDGET_NAMES, saveWidgetSnapshot, type WidgetSnapshot } from '../widgets/widgetData';
 
 const widgetsSupported = Platform.OS === 'android' && Constants.executionEnvironment !== ExecutionEnvironment.StoreClient;
 
@@ -15,6 +16,8 @@ export function WidgetSync() {
   const { meals } = useDiary();
   const { goals, onboardingDone } = useWidgetInputs();
   const { lang } = useTheme();
+  const water = useWater();
+  const waterMl = water.drankMl;
 
   const totals = sumMeals(mealsOfDay(meals, todayKey()));
   const kcal = Math.round(totals.kcal);
@@ -34,6 +37,8 @@ export function WidgetSync() {
       proteinG: protein,
       carbsG: carbs,
       fatsG: fats,
+      waterMl,
+      goalWaterMl: goals.waterMl,
     };
     const timer = setTimeout(() => {
       void (async () => {
@@ -41,21 +46,24 @@ export function WidgetSync() {
           await saveWidgetSnapshot(snapshot);
           // Só carrega o módulo do widget aqui (na app instalada); no Expo Go ele não existe.
           const { requestWidgetUpdate } = await import('react-native-android-widget');
-          const { NutritionWidget } = await import('../widgets/NutritionWidget');
-          await requestWidgetUpdate({
-            widgetName: WIDGET_NAME,
-            renderWidget: ({ width }) => ({
-              light: <NutritionWidget snapshot={snapshot} width={width} />,
-              dark: <NutritionWidget snapshot={snapshot} width={width} dark />,
-            }),
-          });
+          const { WIDGET_RENDERERS } = await import('../widgets/registry');
+          for (const widgetName of WIDGET_NAMES) {
+            const Render = WIDGET_RENDERERS[widgetName];
+            await requestWidgetUpdate({
+              widgetName,
+              renderWidget: ({ width }) => ({
+                light: Render({ snapshot, width }),
+                dark: Render({ snapshot, width, dark: true }),
+              }),
+            }).catch(() => undefined);
+          }
         } catch {
           // Sem widget no ecrã inicial ou sem módulo nativo: não faz mal.
         }
       })();
     }, 600);
     return () => clearTimeout(timer);
-  }, [onboardingDone, goals.calories, goals.proteinG, goals.carbsG, goals.fatsG, kcal, protein, carbs, fats, lang]);
+  }, [onboardingDone, goals.calories, goals.proteinG, goals.carbsG, goals.fatsG, kcal, protein, carbs, fats, waterMl, goals.waterMl, lang]);
 
   return null;
 }

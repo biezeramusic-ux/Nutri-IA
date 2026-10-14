@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { WidgetTaskHandlerProps } from 'react-native-android-widget';
 import { isLang, setCurrentLang } from '../i18n';
-import { NutritionWidget } from './NutritionWidget';
+import { WIDGET_RENDERERS } from './registry';
 import { loadWidgetSnapshot } from './widgetData';
 
 /** Chamado pelo Android quando o widget é adicionado, redimensionado ou actualizado (mesmo com a app fechada). */
@@ -14,9 +14,10 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps): Promise<
       if (isLang(lang)) setCurrentLang(lang);
       const snapshot = await loadWidgetSnapshot();
       const width = props.widgetInfo.width;
+      const Render = WIDGET_RENDERERS[props.widgetInfo.widgetName] ?? WIDGET_RENDERERS.NutritionWidget;
       props.renderWidget({
-        light: <NutritionWidget snapshot={snapshot} width={width} />,
-        dark: <NutritionWidget snapshot={snapshot} width={width} dark />,
+        light: Render({ snapshot, width }),
+        dark: Render({ snapshot, width, dark: true }),
       });
       break;
     }

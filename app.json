@@ -75,6 +75,28 @@
               "targetCellHeight": 2,
               "resizeMode": "horizontal",
               "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "CaloriesWidget",
+              "label": "Nutri IA · Calorias",
+              "description": "Anel com as calorias que faltam hoje.",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "resizeMode": "none",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "WaterWidget",
+              "label": "Nutri IA · Água",
+              "description": "Água de hoje e atalho para registar.",
+              "minWidth": "180dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 3,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal",
+              "updatePeriodMillis": 1800000
             }
           ]
         }

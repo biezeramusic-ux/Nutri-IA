@@ -13,9 +13,13 @@ export interface WidgetSnapshot {
   proteinG: number;
   carbsG: number;
   fatsG: number;
+  /** Água bebida hoje e meta (ml). */
+  waterMl?: number;
+  goalWaterMl?: number;
 }
 
 export const WIDGET_NAME = 'NutritionWidget';
+export const WIDGET_NAMES = ['NutritionWidget', 'CaloriesWidget', 'WaterWidget'] as const;
 const KEY = 'nutria.widget.v1';
 
 export async function saveWidgetSnapshot(s: WidgetSnapshot): Promise<void> {
@@ -28,7 +32,7 @@ export async function loadWidgetSnapshot(): Promise<WidgetSnapshot | null> {
     const raw = await AsyncStorage.getItem(KEY);
     if (!raw) return null;
     const s = JSON.parse(raw) as WidgetSnapshot;
-    return s.day === todayKey() ? s : { ...s, day: todayKey(), kcal: 0, proteinG: 0, carbsG: 0, fatsG: 0 };
+    return s.day === todayKey() ? s : { ...s, day: todayKey(), kcal: 0, proteinG: 0, carbsG: 0, fatsG: 0, waterMl: 0 };
   } catch {
     return null;
   }
