@@ -772,4 +772,7 @@ export const af: Record<string, string> = {
   "Vitamina A": "Vitamien A",
   "Vitamina C": "Vitamien C",
   "Vitamina D": "Vitamien D",
+  "Muitas calorias para a sua meta nesta refeição.": "Te veel kalorieë vir jou doel by hierdie maaltyd.",
+  "Poucas calorias para a sua meta nesta refeição.": "Te min kalorieë vir jou doel by hierdie maaltyd.",
+  "Pouca proteína para a sua meta de hoje.": "Min proteïen vir jou doel vandag.",
 };

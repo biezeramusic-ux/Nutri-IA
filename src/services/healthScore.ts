@@ -1,7 +1,7 @@
-import type { FoodAnalysis } from '../types';
+import type { DailyGoals, FoodAnalysis, GoalType, MealType } from '../types';
 
 export interface HealthScore {
-  /** 1 a 10. */
+  /** 0 a 10. */
   score: number;
   label: string;
   tip: string;
@@ -44,6 +44,45 @@ export function mealScore(a: FoodAnalysis): HealthScore {
   const value = Math.max(1, Math.min(10, Math.round(score)));
   const label = value >= 8 ? 'Muito equilibrada' : value >= 6 ? 'Boa escolha' : value >= 4 ? 'Pode melhorar' : 'Pouco equilibrada';
   const tip = tips[0] ?? 'Boa combinação de nutrientes. Continue assim.';
+  return { score: value, label, tip };
+}
+
+/** Parte das calorias do dia que cabe a cada refeição. */
+const MEAL_SHARE: Record<MealType, number> = { breakfast: 0.25, lunch: 0.35, snack: 0.1, dinner: 0.3 };
+
+/**
+ * Nota de 0 a 10 do prato de acordo com a meta da pessoa: parte da qualidade do prato (equilíbrio, fibras, gordura)
+ * e ajusta pelas calorias e proteína que esta refeição devia ter para cumprir a meta diária e o objetivo.
+ */
+export function mealScoreForGoal(a: FoodAnalysis, goals: DailyGoals, goal: GoalType | null, type: MealType): HealthScore {
+  const base = mealScore(a);
+  const share = MEAL_SHARE[type];
+  const kcalRatio = a.calories / Math.max(goals.calories * share, 1);
+  const proteinRatio = a.protein_g / Math.max(goals.proteinG * share, 1);
+  let score = base.score;
+  let tip = base.tip;
+
+  // Calorias face ao que esta refeição devia ter.
+  if (kcalRatio > 1.15) {
+    score -= goal === 'lose_weight' ? Math.min(4, (kcalRatio - 1.15) * 6) : Math.min(3, (kcalRatio - 1.15) * 4);
+    tip = 'Muitas calorias para a sua meta nesta refeição.';
+  } else if (kcalRatio < 0.45) {
+    score -= goal === 'gain_muscle' ? 2.5 : 1;
+    tip = 'Poucas calorias para a sua meta nesta refeição.';
+  } else if (kcalRatio >= 0.8 && kcalRatio <= 1.15) {
+    score += 1;
+  }
+
+  // Proteína face ao que esta refeição devia ter.
+  if (proteinRatio < 0.5) {
+    score -= goal === 'gain_muscle' ? 2 : 1;
+    if (tip === base.tip) tip = 'Pouca proteína para a sua meta de hoje.';
+  } else if (proteinRatio >= 0.85) {
+    score += goal === 'gain_muscle' || goal === 'lose_weight' ? 1 : 0.5;
+  }
+
+  const value = Math.max(0, Math.min(10, Math.round(score)));
+  const label = value >= 8 ? 'Muito equilibrada' : value >= 6 ? 'Boa escolha' : value >= 4 ? 'Pode melhorar' : 'Pouco equilibrada';
   return { score: value, label, tip };
 }
 

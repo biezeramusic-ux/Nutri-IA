@@ -20,6 +20,7 @@ import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors
 import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { useDiary } from '../../hooks/useDiary';
+import { useFavorites } from '../../hooks/useFavorites';
 import { useNotificationPermission } from '../../hooks/useNotificationPermission';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
@@ -39,6 +40,15 @@ export default function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { meals, setCurrent, loading: diaryLoading, error: diaryError, refresh } = useDiary();
+  const { favorites, add: addFavorite, remove: removeFavorite, isFavorite } = useFavorites();
+  const toggleFav = (m: Meal) => {
+    if (isFavorite(m)) {
+      const fav = favorites.find((f) => f.analysis.food_name.trim().toLowerCase() === m.analysis.food_name.trim().toLowerCase());
+      if (fav) void removeFavorite(fav.id);
+    } else {
+      void addFavorite(m);
+    }
+  };
   const { displayName } = useAuth();
   const { profile, goals, saveReminders } = useProfile();
   const water = useWater();
@@ -202,10 +212,12 @@ export default function HomeScreen() {
             <MealSection
               key={t.type}
               label={t.label}
-              emoji={t.emoji}
+              type={t.type}
               meals={dayMeals.filter((m) => mealTypeOf(m) === t.type)}
               onAdd={() => router.navigate({ pathname: '/scanner', params: { meal: t.type } })}
               onOpenMeal={openMeal}
+              isFavorite={isFavorite}
+              onToggleFavorite={toggleFav}
             />
           ))}
         </View>

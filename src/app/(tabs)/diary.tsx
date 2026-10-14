@@ -15,6 +15,8 @@ import { useFavorites } from '../../hooks/useFavorites';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { todayKey } from '../../services/date';
+import { MealBadge } from '../../components/MealBadge';
+import { MealEntry } from '../../components/MealEntry';
 import { MEAL_TYPES, dayKeyOf, mealTypeOf, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
 import { favoriteToMeal } from '../../services/favorites';
 import { mealEmoji } from '../../services/foodCatalog';
@@ -28,7 +30,15 @@ export default function DiaryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { meals, setCurrent, removeMeal, saveMeal, pendingCount } = useDiary();
-  const { favorites } = useFavorites();
+  const { favorites, add: addFav, remove: removeFav, isFavorite } = useFavorites();
+  const toggleFav = (m: Meal) => {
+    if (isFavorite(m)) {
+      const fav = favorites.find((f) => f.analysis.food_name.trim().toLowerCase() === m.analysis.food_name.trim().toLowerCase());
+      if (fav) void removeFav(fav.id);
+    } else {
+      void addFav(m);
+    }
+  };
   const { goals } = useProfile();
   const { isPro, mealsLeft, refresh } = useSubscription();
   const [selected, setSelected] = useState(() => new Date());
@@ -183,9 +193,7 @@ export default function DiaryScreen() {
         return (
           <View key={t.type} style={styles.section}>
             <View style={styles.sectionHead}>
-              <View style={styles.sectionIcon}>
-                <Text style={{ fontSize: 16 }}>{t.emoji}</Text>
-              </View>
+              <MealBadge type={t.type} size={34} />
               <Text style={styles.sectionTitle}>{t.label}</Text>
               <Text style={styles.sectionKcal}>{kcal > 0 ? `${kcal} kcal` : ''}</Text>
               <Pressable style={styles.add} onPress={() => router.navigate({ pathname: '/scanner', params: { meal: t.type } })} hitSlop={8} accessibilityLabel={`Adicionar ${t.label}`}>
@@ -196,26 +204,14 @@ export default function DiaryScreen() {
               <Text style={styles.empty}>{tr('Nada registado')}</Text>
             ) : (
               list.map((m) => (
-                <Pressable key={m.id} onPress={() => open(m)} style={styles.row}>
-                  {m.photoUri ? (
-                    <Image source={{ uri: m.photoUri }} style={styles.thumb} />
-                  ) : (
-                    <View style={[styles.thumb, styles.thumbPlaceholder]}>
-                      <Text style={{ fontSize: 18 }}>{mealEmoji(m.analysis.food_name)}</Text>
-                    </View>
-                  )}
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.mealName} numberOfLines={1}>
-                      {m.analysis.food_name}
-                    </Text>
-                    <Text style={styles.mealSub}>
-                      {m.analysis.estimated_weight_grams} g · {m.analysis.calories} kcal
-                    </Text>
-                  </View>
-                  <Pressable onPress={() => confirmDelete(m)} hitSlop={10} accessibilityLabel={tr('Apagar refeição')}>
-                    <Trash size={16} color={colors.textFaint} />
-                  </Pressable>
-                </Pressable>
+                <MealEntry
+                  key={m.id}
+                  meal={m}
+                  onPress={() => open(m)}
+                  onDelete={() => confirmDelete(m)}
+                  favorite={isFavorite(m)}
+                  onToggleFavorite={() => toggleFav(m)}
+                />
               ))
             )}
           </View>

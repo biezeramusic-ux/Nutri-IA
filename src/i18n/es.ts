@@ -772,4 +772,7 @@ export const es: Record<string, string> = {
   "Vitamina A": "Vitamina A",
   "Vitamina C": "Vitamina C",
   "Vitamina D": "Vitamina D",
+  "Muitas calorias para a sua meta nesta refeição.": "Demasiadas calorías para tu meta en esta comida.",
+  "Poucas calorias para a sua meta nesta refeição.": "Muy pocas calorías para tu meta en esta comida.",
+  "Pouca proteína para a sua meta de hoje.": "Poca proteína para tu meta de hoy.",
 };

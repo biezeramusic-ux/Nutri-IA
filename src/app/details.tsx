@@ -16,10 +16,12 @@ import { SCREEN_PADDING, cardBase, font, petalPalette, radius, type ThemeColors 
 import { useTheme } from '../hooks/useTheme';
 import { useDiary } from '../hooks/useDiary';
 import { useFavorites } from '../hooks/useFavorites';
+import { useProfile } from '../hooks/useProfile';
 import { useSubscription } from '../hooks/useSubscription';
 import { deriveIngredients, macroPercentages, mealEmoji, proteinSources, scaleMeal } from '../services/foodCatalog';
 import { refineAnalysis } from '../services/foodRecognition';
-import { mealScore } from '../services/healthScore';
+import { mealTypeOf } from '../services/dayUtils';
+import { mealScoreForGoal } from '../services/healthScore';
 import { tr } from '../i18n';
 
 function confidenceLabel(value: number, colors: ThemeColors): { text: string; color: string } {
@@ -41,6 +43,7 @@ export default function DetailsScreen() {
   const [correction, setCorrection] = useState('');
   const [refining, setRefining] = useState(false);
   const { add: addFavorite, remove: removeFavorite, favorites, isFavorite } = useFavorites();
+  const { goals, profile } = useProfile();
 
   const meal = meals.find((m) => m.id === id) ?? current;
 
@@ -62,7 +65,7 @@ export default function DetailsScreen() {
   const sources = proteinSources(meal);
   const confidence = analysis.confidence !== undefined ? confidenceLabel(analysis.confidence, colors) : null;
 
-  const score = mealScore(analysis);
+  const score = mealScoreForGoal(analysis, goals, profile?.goal ?? null, mealTypeOf(meal));
   const favorite = isFavorite(meal);
 
   const toggleFavorite = () => {

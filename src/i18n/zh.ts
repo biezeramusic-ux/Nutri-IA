@@ -772,4 +772,7 @@ export const zh: Record<string, string> = {
   "Vitamina A": "维生素 A",
   "Vitamina C": "维生素 C",
   "Vitamina D": "维生素 D",
+  "Muitas calorias para a sua meta nesta refeição.": "这一餐的热量超出了你的目标。",
+  "Poucas calorias para a sua meta nesta refeição.": "这一餐的热量低于你的目标。",
+  "Pouca proteína para a sua meta de hoje.": "相对于你今天的目标，蛋白质偏少。",
 };
