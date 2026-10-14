@@ -35,6 +35,7 @@ function ThemedApp() {
                 <Stack.Screen name="(tabs)" />
                 <Stack.Screen name="details" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="water" options={{ animation: 'slide_from_right' }} />
+                <Stack.Screen name="fasting" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="activity" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="edit-profile" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="goals" options={{ animation: 'slide_from_right' }} />

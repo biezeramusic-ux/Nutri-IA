@@ -158,3 +158,25 @@ export async function scheduleMealReminders(enabled: boolean, options: MealRemin
     return false;
   }
 }
+
+const KIND_FAST = 'fast-end';
+
+/** Avisa quando o jejum terminar; `endAt = null` cancela o aviso. */
+export async function scheduleFastEnd(endAt: Date | null): Promise<void> {
+  const N = await loadNotifications();
+  if (!N) return;
+  try {
+    await cancelByKind(N, KIND_FAST);
+    if (!endAt || endAt.getTime() <= Date.now() || !(await ensureNotificationPermission(false))) return;
+    await N.scheduleNotificationAsync({
+      content: {
+        title: tr('Jejum concluído'),
+        body: tr('Parabéns! Completou o seu jejum. Já pode comer.'),
+        data: { kind: KIND_FAST },
+      },
+      trigger: { type: N.SchedulableTriggerInputTypes.DATE, date: endAt, channelId: MEAL_CHANNEL_ID },
+    });
+  } catch {
+    // ignora
+  }
+}
