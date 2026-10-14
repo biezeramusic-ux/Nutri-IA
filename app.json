@@ -60,6 +60,24 @@
         {
           "photosPermission": "O Nutri IA acede às suas fotos para analisar refeições."
         }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "NutritionWidget",
+              "label": "Nutri IA",
+              "description": "Calorias e macros do dia, e atalho para adicionar um alimento.",
+              "minWidth": "250dp",
+              "minHeight": "130dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
       ]
     ]
   }

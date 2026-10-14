@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthGate } from '../components/AuthGate';
 import { ReferralRedeemer } from '../components/ReferralRedeemer';
 import { RemindersSync } from '../components/RemindersSync';
+import { WidgetSync } from '../components/WidgetSync';
 import { ThemeProvider, useTheme } from '../hooks/useTheme';
 import { AuthProvider } from '../hooks/useAuth';
 import { DiaryProvider } from '../hooks/useDiary';
@@ -43,6 +44,7 @@ function ThemedApp() {
                 <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
               </Stack>
               <RemindersSync />
+              <WidgetSync />
               <ReferralRedeemer />
               <AuthGate />
             </WaterProvider>

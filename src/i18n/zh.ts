@@ -775,4 +775,8 @@ export const zh: Record<string, string> = {
   "Muitas calorias para a sua meta nesta refeição.": "这一餐的热量超出了你的目标。",
   "Poucas calorias para a sua meta nesta refeição.": "这一餐的热量低于你的目标。",
   "Pouca proteína para a sua meta de hoje.": "相对于你今天的目标，蛋白质偏少。",
+  "Nutrição do dia": "今日营养",
+  "Restante": "剩余",
+  "Objetivo": "目标",
+  "Adicionar alimento": "添加食物",
 };

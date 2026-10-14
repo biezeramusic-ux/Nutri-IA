@@ -775,4 +775,8 @@ export const it: Record<string, string> = {
   "Muitas calorias para a sua meta nesta refeição.": "Troppe calorie per il tuo obiettivo in questo pasto.",
   "Poucas calorias para a sua meta nesta refeição.": "Troppe poche calorie per il tuo obiettivo in questo pasto.",
   "Pouca proteína para a sua meta de hoje.": "Poche proteine per il tuo obiettivo di oggi.",
+  "Nutrição do dia": "Nutrizione di oggi",
+  "Restante": "Rimanenti",
+  "Objetivo": "Obiettivo",
+  "Adicionar alimento": "Aggiungi alimento",
 };

@@ -775,4 +775,8 @@ export const en: Record<string, string> = {
   "Muitas calorias para a sua meta nesta refeição.": "Too many calories for your goal at this meal.",
   "Poucas calorias para a sua meta nesta refeição.": "Too few calories for your goal at this meal.",
   "Pouca proteína para a sua meta de hoje.": "Low protein for your goal today.",
+  "Nutrição do dia": "Nutrition today",
+  "Restante": "Remaining",
+  "Objetivo": "Goal",
+  "Adicionar alimento": "Add food",
 };

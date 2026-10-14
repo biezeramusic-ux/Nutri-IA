@@ -775,4 +775,8 @@ export const nl: Record<string, string> = {
   "Muitas calorias para a sua meta nesta refeição.": "Te veel calorieën voor je doel bij deze maaltijd.",
   "Poucas calorias para a sua meta nesta refeição.": "Te weinig calorieën voor je doel bij deze maaltijd.",
   "Pouca proteína para a sua meta de hoje.": "Weinig eiwit voor je doel van vandaag.",
+  "Nutrição do dia": "Voeding vandaag",
+  "Restante": "Resterend",
+  "Objetivo": "Doel",
+  "Adicionar alimento": "Eten toevoegen",
 };

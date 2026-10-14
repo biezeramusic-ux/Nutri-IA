@@ -775,4 +775,8 @@ export const es: Record<string, string> = {
   "Muitas calorias para a sua meta nesta refeição.": "Demasiadas calorías para tu meta en esta comida.",
   "Poucas calorias para a sua meta nesta refeição.": "Muy pocas calorías para tu meta en esta comida.",
   "Pouca proteína para a sua meta de hoje.": "Poca proteína para tu meta de hoy.",
+  "Nutrição do dia": "Nutrición de hoy",
+  "Restante": "Restante",
+  "Objetivo": "Objetivo",
+  "Adicionar alimento": "Añadir alimento",
 };
