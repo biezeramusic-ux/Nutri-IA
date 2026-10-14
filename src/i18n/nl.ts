@@ -750,4 +750,5 @@ export const nl: Record<string, string> = {
   "Está na hora de beber água e manter uma boa hidratação.": "Tijd om water te drinken en goed gehydrateerd te blijven.",
   "Um copo de água agora ajuda a manter-se hidratado.": "Een glas water nu helpt je gehydrateerd te blijven.",
   "Lembrete: beba água e cuide da sua hidratação.": "Herinnering: drink water en zorg goed voor je hydratatie.",
+  "Lembretes às {times}": "Herinneringen om {times}",
 };

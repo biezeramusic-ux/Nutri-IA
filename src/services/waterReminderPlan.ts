@@ -1,7 +1,25 @@
-import type { GoalType } from '../types';
+import type { ActivityLevel, GoalType, Habits, QuizAnswers } from '../types';
 import { tr } from '../i18n';
 
-export interface ReminderPlanInput {
+/** Dados do quiz que personalizam os horários da água. */
+export interface WaterProfile {
+  activity?: ActivityLevel;
+  habits?: Partial<Pick<Habits, 'drinksEnoughWater' | 'sugaryDrinks'>>;
+  /** Número estável por pessoa (peso, idade...) que desloca alguns minutos, para cada pessoa ter horas próprias. */
+  seed?: number;
+}
+
+/** Extrai do quiz os dados que personalizam os lembretes. */
+export function waterProfileFromQuiz(quiz?: QuizAnswers | null): WaterProfile {
+  if (!quiz) return {};
+  return {
+    activity: quiz.activity,
+    habits: { drinksEnoughWater: quiz.habits?.drinksEnoughWater, sugaryDrinks: quiz.habits?.sugaryDrinks },
+    seed: quiz.weightKg * 7 + quiz.age * 3,
+  };
+}
+
+export interface ReminderPlanInput extends WaterProfile {
   now: Date;
   glasses: number;
   goalGlasses: number;
@@ -11,8 +29,6 @@ export interface ReminderPlanInput {
   firstName?: string;
   /** Quantos dias planear (hoje + seguintes). */
   days?: number;
-  /** Frases geradas pela IA; se existirem, substituem as frases fixas. */
-  messages?: string[] | null;
 }
 
 export interface PlannedReminder {
@@ -22,8 +38,7 @@ export interface PlannedReminder {
 }
 
 const MINUTE = 60 * 1000;
-const MIN_SPACING_MIN = 45;
-const MAX_PER_DAY = 6;
+const MAX_PER_DAY = 8;
 
 /** Mensagens simples, no estilo de uma notificação normal de hidratação. */
 const SIMPLE_MESSAGES = [
@@ -32,58 +47,64 @@ const SIMPLE_MESSAGES = [
   'Lembrete: beba água e cuide da sua hidratação.',
 ];
 
-const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
-
-function atHour(day: Date, hour: number): Date {
-  // new Date(..., 24) avança para o dia seguinte às 00:00.
-  return new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour, 0, 0, 0);
-}
-
-function evenSlots(start: Date, end: Date, count: number): Date[] {
-  const span = end.getTime() - start.getTime();
-  if (count <= 0 || span <= 0) return [];
-  return Array.from({ length: count }, (_, i) => new Date(start.getTime() + ((i + 0.5) * span) / count));
-}
-
 function pickMessage(index: number): string {
   return tr(SIMPLE_MESSAGES[index % SIMPLE_MESSAGES.length]);
 }
 
 /**
- * Planeia os lembretes de água a partir do progresso atual:
- * - hoje: só se ainda faltar água; espaçados entre agora e a hora de dormir;
- * - dias seguintes: padrão completo (para continuar a funcionar sem abrir a app).
+ * Quantos lembretes por dia, a partir das respostas do quiz: a meta de água manda;
+ * quem treina mais, bebe pouca água ou toma bebidas açucaradas recebe mais lembretes.
+ */
+export function waterRemindersPerDay(goalGlasses: number, p: WaterProfile): number {
+  let n = Math.ceil(goalGlasses / 2);
+  if (p.activity === 'very_active') n += 2;
+  else if (p.activity === 'moderate') n += 1;
+  if (p.habits?.drinksEnoughWater === false) n += 1;
+  if (p.habits?.sugaryDrinks === true) n += 1;
+  return Math.max(3, Math.min(MAX_PER_DAY, n));
+}
+
+/**
+ * Horas (minutos desde as 00:00) dos lembretes de um dia: o primeiro pouco depois de acordar,
+ * o último duas horas antes de dormir, os outros bem repartidos. Cada pessoa tem um pequeno desvio próprio.
+ */
+export function waterMinutesOfDay(input: Pick<ReminderPlanInput, 'wakeHour' | 'sleepHour' | 'goalGlasses'> & WaterProfile): number[] {
+  const count = waterRemindersPerDay(input.goalGlasses, input);
+  const start = input.wakeHour * 60 + 45;
+  const end = Math.max(start + 60, input.sleepHour * 60 - 120);
+  const shift = Math.abs(Math.round(input.seed ?? 0)) % 21; // 0 a 20 min
+  return Array.from({ length: count }, (_, i) => {
+    const base = count === 1 ? start : start + ((end - start) * i) / (count - 1);
+    // O primeiro fica logo depois de acordar; os restantes levam o desvio da pessoa.
+    return Math.round(i === 0 ? base : Math.min(end, base + shift - 10));
+  });
+}
+
+/** "07:45", "10:20"... para mostrar à pessoa. */
+export const formatMinutes = (m: number): string => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+
+/**
+ * Planeia os lembretes de água a partir da rotina e das respostas do quiz:
+ * - hoje: só os que ainda não passaram e enquanto faltar água;
+ * - dias seguintes: o padrão completo (para continuar a funcionar sem abrir a app).
  * Cada vez que o utilizador regista água, o plano é recalculado.
  */
 export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] {
-  const { now, glasses, goalGlasses, wakeHour, sleepHour } = input;
+  const { now, glasses, goalGlasses } = input;
   const days = input.days ?? 3;
-  const result: PlannedReminder[] = [];
   const title = tr('Água');
+  const minutes = waterMinutesOfDay(input);
+  const result: PlannedReminder[] = [];
 
   for (let d = 0; d < days; d++) {
     const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d);
-    const windowEndBase = new Date(atHour(day, sleepHour).getTime() - 30 * MINUTE);
-    const wakeStart = new Date(atHour(day, wakeHour).getTime() + 30 * MINUTE);
-
-    let start = wakeStart;
-    let remaining = goalGlasses;
+    let times = minutes.map((m) => new Date(day.getFullYear(), day.getMonth(), day.getDate(), 0, m, 0, 0));
     if (d === 0) {
-      remaining = goalGlasses - glasses;
+      const remaining = goalGlasses - glasses;
       if (remaining <= 0) continue;
-      start = new Date(Math.max(wakeStart.getTime(), now.getTime() + 30 * MINUTE));
+      times = times.filter((t) => t.getTime() > now.getTime() + 5 * MINUTE).slice(0, Math.max(1, remaining));
     }
-
-    const span = windowEndBase.getTime() - start.getTime();
-    if (span <= 0) continue;
-
-    const byNeed = clamp(Math.ceil(remaining / 2), 1, MAX_PER_DAY);
-    const bySpace = Math.max(1, Math.floor(span / (MIN_SPACING_MIN * MINUTE)));
-    const count = Math.min(byNeed, bySpace);
-
-    evenSlots(start, windowEndBase, count).forEach((at, i) => {
-      result.push({ at, title, body: pickMessage(d + i) });
-    });
+    times.forEach((at, i) => result.push({ at, title, body: pickMessage(d + i) }));
   }
 
   return result.filter((r) => r.at.getTime() > now.getTime()).sort((a, b) => a.at.getTime() - b.at.getTime());

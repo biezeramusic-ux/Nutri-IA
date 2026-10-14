@@ -750,4 +750,5 @@ export const zh: Record<string, string> = {
   "Está na hora de beber água e manter uma boa hidratação.": "该喝水啦，保持充足的水分补给。",
   "Um copo de água agora ajuda a manter-se hidratado.": "现在喝一杯水，有助于保持水分充足。",
   "Lembrete: beba água e cuide da sua hidratação.": "提醒：记得喝水，照顾好身体的水分。",
+  "Lembretes às {times}": "提醒时间：{times}",
 };

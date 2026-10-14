@@ -6,6 +6,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useProfile } from '../hooks/useProfile';
 import { useDiary } from '../hooks/useDiary';
 import { useWater } from '../hooks/useWater';
+import { waterProfileFromQuiz } from '../services/waterReminderPlan';
 import { dayKeyOf, getMealType } from '../services/dayUtils';
 import { todayKey } from '../services/date';
 import { cancelWaterReminders, scheduleMealReminders, scheduleWaterReminders } from '../services/notifications';
@@ -26,6 +27,7 @@ export function RemindersSync() {
   const sleepHour = profile?.sleepHour ?? 22;
   const goal = profile?.goal ?? null;
   const firstName = profile?.fullName.split(' ')[0] || undefined;
+  const quiz = profile?.quiz;
 
   useEffect(() => {
     if (!user) {
@@ -34,10 +36,13 @@ export function RemindersSync() {
     }
     // Pequeno atraso: agrupa toques rápidos em + antes de reagendar.
     const timer = setTimeout(() => {
-      void scheduleWaterReminders({ now: new Date(), glasses, goalGlasses, wakeHour, sleepHour, goal, firstName }, enabled);
+      void scheduleWaterReminders(
+        { now: new Date(), glasses, goalGlasses, wakeHour, sleepHour, goal, firstName, ...waterProfileFromQuiz(quiz) },
+        enabled,
+      );
     }, 800);
     return () => clearTimeout(timer);
-  }, [user, enabled, glasses, goalGlasses, wakeHour, sleepHour, goal, firstName, lang]);
+  }, [user, enabled, glasses, goalGlasses, wakeHour, sleepHour, goal, firstName, quiz, lang]);
 
   // Refeições de hoje já registadas (ex.: "breakfast,lunch"): não se lembra o que já está feito.
   const loggedKey = useMemo(() => {

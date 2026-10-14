@@ -33,6 +33,7 @@ import type {
   QuizAnswers,
   Sex,
 } from '../../types';
+import { formatMinutes, waterMinutesOfDay, waterProfileFromQuiz } from '../../services/waterReminderPlan';
 import { QuizResult } from './QuizResult';
 import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
@@ -157,7 +158,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { profile, completeOnboarding } = useProfile();
+  const { profile, completeOnboarding, saveReminders } = useProfile();
   const { displayName } = useAuth();
   const [step, setStep] = useState(0);
   const [base, setBase] = useState<Base>(profile?.quiz ?? DEFAULTS);
@@ -170,6 +171,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const pickedGoals = useMemo(() => GOAL_ROWS.filter((r) => pickedIds.includes(r.id)).map((r) => r.goal), [pickedIds]);
   const goalPicked = pickedIds.length > 0;
   const [habits, setHabits] = useState<HabitAnswers>(profile?.quiz?.habits ?? {});
+  const [wake, setWake] = useState(profile?.wakeHour ?? 7);
+  const [sleep, setSleep] = useState(profile?.sleepHour ?? 22);
   const [saving, setSaving] = useState(false);
   const touched = useRef(false);
 
@@ -239,6 +242,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     setSaving(true);
     try {
       await completeOnboarding(buildAnswers());
+      // A hora de acordar e dormir (e as respostas do quiz) definem os horários dos lembretes de água.
+      await saveReminders({ waterReminders: profile?.waterReminders ?? true, wakeHour: wake, sleepHour: sleep });
       // Pede a permissão para os lembretes de água só no primeiro quiz.
       if (mode === 'first' && (await ensureNotificationPermission(true))) {
         // Com a permissão dada, os lembretes de refeição ficam ligados por defeito (a pessoa pode desligar no Perfil).
@@ -266,6 +271,9 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         tips={tips}
         firstName={displayName.split(' ')[0] ?? ''}
         saving={saving}
+        reminderTimes={waterMinutesOfDay({ wakeHour: wake, sleepHour: sleep, goalGlasses: glassesFromMl(goals.waterMl), ...waterProfileFromQuiz(answers) })
+          .map(formatMinutes)
+          .join(' · ')}
         onStart={() => void finish()}
       />
     );
@@ -321,16 +329,21 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </>
         )}
 
-        {current === 'activity' &&
-          ACTIVITIES.map((a) => (
-            <QuizRow
-              key={a.value}
-              title={a.title}
-              subtitle={a.subtitle}
-              selected={base.activity === a.value}
-              onPress={() => update('activity', a.value)}
-            />
-          ))}
+        {current === 'activity' && (
+          <>
+            {ACTIVITIES.map((a) => (
+              <QuizRow
+                key={a.value}
+                title={a.title}
+                subtitle={a.subtitle}
+                selected={base.activity === a.value}
+                onPress={() => update('activity', a.value)}
+              />
+            ))}
+            <NumberStepper label={tr('Acordo às (hora)')} value={wake} unit="h" min={4} max={12} onChange={setWake} />
+            <NumberStepper label={tr('Vou dormir às (hora)')} value={sleep} unit="h" min={18} max={24} onChange={setSleep} />
+          </>
+        )}
 
         {current === 'health' && (
           <View style={styles.chips}>

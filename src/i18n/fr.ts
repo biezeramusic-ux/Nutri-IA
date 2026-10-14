@@ -750,4 +750,5 @@ export const fr: Record<string, string> = {
   "Está na hora de beber água e manter uma boa hidratação.": "C'est l'heure de boire de l'eau et de rester bien hydraté.",
   "Um copo de água agora ajuda a manter-se hidratado.": "Un verre d'eau maintenant vous aide à rester hydraté.",
   "Lembrete: beba água e cuide da sua hidratação.": "Rappel : buvez de l'eau et prenez soin de votre hydratation.",
+  "Lembretes às {times}": "Rappels à {times}",
 };

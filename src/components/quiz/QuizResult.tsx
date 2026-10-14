@@ -17,6 +17,8 @@ interface Props {
   tips: string[];
   firstName: string;
   saving: boolean;
+  /** Horas dos lembretes de água pensados para esta pessoa, ex.: "07:45 · 10:20 · ...". */
+  reminderTimes?: string;
   onStart: () => void;
 }
 
@@ -111,7 +113,7 @@ function Calculating({ colors, onDone }: { colors: ThemeColors; onDone: () => vo
   );
 }
 
-export function QuizResult({ answers, goals, tips, firstName, saving, onStart }: Props) {
+export function QuizResult({ answers, goals, tips, firstName, saving, reminderTimes, onStart }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
@@ -199,6 +201,7 @@ export function QuizResult({ answers, goals, tips, firstName, saving, onStart }:
             <View style={{ flex: 1 }}>
               <Text style={styles.waterTitle}>{tr('{ml} ml de água por dia', { ml: goals.waterMl })}</Text>
               <Text style={styles.waterSub}>{tr('{n} copos de {ml} ml. O Nutri IA vai lembrá-lo de beber.', { n: glassesFromMl(goals.waterMl), ml: GLASS_ML })}</Text>
+              {!!reminderTimes && <Text style={styles.waterSub}>{tr('Lembretes às {times}', { times: reminderTimes })}</Text>}
             </View>
           </View>
         </Rise>

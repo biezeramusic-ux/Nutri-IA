@@ -12,7 +12,7 @@ import { useProfile } from '../hooks/useProfile';
 import { useWater } from '../hooks/useWater';
 import { GLASS_ML } from '../services/goals';
 import { notificationsSupported } from '../services/notifications';
-import { planWaterReminders } from '../services/waterReminderPlan';
+import { formatMinutes, planWaterReminders, waterMinutesOfDay, waterProfileFromQuiz } from '../services/waterReminderPlan';
 import type { GoalType } from '../types';
 import { tr } from '../i18n';
 
@@ -47,9 +47,18 @@ export default function WaterScreen() {
       sleepHour: profile.sleepHour,
       goal,
       days: 2,
+      ...waterProfileFromQuiz(profile.quiz),
     });
     return plan[0] ?? null;
   }, [profile, water.glasses, water.goalGlasses, goal]);
+
+  // Os horários pensados para esta pessoa (rotina + respostas do quiz).
+  const myTimes = useMemo(() => {
+    if (!profile) return '';
+    return waterMinutesOfDay({ wakeHour: profile.wakeHour, sleepHour: profile.sleepHour, goalGlasses: water.goalGlasses, ...waterProfileFromQuiz(profile.quiz) })
+      .map(formatMinutes)
+      .join(' · ');
+  }, [profile, water.goalGlasses]);
 
   const done = water.glasses >= water.goalGlasses;
 
@@ -120,6 +129,7 @@ export default function WaterScreen() {
         <View style={{ flex: 1, gap: 2 }}>
           <Text style={styles.infoTitle}>{tr('Lembretes de água')}</Text>
           <Text style={styles.infoText}>{reminderText}</Text>
+          {!!myTimes && !!profile?.waterReminders && <Text style={styles.infoText}>{tr('Lembretes às {times}', { times: myTimes })}</Text>}
         </View>
       </View>
     </ScrollView>
