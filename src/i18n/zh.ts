@@ -797,4 +797,13 @@ export const zh: Record<string, string> = {
   "Fibra": "纤维",
   "Gord. saturada": "饱和脂肪",
   "Média por dia com registos": "每个记录日平均",
+  "Alterações de peso": "体重变化",
+  "7 dias": "7 天",
+  "14 dias": "14 天",
+  "30 dias": "30 天",
+  "90 dias": "90 天",
+  "Todo o tempo": "全部时间",
+  "Sem alteração": "无变化",
+  "Perdeu": "减少",
+  "Ganhou": "增加",
 };

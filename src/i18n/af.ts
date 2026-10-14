@@ -797,4 +797,13 @@ export const af: Record<string, string> = {
   "Fibra": "Vesel",
   "Gord. saturada": "Versad. vet",
   "Média por dia com registos": "Gemiddeld per aangetekende dag",
+  "Alterações de peso": "Gewigsveranderinge",
+  "7 dias": "7 dae",
+  "14 dias": "14 dae",
+  "30 dias": "30 dae",
+  "90 dias": "90 dae",
+  "Todo o tempo": "Alle tyd",
+  "Sem alteração": "Geen verandering",
+  "Perdeu": "Verloor",
+  "Ganhou": "Het bygekry",
 };

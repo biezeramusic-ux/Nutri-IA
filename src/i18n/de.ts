@@ -797,4 +797,13 @@ export const de: Record<string, string> = {
   "Fibra": "Ballaststoffe",
   "Gord. saturada": "Ges. Fett",
   "Média por dia com registos": "Durchschnitt pro erfasstem Tag",
+  "Alterações de peso": "Gewichtsänderungen",
+  "7 dias": "7 Tage",
+  "14 dias": "14 Tage",
+  "30 dias": "30 Tage",
+  "90 dias": "90 Tage",
+  "Todo o tempo": "Gesamte Zeit",
+  "Sem alteração": "Keine Änderung",
+  "Perdeu": "Abgenommen",
+  "Ganhou": "Zugenommen",
 };

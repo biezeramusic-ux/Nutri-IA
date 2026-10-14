@@ -5,6 +5,7 @@ import { Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } f
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { WeightChanges } from '../../components/WeightChanges';
 import { StackedChart } from '../../components/StackedChart';
 import { LineChart } from '../../components/LineChart';
 import { ProGate } from '../../components/ProOverlay';
@@ -405,6 +406,8 @@ export default function ProgressScreen() {
           <Camera size={16} color={colors.primaryDark} />
           <Text style={styles.photosText}>{tr('Fotos de progresso (antes e depois)')}</Text>
         </Pressable>
+
+        {profile?.goal === 'lose_weight' && <WeightChanges logs={logs} />}
       </ScrollView>
     </ProGate>
   );

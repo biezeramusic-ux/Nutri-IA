@@ -797,4 +797,13 @@ export const en: Record<string, string> = {
   "Fibra": "Fiber",
   "Gord. saturada": "Sat. fat",
   "Média por dia com registos": "Average per logged day",
+  "Alterações de peso": "Weight changes",
+  "7 dias": "7 days",
+  "14 dias": "14 days",
+  "30 dias": "30 days",
+  "90 dias": "90 days",
+  "Todo o tempo": "All time",
+  "Sem alteração": "No change",
+  "Perdeu": "Lost",
+  "Ganhou": "Gained",
 };

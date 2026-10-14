@@ -797,4 +797,13 @@ export const es: Record<string, string> = {
   "Fibra": "Fibra",
   "Gord. saturada": "Grasa sat.",
   "Média por dia com registos": "Media por día con registros",
+  "Alterações de peso": "Cambios de peso",
+  "7 dias": "7 días",
+  "14 dias": "14 días",
+  "30 dias": "30 días",
+  "90 dias": "90 días",
+  "Todo o tempo": "Todo el tiempo",
+  "Sem alteração": "Sin cambios",
+  "Perdeu": "Perdiste",
+  "Ganhou": "Ganaste",
 };
