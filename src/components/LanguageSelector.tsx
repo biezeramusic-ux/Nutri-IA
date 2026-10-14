@@ -7,7 +7,7 @@ import { LANGUAGES } from '../i18n';
 import { useTheme } from '../hooks/useTheme';
 
 /** Lista de idiomas com bandeira, nome e visto no selecionado. */
-export function LanguageSelector() {
+export function LanguageSelector({ onPicked }: { onPicked?: () => void } = {}) {
   const { colors, lang, setLang } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
@@ -15,7 +15,10 @@ export function LanguageSelector() {
       {LANGUAGES.map((l) => {
         const on = l.id === lang;
         return (
-          <Pressable key={l.id} onPress={() => setLang(l.id)} style={[styles.row, on && styles.rowOn]} accessibilityRole="button" accessibilityState={{ selected: on }}>
+          <Pressable key={l.id} onPress={() => {
+              setLang(l.id);
+              onPicked?.();
+            }} style={[styles.row, on && styles.rowOn]} accessibilityRole="button" accessibilityState={{ selected: on }}>
             <Text style={styles.flag}>{l.flag}</Text>
             <View style={{ flex: 1 }}>
               <Text style={styles.name}>{l.name}</Text>

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { detectDeviceLang, setCurrentLang, type Lang } from '../i18n';
+import { detectDeviceLang, isLang, setCurrentLang, type Lang } from '../i18n';
 import { darkColors, lightColors, type ThemeColors } from '../constants/theme';
 
 /** Branco (claro) ou Preto (escuro). */
@@ -43,7 +43,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       .catch(() => undefined);
     AsyncStorage.getItem(LANG_KEY)
       .then((saved) => {
-        if (saved === 'pt' || saved === 'en') {
+        if (isLang(saved)) {
           setCurrentLang(saved);
           setLangState(saved);
         }

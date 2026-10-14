@@ -28,7 +28,16 @@ const INSIGHT_PROMPT =
 const WATER_PROMPT =
   'You write push-notification texts for the Nutri IA app reminding the user to drink water. Return strictly a JSON array of 6 different strings. Each one is a friendly, motivating sentence of at most 110 characters, tailored to the user goal, without medical claims. Do not include emojis or the user name.';
 
-const langName = (lang?: string) => (lang === 'en' ? 'English' : 'Portuguese (Mozambique)');
+const LANG_NAMES: Record<string, string> = {
+  en: 'English',
+  es: 'Spanish',
+  fr: 'French',
+  af: 'Afrikaans',
+  sw: 'Swahili',
+  zu: 'isiZulu',
+  zh: 'Simplified Chinese',
+};
+const langName = (lang?: string) => (lang && LANG_NAMES[lang]) || 'Portuguese (Mozambique)';
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...CORS, 'content-type': 'application/json' } });
