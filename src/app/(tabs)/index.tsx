@@ -202,7 +202,7 @@ export default function HomeScreen() {
             <MealSection
               key={t.type}
               label={t.label}
-              emoji={t.emoji}
+              type={t.type}
               meals={dayMeals.filter((m) => mealTypeOf(m) === t.type)}
               onAdd={() => router.navigate({ pathname: '/scanner', params: { meal: t.type } })}
               onOpenMeal={openMeal}

@@ -1,4 +1,5 @@
 import { Plus, Star, Trash } from 'lucide-react-native';
+import { DishGlyph } from '../components/MealIcon';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -12,7 +13,6 @@ import { useFavorites } from '../hooks/useFavorites';
 import { useSubscription } from '../hooks/useSubscription';
 import { useTheme } from '../hooks/useTheme';
 import { favoriteToMeal } from '../services/favorites';
-import { mealEmoji } from '../services/foodCatalog';
 import { tr } from '../i18n';
 
 export default function FavoritesScreen() {
@@ -61,7 +61,7 @@ export default function FavoritesScreen() {
           favorites.map((f, i) => (
             <View key={f.id} style={[styles.card, styles.row]}>
               <View style={styles.emojiWrap}>
-                <Text style={{ fontSize: 22 }}>{mealEmoji(f.analysis.food_name)}</Text>
+                <DishGlyph size={26} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.title} numberOfLines={1}>{f.analysis.food_name}</Text>
