@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { isSupabaseConfigured } from '../services/supabase';
+import { AuthPhotoStrip } from './AuthPhotoStrip';
 import { LanguagePill } from './LanguagePill';
 import { Logo } from './Logo';
 import { tr } from '../i18n';
@@ -33,7 +34,7 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
             flexGrow: 1,
             justifyContent: 'flex-end',
             paddingTop: insets.top + 16,
-            paddingBottom: insets.bottom + 16,
+            paddingBottom: 16,
             paddingHorizontal: 16,
             gap: 12,
           }}
@@ -58,6 +59,7 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
             {children}
           </View>
         </ScrollView>
+        <AuthPhotoStrip bottomInset={insets.bottom} />
       </KeyboardAvoidingView>
     </ImageBackground>
   );
