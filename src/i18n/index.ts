@@ -1,27 +1,29 @@
 import { af } from './af';
+import { de } from './de';
 import { en } from './en';
 import { es } from './es';
 import { fr } from './fr';
-import { sw } from './sw';
+import { it } from './it';
+import { nl } from './nl';
 import { zh } from './zh';
-import { zu } from './zu';
 
-export type Lang = 'pt' | 'en' | 'es' | 'fr' | 'af' | 'sw' | 'zu' | 'zh';
+export type Lang = 'pt' | 'en' | 'es' | 'fr' | 'de' | 'it' | 'nl' | 'af' | 'zh';
 
 export const LANGUAGES: { id: Lang; flag: string; name: string; hint: string }[] = [
   { id: 'pt', flag: '🇲🇿', name: 'Português', hint: 'Moçambique' },
   { id: 'en', flag: '🇬🇧', name: 'English', hint: 'International' },
   { id: 'es', flag: '🇪🇸', name: 'Español', hint: 'España · Latinoamérica' },
   { id: 'fr', flag: '🇫🇷', name: 'Français', hint: 'France · Afrique' },
+  { id: 'de', flag: '🇩🇪', name: 'Deutsch', hint: 'Deutschland' },
+  { id: 'it', flag: '🇮🇹', name: 'Italiano', hint: 'Italia' },
+  { id: 'nl', flag: '🇳🇱', name: 'Nederlands', hint: 'Nederland' },
   { id: 'af', flag: '🇿🇦', name: 'Afrikaans', hint: 'Suid-Afrika' },
-  { id: 'zu', flag: '🇿🇦', name: 'isiZulu', hint: 'iNingizimu Afrika' },
-  { id: 'sw', flag: '🇹🇿', name: 'Kiswahili', hint: 'Tanzania · Kenya' },
   { id: 'zh', flag: '🇨🇳', name: '中文', hint: '简体中文' },
 ];
 
 export const isLang = (value: unknown): value is Lang => LANGUAGES.some((l) => l.id === value);
 
-const dictionaries: Record<Lang, Record<string, string>> = { pt: {}, en, es, fr, af, sw, zu, zh };
+const dictionaries: Record<Lang, Record<string, string>> = { pt: {}, en, es, fr, de, it, nl, af, zh };
 
 let current: Lang = 'pt';
 

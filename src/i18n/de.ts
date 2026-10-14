@@ -1,2 +1,2 @@
 /** Português (chave) → idioma. Texto sem tradução aparece em português. */
-export const sw: Record<string, string> = {};
+export const de: Record<string, string> = {};

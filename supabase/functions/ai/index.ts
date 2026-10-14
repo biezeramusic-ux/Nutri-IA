@@ -32,9 +32,10 @@ const LANG_NAMES: Record<string, string> = {
   en: 'English',
   es: 'Spanish',
   fr: 'French',
+  de: 'German',
+  it: 'Italian',
+  nl: 'Dutch',
   af: 'Afrikaans',
-  sw: 'Swahili',
-  zu: 'isiZulu',
   zh: 'Simplified Chinese',
 };
 const langName = (lang?: string) => (lang && LANG_NAMES[lang]) || 'Portuguese (Mozambique)';
