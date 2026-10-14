@@ -156,7 +156,6 @@ export default function HomeScreen() {
         </View>
 
         <View style={[styles.pad, { gap: 10 }]}>
-          <Text style={styles.section}>{isToday ? 'Refeições de hoje 🍽️' : 'Refeições do dia 🍽️'}</Text>
           {MEAL_TYPES.map((t) => (
             <MealSection
               key={t.type}

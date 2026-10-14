@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Flame } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
@@ -32,7 +33,7 @@ export function CaloriesCard({ goals, consumed }: Props) {
           </Text>
         </View>
         <ProgressRing size={76} strokeWidth={8} progress={consumed.kcal / goals.calories} color={over ? colors.danger : colors.primary}>
-          <Text style={{ fontSize: 26 }}>🔥</Text>
+          <Flame size={22} color={over ? colors.danger : colors.primary} />
         </ProgressRing>
       </View>
     </View>
