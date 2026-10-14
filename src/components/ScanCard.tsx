@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-import { DishGlyph } from './MealIcon';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { cardBase, font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
-import { macroPercentages } from '../services/foodCatalog';
+import { macroPercentages, mealEmoji } from '../services/foodCatalog';
 import type { Meal } from '../types';
 import { MacroDots } from './MacroDots';
 
@@ -18,7 +17,7 @@ export function ScanCard({ meal, onPress }: { meal: Meal; onPress: () => void })
         <Image source={{ uri: meal.photoUri }} style={styles.photo} />
       ) : (
         <View style={[styles.photo, styles.placeholder]}>
-          <DishGlyph size={38} />
+          <Text style={{ fontSize: 32 }}>{mealEmoji(meal.analysis.food_name)}</Text>
         </View>
       )}
       <Text style={styles.name} numberOfLines={2}>

@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { DishGlyph } from '../components/MealIcon';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Bookmark, CircleCheck, Drumstick, Pencil, ShieldCheck, Sparkles, Star, Wheat } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
@@ -17,7 +16,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useDiary } from '../hooks/useDiary';
 import { useFavorites } from '../hooks/useFavorites';
 import { useSubscription } from '../hooks/useSubscription';
-import { deriveIngredients, macroPercentages, proteinSources, scaleMeal } from '../services/foodCatalog';
+import { deriveIngredients, macroPercentages, mealEmoji, proteinSources, scaleMeal } from '../services/foodCatalog';
 import { refineAnalysis } from '../services/foodRecognition';
 import { mealScore } from '../services/healthScore';
 import { tr } from '../i18n';
@@ -142,7 +141,7 @@ export default function DetailsScreen() {
         />
 
         <View style={{ alignItems: 'center', gap: 4 }}>
-          <DishGlyph size={52} />
+          <Text style={{ fontSize: 44 }}>{mealEmoji(analysis.food_name)}</Text>
           <Text style={styles.name}>{analysis.food_name}</Text>
           <Text style={styles.weight}>{analysis.estimated_weight_grams} g</Text>
           <Text style={styles.kcal}>

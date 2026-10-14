@@ -15,9 +15,9 @@ import { useFavorites } from '../../hooks/useFavorites';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { todayKey } from '../../services/date';
-import { DishGlyph, MealIcon } from '../../components/MealIcon';
 import { MEAL_TYPES, dayKeyOf, mealTypeOf, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
 import { favoriteToMeal } from '../../services/favorites';
+import { mealEmoji } from '../../services/foodCatalog';
 import { dayScore } from '../../services/healthScore';
 import type { Meal } from '../../types';
 import { tr } from '../../i18n';
@@ -183,7 +183,9 @@ export default function DiaryScreen() {
         return (
           <View key={t.type} style={styles.section}>
             <View style={styles.sectionHead}>
-              <MealIcon type={t.type} size={30} />
+              <View style={styles.sectionIcon}>
+                <Text style={{ fontSize: 16 }}>{t.emoji}</Text>
+              </View>
               <Text style={styles.sectionTitle}>{t.label}</Text>
               <Text style={styles.sectionKcal}>{kcal > 0 ? `${kcal} kcal` : ''}</Text>
               <Pressable style={styles.add} onPress={() => router.navigate({ pathname: '/scanner', params: { meal: t.type } })} hitSlop={8} accessibilityLabel={`Adicionar ${t.label}`}>
@@ -199,7 +201,7 @@ export default function DiaryScreen() {
                     <Image source={{ uri: m.photoUri }} style={styles.thumb} />
                   ) : (
                     <View style={[styles.thumb, styles.thumbPlaceholder]}>
-                      <DishGlyph size={26} />
+                      <Text style={{ fontSize: 18 }}>{mealEmoji(m.analysis.food_name)}</Text>
                     </View>
                   )}
                   <View style={{ flex: 1 }}>
