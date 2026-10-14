@@ -779,4 +779,13 @@ export const fr: Record<string, string> = {
   "Restante": "Restant",
   "Objetivo": "Objectif",
   "Adicionar alimento": "Ajouter un aliment",
+  "Passos hoje": "Pas aujourd'hui",
+  "Conectar": "Connecter",
+  "Queimadas": "Brûlées",
+  "kcal hoje": "kcal aujourd'hui",
+  "Registrar água": "Enregistrer l'eau",
+  "Registro": "Enregistrer",
+  "+1 Copo": "+1 Verre",
+  "+1 Garrafa": "+1 Bouteille",
+  "+1 Garrafa grande": "+1 Grande bouteille",
 };

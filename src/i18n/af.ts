@@ -779,4 +779,13 @@ export const af: Record<string, string> = {
   "Restante": "Oor",
   "Objetivo": "Doel",
   "Adicionar alimento": "Voeg kos by",
+  "Passos hoje": "Treë vandag",
+  "Conectar": "Koppel",
+  "Queimadas": "Verbrand",
+  "kcal hoje": "kcal vandag",
+  "Registrar água": "Water aanteken",
+  "Registro": "Teken aan",
+  "+1 Copo": "+1 Glas",
+  "+1 Garrafa": "+1 Bottel",
+  "+1 Garrafa grande": "+1 Groot bottel",
 };

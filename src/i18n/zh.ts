@@ -779,4 +779,13 @@ export const zh: Record<string, string> = {
   "Restante": "剩余",
   "Objetivo": "目标",
   "Adicionar alimento": "添加食物",
+  "Passos hoje": "今日步数",
+  "Conectar": "连接",
+  "Queimadas": "已消耗",
+  "kcal hoje": "今日千卡",
+  "Registrar água": "记录饮水",
+  "Registro": "记录",
+  "+1 Copo": "+1 杯",
+  "+1 Garrafa": "+1 瓶",
+  "+1 Garrafa grande": "+1 大瓶",
 };

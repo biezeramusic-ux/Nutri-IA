@@ -779,4 +779,13 @@ export const es: Record<string, string> = {
   "Restante": "Restante",
   "Objetivo": "Objetivo",
   "Adicionar alimento": "Añadir alimento",
+  "Passos hoje": "Pasos hoy",
+  "Conectar": "Conectar",
+  "Queimadas": "Quemadas",
+  "kcal hoje": "kcal hoy",
+  "Registrar água": "Registrar agua",
+  "Registro": "Registrar",
+  "+1 Copo": "+1 Vaso",
+  "+1 Garrafa": "+1 Botella",
+  "+1 Garrafa grande": "+1 Botella grande",
 };

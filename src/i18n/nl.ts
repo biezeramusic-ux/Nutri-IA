@@ -779,4 +779,13 @@ export const nl: Record<string, string> = {
   "Restante": "Resterend",
   "Objetivo": "Doel",
   "Adicionar alimento": "Eten toevoegen",
+  "Passos hoje": "Stappen vandaag",
+  "Conectar": "Verbinden",
+  "Queimadas": "Verbrand",
+  "kcal hoje": "kcal vandaag",
+  "Registrar água": "Water registreren",
+  "Registro": "Registreren",
+  "+1 Copo": "+1 Glas",
+  "+1 Garrafa": "+1 Fles",
+  "+1 Garrafa grande": "+1 Grote fles",
 };

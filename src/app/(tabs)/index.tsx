@@ -11,6 +11,7 @@ import { Logo } from '../../components/Logo';
 import { MealSection } from '../../components/MealSection';
 import { ProBadge } from '../../components/ProOverlay';
 import { ScanCard } from '../../components/ScanCard';
+import { StepsWaterCards } from '../../components/StepsWaterCards';
 import { StreakCard } from '../../components/StreakCard';
 import { SearchBar } from '../../components/SearchBar';
 import { WaterMiniCard } from '../../components/WaterMiniCard';
@@ -153,6 +154,10 @@ export default function HomeScreen() {
 
         <View style={styles.pad}>
           <CaloriesCard goals={goals} consumed={consumed} />
+        </View>
+
+        <View style={styles.pad}>
+          <StepsWaterCards />
         </View>
 
         <View style={[styles.pad, { gap: 10 }]}>

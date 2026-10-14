@@ -25,6 +25,7 @@ interface WaterContextValue {
   error: string | null;
   increment: () => void;
   decrement: () => void;
+  addGlasses: (n: number) => void;
 }
 
 const WaterContext = createContext<WaterContextValue | null>(null);
@@ -85,6 +86,7 @@ export function WaterProvider({ children }: { children: ReactNode }) {
       error,
       increment: () => update(1),
       decrement: () => update(-1),
+      addGlasses: (n: number) => update(n),
     }),
     [glasses, goals.waterMl, error, update],
   );
