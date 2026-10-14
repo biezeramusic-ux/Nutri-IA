@@ -1,11 +1,11 @@
 import { useMemo, type ReactNode } from 'react';
-import { ImageBackground, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { isSupabaseConfigured } from '../services/supabase';
-import { AuthPhotoStrip } from './AuthPhotoStrip';
+import { AuthPhotoBackdrop } from './AuthPhotoBackdrop';
 import { LanguagePill } from './LanguagePill';
 import { Logo } from './Logo';
 import { tr } from '../i18n';
@@ -26,7 +26,10 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
   const insets = useSafeAreaInsets();
 
   return (
-    <ImageBackground source={require('../../assets/auth-bg.jpg')} style={styles.root} resizeMode="cover">
+    <View style={styles.root}>
+      {/* Atrás: fotografias em movimento. Por cima: a camada verde (translúcida). */}
+      <AuthPhotoBackdrop />
+      <Image source={require('../../assets/auth-bg.jpg')} style={styles.green} resizeMode="cover" />
       <View style={styles.shade} />
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
@@ -34,7 +37,7 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
             flexGrow: 1,
             justifyContent: 'flex-end',
             paddingTop: insets.top + 16,
-            paddingBottom: 16,
+            paddingBottom: insets.bottom + 16,
             paddingHorizontal: 16,
             gap: 12,
           }}
@@ -59,9 +62,8 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
             {children}
           </View>
         </ScrollView>
-        <AuthPhotoStrip bottomInset={insets.bottom} />
       </KeyboardAvoidingView>
-    </ImageBackground>
+    </View>
   );
 }
 
@@ -69,7 +71,8 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.12)' },
+  green: { ...StyleSheet.absoluteFill, width: undefined, height: undefined, opacity: 0.6 },
+  shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.08)' },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 'auto' },
   logoBubble: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center' },
   brandText: { fontSize: font.h2, fontWeight: '700', color: '#fff' },
