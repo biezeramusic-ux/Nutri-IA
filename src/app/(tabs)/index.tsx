@@ -155,57 +155,6 @@ export default function HomeScreen() {
           <CaloriesCard goals={goals} consumed={consumed} />
         </View>
 
-        <View style={styles.pad}>
-          <StreakCard streak={streak} />
-        </View>
-
-        {showReminderCard && (
-          <View style={styles.pad}>
-            <WaterReminderCard
-              text={reminderPitch(profile?.goal ?? null, profile?.quiz?.habits ?? null, goals.waterMl)}
-              busy={activating}
-              onActivate={() => void activateReminders()}
-              onDismiss={() => setReminderDismissed(true)}
-            />
-          </View>
-        )}
-
-        <View style={[styles.pad, styles.row]}>
-          {isPro ? (
-            <WaterMiniCard glasses={water.glasses} goalGlasses={water.goalGlasses} onAdd={water.increment} onOpen={() => router.push('/water')} />
-          ) : (
-            <Pressable style={styles.lockedCard} onPress={() => router.push('/paywall')}>
-              <View style={styles.lockedHead}>
-                <Text style={styles.statTitle}>{tr('Água')}</Text>
-                <ProBadge />
-              </View>
-              <Droplets size={22} color={colors.water} />
-              <Text style={styles.statLabel}>{tr('Registo de água e lembretes no plano Pro')}</Text>
-            </Pressable>
-          )}
-          <View style={styles.statCard}>
-            <Text style={styles.statTitle}>{tr('Refeições')}</Text>
-            <View>
-              <Text style={styles.statValue}>{dayMeals.length}</Text>
-              <Text style={styles.statLabel}>{isToday ? 'registadas hoje' : 'registadas neste dia'}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* A pesquisa de pratos só aparece depois de a pessoa registar o primeiro prato no diário. */}
-        {meals.length > 0 && (
-          <View style={[styles.pad, { gap: 12 }]}>
-            <Text style={styles.title}>{tr('Vamos ver a sua refeição juntos')}</Text>
-            <SearchBar value={query} onChangeText={setQuery} onSubmit={handleSearch} />
-            <View style={styles.links}>
-              <Pressable style={styles.linkChip} onPress={() => router.push('/favorites')}>
-                <Star size={14} color={colors.carbs} />
-                <Text style={styles.linkChipText}>{tr('Favoritas')}</Text>
-              </Pressable>
-            </View>
-          </View>
-        )}
-
         <View style={[styles.pad, { gap: 10 }]}>
           <Text style={styles.section}>{isToday ? 'Refeições de hoje 🍽️' : 'Refeições do dia 🍽️'}</Text>
           {MEAL_TYPES.map((t) => (
