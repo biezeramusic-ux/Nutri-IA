@@ -1,5 +1,6 @@
 import { EXTRA_NUMBER_KEYS, type FoodAnalysis } from '../types';
 import { getLang } from '../i18n';
+import { analyzeFromText } from './foodCatalog';
 import { supabase } from './supabase';
 
 export const MOCK_VEGETABLE_SALAD: FoodAnalysis = {
@@ -91,5 +92,25 @@ export async function refineAnalysis(current: FoodAnalysis, instruction: string)
     return { status: 'ok', analysis: parseAnalysis(String(data.text ?? '')) };
   } catch {
     return { status: 'unavailable' };
+  }
+}
+
+export type DescribeOutcome =
+  | { status: 'ok'; analysis: FoodAnalysis; isFallback: boolean }
+  | { status: 'blocked' }
+  | { status: 'not_food' };
+
+/** Analisa o prato a partir de um texto ("comi xima com peixe"), pela função "ai". Sem IA usa o catálogo local. */
+export async function describeFood(description: string): Promise<DescribeOutcome> {
+  try {
+    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'describe', instruction: description, lang: getLang() } });
+    if (error || !data) throw new Error('ai_unavailable');
+    if (data.allowed === false) return { status: 'blocked' };
+    const analysis = parseAnalysis(String(data.text ?? ''));
+    if (analysis.calories <= 0) return { status: 'not_food' };
+    return { status: 'ok', analysis, isFallback: false };
+  } catch {
+    const local = analyzeFromText(description);
+    return local ? { status: 'ok', analysis: local, isFallback: true } : { status: 'not_food' };
   }
 }

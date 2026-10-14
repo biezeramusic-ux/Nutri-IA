@@ -22,6 +22,9 @@ const SCAN_PROMPT =
 const REFINE_PROMPT =
   "You are the Nutri IA nutritionist. You receive the current analysis of a meal (JSON) and a correction written by the user in Portuguese (e.g. 'foi sem arroz', 'a porção era maior', 'é xima com peixe'). Apply the correction and return strictly a clean JSON object with the same fields: { \"food_name\": string, \"estimated_weight_grams\": number, \"calories\": number, \"carbs_g\": number, \"protein_g\": number, \"fats_g\": number, \"fiber_g\": number, \"sugar_g\": number, \"added_sugar_g\": number, \"saturated_fat_g\": number, \"trans_fat_g\": number, \"polyunsaturated_fat_g\": number, \"monounsaturated_fat_g\": number, \"cholesterol_mg\": number, \"sodium_mg\": number, \"calcium_mg\": number, \"iron_mg\": number, \"potassium_mg\": number, \"vitamin_a_iu\": number, \"vitamin_c_mg\": number, \"vitamin_d_iu\": number, \"health_analysis\": string, \"confidence\": number }. Keep food_name in Portuguese (Mozambique), update health_analysis to match the corrected dish, and keep all numbers coherent with the new dish and portion.";
 
+const DESCRIBE_PROMPT =
+  "You are an expert Mozambican Nutritionist AI and core engine of 'Nutri IA'. The user describes in free text (any language, maybe dictated by voice, maybe with typos) what they ate, with or without quantities. Identify every food, assume a typical adult portion when quantities are missing, and estimate the totals for the WHOLE meal. Return strictly a clean JSON object: { \"food_name\": string, \"estimated_weight_grams\": number, \"calories\": number, \"carbs_g\": number, \"protein_g\": number, \"fats_g\": number, \"fiber_g\": number, \"sugar_g\": number, \"added_sugar_g\": number, \"saturated_fat_g\": number, \"trans_fat_g\": number, \"polyunsaturated_fat_g\": number, \"monounsaturated_fat_g\": number, \"cholesterol_mg\": number, \"sodium_mg\": number, \"calcium_mg\": number, \"iron_mg\": number, \"potassium_mg\": number, \"vitamin_a_iu\": number, \"vitamin_c_mg\": number, \"vitamin_d_iu\": number, \"health_analysis\": string, \"confidence\": number }. food_name is a short name of the meal (e.g. 'Xima com peixe'). confidence is 0 to 100. health_analysis is 2 to 4 short friendly sentences, without medical claims. If the text does not describe food, return calories 0 and food_name 'unknown'.";
+
 const INSIGHT_PROMPT =
   'És o nutricionista do Nutri IA. Com base nos números do utilizador, escreve em português de Moçambique um resumo curto (máx. 3 frases) e um conselho prático, tom amigável, sem diagnósticos médicos nem promessas. Responde só com o texto.';
 
@@ -111,6 +114,21 @@ Deno.serve(async (req) => {
         [{ text: JSON.stringify({ current: body.analysis, correction: instruction }) }],
         true,
         `${REFINE_PROMPT} Write food_name and health_analysis in ${langName(body.lang)}.`,
+      );
+      return json({ allowed: true, status: access, text });
+    }
+
+    if (body.action === 'describe') {
+      const description = typeof body.instruction === 'string' ? body.instruction.trim().slice(0, 400) : '';
+      if (!description) return json({ error: 'bad_request' }, 400);
+      // Descrever o prato também conta como uma análise do plano.
+      const { data: access, error } = await supabase.rpc('consume_scan');
+      if (error) return json({ error: 'access_error' }, 500);
+      if (!access?.allowed) return json({ allowed: false, status: access }, 200);
+      const text = await gemini(
+        [{ text: description }],
+        true,
+        `${DESCRIBE_PROMPT} Write food_name and health_analysis in ${langName(body.lang)}.`,
       );
       return json({ allowed: true, status: access, text });
     }
