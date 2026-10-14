@@ -162,6 +162,7 @@ export default function HomeScreen() {
               label={t.label}
               type={t.type}
               meals={dayMeals.filter((m) => mealTypeOf(m) === t.type)}
+              onAdd={() => router.navigate({ pathname: '/scanner', params: { meal: t.type } })}
               onOpenMeal={openMeal}
               isFavorite={isFavorite}
               onToggleFavorite={toggleFav}
