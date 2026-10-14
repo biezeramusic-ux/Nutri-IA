@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import { Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
@@ -12,14 +11,13 @@ interface Props {
   label: string;
   type: MealType;
   meals: Meal[];
-  onAdd: () => void;
   onOpenMeal: (meal: Meal) => void;
   isFavorite?: (meal: Meal) => boolean;
   onToggleFavorite?: (meal: Meal) => void;
 }
 
-/** Cartão de uma refeição do dia (pequeno-almoço, almoço…): ícone colorido, calorias, + e os pratos registados. */
-export function MealSection({ label, type, meals, onAdd, onOpenMeal, isFavorite, onToggleFavorite }: Props) {
+/** Cartão de uma refeição do dia (pequeno-almoço, almoço…): ícone colorido, calorias e os pratos registados. */
+export function MealSection({ label, type, meals, onOpenMeal, isFavorite, onToggleFavorite }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const kcal = meals.reduce((s, m) => s + m.analysis.calories, 0);
@@ -31,9 +29,6 @@ export function MealSection({ label, type, meals, onAdd, onOpenMeal, isFavorite,
           <Text style={styles.label}>{label}</Text>
           <Text style={styles.kcal}>{meals.length === 0 ? 'Nada registado' : `${kcal} kcal`}</Text>
         </View>
-        <Pressable style={styles.add} onPress={onAdd} hitSlop={8} accessibilityLabel={`Adicionar ${label}`}>
-          <Plus size={18} color={colors.text} />
-        </Pressable>
       </View>
       {meals.map((m) => (
         <MealEntry
@@ -55,5 +50,4 @@ const createStyles = (colors: ThemeColors) =>
     info: { flex: 1 },
     label: { fontSize: font.body, fontWeight: '700', color: colors.text },
     kcal: { fontSize: font.small, color: colors.textMuted, marginTop: 1 },
-    add: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
   });
