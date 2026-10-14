@@ -6,6 +6,7 @@ import { font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { mealScore } from '../services/healthScore';
 import type { Meal } from '../types';
+import { MacroGlyph, type MacroKind } from './MacroGlyph';
 import { DishGlyph } from './MealIcon';
 
 interface Props {
@@ -50,9 +51,9 @@ export function MealEntry({ meal, onPress, onDelete }: Props) {
         </Text>
         <View style={styles.bottom}>
           <View style={styles.macros}>
-            <Macro color={colors.protein} icon="🍗" value={a.protein_g} />
-            <Macro color={colors.fats} icon="🥑" value={a.fats_g} />
-            <Macro color={colors.carbs} icon="🍞" value={a.carbs_g} />
+            <Macro color={colors.protein} kind="protein" value={a.protein_g} />
+            <Macro color={colors.fats} kind="fats" value={a.fats_g} />
+            <Macro color={colors.carbs} kind="carbs" value={a.carbs_g} />
           </View>
           <View style={styles.score}>
             <Leaf size={12} color="#16A34A" />
@@ -64,12 +65,12 @@ export function MealEntry({ meal, onPress, onDelete }: Props) {
   );
 }
 
-/** Macro em pastilha colorida com um alimento que o representa (carne, abacate, pão). */
-function Macro({ color, icon, value }: { color: string; icon: string; value: number }) {
+/** Macro em pastilha colorida com um ícone desenhado que o representa (carne, azeite, trigo). */
+function Macro({ color, kind, value }: { color: string; kind: MacroKind; value: number }) {
   const { colors } = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: `${color}26`, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
-      <Text style={{ fontSize: 12 }}>{icon}</Text>
+      <MacroGlyph kind={kind} color={color} size={14} />
       <Text style={{ fontSize: font.tiny, color: colors.text, fontWeight: '700' }}>{Math.round(value)}g</Text>
     </View>
   );

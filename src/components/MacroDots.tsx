@@ -4,22 +4,22 @@ import { Text } from '../components/AppText';
 import { font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import type { MacroPercentages } from '../types';
+import { MacroGlyph } from './MacroGlyph';
 
 export function MacroDots({ macros }: { macros: MacroPercentages }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const items = [
-    { key: '🍞', value: macros.carbs, color: colors.carbs },
-    { key: '🍗', value: macros.protein, color: colors.protein },
-    { key: '🥑', value: macros.fats, color: colors.fats },
+    { key: 'carbs' as const, value: macros.carbs, color: colors.carbs },
+    { key: 'protein' as const, value: macros.protein, color: colors.protein },
+    { key: 'fats' as const, value: macros.fats, color: colors.fats },
   ];
   return (
     <View style={styles.row}>
       {items.map((item) => (
         <View key={item.key} style={styles.item}>
-          <Text style={styles.text}>
-            {item.key} {item.value}%
-          </Text>
+          <MacroGlyph kind={item.key} color={item.color} size={13} />
+          <Text style={styles.text}>{item.value}%</Text>
         </View>
       ))}
     </View>
