@@ -15,7 +15,8 @@ import { useFavorites } from '../../hooks/useFavorites';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
 import { todayKey } from '../../services/date';
-import { DishGlyph, MealIcon } from '../../components/MealIcon';
+import { MealEntry } from '../../components/MealEntry';
+import { MealIcon } from '../../components/MealIcon';
 import { MEAL_TYPES, dayKeyOf, mealTypeOf, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
 import { favoriteToMeal } from '../../services/favorites';
 import { dayScore } from '../../services/healthScore';
@@ -193,28 +194,7 @@ export default function DiaryScreen() {
             {list.length === 0 ? (
               <Text style={styles.empty}>{tr('Nada registado')}</Text>
             ) : (
-              list.map((m) => (
-                <Pressable key={m.id} onPress={() => open(m)} style={styles.row}>
-                  {m.photoUri ? (
-                    <Image source={{ uri: m.photoUri }} style={styles.thumb} />
-                  ) : (
-                    <View style={[styles.thumb, styles.thumbPlaceholder]}>
-                      <DishGlyph size={26} />
-                    </View>
-                  )}
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.mealName} numberOfLines={1}>
-                      {m.analysis.food_name}
-                    </Text>
-                    <Text style={styles.mealSub}>
-                      {m.analysis.estimated_weight_grams} g · {m.analysis.calories} kcal
-                    </Text>
-                  </View>
-                  <Pressable onPress={() => confirmDelete(m)} hitSlop={10} accessibilityLabel={tr('Apagar refeição')}>
-                    <Trash size={16} color={colors.textFaint} />
-                  </Pressable>
-                </Pressable>
-              ))
+              list.map((m) => <MealEntry key={m.id} meal={m} onPress={() => open(m)} onDelete={() => confirmDelete(m)} />)
             )}
           </View>
         );
