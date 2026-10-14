@@ -1,11 +1,14 @@
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
 import { tr } from '../i18n';
+import type { MealType } from '../types';
+import { planMealReminders } from './mealReminderPlan';
 import { planWaterReminders, type ReminderPlanInput } from './waterReminderPlan';
 
 type NotificationsModule = typeof import('expo-notifications');
 
 const CHANNEL_ID = 'water-reminders';
+const MEAL_CHANNEL_ID = 'meal-reminders';
 const KIND_WATER = 'water';
 const KIND_MEAL = 'meal';
 const MEAL_NUDGE_DELAY_MS = 5 * 60 * 1000;
@@ -46,7 +49,15 @@ export async function ensureNotificationPermission(request: boolean): Promise<bo
     if (Platform.OS === 'android') {
       await N.setNotificationChannelAsync(CHANNEL_ID, {
         name: tr('Lembretes de água'),
-        importance: N.AndroidImportance.DEFAULT,
+        importance: N.AndroidImportance.HIGH,
+        lightColor: '#38BDF8',
+        vibrationPattern: [0, 200, 120, 200],
+      });
+      await N.setNotificationChannelAsync(MEAL_CHANNEL_ID, {
+        name: tr('Lembretes de refeições'),
+        importance: N.AndroidImportance.HIGH,
+        lightColor: '#4CAF50',
+        vibrationPattern: [0, 250, 150, 250],
       });
     }
     const current = await N.getPermissionsAsync();
@@ -121,24 +132,25 @@ export async function scheduleMealWaterNudge(): Promise<void> {
 
 const KIND_MEAL_SLOT = 'meal-slot';
 
-const MEAL_SLOTS = [
-  { hour: 8, minute: 15, title: '☀️ Bom dia!', body: 'Já tomou o pequeno-almoço? Registe-o em segundos com uma foto.' },
-  { hour: 12, minute: 45, title: '🍽️ Hora do almoço', body: 'Fotografe o seu prato para saber as calorias.' },
-  { hour: 19, minute: 30, title: '🌙 Hora do jantar', body: 'Não se esqueça de registar o jantar e fechar o dia.' },
-] as const;
+interface MealReminderOptions {
+  firstName?: string;
+  /** Refeições de hoje que já foram registadas (não se lembra o que já está feito). */
+  loggedToday?: MealType[];
+}
 
-/** Lembretes diários para registar as refeições (pequeno-almoço, almoço e jantar). */
-export async function scheduleMealReminders(enabled: boolean): Promise<boolean> {
+/** Lembretes para escanear as refeições (pequeno-almoço, almoço, lanche e jantar), com mensagens variadas. */
+export async function scheduleMealReminders(enabled: boolean, options: MealReminderOptions = {}): Promise<boolean> {
   const N = await loadNotifications();
   if (!N) return false;
   try {
     await cancelByKind(N, KIND_MEAL_SLOT);
     if (!enabled) return true;
     if (!(await ensureNotificationPermission(true))) return false;
-    for (const slot of MEAL_SLOTS) {
+    const plan = planMealReminders({ now: new Date(), firstName: options.firstName, loggedToday: options.loggedToday ?? [] });
+    for (const reminder of plan) {
       await N.scheduleNotificationAsync({
-        content: { title: tr(slot.title), body: tr(slot.body), data: { kind: KIND_MEAL_SLOT } },
-        trigger: { type: N.SchedulableTriggerInputTypes.DAILY, hour: slot.hour, minute: slot.minute, channelId: CHANNEL_ID },
+        content: { title: reminder.title, body: reminder.body, data: { kind: KIND_MEAL_SLOT } },
+        trigger: { type: N.SchedulableTriggerInputTypes.DATE, date: reminder.at, channelId: MEAL_CHANNEL_ID },
       });
     }
     return true;

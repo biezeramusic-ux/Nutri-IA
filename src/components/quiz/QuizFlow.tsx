@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import {
   Activity,
@@ -239,7 +240,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     try {
       await completeOnboarding(buildAnswers());
       // Pede a permissão para os lembretes de água só no primeiro quiz.
-      if (mode === 'first') await ensureNotificationPermission(true);
+      if (mode === 'first' && (await ensureNotificationPermission(true))) {
+        // Com a permissão dada, os lembretes de refeição ficam ligados por defeito (a pessoa pode desligar no Perfil).
+        await AsyncStorage.setItem('nutria.mealReminders', '1').catch(() => undefined);
+      }
       router.replace('/');
     } catch (e) {
       const detail = e instanceof Error && e.message ? `\n\n${tr('Detalhe')}: ${e.message}` : '';

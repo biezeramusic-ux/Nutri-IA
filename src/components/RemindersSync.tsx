@@ -1,9 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import type { MealType } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../hooks/useTheme';
 import { useProfile } from '../hooks/useProfile';
+import { useDiary } from '../hooks/useDiary';
 import { useWater } from '../hooks/useWater';
+import { dayKeyOf, getMealType } from '../services/dayUtils';
+import { todayKey } from '../services/date';
 import { getWaterMessages } from '../services/aiText';
 import { cancelWaterReminders, scheduleMealReminders, scheduleWaterReminders } from '../services/notifications';
 
@@ -15,6 +19,7 @@ export function RemindersSync() {
   const { user } = useAuth();
   const { profile, onboardingDone } = useReminderInputs();
   const { glasses, goalGlasses } = useWater();
+  const { meals } = useDiary();
   const { lang } = useTheme();
 
   const enabled = !!user && onboardingDone && (profile?.waterReminders ?? false);
@@ -42,13 +47,23 @@ export function RemindersSync() {
     return () => clearTimeout(timer);
   }, [user, enabled, glasses, goalGlasses, wakeHour, sleepHour, goal, firstName, lang]);
 
-  // Os lembretes de refeição são reagendados quando o idioma muda (o texto vai na notificação).
+  // Refeições de hoje já registadas (ex.: "breakfast,lunch"): não se lembra o que já está feito.
+  const loggedKey = useMemo(() => {
+    const today = todayKey();
+    return [...new Set(meals.filter((m) => dayKeyOf(m.createdAt) === today).map((m) => getMealType(m.createdAt)))].sort().join(',');
+  }, [meals]);
+
+  // Os lembretes de refeição são reagendados quando muda o idioma, o nome ou o que já foi registado hoje.
   useEffect(() => {
     if (!user) return;
     AsyncStorage.getItem('nutria.mealReminders')
-      .then((v) => (v === '1' ? scheduleMealReminders(true) : undefined))
+      .then((v) =>
+        v === '1'
+          ? scheduleMealReminders(true, { firstName, loggedToday: loggedKey ? (loggedKey.split(',') as MealType[]) : [] })
+          : undefined,
+      )
       .catch(() => undefined);
-  }, [user, lang]);
+  }, [user, lang, firstName, loggedKey]);
 
   return null;
 }

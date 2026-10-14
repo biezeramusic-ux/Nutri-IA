@@ -27,33 +27,39 @@ const MAX_PER_DAY = 6;
 
 const MESSAGES: Record<GoalType | 'generic', string[]> = {
   lose_weight: [
-    'Um copo de água antes de comer ajuda a controlar a fome.',
-    'Muitas vezes a sede parece fome. Beba um copo e espere 10 minutos.',
-    'Beber água ao longo do dia ajuda no seu plano de perda de peso.',
-    'Está a ir bem! Mais um copo para continuar o seu plano.',
+    'Um copo de água antes de comer ajuda a controlar a fome. 💧',
+    'Muitas vezes a sede parece fome. Beba um copo e espere 10 minutos. ⏱️',
+    'Cada copo de água é um passo para o seu objetivo. Continue! 💪',
+    'Está a ir muito bem! Mais um copo e o plano agradece. 🌟',
   ],
   maintain: [
-    'Mantenha o ritmo: um copo de água agora faz bem.',
-    'Hidratação em dia ajuda a manter o peso e a energia.',
-    'Pequenos hábitos fazem a diferença. Beba um copo de água.',
+    'Mantenha o ritmo: um copo de água agora faz bem. 💧',
+    'Hidratação em dia ajuda a manter o peso e a energia. ⚡',
+    'Pequenos hábitos fazem a diferença. Beba um copo de água. 🌿',
   ],
   gain_muscle: [
-    'A hidratação ajuda a recuperação dos músculos. Beba um copo.',
-    'Para ganhar massa, a água é tão importante como a proteína.',
-    'Músculos precisam de água. Hora de um copo!',
+    'A hidratação ajuda a recuperação dos músculos. Beba um copo. 💪',
+    'Para ganhar massa, a água é tão importante como a proteína. 🥤',
+    'Os seus músculos precisam de água. Hora de um copo! 💧',
   ],
   eat_healthy: [
-    'A água é a bebida mais saudável. Beba um copo!',
-    'Comer bem começa por beber bem. Um copo de água agora?',
-    'O seu corpo agradece: beba um copo de água.',
+    'A água é a bebida mais saudável. Beba um copo! 🌱',
+    'Comer bem começa por beber bem. Um copo de água agora? 💧',
+    'O seu corpo agradece: beba um copo de água. 😊',
   ],
   track_calories: [
-    'Já registou as suas refeições? Aproveite e beba um copo de água.',
-    'Água não tem calorias e ajuda a sentir-se bem. Beba um copo!',
-    'Hoje está quente em Moçambique. Um copo de água faz bem.',
+    'Água não tem calorias e ajuda a sentir-se bem. Beba um copo! 💧',
+    'Já registou as suas refeições? Aproveite e beba um copo de água. 🍽️',
+    'Hoje está quente em Moçambique. Um copo de água faz bem. ☀️',
   ],
-  generic: ['Hora de beber água! O seu corpo agradece.', 'Um copo de água agora faz bem.'],
+  generic: ['Hora de beber água! O seu corpo agradece. 💧', 'Um copo de água agora faz bem. 😊'],
 };
+
+/** Barra de progresso em texto, ex.: ▰▰▰▱▱▱▱▱ */
+function progressBar(done: number, goal: number, size = 8): string {
+  const filled = Math.max(0, Math.min(size, Math.round((done / Math.max(1, goal)) * size)));
+  return '▰'.repeat(filled) + '▱'.repeat(size - filled);
+}
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
@@ -114,7 +120,7 @@ export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] 
       const name = firstName && i % 2 === 0 ? `${firstName}, ` : '';
       const core =
         d === 0 && i === 0
-          ? `${tr('Faltam {glasses} para a sua meta de hoje.', { glasses: glassesWord(remaining) })} ${pickMessage(goal, i, input.messages)}`
+          ? `${progressBar(glasses, goalGlasses)}  ${glasses}/${goalGlasses}\n${tr('Faltam {glasses} para a sua meta de hoje.', { glasses: glassesWord(remaining) })} ${pickMessage(goal, i, input.messages)}`
           : pickMessage(goal, d + i, input.messages);
       result.push({ at, title, body: name ? `${name}${core.charAt(0).toLowerCase()}${core.slice(1)}` : core });
     });
