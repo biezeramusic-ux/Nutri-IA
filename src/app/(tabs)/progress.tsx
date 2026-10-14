@@ -1,11 +1,11 @@
-import { Camera, Scale, Share2, Sparkles } from 'lucide-react-native';
+import { Camera, ChevronDown, ChevronLeft, ChevronRight, Lock, Scale, Share2, Sparkles, Wand2 } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BarChart, type Bar } from '../../components/BarChart';
+import { StackedChart } from '../../components/StackedChart';
 import { LineChart } from '../../components/LineChart';
 import { ProGate } from '../../components/ProOverlay';
 import { NumberStepper } from '../../components/quiz/NumberStepper';
@@ -19,7 +19,11 @@ import { useReferral } from '../../hooks/useReferral';
 import { useProfile } from '../../hooks/useProfile';
 import { useWeightLogs } from '../../hooks/useWeightLogs';
 import { todayKey } from '../../services/date';
-import { WEEKDAY_LABELS, mealsOfDay, sumMeals, weekDays } from '../../services/dayUtils';
+import { dayKeyOf, mealTypeOf } from '../../services/dayUtils';
+import { buildRange, type StatsPeriod } from '../../services/statsRange';
+import { basalMetabolicRate } from '../../services/goals';
+import { listActivityKcal, listWater } from '../../services/repositories/tracker';
+import type { MealType } from '../../types';
 import { fetchProgressInsight } from '../../services/aiText';
 import { useSubscription } from '../../hooks/useSubscription';
 import { buildProgressSummary } from '../../services/progressSummary';
@@ -27,12 +31,24 @@ import { computeStreak } from '../../services/streak';
 import { buildWeeklyReport } from '../../services/weeklyReport';
 import { tr } from '../../i18n';
 
-type Period = 'week' | 'month';
 
-function lastDays(count: number): Date[] {
-  const now = new Date();
-  return Array.from({ length: count }, (_, i) => new Date(now.getFullYear(), now.getMonth(), now.getDate() - (count - 1 - i)));
-}
+const MEAL_ORDER: { type: MealType; label: string; color: string }[] = [
+  { type: 'breakfast', label: 'Pequeno-almoço', color: '#F6BE3D' },
+  { type: 'lunch', label: 'Almoço', color: '#3DBE8B' },
+  { type: 'dinner', label: 'Jantar', color: '#7C83F2' },
+  { type: 'snack', label: 'Lanche', color: '#FF8A6B' },
+];
+const MEAL_COLORS = MEAL_ORDER.map((m) => m.color);
+
+type Nut = 'fiber_g' | 'sugar_g' | 'sodium_mg' | 'saturated_fat_g' | 'calcium_mg' | 'iron_mg';
+const NUTRIENTS: { key: Nut; label: string; unit: string; color: [string, string] }[] = [
+  { key: 'fiber_g', label: 'Fibra', unit: 'g', color: ['#86EFAC', '#16A34A'] },
+  { key: 'sugar_g', label: 'Açúcar', unit: 'g', color: ['#FDBA74', '#EA580C'] },
+  { key: 'sodium_mg', label: 'Sódio', unit: 'mg', color: ['#C4B5FD', '#7C3AED'] },
+  { key: 'saturated_fat_g', label: 'Gord. saturada', unit: 'g', color: ['#FDA4AF', '#E11D48'] },
+  { key: 'calcium_mg', label: 'Cálcio', unit: 'mg', color: ['#A5B4FC', '#4F46E5'] },
+  { key: 'iron_mg', label: 'Ferro', unit: 'mg', color: ['#FCA5A5', '#B91C1C'] },
+];
 
 const shortDate = (key: string) => {
   const [, m, d] = key.split('-');
@@ -46,92 +62,149 @@ export default function ProgressScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { meals } = useDiary();
-  const { displayName } = useAuth();
+  const { displayName, user } = useAuth();
   const referral = useReferral();
   const streak = useMemo(() => computeStreak(meals), [meals]);
   const { goals, profile } = useProfile();
-  const { logs, addToday } = useWeightLogs(90);
-  const [period, setPeriod] = useState<Period>('week');
+  const { logs, addToday } = useWeightLogs(400);
+  const { isPro } = useSubscription();
+  const [period, setPeriod] = useState<StatsPeriod>('week');
+  const [offset, setOffset] = useState(0);
   const [logging, setLogging] = useState(false);
   const [draftWeight, setDraftWeight] = useState<number | null>(null);
+  const [nutrient, setNutrient] = useState<Nut>('fiber_g');
+  const [reportOpen, setReportOpen] = useState(false);
+  const [waterByDay, setWaterByDay] = useState<Record<string, number>>({});
+  const [burnByDay, setBurnByDay] = useState<Record<string, number>>({});
 
   const today = todayKey();
-  const days = period === 'week' ? weekDays(new Date()) : lastDays(30);
+  const range = useMemo(() => buildRange(period, offset), [period, offset]);
+  const userId = user?.id ?? null;
 
-  const data = useMemo(
+  useEffect(() => {
+    if (!userId) return;
+    let alive = true;
+    void listWater(userId, range.fromKey, range.toKey).then((w) => alive && setWaterByDay(w)).catch(() => alive && setWaterByDay({}));
+    void listActivityKcal(userId, range.fromKey, range.toKey).then((b) => alive && setBurnByDay(b)).catch(() => alive && setBurnByDay({}));
+    return () => {
+      alive = false;
+    };
+  }, [userId, range.fromKey, range.toKey]);
+
+  const byDay = useMemo(() => {
+    const map: Record<string, typeof meals> = {};
+    meals.forEach((m) => {
+      (map[dayKeyOf(m.createdAt)] ??= []).push(m);
+    });
+    return map;
+  }, [meals]);
+
+  /** Por barra: valor por tipo de refeição (média dos dias com registos quando a barra agrupa vários dias). */
+  const stackFor = (pick: (m: (typeof meals)[number]) => number): number[][] =>
+    range.buckets.map((b) => {
+      const loggedDays = b.days.filter((d) => byDay[d]?.length);
+      if (loggedDays.length === 0) return MEAL_ORDER.map(() => 0);
+      return MEAL_ORDER.map((t) => {
+        let sum = 0;
+        loggedDays.forEach((d) => byDay[d].forEach((m) => (mealTypeOf(m) === t.type ? (sum += pick(m)) : 0)));
+        return Math.round(sum / loggedDays.length);
+      });
+    });
+
+  const kcalStack = useMemo(() => stackFor((m) => m.analysis.calories), [byDay, range]); // eslint-disable-line react-hooks/exhaustive-deps
+  const proteinStack = useMemo(() => stackFor((m) => m.analysis.protein_g), [byDay, range]); // eslint-disable-line react-hooks/exhaustive-deps
+  const fatsStack = useMemo(() => stackFor((m) => m.analysis.fats_g), [byDay, range]); // eslint-disable-line react-hooks/exhaustive-deps
+  const carbsStack = useMemo(() => stackFor((m) => m.analysis.carbs_g), [byDay, range]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const nut = NUTRIENTS.find((n) => n.key === nutrient) ?? NUTRIENTS[0];
+  const nutStack = useMemo(
     () =>
-      days.map((d, i) => {
-        const key = todayKey(d);
-        const dayMeals = mealsOfDay(meals, key);
-        return { key, totals: sumMeals(dayMeals), label: period === 'week' ? WEEKDAY_LABELS[i] : String(d.getDate()), isToday: key === today };
+      range.buckets.map((b) => {
+        const loggedDays = b.days.filter((d) => byDay[d]?.length);
+        if (loggedDays.length === 0) return [0];
+        const sum = loggedDays.reduce((s, d) => s + byDay[d].reduce((a, m) => a + (m.analysis[nutrient] ?? 0), 0), 0);
+        return [Math.round((sum / loggedDays.length) * 10) / 10];
       }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [meals, period],
+    [byDay, range, nutrient],
   );
 
-  const logged = data.filter((d) => d.totals.kcal > 0);
-  const avg = (pick: (t: (typeof data)[number]['totals']) => number) =>
-    logged.length ? Math.round(logged.reduce((s, d) => s + pick(d.totals), 0) / logged.length) : 0;
-  const avgKcal = avg((t) => t.kcal);
-  const avgProtein = avg((t) => t.protein);
-  const avgCarbs = avg((t) => t.carbs);
-  const avgFats = avg((t) => t.fats);
-  const onTarget = logged.filter((d) => {
-    const p = d.totals.kcal / goals.calories;
-    return p >= 0.8 && p <= 1.1;
-  }).length;
+  const waterStack = useMemo(
+    () =>
+      range.buckets.map((b) => {
+        const days = b.days.filter((d) => waterByDay[d] !== undefined);
+        if (days.length === 0) return [0];
+        return [Math.round((days.reduce((s, d) => s + waterByDay[d] * 250, 0) / days.length))];
+      }),
+    [waterByDay, range],
+  );
 
-  const bars: Bar[] = data.map((d) => ({
-    key: d.key,
-    label: d.label,
-    value: d.totals.kcal,
-    highlight: d.isToday,
-    caption: `${Math.round((d.totals.kcal / goals.calories) * 100)}%`,
-  }));
+  const q = profile?.quiz;
+  const restKcal = q ? Math.round(basalMetabolicRate(q) * 1.2) : null;
+  const burnLine = useMemo(
+    () =>
+      restKcal === null || period === 'year'
+        ? undefined
+        : range.buckets.map((b) => (b.days[0] > today ? null : restKcal + (burnByDay[b.days[0]] ?? 0))),
+    [restKcal, burnByDay, range, period, today],
+  );
 
-  const sinceKey = todayKey(lastDays(period === 'week' ? 7 : 30)[0]);
-  const periodLogs = logs.filter((l) => l.day >= sinceKey);
+  const loggedDays = range.buckets.reduce((n, b) => n + (b.days.some((d) => byDay[d]?.length) ? 1 : 0), 0);
+  const totalDays = period === 'year' ? 12 : range.buckets.length;
+  const flat = (st: number[][]) => st.filter((s) => s.reduce((a, b) => a + b, 0) > 0).map((s) => s.reduce((a, b) => a + b, 0));
+  const avgOf = (st: number[][]) => {
+    const v = flat(st);
+    return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : 0;
+  };
+  const avgKcal = avgOf(kcalStack);
+  const avgProtein = avgOf(proteinStack);
+
+  const periodLogs = logs.filter((l) => l.day >= range.fromKey && l.day <= range.toKey);
   const latest = logs[logs.length - 1];
   const weightDelta = periodLogs.length >= 2 ? periodLogs[periodLogs.length - 1].weightKg - periodLogs[0].weightKg : null;
   const wantsTarget = profile?.goal === 'lose_weight' || profile?.goal === 'gain_muscle';
   const targetWeight = wantsTarget ? profile?.quiz?.targetWeightKg : undefined;
 
+  const periodLabel = period === 'week' ? 'semana' : 'mês';
   const summary = buildProgressSummary({
-    daysLogged: logged.length,
+    daysLogged: loggedDays,
     avgKcal,
     goalKcal: goals.calories,
     avgProtein,
     goalProtein: goals.proteinG,
     weightDelta,
     goal: profile?.goal ?? null,
-    periodLabel: period === 'week' ? 'semana' : 'mês',
+    periodLabel,
   });
 
-  const { isPro } = useSubscription();
   const [aiSummary, setAiSummary] = useState<string | null>(null);
-  const aiKey = `${period}|${logged.length}|${Math.round(avgKcal)}|${Math.round(avgProtein)}|${weightDelta ?? ''}`;
+  const aiKey = `${period}|${offset}|${loggedDays}|${avgKcal}|${avgProtein}|${weightDelta ?? ''}`;
   useEffect(() => {
     setAiSummary(null);
-    if (!isPro || logged.length === 0) return;
+    if (!isPro || !reportOpen || loggedDays === 0) return;
     let alive = true;
     const t = setTimeout(() => {
       void fetchProgressInsight({
-        period: period === 'week' ? 'week' : 'month',
-        daysLogged: logged.length,
-        avgKcal: Math.round(avgKcal),
+        period: period === 'year' ? 'month' : period,
+        daysLogged: loggedDays,
+        avgKcal,
         goalKcal: goals.calories,
-        avgProtein: Math.round(avgProtein),
+        avgProtein,
         goalProtein: goals.proteinG,
         weightChangeKg: weightDelta,
         goal: profile?.goal ?? null,
       }).then((txt) => alive && setAiSummary(txt));
-    }, 600);
+    }, 400);
     return () => {
       alive = false;
       clearTimeout(t);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [aiKey, isPro]);
+  }, [aiKey, isPro, reportOpen]);
+
+  const changePeriod = (p: StatsPeriod) => {
+    setPeriod(p);
+    setOffset(0);
+  };
 
   const startLogging = () => {
     setDraftWeight(Math.round((latest?.weightKg ?? profile?.quiz?.weightKg ?? 65) * 2) / 2);
@@ -148,11 +221,22 @@ export default function ProgressScreen() {
   };
 
   const chartWidth = width - SCREEN_PADDING * 2 - 32;
-  const macroRows = [
-    { label: 'Proteína', value: avgProtein, goal: goals.proteinG, color: colors.primary },
-    { label: 'Carbs', value: avgCarbs, goal: goals.carbsG, color: colors.carbs },
-    { label: 'Gordura', value: avgFats, goal: goals.fatsG, color: colors.protein },
-  ];
+  const labels = range.buckets.map((b) => b.label);
+  const rotate = period === 'week';
+  const legend = (
+    <View style={styles.legend}>
+      {MEAL_ORDER.map((m) => (
+        <View key={m.type} style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: m.color }]} />
+          <Text style={styles.legendText}>{tr(m.label)}</Text>
+        </View>
+      ))}
+    </View>
+  );
+  const chart = (props: { stacks: number[][]; goal?: number; line?: (number | null)[]; gradient?: [string, string] }) => (
+    <StackedChart width={chartWidth} labels={labels} labelEvery={range.labelEvery} rotate={rotate} colors={MEAL_COLORS} {...props} />
+  );
+  const isCurrent = offset === 0;
 
   return (
     <ProGate feature={tr('Acompanhe calorias, macros e peso ao longo da semana e do mês.')}>
@@ -161,53 +245,104 @@ export default function ProgressScreen() {
         contentContainerStyle={{ paddingTop: insets.top + 16, paddingHorizontal: SCREEN_PADDING, paddingBottom: TAB_BAR_SPACE + 24, gap: 14 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>{tr('Progresso 📈')}</Text>
-        <StreakCard streak={streak} />
+        <View style={styles.titleRow}>
+          <Sparkles size={22} color="#F6BE3D" />
+          <Text style={styles.title}>{tr('Estatísticas')}</Text>
+        </View>
         <SegmentedControl
           options={[
             { key: 'week', label: tr('Semana') },
             { key: 'month', label: tr('Mês') },
+            { key: 'year', label: tr('Ano') },
           ]}
           value={period}
-          onChange={setPeriod}
+          onChange={changePeriod}
         />
+        <View style={styles.rangeRow}>
+          <Pressable hitSlop={12} onPress={() => setOffset((o) => o - 1)} style={styles.navBtn}>
+            <ChevronLeft size={20} color={colors.text} />
+          </Pressable>
+          <Text style={styles.rangeText}>{range.title}</Text>
+          <Pressable hitSlop={12} onPress={() => setOffset((o) => Math.min(0, o + 1))} style={[styles.navBtn, isCurrent && { opacity: 0.3 }]} disabled={isCurrent}>
+            <ChevronRight size={20} color={colors.text} />
+          </Pressable>
+        </View>
+
+        <Pressable style={styles.card} onPress={() => setReportOpen((v) => !v)}>
+          <View style={styles.reportRow}>
+            <View style={styles.reportIcon}>
+              <Wand2 size={22} color="#7C83F2" />
+            </View>
+            <View style={{ flex: 1, gap: 4 }}>
+              <Text style={styles.reportTitle}>{tr('Relatório de IA')}</Text>
+              <View style={styles.premiumChip}>
+                <Lock size={11} color="#6D5BD0" />
+                <Text style={styles.premiumText}>Premium</Text>
+              </View>
+              <Text style={styles.muted}>
+                {range.title} · {loggedDays}/{totalDays} {tr('dias')}
+              </Text>
+            </View>
+            <ChevronDown size={20} color={colors.textMuted} style={reportOpen ? { transform: [{ rotate: '180deg' }] } : undefined} />
+          </View>
+          {reportOpen && <Text style={styles.summaryText}>{aiSummary ?? summary}</Text>}
+        </Pressable>
 
         <View style={styles.card}>
-          <Text style={styles.cardLabel}>{tr('Calorias · média dos dias com registos')}</Text>
+          <Text style={styles.chartTitle}>🔥 {tr('Calorias')}</Text>
           <View style={styles.bigRow}>
             <Text style={styles.big}>{avgKcal}</Text>
             <Text style={styles.unit}>{tr('kcal')}</Text>
-            <Text style={styles.target}>Meta: {goals.calories} kcal</Text>
+            <Text style={styles.target}>{tr('Objetivo')}: {goals.calories} kcal</Text>
           </View>
-          <BarChart bars={bars} goal={goals.calories} labelEvery={period === 'week' ? 1 : 5} />
-        </View>
-
-        <View style={styles.statsRow}>
-          <View style={[styles.stat, { backgroundColor: colors.limeSoft, borderColor: colors.border }]}>
-            <Text style={styles.statValue}>{onTarget}</Text>
-            <Text style={styles.statLabel}>{tr('dias dentro da meta')}</Text>
-          </View>
-          <View style={[styles.stat, { backgroundColor: colors.waterSoft, borderColor: colors.border }]}>
-            <Text style={styles.statValue}>{logged.length}</Text>
-            <Text style={styles.statLabel}>{tr('dias com registos')}</Text>
-          </View>
+          {chart({ stacks: kcalStack, goal: goals.calories, line: burnLine })}
+          {legend}
+          {burnLine && (
+            <View style={styles.legendItem}>
+              <View style={styles.dash} />
+              <Text style={styles.legendText}>{tr('Total queimado')}</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardLabel}>{tr('Macros · média diária')}</Text>
-          {macroRows.map((m) => (
-            <View key={m.label} style={{ gap: 5 }}>
-              <View style={styles.macroTop}>
-                <Text style={styles.macroName}>{m.label}</Text>
-                <Text style={styles.macroValue}>
-                  {m.value} g <Text style={styles.macroGoal}>/ {m.goal} g</Text>
-                </Text>
-              </View>
-              <View style={styles.track}>
-                <View style={[styles.fill, { width: `${Math.min(1, m.value / m.goal) * 100}%`, backgroundColor: m.color }]} />
-              </View>
-            </View>
-          ))}
+          <Text style={styles.chartTitle}>💪 {tr('Proteínas')}</Text>
+          {chart({ stacks: proteinStack, goal: goals.proteinG })}
+          {legend}
+          <Text style={styles.footnote}>{tr('Objetivo')}: {goals.proteinG} g</Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.chartTitle}>🥑 {tr('Gorduras')}</Text>
+          {chart({ stacks: fatsStack, goal: goals.fatsG })}
+          {legend}
+          <Text style={styles.footnote}>{tr('Objetivo')}: {goals.fatsG} g</Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.chartTitle}>🍞 {tr('Carboidratos')}</Text>
+          {chart({ stacks: carbsStack, goal: goals.carbsG })}
+          {legend}
+          <Text style={styles.footnote}>{tr('Objetivo')}: {goals.carbsG} g</Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.chartTitle}>💧 {tr('Água')}</Text>
+          {chart({ stacks: waterStack, goal: goals.waterMl, gradient: ['#67D4FF', '#2F6BEA'] })}
+          <Text style={styles.footnote}>{tr('Objetivo')}: {goals.waterMl} ml</Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.chartTitle}>🧬 {tr('Nutrientes avançados')}</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+            {NUTRIENTS.map((n) => (
+              <Pressable key={n.key} onPress={() => setNutrient(n.key)} style={[styles.chip, nutrient === n.key && { backgroundColor: n.color[1], borderColor: n.color[1] }]}>
+                <Text style={[styles.chipText, nutrient === n.key && { color: '#fff' }]}>{tr(n.label)}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          {chart({ stacks: nutStack, gradient: nut.color })}
+          <Text style={styles.footnote}>{tr('Média por dia com registos')} · {nut.unit}</Text>
         </View>
 
         <View style={styles.card}>
@@ -226,20 +361,15 @@ export default function ProgressScreen() {
                 {weightDelta !== null && (
                   <Text style={[styles.target, { color: colors.text }]}>
                     {weightDelta > 0 ? '+' : ''}
-                    {weightDelta.toFixed(1).replace('.', ',')} kg no período
+                    {weightDelta.toFixed(1).replace('.', ',')} kg
                   </Text>
                 )}
               </View>
               {periodLogs.length > 0 ? (
-                <LineChart
-                  points={periodLogs.map((l) => ({ label: shortDate(l.day), value: l.weightKg }))}
-                  width={chartWidth}
-                  goal={targetWeight}
-                />
+                <LineChart points={periodLogs.map((l) => ({ label: shortDate(l.day), value: l.weightKg }))} width={chartWidth} goal={targetWeight} />
               ) : (
                 <Text style={styles.muted}>{tr('Sem registos de peso neste período.')}</Text>
               )}
-              {targetWeight !== undefined && <Text style={styles.muted}>Peso desejado: {targetWeight.toString().replace('.', ',')} kg (linha tracejada)</Text>}
             </>
           ) : (
             <Text style={styles.muted}>{tr('Ainda não registou o peso. Toque em "Registar peso" para começar.')}</Text>
@@ -260,13 +390,7 @@ export default function ProgressScreen() {
           )}
         </View>
 
-        <View style={styles.summaryCard}>
-          <View style={styles.weightHead}>
-            <Sparkles size={18} color={colors.limeDark} />
-            <Text style={styles.cardTitle}>Resumo {period === 'week' ? 'da semana' : 'do mês'}</Text>
-          </View>
-          <Text style={styles.summaryText}>{aiSummary ?? summary}</Text>
-        </View>
+        <StreakCard streak={streak} />
 
         <Pressable
           style={styles.shareBtn}
@@ -292,6 +416,24 @@ const createStyles = (colors: ThemeColors) =>
   shareText: { color: '#fff', fontWeight: '700', fontSize: font.body },
   photosBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
   photosText: { color: colors.primaryDark, fontWeight: '600', fontSize: font.body },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  rangeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  rangeText: { fontSize: font.h3, fontWeight: '600', color: colors.text },
+  navBtn: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surface },
+  reportRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  reportIcon: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#EEF0FF', alignItems: 'center', justifyContent: 'center' },
+  reportTitle: { fontSize: font.h3, fontWeight: '700', color: colors.text },
+  premiumChip: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', backgroundColor: '#EEF0FF', borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 2 },
+  premiumText: { fontSize: 11, fontWeight: '600', color: '#6D5BD0' },
+  chartTitle: { fontSize: font.h3, fontWeight: '700', color: colors.text },
+  legend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12 },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5, justifyContent: 'center' },
+  legendDot: { width: 9, height: 9, borderRadius: 3 },
+  legendText: { fontSize: 11, color: colors.textMuted },
+  dash: { width: 16, borderTopWidth: 2, borderStyle: 'dashed', borderColor: colors.textMuted },
+  footnote: { fontSize: font.small, color: colors.textMuted, textAlign: 'center' },
+  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: radius.pill, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  chipText: { fontSize: font.small, fontWeight: '600', color: colors.text },
   root: { flex: 1, backgroundColor: colors.background },
   title: { fontSize: font.h1, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   card: { ...cardBase(colors), padding: 16, gap: 12 },

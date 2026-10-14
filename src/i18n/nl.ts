@@ -788,4 +788,13 @@ export const nl: Record<string, string> = {
   "+1 Copo": "+1 Glas",
   "+1 Garrafa": "+1 Fles",
   "+1 Garrafa grande": "+1 Grote fles",
+  "Estatísticas": "Statistieken",
+  "Ano": "Jaar",
+  "Relatório de IA": "AI-rapport",
+  "dias": "dagen",
+  "Total queimado": "Totaal verbrand",
+  "Nutrientes avançados": "Geavanceerde voedingsstoffen",
+  "Fibra": "Vezels",
+  "Gord. saturada": "Verz. vet",
+  "Média por dia com registos": "Gemiddelde per geregistreerde dag",
 };

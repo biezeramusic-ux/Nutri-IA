@@ -83,3 +83,31 @@ export async function saveSteps(userId: string, day: string, steps: number): Pro
     .upsert({ user_id: userId, day, steps }, { onConflict: 'user_id,day' });
   if (error) throw new Error(error.message);
 }
+
+/** Água (copos) por dia num intervalo. */
+export async function listWater(userId: string, fromDay: string, toDay: string): Promise<Record<string, number>> {
+  const { data, error } = await supabase
+    .from('water_logs')
+    .select('day, glasses')
+    .eq('user_id', userId)
+    .gte('day', fromDay)
+    .lte('day', toDay);
+  if (error) throw new Error(error.message);
+  return Object.fromEntries(data.map((r) => [r.day as string, r.glasses as number]));
+}
+
+/** Calorias gastas em atividades, por dia, num intervalo. */
+export async function listActivityKcal(userId: string, fromDay: string, toDay: string): Promise<Record<string, number>> {
+  const { data, error } = await supabase
+    .from('activity_logs')
+    .select('day, kcal')
+    .eq('user_id', userId)
+    .gte('day', fromDay)
+    .lte('day', toDay);
+  if (error) throw new Error(error.message);
+  const out: Record<string, number> = {};
+  data.forEach((r) => {
+    out[r.day as string] = (out[r.day as string] ?? 0) + (r.kcal as number);
+  });
+  return out;
+}

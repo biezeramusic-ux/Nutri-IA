@@ -59,7 +59,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="progress"
-        options={{ title: tr('Progresso'), tabBarIcon: ({ color }) => <ChartColumn size={20} color={color} /> }}
+        options={{ title: tr('Estatísticas'), tabBarIcon: ({ color }) => <ChartColumn size={20} color={color} /> }}
       />
       <Tabs.Screen
         name="profile"

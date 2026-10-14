@@ -788,4 +788,13 @@ export const zh: Record<string, string> = {
   "+1 Copo": "+1 杯",
   "+1 Garrafa": "+1 瓶",
   "+1 Garrafa grande": "+1 大瓶",
+  "Estatísticas": "统计",
+  "Ano": "年",
+  "Relatório de IA": "AI 报告",
+  "dias": "天",
+  "Total queimado": "总消耗",
+  "Nutrientes avançados": "高级营养素",
+  "Fibra": "纤维",
+  "Gord. saturada": "饱和脂肪",
+  "Média por dia com registos": "每个记录日平均",
 };

@@ -788,4 +788,13 @@ export const fr: Record<string, string> = {
   "+1 Copo": "+1 Verre",
   "+1 Garrafa": "+1 Bouteille",
   "+1 Garrafa grande": "+1 Grande bouteille",
+  "Estatísticas": "Statistiques",
+  "Ano": "Année",
+  "Relatório de IA": "Rapport IA",
+  "dias": "jours",
+  "Total queimado": "Total brûlé",
+  "Nutrientes avançados": "Nutriments avancés",
+  "Fibra": "Fibres",
+  "Gord. saturada": "Gras sat.",
+  "Média por dia com registos": "Moyenne par jour enregistré",
 };

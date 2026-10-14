@@ -788,4 +788,13 @@ export const de: Record<string, string> = {
   "+1 Copo": "+1 Glas",
   "+1 Garrafa": "+1 Flasche",
   "+1 Garrafa grande": "+1 Große Flasche",
+  "Estatísticas": "Statistiken",
+  "Ano": "Jahr",
+  "Relatório de IA": "KI-Bericht",
+  "dias": "Tage",
+  "Total queimado": "Gesamt verbrannt",
+  "Nutrientes avançados": "Erweiterte Nährstoffe",
+  "Fibra": "Ballaststoffe",
+  "Gord. saturada": "Ges. Fett",
+  "Média por dia com registos": "Durchschnitt pro erfasstem Tag",
 };
