@@ -1,7 +1,7 @@
 import { Camera, Droplets, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +10,7 @@ import { LockOverlay } from '../../components/LockOverlay';
 import { Logo } from '../../components/Logo';
 import { MealSection } from '../../components/MealSection';
 import { ProBadge } from '../../components/ProOverlay';
-import { RecentMealCard } from '../../components/RecentMealCard';
+import { ScanCard } from '../../components/ScanCard';
 import { StreakCard } from '../../components/StreakCard';
 import { SearchBar } from '../../components/SearchBar';
 import { WaterMiniCard } from '../../components/WaterMiniCard';
@@ -222,11 +222,15 @@ export default function HomeScreen() {
               </View>
             </View>
           ) : (
-            <View style={[styles.pad, { gap: 10 }]}>
-              {meals.slice(0, 5).map((m) => (
-                <RecentMealCard key={m.id} meal={m} onPress={() => openMeal(m)} />
-              ))}
-            </View>
+            <FlatList
+              horizontal
+              data={meals.slice(0, 12)}
+              keyExtractor={(m) => m.id}
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.carousel}
+              ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+              renderItem={({ item }) => <ScanCard meal={item} onPress={() => openMeal(item)} />}
+            />
           )}
         </View>
       </ScrollView>

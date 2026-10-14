@@ -1,15 +1,12 @@
+import { tr } from '../i18n';
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
-import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
-import { tr } from '../i18n';
-import { MacroGlyph, type MacroKind } from './MacroGlyph';
-import { ProgressRing } from './ProgressRing';
 
 interface Props {
   label: string;
-  kind: MacroKind;
   /** Gramas que ainda faltam. */
   leftG: number;
   /** 0 a 1 (consumido / meta). */
@@ -17,20 +14,15 @@ interface Props {
   color: string;
 }
 
-/** Cartão de um macro: gramas que faltam e um anel com o ícone do macro no centro. */
-export function MacroLeftBar({ label, kind, leftG, progress, color }: Props) {
+export function MacroLeftBar({ label, leftG, progress, color }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
-    <View style={styles.card}>
+    <View style={styles.wrap}>
       <Text style={styles.value}>{Math.max(0, Math.round(leftG))}g</Text>
-      <Text style={styles.label} numberOfLines={1}>
-        {tr('{label} restante', { label: tr(label) })}
-      </Text>
-      <View style={styles.ring}>
-        <ProgressRing size={62} strokeWidth={6} progress={progress} color={color}>
-          <MacroGlyph kind={kind} color={color} size={22} />
-        </ProgressRing>
+      <Text style={styles.label}>{tr('{label} restante', { label: tr(label) })}</Text>
+      <View style={styles.track}>
+        <View style={[styles.fill, { width: `${Math.min(1, Math.max(0, progress)) * 100}%`, backgroundColor: color }]} />
       </View>
     </View>
   );
@@ -38,8 +30,9 @@ export function MacroLeftBar({ label, kind, leftG, progress, color }: Props) {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    card: { ...cardBase(colors), flex: 1, borderRadius: radius.lg, paddingVertical: 12, paddingHorizontal: 10, gap: 2 },
-    value: { fontSize: font.h2, fontWeight: '800', color: colors.text },
-    label: { fontSize: font.tiny, color: colors.textMuted, marginBottom: 8 },
-    ring: { alignItems: 'center' },
-  });
+  wrap: { flex: 1, gap: 2 },
+  value: { fontSize: font.h3, fontWeight: '700', color: colors.text },
+  label: { fontSize: font.tiny, color: colors.textMuted, marginBottom: 4 },
+  track: { height: 5, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
+  fill: { height: 5, borderRadius: 3 },
+});

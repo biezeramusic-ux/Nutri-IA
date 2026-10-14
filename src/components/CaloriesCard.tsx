@@ -22,7 +22,6 @@ export function CaloriesCard({ goals, consumed }: Props) {
   const left = Math.max(0, goals.calories - consumed.kcal);
   const over = consumed.kcal > goals.calories;
   return (
-    <View style={{ gap: 12 }}>
     <View style={styles.card}>
       <View style={styles.top}>
         <View style={{ flex: 1 }}>
@@ -36,11 +35,10 @@ export function CaloriesCard({ goals, consumed }: Props) {
           <Flame size={22} color={over ? colors.danger : colors.primary} />
         </ProgressRing>
       </View>
-    </View>
       <View style={styles.macros}>
-        <MacroLeftBar kind="protein" label={tr('Proteína')} leftG={goals.proteinG - consumed.protein} progress={consumed.protein / goals.proteinG} color={colors.protein} />
-        <MacroLeftBar kind="carbs" label={tr('Carbs')} leftG={goals.carbsG - consumed.carbs} progress={consumed.carbs / goals.carbsG} color={colors.carbs} />
-        <MacroLeftBar kind="fats" label={tr('Gordura')} leftG={goals.fatsG - consumed.fats} progress={consumed.fats / goals.fatsG} color={colors.fats} />
+        <MacroLeftBar label={tr('Proteína')} leftG={goals.proteinG - consumed.protein} progress={consumed.protein / goals.proteinG} color={colors.primary} />
+        <MacroLeftBar label={tr('Carbs')} leftG={goals.carbsG - consumed.carbs} progress={consumed.carbs / goals.carbsG} color={colors.carbs} />
+        <MacroLeftBar label={tr('Gordura')} leftG={goals.fatsG - consumed.fats} progress={consumed.fats / goals.fatsG} color={colors.protein} />
       </View>
     </View>
   );
@@ -48,10 +46,10 @@ export function CaloriesCard({ goals, consumed }: Props) {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  card: { ...cardBase(colors), padding: 16 },
+  card: { ...cardBase(colors), padding: 16, gap: 14 },
   top: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   big: { fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: -0.8 },
   sub: { fontSize: font.body, color: colors.textMuted, fontWeight: '500' },
   meta: { fontSize: font.small, color: colors.textFaint, marginTop: 2 },
-  macros: { flexDirection: 'row', gap: 10 },
+  macros: { flexDirection: 'row', gap: 12, backgroundColor: colors.surface, borderRadius: radius.md, padding: 12 },
 });
