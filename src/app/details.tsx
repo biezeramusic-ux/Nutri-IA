@@ -7,6 +7,7 @@ import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlowerChart } from '../components/FlowerChart';
+import { NutritionFacts } from '../components/NutritionFacts';
 import { MacroSquareCard } from '../components/MacroSquareCard';
 import { ProBadge } from '../components/ProOverlay';
 import { NumberStepper } from '../components/quiz/NumberStepper';
@@ -218,6 +219,8 @@ export default function DetailsScreen() {
                 <Text style={styles.fiberValue}>{analysis.fiber_g} g</Text>
               </View>
             )}
+
+            <NutritionFacts analysis={analysis} />
 
             <View style={{ alignItems: 'center' }}>
               <FlowerChart ingredients={ingredients} centerValue={`${analysis.calories}`} centerLabel="kcal" size={260} />

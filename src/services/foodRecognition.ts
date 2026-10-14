@@ -1,4 +1,4 @@
-import type { FoodAnalysis } from '../types';
+import { EXTRA_NUMBER_KEYS, type FoodAnalysis } from '../types';
 import { getLang } from '../i18n';
 import { supabase } from './supabase';
 
@@ -40,8 +40,16 @@ function parseAnalysis(text: string): FoodAnalysis {
   if (!isFoodAnalysis(parsed)) throw new Error('JSON fora do formato esperado');
   const confidence = (parsed as { confidence?: unknown }).confidence;
   const fiber = (parsed as { fiber_g?: unknown }).fiber_g;
+  const extras: Partial<FoodAnalysis> = {};
+  for (const key of EXTRA_NUMBER_KEYS) {
+    const v = (parsed as unknown as Record<string, unknown>)[key];
+    if (typeof v === 'number' && Number.isFinite(v) && v >= 0) extras[key] = Math.round(v * 10) / 10;
+  }
+  const analysisText = (parsed as { health_analysis?: unknown }).health_analysis;
+  if (typeof analysisText === 'string' && analysisText.trim()) extras.health_analysis = analysisText.trim().slice(0, 700);
   return {
     ...parsed,
+    ...extras,
     ...(typeof fiber === 'number' && fiber >= 0 ? { fiber_g: fiber } : {}),
     ...(typeof confidence === 'number' && confidence >= 0 && confidence <= 100
       ? { confidence: Math.round(confidence) }

@@ -1,4 +1,4 @@
-import type { FoodAnalysis, IconName, Ingredient, Meal } from '../types';
+import { EXTRA_NUMBER_KEYS, type FoodAnalysis, type IconName, type Ingredient, type Meal } from '../types';
 import { uuidv4 } from '../utils/uuid';
 
 interface Part {
@@ -269,6 +269,7 @@ export function scaleMeal(meal: Meal, newWeightGrams: number): Meal {
       protein_g: Math.round(a.protein_g * k),
       fats_g: Math.round(a.fats_g * k),
       ...(a.fiber_g !== undefined ? { fiber_g: Math.round(a.fiber_g * k * 10) / 10 } : {}),
+      ...Object.fromEntries(EXTRA_NUMBER_KEYS.filter((key) => a[key] !== undefined).map((key) => [key, Math.round((a[key] as number) * k * 10) / 10])),
     },
     ingredients: meal.ingredients.map((i) => ({ ...i, grams: Math.max(1, Math.round(i.grams * k)) })),
   };

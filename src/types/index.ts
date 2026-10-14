@@ -15,7 +15,43 @@ export interface FoodAnalysis {
   confidence?: number;
   /** Fibras (g). Recurso PRO. */
   fiber_g?: number;
+  /** Estimativas extra da IA (recurso PRO), todas por porção. */
+  sugar_g?: number;
+  added_sugar_g?: number;
+  saturated_fat_g?: number;
+  trans_fat_g?: number;
+  polyunsaturated_fat_g?: number;
+  monounsaturated_fat_g?: number;
+  cholesterol_mg?: number;
+  sodium_mg?: number;
+  calcium_mg?: number;
+  iron_mg?: number;
+  potassium_mg?: number;
+  vitamin_a_iu?: number;
+  vitamin_c_mg?: number;
+  vitamin_d_iu?: number;
+  /** Análise de saúde escrita pela IA (2 a 4 frases). */
+  health_analysis?: string;
 }
+
+/** Campos numéricos extra de FoodAnalysis (escalam com a porção). */
+export const EXTRA_NUMBER_KEYS = [
+  'sugar_g',
+  'added_sugar_g',
+  'saturated_fat_g',
+  'trans_fat_g',
+  'polyunsaturated_fat_g',
+  'monounsaturated_fat_g',
+  'cholesterol_mg',
+  'sodium_mg',
+  'calcium_mg',
+  'iron_mg',
+  'potassium_mg',
+  'vitamin_a_iu',
+  'vitamin_c_mg',
+  'vitamin_d_iu',
+] as const;
+export type ExtraNumberKey = (typeof EXTRA_NUMBER_KEYS)[number];
 
 export interface Ingredient {
   name: string;
