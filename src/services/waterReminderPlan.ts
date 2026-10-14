@@ -25,41 +25,12 @@ const MINUTE = 60 * 1000;
 const MIN_SPACING_MIN = 45;
 const MAX_PER_DAY = 6;
 
-const MESSAGES: Record<GoalType | 'generic', string[]> = {
-  lose_weight: [
-    'Um copo de água antes de comer ajuda a controlar a fome. 💧',
-    'Muitas vezes a sede parece fome. Beba um copo e espere 10 minutos. ⏱️',
-    'Cada copo de água é um passo para o seu objetivo. Continue! 💪',
-    'Está a ir muito bem! Mais um copo e o plano agradece. 🌟',
-  ],
-  maintain: [
-    'Mantenha o ritmo: um copo de água agora faz bem. 💧',
-    'Hidratação em dia ajuda a manter o peso e a energia. ⚡',
-    'Pequenos hábitos fazem a diferença. Beba um copo de água. 🌿',
-  ],
-  gain_muscle: [
-    'A hidratação ajuda a recuperação dos músculos. Beba um copo. 💪',
-    'Para ganhar massa, a água é tão importante como a proteína. 🥤',
-    'Os seus músculos precisam de água. Hora de um copo! 💧',
-  ],
-  eat_healthy: [
-    'A água é a bebida mais saudável. Beba um copo! 🌱',
-    'Comer bem começa por beber bem. Um copo de água agora? 💧',
-    'O seu corpo agradece: beba um copo de água. 😊',
-  ],
-  track_calories: [
-    'Água não tem calorias e ajuda a sentir-se bem. Beba um copo! 💧',
-    'Já registou as suas refeições? Aproveite e beba um copo de água. 🍽️',
-    'Hoje está quente em Moçambique. Um copo de água faz bem. ☀️',
-  ],
-  generic: ['Hora de beber água! O seu corpo agradece. 💧', 'Um copo de água agora faz bem. 😊'],
-};
-
-/** Barra de progresso em texto, ex.: ▰▰▰▱▱▱▱▱ */
-function progressBar(done: number, goal: number, size = 8): string {
-  const filled = Math.max(0, Math.min(size, Math.round((done / Math.max(1, goal)) * size)));
-  return '▰'.repeat(filled) + '▱'.repeat(size - filled);
-}
+/** Mensagens simples, no estilo de uma notificação normal de hidratação. */
+const SIMPLE_MESSAGES = [
+  'Está na hora de beber água e manter uma boa hidratação.',
+  'Um copo de água agora ajuda a manter-se hidratado.',
+  'Lembrete: beba água e cuide da sua hidratação.',
+];
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
@@ -74,14 +45,8 @@ function evenSlots(start: Date, end: Date, count: number): Date[] {
   return Array.from({ length: count }, (_, i) => new Date(start.getTime() + ((i + 0.5) * span) / count));
 }
 
-function pickMessage(goal: GoalType | null, index: number, ai?: string[] | null): string {
-  if (ai && ai.length > 0) return ai[index % ai.length];
-  const bank = MESSAGES[goal ?? 'generic'];
-  return tr(bank[index % bank.length]);
-}
-
-function glassesWord(n: number): string {
-  return n === 1 ? tr('1 copo') : tr('{n} copos', { n });
+function pickMessage(index: number): string {
+  return tr(SIMPLE_MESSAGES[index % SIMPLE_MESSAGES.length]);
 }
 
 /**
@@ -91,10 +56,10 @@ function glassesWord(n: number): string {
  * Cada vez que o utilizador regista água, o plano é recalculado.
  */
 export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] {
-  const { now, glasses, goalGlasses, wakeHour, sleepHour, goal, firstName } = input;
+  const { now, glasses, goalGlasses, wakeHour, sleepHour } = input;
   const days = input.days ?? 3;
   const result: PlannedReminder[] = [];
-  const title = tr('💧 Hora de beber água');
+  const title = tr('Água');
 
   for (let d = 0; d < days; d++) {
     const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d);
@@ -117,12 +82,7 @@ export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] 
     const count = Math.min(byNeed, bySpace);
 
     evenSlots(start, windowEndBase, count).forEach((at, i) => {
-      const name = firstName && i % 2 === 0 ? `${firstName}, ` : '';
-      const core =
-        d === 0 && i === 0
-          ? `${progressBar(glasses, goalGlasses)}  ${glasses}/${goalGlasses}\n${tr('Faltam {glasses} para a sua meta de hoje.', { glasses: glassesWord(remaining) })} ${pickMessage(goal, i, input.messages)}`
-          : pickMessage(goal, d + i, input.messages);
-      result.push({ at, title, body: name ? `${name}${core.charAt(0).toLowerCase()}${core.slice(1)}` : core });
+      result.push({ at, title, body: pickMessage(d + i) });
     });
   }
 

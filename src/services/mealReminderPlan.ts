@@ -21,47 +21,47 @@ const SLOTS: Slot[] = [
     type: 'breakfast',
     hour: 8,
     minute: 0,
-    title: '🌅 Bom dia!',
+    title: 'Bom dia, {name}! ☀️',
     bodies: [
-      'Comece o seu dia certo: fotografe o pequeno-almoço e veja as calorias em segundos.',
-      '{name}, o que há para o pequeno-almoço? Tire uma foto e registe agora. ☕',
-      'Um bom começo faz o dia todo. Registe o seu pequeno-almoço com o scanner.',
-      'Já tomou o pequeno-almoço? Um toque no scanner e fica registado. 🥐',
+      'Comece o dia com carinho para o seu corpo. Fotografe o seu pequeno-almoço! 🥐',
+      'O café da manhã está pronto? Um toque no scanner e fica registado. ☕',
+      'Que o seu dia comece doce e saudável. Registe o pequeno-almoço! 🍓',
+      'Um bom dia começa com um bom pequeno-almoço. Mostre-nos o seu prato! 🥣',
     ],
   },
   {
     type: 'lunch',
     hour: 12,
     minute: 30,
-    title: '🍽️ Hora do almoço',
+    title: 'Hora do almoço, {name} 🍽️',
     bodies: [
-      'Bom apetite! Fotografe o seu prato antes de comer e descubra as calorias.',
-      '{name}, o almoço está servido? Escaneie o prato e acompanhe a sua meta de hoje. 🍲',
-      'Não adivinhe as calorias: aponte a câmara ao prato e o Nutri IA faz as contas.',
-      'Pausa para o almoço! Registe o prato em 3 segundos.',
+      'Bom apetite! Mostre-nos o seu prato e descubra as calorias. 🍲',
+      'Pausa merecida! Escaneie o almoço antes de começar a comer. 😋',
+      'O seu corpo agradece um almoço bem registado. Tire uma foto! 📸',
+      'Que bom cheiro! Fotografe o prato e deixe o resto connosco. 🌿',
     ],
   },
   {
     type: 'snack',
     hour: 16,
     minute: 0,
-    title: '🍎 Hora do lanche',
+    title: 'Hora do lanche 🍎',
     bodies: [
-      'Um lanche saudável mantém a energia lá em cima. Se comer algo, escaneie! 🍌',
-      '{name}, beliscou alguma coisa? Registe o lanche para o dia ficar completo.',
-      'Fome a meio da tarde? Escolha bem e registe o lanche com uma foto.',
+      'Um lanchinho saudável faz bem à alma. Se comer algo, escaneie! 🍌',
+      'Beliscou alguma coisa? Conte-nos, é rápido e simples. 🥜',
+      'Uma pausa doce para si. Registe o seu lanche com uma foto. 🍊',
     ],
   },
   {
     type: 'dinner',
     hour: 19,
     minute: 30,
-    title: '🌙 Hora do jantar',
+    title: 'Boa noite, {name}! 🌙',
     bodies: [
-      'Está na hora do jantar! Escaneie o prato e feche o dia com tudo registado.',
-      '{name}, falta o jantar para completar o seu dia. Tire uma foto agora. 🍛',
-      'Último registo do dia: fotografe o jantar e veja como correu a sua meta.',
-      'Bom jantar! Não se esqueça de escanear o prato antes de começar. 🌟',
+      'Está na hora do jantar. Escaneie o prato e termine o dia com tudo registado. 🍛',
+      'Quase a fechar o dia! Fotografe o jantar e descanse tranquilo. ✨',
+      'Um jantar leve, um sono tranquilo. Registe o seu prato. 🌟',
+      'Bom jantar! Não se esqueça de escanear o prato antes de começar. 🍽️',
     ],
   },
 ];
@@ -87,11 +87,10 @@ export function planMealReminders({ now, firstName, loggedToday, days = DAYS_AHE
       if (at.getTime() <= now.getTime() + 60_000) return;
       if (d === 0 && loggedToday.includes(slot.type)) return;
       const raw = slot.bodies[(dayOfYear + d + s) % slot.bodies.length];
-      // Sem nome, tira o "{name}, " do início e põe a primeira letra maiúscula.
-      const body = firstName
-        ? tr(raw).replace('{name}', firstName)
-        : tr(raw).replace(/\{name\},?\s*/, '').replace(/^./, (c) => c.toUpperCase());
-      result.push({ at, title: tr(slot.title), body });
+      // Com nome: "Bom dia, Ana!"; sem nome: "Bom dia!".
+      const fill = (text: string) => (firstName ? tr(text).replace('{name}', firstName) : tr(text).replace(/,?\s*\{name\}/g, ''));
+      const body = fill(raw);
+      result.push({ at, title: fill(slot.title), body });
     });
   }
   return result;
