@@ -9,15 +9,14 @@ export function MacroDots({ macros }: { macros: MacroPercentages }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const items = [
-    { key: 'C', value: macros.carbs, color: colors.carbs },
-    { key: 'P', value: macros.protein, color: colors.protein },
-    { key: 'G', value: macros.fats, color: colors.fats },
+    { key: '🍞', value: macros.carbs, color: colors.carbs },
+    { key: '🍗', value: macros.protein, color: colors.protein },
+    { key: '🥑', value: macros.fats, color: colors.fats },
   ];
   return (
     <View style={styles.row}>
       {items.map((item) => (
         <View key={item.key} style={styles.item}>
-          <View style={[styles.dot, { backgroundColor: item.color }]} />
           <Text style={styles.text}>
             {item.key} {item.value}%
           </Text>

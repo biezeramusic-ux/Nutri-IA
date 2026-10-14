@@ -50,9 +50,9 @@ export function MealEntry({ meal, onPress, onDelete }: Props) {
         </Text>
         <View style={styles.bottom}>
           <View style={styles.macros}>
-            <Macro color={colors.protein} label="P" value={a.protein_g} />
-            <Macro color={colors.fats} label="G" value={a.fats_g} />
-            <Macro color={colors.carbs} label="C" value={a.carbs_g} />
+            <Macro color={colors.protein} icon="🍗" value={a.protein_g} />
+            <Macro color={colors.fats} icon="🥑" value={a.fats_g} />
+            <Macro color={colors.carbs} icon="🍞" value={a.carbs_g} />
           </View>
           <View style={styles.score}>
             <Leaf size={12} color="#16A34A" />
@@ -64,14 +64,13 @@ export function MealEntry({ meal, onPress, onDelete }: Props) {
   );
 }
 
-function Macro({ color, label, value }: { color: string; label: string; value: number }) {
+/** Macro em pastilha colorida com um alimento que o representa (carne, abacate, pão). */
+function Macro({ color, icon, value }: { color: string; icon: string; value: number }) {
   const { colors } = useTheme();
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-      <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: color }} />
-      <Text style={{ fontSize: font.tiny, color: colors.textMuted, fontWeight: '600' }}>
-        {label} {Math.round(value)}
-      </Text>
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: `${color}26`, borderRadius: radius.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
+      <Text style={{ fontSize: 12 }}>{icon}</Text>
+      <Text style={{ fontSize: font.tiny, color: colors.text, fontWeight: '700' }}>{Math.round(value)}g</Text>
     </View>
   );
 }
@@ -87,7 +86,7 @@ const createStyles = (colors: ThemeColors) =>
     sub: { fontSize: font.small, color: colors.textMuted },
     kcal: { fontWeight: '800', color: colors.text },
     bottom: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
-    macros: { flexDirection: 'row', gap: 10 },
+    macros: { flexDirection: 'row', gap: 6, flexShrink: 1 },
     score: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#DCFCE7', borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 3 },
     scoreText: { fontSize: font.small, fontWeight: '800', color: '#166534' },
   });
