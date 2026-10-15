@@ -875,4 +875,6 @@ export const it: Record<string, string> = {
   "O gráfico sobe quando se aproxima da meta e cai quando se afasta.": "Il grafico sale quando ti avvicini all'obiettivo e scende quando ti allontani.",
   "Meta": "Obiettivo",
   "Prazo": "Scadenza",
+  "Registe uma refeição hoje.": "Registra un pasto oggi.",
+  "Próxima conquista: {n} dias": "Prossimo traguardo: {n} giorni",
 };

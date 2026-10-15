@@ -875,4 +875,6 @@ export const zh: Record<string, string> = {
   "O gráfico sobe quando se aproxima da meta e cai quando se afasta.": "接近目标时图表上升，偏离目标时图表下降。",
   "Meta": "目标",
   "Prazo": "截止",
+  "Registe uma refeição hoje.": "今天记录一餐。",
+  "Próxima conquista: {n} dias": "下一个里程碑：{n} 天",
 };

@@ -875,4 +875,6 @@ export const en: Record<string, string> = {
   "O gráfico sobe quando se aproxima da meta e cai quando se afasta.": "The chart rises when you get closer to your goal and falls when you move away.",
   "Meta": "Goal",
   "Prazo": "Deadline",
+  "Registe uma refeição hoje.": "Log a meal today.",
+  "Próxima conquista: {n} dias": "Next milestone: {n} days",
 };

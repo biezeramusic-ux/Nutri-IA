@@ -875,4 +875,6 @@ export const af: Record<string, string> = {
   "O gráfico sobe quando se aproxima da meta e cai quando se afasta.": "Die grafiek styg wanneer jy nader aan jou doel kom en daal wanneer jy wegbeweeg.",
   "Meta": "Doel",
   "Prazo": "Sperdatum",
+  "Registe uma refeição hoje.": "Teken vandag 'n maaltyd aan.",
+  "Próxima conquista: {n} dias": "Volgende mylpaal: {n} dae",
 };

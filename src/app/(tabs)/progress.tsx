@@ -69,6 +69,15 @@ export default function ProgressScreen() {
   const { displayName, user } = useAuth();
   const referral = useReferral();
   const streak = useMemo(() => computeStreak(meals), [meals]);
+  const last7 = useMemo(() => {
+    const logged = new Set(meals.map((m) => dayKeyOf(m.createdAt)));
+    const letters = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return { label: letters[d.getDay()], done: logged.has(todayKey(d)) };
+    });
+  }, [meals]);
   const { goals, profile } = useProfile();
   const { logs, addToday } = useWeightLogs(400);
   const { isPro } = useSubscription();
@@ -390,7 +399,7 @@ export default function ProgressScreen() {
         </View>
 
 
-        <StreakCard streak={streak} />
+        <StreakCard streak={streak} last7={last7} />
 
         <Pressable
           style={styles.shareBtn}
