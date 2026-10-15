@@ -31,7 +31,31 @@ function pathUpTo(fn: (t: number) => number, p: number): string {
 }
 
 /** Gráfico animado: a linha e os pontos saem do início e avançam até ao objetivo (com a app vs. sem a app). */
-export function PotentialChart({ title, withLabel, withoutLabel }: { title: string; withLabel: string; withoutLabel: string }) {
+function tForProgress(v: number): number {
+  let lo = 0;
+  let hi = 1;
+  for (let i = 0; i < 24; i++) {
+    const mid = (lo + hi) / 2;
+    if (withApp(mid) < v) lo = mid;
+    else hi = mid;
+  }
+  return lo;
+}
+
+export function PotentialChart({
+  title,
+  withLabel,
+  withoutLabel,
+  youProgress,
+  youLabel,
+}: {
+  title: string;
+  withLabel: string;
+  withoutLabel: string;
+  /** 0 a 1: quanto do caminho até ao objetivo a pessoa já fez (mostra "Você está aqui"). */
+  youProgress?: number;
+  youLabel?: string;
+}) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [p, setP] = useState(0);
@@ -51,6 +75,8 @@ export function PotentialChart({ title, withLabel, withoutLabel }: { title: stri
   const head = Math.max(0.001, p);
   const area = `${pathUpTo(withApp, head)} L${X(head).toFixed(1)},${Y(0) + 8} L${X(0)},${Y(0) + 8} Z`;
   const done = p > 0.985;
+  const youT = youProgress === undefined ? null : tForProgress(Math.min(0.97, Math.max(0.1, 0.1 + youProgress * 0.88)));
+  const showYou = youT !== null && p >= youT;
 
   return (
     <View style={styles.card}>
@@ -75,8 +101,19 @@ export function PotentialChart({ title, withLabel, withoutLabel }: { title: stri
           )}
           <Circle cx={X(0)} cy={Y(without(0))} r={5} fill={colors.card} stroke={colors.textFaint} strokeWidth={2.5} />
           <Circle cx={X(head)} cy={Y(without(head))} r={5} fill={colors.card} stroke={colors.textFaint} strokeWidth={2.5} />
+          {showYou && youT !== null && (
+            <>
+              <Circle cx={X(youT)} cy={Y(withApp(youT))} r={13} fill="#F08A4B" opacity={0.25} />
+              <Circle cx={X(youT)} cy={Y(withApp(youT))} r={7} fill="#F08A4B" stroke="#fff" strokeWidth={2.5} />
+            </>
+          )}
           {!done && <Circle cx={X(head)} cy={Y(withApp(head))} r={6} fill="#2E9E4F" />}
         </Svg>
+        {showYou && youT !== null && !!youLabel && (
+          <View style={[styles.you, { left: Math.min(W - 70, Math.max(0, X(youT) - 30)), top: Y(withApp(youT)) - 38 }]}>
+            <Text style={styles.youText}>{youLabel}</Text>
+          </View>
+        )}
         {done && (
           <View style={[styles.trophy, { left: X(1) - 14, top: Y(withApp(1)) - 14 }]}>
             <Trophy size={15} color="#fff" />
@@ -107,6 +144,8 @@ const createStyles = (colors: ThemeColors) =>
     card: { backgroundColor: colors.surface, borderRadius: 22, padding: 16, gap: 10 },
     title: { fontSize: font.h3, fontWeight: '600', color: colors.text },
     trophy: { position: 'absolute', width: 28, height: 28, borderRadius: 14, backgroundColor: '#F08A4B', alignItems: 'center', justifyContent: 'center' },
+    you: { position: 'absolute', backgroundColor: '#F08A4B', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 3 },
+    youText: { color: '#fff', fontSize: 11, fontWeight: '700' },
     axis: { flexDirection: 'row', justifyContent: 'space-around', paddingHorizontal: 10 },
     axisText: { fontSize: font.small, color: colors.textMuted },
     legend: { flexDirection: 'row', justifyContent: 'center', gap: 18 },

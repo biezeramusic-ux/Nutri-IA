@@ -5,6 +5,7 @@ import { Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } f
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { PotentialChart } from '../../components/quiz/PotentialChart';
 import { WeightChanges } from '../../components/WeightChanges';
 import { StackedChart } from '../../components/StackedChart';
 import { LineChart } from '../../components/LineChart';
@@ -157,6 +158,8 @@ export default function ProgressScreen() {
     return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : 0;
   };
   const avgKcal = avgOf(kcalStack);
+  const waterVals = waterStack.map((w) => w[0]).filter((v) => v > 0);
+  const waterAvg = waterVals.length ? waterVals.reduce((a, b) => a + b, 0) / waterVals.length : 0;
   const avgProtein = avgOf(proteinStack);
 
   const periodLogs = logs.filter((l) => l.day >= range.fromKey && l.day <= range.toKey);
@@ -164,6 +167,26 @@ export default function ProgressScreen() {
   const weightDelta = periodLogs.length >= 2 ? periodLogs[periodLogs.length - 1].weightKg - periodLogs[0].weightKg : null;
   const wantsTarget = profile?.goal === 'lose_weight' || profile?.goal === 'gain_muscle';
   const targetWeight = wantsTarget ? profile?.quiz?.targetWeightKg : undefined;
+
+  const startWeight = logs[0]?.weightKg ?? profile?.quiz?.weightKg;
+  const wantsLose = profile?.goal === 'lose_weight';
+  const pathProgress =
+    wantsTarget && startWeight !== undefined && latest && targetWeight !== undefined && startWeight !== targetWeight
+      ? Math.max(0, Math.min(1, (latest.weightKg - startWeight) / (targetWeight - startWeight)))
+      : 0;
+  const weightLeft = latest && targetWeight !== undefined ? Math.abs(latest.weightKg - targetWeight) : null;
+
+  const pct = (v: number, goal: number) => (goal > 0 ? Math.round((v / goal) * 100) : 0);
+  /** Frase simples por baixo de cada gráfico: o que significa a média frente à meta. */
+  const plain = (avg: number, goal: number, unit: string) => {
+    if (avg === 0) return tr('Ainda sem registos neste período.');
+    const r = pct(avg, goal);
+    return r < 85
+      ? tr('Média de {avg} {unit} por dia: {pct}% da meta. Está abaixo.', { avg, unit, pct: r })
+      : r <= 110
+        ? tr('Média de {avg} {unit} por dia: {pct}% da meta. Está no caminho certo.', { avg, unit, pct: r })
+        : tr('Média de {avg} {unit} por dia: {pct}% da meta. Está acima.', { avg, unit, pct: r });
+  };
 
   const periodLabel = period === 'week' ? 'semana' : 'mês';
   const summary = buildProgressSummary({
@@ -289,6 +312,25 @@ export default function ProgressScreen() {
           {reportOpen && <Text style={styles.summaryText}>{aiSummary ?? summary}</Text>}
         </Pressable>
 
+        {wantsTarget && targetWeight !== undefined && startWeight !== undefined && (
+          <View style={{ gap: 8 }}>
+            <PotentialChart
+              title={wantsLose ? tr('O seu caminho até ao peso desejado') : tr('O seu caminho até ao objetivo')}
+              withLabel={tr('Com o Nutri IA')}
+              withoutLabel={tr('Da forma tradicional')}
+              youProgress={pathProgress}
+              youLabel={tr('Você está aqui')}
+            />
+            {weightLeft !== null && (
+              <Text style={styles.footnote}>
+                {weightLeft < 0.1
+                  ? tr('Chegou ao peso desejado. Parabéns!')
+                  : tr('Faltam {kg} kg para os {target} kg.', { kg: weightLeft.toFixed(1).replace('.', ','), target: String(targetWeight).replace('.', ',') })}
+              </Text>
+            )}
+          </View>
+        )}
+
         <View style={styles.card}>
           <Text style={styles.chartTitle}>🔥 {tr('Calorias')}</Text>
           <View style={styles.bigRow}>
@@ -298,6 +340,8 @@ export default function ProgressScreen() {
           </View>
           {chart({ stacks: kcalStack, goal: goals.calories, line: burnLine })}
           {legend}
+          <Text style={styles.footnote}>{plain(avgKcal, goals.calories, 'kcal')}</Text>
+          <Text style={styles.footnote}>{tr('A linha tracejada é a sua meta diária.')}</Text>
           {burnLine && (
             <View style={styles.legendItem}>
               <View style={styles.dash} />
@@ -310,27 +354,27 @@ export default function ProgressScreen() {
           <Text style={styles.chartTitle}>💪 {tr('Proteínas')}</Text>
           {chart({ stacks: proteinStack, goal: goals.proteinG })}
           {legend}
-          <Text style={styles.footnote}>{tr('Objetivo')}: {goals.proteinG} g</Text>
+          <Text style={styles.footnote}>{plain(avgOf(proteinStack), goals.proteinG, 'g')}</Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.chartTitle}>🥑 {tr('Gorduras')}</Text>
           {chart({ stacks: fatsStack, goal: goals.fatsG })}
           {legend}
-          <Text style={styles.footnote}>{tr('Objetivo')}: {goals.fatsG} g</Text>
+          <Text style={styles.footnote}>{plain(avgOf(fatsStack), goals.fatsG, 'g')}</Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.chartTitle}>🍞 {tr('Carboidratos')}</Text>
           {chart({ stacks: carbsStack, goal: goals.carbsG })}
           {legend}
-          <Text style={styles.footnote}>{tr('Objetivo')}: {goals.carbsG} g</Text>
+          <Text style={styles.footnote}>{plain(avgOf(carbsStack), goals.carbsG, 'g')}</Text>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.chartTitle}>💧 {tr('Água')}</Text>
           {chart({ stacks: waterStack, goal: goals.waterMl, gradient: ['#67D4FF', '#2F6BEA'] })}
-          <Text style={styles.footnote}>{tr('Objetivo')}: {goals.waterMl} ml</Text>
+          <Text style={styles.footnote}>{plain(Math.round(waterAvg), goals.waterMl, 'ml')}</Text>
         </View>
 
         <View style={styles.card}>
