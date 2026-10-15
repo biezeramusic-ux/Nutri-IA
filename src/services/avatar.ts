@@ -1,7 +1,8 @@
 import { Directory, File, Paths } from 'expo-file-system';
 import { SaveFormat, manipulateAsync } from 'expo-image-manipulator';
+import { downloadCloudImage, removeCloudImage, uploadCloudImage } from './cloudImages';
 
-/** Foto de perfil: reduzida para 320 px e guardada só no telemóvel. */
+/** Foto de perfil: reduzida para 320 px, guardada no telemóvel e (a ~50 KB) na conta. */
 const dir = () => new Directory(Paths.document, 'avatars');
 const fileFor = (userId: string) => new File(dir(), `${userId}.jpg`);
 
@@ -22,6 +23,8 @@ export async function saveAvatar(userId: string, sourceUri: string): Promise<str
     if (!d.exists) d.create({ intermediates: true, idempotent: true });
     const dest = fileFor(userId);
     new File(small.uri).copy(dest, { overwrite: true });
+    // Cópia na nuvem (~50 KB), para a foto sobreviver a um telemóvel novo.
+    void uploadCloudImage('avatar.jpg', small.uri);
     return getAvatarUri(userId);
   } catch {
     return null;
@@ -34,5 +37,18 @@ export function removeAvatar(userId: string): void {
     if (f.exists) f.delete();
   } catch {
     // ignora
+  }
+  void removeCloudImage('avatar.jpg');
+}
+
+/** Telemóvel novo: se não há foto local mas há uma na nuvem, descarrega-a. */
+export async function restoreAvatar(userId: string): Promise<string | null> {
+  try {
+    if (getAvatarUri(userId)) return getAvatarUri(userId);
+    const d = dir();
+    if (!d.exists) d.create({ intermediates: true, idempotent: true });
+    return (await downloadCloudImage('avatar.jpg', fileFor(userId))) ? getAvatarUri(userId) : null;
+  } catch {
+    return null;
   }
 }

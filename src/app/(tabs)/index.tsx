@@ -7,6 +7,7 @@ import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CaloriesCard } from '../../components/CaloriesCard';
 import { LockOverlay } from '../../components/LockOverlay';
+import { CrownMark } from '../../components/CrownMark';
 import { Logo } from '../../components/Logo';
 import { MealSection } from '../../components/MealSection';
 import { ProBadge } from '../../components/ProOverlay';
@@ -147,6 +148,12 @@ export default function HomeScreen() {
             <Text style={styles.hello}>{firstName ? tr('Olá, {name} 👋', { name: firstName }) : tr('Olá 👋')}</Text>
             <Text style={styles.chipText}>{chipLabel}</Text>
           </View>
+          {isPro && (
+            <View style={styles.proPill}>
+              <CrownMark size={11} />
+              <Text style={styles.proText}>PRO</Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.pad}>
@@ -219,6 +226,8 @@ const createStyles = (colors: ThemeColors) =>
   root: { flex: 1, backgroundColor: colors.background },
   pad: { paddingHorizontal: SCREEN_PADDING },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  proPill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.text, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  proText: { fontSize: 11, fontWeight: '800', color: colors.background, letterSpacing: 0.8 },
   hello: { fontSize: font.h2, fontWeight: '700', color: colors.text },
   chipText: { fontSize: font.small, color: colors.textMuted, marginTop: 1 },
   row: { flexDirection: 'row', gap: 12 },

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { getAvatarUri, removeAvatar, saveAvatar } from '../services/avatar';
+import { getAvatarUri, removeAvatar, restoreAvatar, saveAvatar } from '../services/avatar';
 import { useAuth } from './useAuth';
 
 export function useAvatar() {
@@ -9,6 +9,12 @@ export function useAvatar() {
 
   useEffect(() => {
     setUri(userId ? getAvatarUri(userId) : null);
+    if (!userId || getAvatarUri(userId)) return;
+    let alive = true;
+    void restoreAvatar(userId).then((u) => alive && u && setUri(u));
+    return () => {
+      alive = false;
+    };
   }, [userId]);
 
   const set = useCallback(

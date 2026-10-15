@@ -157,7 +157,7 @@ export function QuizResult({ answers, goals, tips, firstName, saving, reminderTi
             <View style={styles.checkWrap}>
               <CircleCheck size={34} color="#fff" strokeWidth={2.4} />
             </View>
-            <Text style={styles.welcome}>{firstName ? tr('Bem-vindo ao Nutri IA, {name}!', { name: firstName }) : tr('Bem-vindo ao Nutri IA!')}</Text>
+            <Text style={styles.welcome}>{tr('O seu plano personalizado')}</Text>
             <Text style={styles.welcomeSub}>{tr('O seu plano está pronto. Estes são os seus objetivos:')}</Text>
           </View>
         </Rise>
@@ -268,6 +268,6 @@ const createStyles = (colors: ThemeColors) =>
     tip: { color: colors.textMuted, fontSize: font.small, lineHeight: 18 },
     askBox: { alignItems: 'center', gap: 14, marginTop: 6 },
     ask: { color: colors.text, fontSize: font.h2, fontWeight: '800', textAlign: 'center', lineHeight: 26 },
-    okBtn: { backgroundColor: colors.primary, borderRadius: radius.pill, height: 56, paddingHorizontal: 44, alignItems: 'center', justifyContent: 'center', minWidth: 240 },
-    okText: { color: '#fff', fontSize: font.h2, fontWeight: '800' },
+    okBtn: { backgroundColor: colors.text, borderRadius: radius.pill, height: 56, paddingHorizontal: 44, alignItems: 'center', justifyContent: 'center', minWidth: 240 },
+    okText: { color: colors.background, fontSize: font.h2, fontWeight: '800' },
   });

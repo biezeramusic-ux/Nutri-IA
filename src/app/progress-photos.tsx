@@ -1,6 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import { Camera, Trash } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
@@ -9,7 +9,7 @@ import { ProGate } from '../components/ProOverlay';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
-import { deleteProgressPhoto, listProgressPhotos, saveProgressPhoto, type ProgressPhoto } from '../services/progressPhotos';
+import { deleteProgressPhoto, listProgressPhotos, restoreProgressPhotos, saveProgressPhoto, type ProgressPhoto } from '../services/progressPhotos';
 import { tr } from '../i18n';
 
 const fmtDate = (t: number) => new Date(t).toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -19,6 +19,14 @@ export default function ProgressPhotosScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const [photos, setPhotos] = useState<ProgressPhoto[]>(() => listProgressPhotos());
+
+  useEffect(() => {
+    let alive = true;
+    void restoreProgressPhotos().then((changed) => alive && changed && setPhotos(listProgressPhotos()));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const take = async () => {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
@@ -37,7 +45,7 @@ export default function ProgressPhotosScreen() {
   };
 
   const confirmDelete = (p: ProgressPhoto) =>
-    Alert.alert(tr('Apagar foto'), tr('Esta foto fica apagada do telemóvel.'), [
+    Alert.alert(tr('Apagar foto'), tr('Esta foto fica apagada.'), [
       { text: tr('Cancelar'), style: 'cancel' },
       {
         text: tr('Apagar'),
@@ -57,7 +65,7 @@ export default function ProgressPhotosScreen() {
           showsVerticalScrollIndicator={false}
         >
           <ScreenHeader title={tr('Fotos de progresso')} />
-          <Text style={styles.sub}>{tr('As fotos ficam só no seu telemóvel e não são enviadas para a nuvem.')}</Text>
+          <Text style={styles.sub}>{tr('As fotos ficam guardadas na sua conta (privadas, reduzidas a ~50 KB) e também no telemóvel.')}</Text>
           <Pressable style={styles.cta} onPress={() => void take()}>
             <Camera size={18} color="#fff" />
             <Text style={styles.ctaText}>{tr('Tirar foto de hoje')}</Text>
