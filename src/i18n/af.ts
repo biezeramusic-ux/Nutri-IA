@@ -877,4 +877,11 @@ export const af: Record<string, string> = {
   "Prazo": "Sperdatum",
   "Registe uma refeição hoje.": "Teken vandag 'n maaltyd aan.",
   "Próxima conquista: {n} dias": "Volgende mylpaal: {n} dae",
+  "Medalha de bronze": "Bronsmedalje",
+  "Medalha de prata": "Silwermedalje",
+  "Medalha de ouro": "Goudmedalje",
+  "Medalha de platina": "Platinummedalje",
+  "Medalha de ametista": "Ametis-medalje",
+  "Medalha de diamante": "Diamantmedalje",
+  "Conquistou a {medal}!": "Jy het die {medal} verdien!",
 };

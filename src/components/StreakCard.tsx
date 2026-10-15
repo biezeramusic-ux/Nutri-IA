@@ -5,7 +5,8 @@ import { Text } from '../components/AppText';
 import { ProgressRing } from './ProgressRing';
 import { cardBase, font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
-import { type StreakInfo } from '../services/streak';
+import { STREAK_MILESTONES, type StreakInfo } from '../services/streak';
+import { MEDAL_TIERS, StreakMedal } from './StreakMedal';
 import { tr } from '../i18n';
 
 interface Props {
@@ -19,13 +20,15 @@ export function StreakCard({ streak, last7 }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { current, nextMilestone, today } = streak;
+  const reachedIdx = STREAK_MILESTONES.reduce((acc, m, i) => (current >= m ? i : acc), -1);
+  const tier = reachedIdx >= 0 ? MEDAL_TIERS[reachedIdx] : null;
   const title = current === 0 ? tr('Comece a sua sequência') : tr(current === 1 ? '{n} dia seguido' : '{n} dias seguidos', { n: current });
-  const sub = !today ? tr('Registe uma refeição hoje.') : nextMilestone ? tr('Próxima conquista: {n} dias', { n: nextMilestone }) : tr('Conquista máxima alcançada. Parabéns!');
+  const sub = tier && STREAK_MILESTONES[reachedIdx] === current ? tr('Conquistou a {medal}!', { medal: tr(tier.name).toLowerCase() }) : !today ? tr('Registe uma refeição hoje.') : nextMilestone ? tr('Próxima conquista: {n} dias', { n: nextMilestone }) : tr('Conquista máxima alcançada. Parabéns!');
 
   return (
     <View style={styles.card}>
-      <ProgressRing size={46} strokeWidth={5} progress={nextMilestone ? current / nextMilestone : 1} color={colors.text}>
-        <Text style={styles.count}>{current}</Text>
+      <ProgressRing size={tier ? 56 : 46} strokeWidth={5} progress={nextMilestone ? current / nextMilestone : 1} color={tier ? tier.dark : colors.text}>
+        {tier ? <StreakMedal size={40} tier={tier} value={current} /> : <Text style={styles.count}>{current}</Text>}
       </ProgressRing>
       <View style={{ flex: 1, gap: 1 }}>
         <Text style={styles.title}>{title}</Text>

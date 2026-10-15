@@ -877,4 +877,11 @@ export const es: Record<string, string> = {
   "Prazo": "Plazo",
   "Registe uma refeição hoje.": "Registra una comida hoy.",
   "Próxima conquista: {n} dias": "Próximo logro: {n} días",
+  "Medalha de bronze": "Medalla de bronce",
+  "Medalha de prata": "Medalla de plata",
+  "Medalha de ouro": "Medalla de oro",
+  "Medalha de platina": "Medalla de platino",
+  "Medalha de ametista": "Medalla de amatista",
+  "Medalha de diamante": "Medalla de diamante",
+  "Conquistou a {medal}!": "¡Conseguiste la {medal}!",
 };

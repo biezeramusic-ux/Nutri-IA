@@ -877,4 +877,11 @@ export const zh: Record<string, string> = {
   "Prazo": "截止",
   "Registe uma refeição hoje.": "今天记录一餐。",
   "Próxima conquista: {n} dias": "下一个里程碑：{n} 天",
+  "Medalha de bronze": "铜牌",
+  "Medalha de prata": "银牌",
+  "Medalha de ouro": "金牌",
+  "Medalha de platina": "白金奖牌",
+  "Medalha de ametista": "紫水晶奖牌",
+  "Medalha de diamante": "钻石奖牌",
+  "Conquistou a {medal}!": "你获得了{medal}！",
 };
