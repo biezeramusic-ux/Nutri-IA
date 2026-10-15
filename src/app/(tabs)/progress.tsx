@@ -5,7 +5,8 @@ import { Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } f
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { PotentialChart } from '../../components/quiz/PotentialChart';
+import { JourneyChart } from '../../components/JourneyChart';
+import { ProgressRing } from '../../components/ProgressRing';
 import { WeightChanges } from '../../components/WeightChanges';
 import { StackedChart } from '../../components/StackedChart';
 import { LineChart } from '../../components/LineChart';
@@ -27,6 +28,7 @@ import { basalMetabolicRate } from '../../services/goals';
 import { listActivityKcal, listWater } from '../../services/repositories/tracker';
 import type { MealType } from '../../types';
 import { fetchProgressInsight } from '../../services/aiText';
+import { useGoalPlan } from '../../hooks/useGoalPlan';
 import { useSubscription } from '../../hooks/useSubscription';
 import { buildProgressSummary } from '../../services/progressSummary';
 import { computeStreak } from '../../services/streak';
@@ -70,11 +72,14 @@ export default function ProgressScreen() {
   const { goals, profile } = useProfile();
   const { logs, addToday } = useWeightLogs(400);
   const { isPro } = useSubscription();
+  const plan = useGoalPlan();
   const [period, setPeriod] = useState<StatsPeriod>('week');
   const [offset, setOffset] = useState(0);
   const [logging, setLogging] = useState(false);
   const [draftWeight, setDraftWeight] = useState<number | null>(null);
   const [nutrient, setNutrient] = useState<Nut>('fiber_g');
+  const [section, setSection] = useState<'summary' | 'nutrition' | 'body'>('summary');
+  const [macro, setMacro] = useState<'protein' | 'fats' | 'carbs'>('protein');
   const [reportOpen, setReportOpen] = useState(false);
   const [waterByDay, setWaterByDay] = useState<Record<string, number>>({});
   const [burnByDay, setBurnByDay] = useState<Record<string, number>>({});
@@ -262,6 +267,44 @@ export default function ProgressScreen() {
   );
   const isCurrent = offset === 0;
 
+  const macroRings = [
+    { key: 'protein' as const, label: 'Proteínas', emoji: '💪', value: avgOf(proteinStack), goal: goals.proteinG, color: '#4C9AFF', stack: proteinStack },
+    { key: 'fats' as const, label: 'Gorduras', emoji: '🥑', value: avgOf(fatsStack), goal: goals.fatsG, color: '#F472B6', stack: fatsStack },
+    { key: 'carbs' as const, label: 'Carboidratos', emoji: '🍞', value: avgOf(carbsStack), goal: goals.carbsG, color: '#F5A524', stack: carbsStack },
+  ];
+  const currentMacro = macroRings.find((m) => m.key === macro) ?? macroRings[0];
+
+  const journeyStart = plan?.startMs ?? (logs[0] ? new Date(`${logs[0].day}T12:00:00`).getTime() : Date.now());
+  const journeyDeadline = journeyStart + (plan?.weeks ?? 12) * 7 * 86400000;
+  const hasJourney = wantsTarget && targetWeight !== undefined && startWeight !== undefined && startWeight !== targetWeight;
+  const journeyPoints =
+    hasJourney && targetWeight !== undefined && startWeight !== undefined
+      ? logs
+          .map((l) => ({ t: new Date(`${l.day}T12:00:00`).getTime(), pct: ((startWeight - l.weightKg) / (startWeight - targetWeight)) * 100 }))
+          .filter((q) => q.t >= journeyStart - 43200000)
+      : [];
+  const journeyBlock = hasJourney ? (
+    <View style={styles.card}>
+      <Text style={styles.chartTitle}>{wantsLose ? tr('O seu caminho até ao peso desejado') : tr('O seu caminho até ao objetivo')}</Text>
+      <JourneyChart
+        width={chartWidth}
+        startMs={journeyStart}
+        deadlineMs={journeyDeadline}
+        points={journeyPoints}
+        emptyText={tr('Registe o seu peso em Corpo para o gráfico começar a subir.')}
+        goalLabel={tr('Meta')}
+        deadlineLabel={tr('Prazo')}
+      />
+      <Text style={styles.footnote}>
+        {journeyPoints.length === 0
+          ? tr('O gráfico sobe quando se aproxima da meta e cai quando se afasta.')
+          : weightLeft !== null && weightLeft < 0.1
+            ? tr('Chegou ao peso desejado. Parabéns!')
+            : tr('Faltam {kg} kg para os {target} kg.', { kg: (weightLeft ?? 0).toFixed(1).replace('.', ','), target: String(targetWeight).replace('.', ',') })}
+      </Text>
+    </View>
+  ) : null;
+
   return (
     <ProGate feature={tr('Acompanhe calorias, macros e peso ao longo da semana e do mês.')}>
       <ScrollView
@@ -292,6 +335,18 @@ export default function ProgressScreen() {
           </Pressable>
         </View>
 
+        <SegmentedControl
+          options={[
+            { key: 'summary', label: tr('Resumo') },
+            { key: 'nutrition', label: tr('Nutrição') },
+            { key: 'body', label: tr('Corpo') },
+          ]}
+          value={section}
+          onChange={setSection}
+        />
+
+        {section === 'summary' && (
+          <>
         <Pressable style={styles.card} onPress={() => setReportOpen((v) => !v)}>
           <View style={styles.reportRow}>
             <View style={styles.reportIcon}>
@@ -312,24 +367,8 @@ export default function ProgressScreen() {
           {reportOpen && <Text style={styles.summaryText}>{aiSummary ?? summary}</Text>}
         </Pressable>
 
-        {wantsTarget && targetWeight !== undefined && startWeight !== undefined && (
-          <View style={{ gap: 8 }}>
-            <PotentialChart
-              title={wantsLose ? tr('O seu caminho até ao peso desejado') : tr('O seu caminho até ao objetivo')}
-              withLabel={tr('Com o Nutri IA')}
-              withoutLabel={tr('Da forma tradicional')}
-              youProgress={pathProgress}
-              youLabel={tr('Você está aqui')}
-            />
-            {weightLeft !== null && (
-              <Text style={styles.footnote}>
-                {weightLeft < 0.1
-                  ? tr('Chegou ao peso desejado. Parabéns!')
-                  : tr('Faltam {kg} kg para os {target} kg.', { kg: weightLeft.toFixed(1).replace('.', ','), target: String(targetWeight).replace('.', ',') })}
-              </Text>
-            )}
-          </View>
-        )}
+
+            {journeyBlock}
 
         <View style={styles.card}>
           <Text style={styles.chartTitle}>🔥 {tr('Calorias')}</Text>
@@ -350,32 +389,50 @@ export default function ProgressScreen() {
           )}
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.chartTitle}>💪 {tr('Proteínas')}</Text>
-          {chart({ stacks: proteinStack, goal: goals.proteinG })}
-          {legend}
-          <Text style={styles.footnote}>{plain(avgOf(proteinStack), goals.proteinG, 'g')}</Text>
-        </View>
 
-        <View style={styles.card}>
-          <Text style={styles.chartTitle}>🥑 {tr('Gorduras')}</Text>
-          {chart({ stacks: fatsStack, goal: goals.fatsG })}
-          {legend}
-          <Text style={styles.footnote}>{plain(avgOf(fatsStack), goals.fatsG, 'g')}</Text>
-        </View>
+        <StreakCard streak={streak} />
 
-        <View style={styles.card}>
-          <Text style={styles.chartTitle}>🍞 {tr('Carboidratos')}</Text>
-          {chart({ stacks: carbsStack, goal: goals.carbsG })}
-          {legend}
-          <Text style={styles.footnote}>{plain(avgOf(carbsStack), goals.carbsG, 'g')}</Text>
-        </View>
+        <Pressable
+          style={styles.shareBtn}
+          onPress={() =>
+            void Share.share({ message: buildWeeklyReport(meals, goals, displayName.split(' ')[0] ?? '', referral.code || undefined) }).catch(() => undefined)
+          }
+        >
+          <Share2 size={16} color="#fff" />
+          <Text style={styles.shareText}>{tr('Partilhar resumo da semana')}</Text>
+        </Pressable>
+          </>
+        )}
 
-        <View style={styles.card}>
-          <Text style={styles.chartTitle}>💧 {tr('Água')}</Text>
-          {chart({ stacks: waterStack, goal: goals.waterMl, gradient: ['#67D4FF', '#2F6BEA'] })}
-          <Text style={styles.footnote}>{plain(Math.round(waterAvg), goals.waterMl, 'ml')}</Text>
-        </View>
+        {section === 'nutrition' && (
+          <>
+            <View style={styles.card}>
+              <Text style={styles.chartTitle}>{tr('Macros · média diária')}</Text>
+              <View style={styles.ringsRow}>
+                {macroRings.map((m) => (
+                  <View key={m.label} style={styles.ringItem}>
+                    <ProgressRing size={74} strokeWidth={8} progress={m.goal > 0 ? m.value / m.goal : 0} color={m.color}>
+                      <Text style={styles.ringPct}>{pct(m.value, m.goal)}%</Text>
+                    </ProgressRing>
+                    <Text style={styles.ringLabel}>{tr(m.label)}</Text>
+                    <Text style={styles.ringSub}>{m.value} / {m.goal} g</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            <View style={styles.card}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+                {macroRings.map((m) => (
+                  <Pressable key={m.key} onPress={() => setMacro(m.key)} style={[styles.chip, macro === m.key && { backgroundColor: colors.text, borderColor: colors.text }]}>
+                    <Text style={[styles.chipText, macro === m.key && { color: colors.background }]}>{m.emoji} {tr(m.label)}</Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+              {chart({ stacks: currentMacro.stack, goal: currentMacro.goal })}
+              {legend}
+              <Text style={styles.footnote}>{plain(currentMacro.value, currentMacro.goal, 'g')}</Text>
+            </View>
 
         <View style={styles.card}>
           <Text style={styles.chartTitle}>🧬 {tr('Nutrientes avançados')}</Text>
@@ -389,6 +446,18 @@ export default function ProgressScreen() {
           {chart({ stacks: nutStack, gradient: nut.color })}
           <Text style={styles.footnote}>{tr('Média por dia com registos')} · {nut.unit}</Text>
         </View>
+
+          </>
+        )}
+
+        {section === 'body' && (
+          <>
+        <View style={styles.card}>
+          <Text style={styles.chartTitle}>💧 {tr('Água')}</Text>
+          {chart({ stacks: waterStack, goal: goals.waterMl, gradient: ['#67D4FF', '#2F6BEA'] })}
+          <Text style={styles.footnote}>{plain(Math.round(waterAvg), goals.waterMl, 'ml')}</Text>
+        </View>
+
 
         <View style={styles.card}>
           <View style={styles.weightHead}>
@@ -435,23 +504,14 @@ export default function ProgressScreen() {
           )}
         </View>
 
-        <StreakCard streak={streak} />
-
-        <Pressable
-          style={styles.shareBtn}
-          onPress={() =>
-            void Share.share({ message: buildWeeklyReport(meals, goals, displayName.split(' ')[0] ?? '', referral.code || undefined) }).catch(() => undefined)
-          }
-        >
-          <Share2 size={16} color="#fff" />
-          <Text style={styles.shareText}>{tr('Partilhar resumo da semana')}</Text>
-        </Pressable>
+            {profile?.goal === 'lose_weight' && <WeightChanges logs={logs} />}
         <Pressable style={styles.photosBtn} onPress={() => router.push('/progress-photos')}>
           <Camera size={16} color={colors.primaryDark} />
           <Text style={styles.photosText}>{tr('Fotos de progresso (antes e depois)')}</Text>
         </Pressable>
 
-        {profile?.goal === 'lose_weight' && <WeightChanges logs={logs} />}
+          </>
+        )}
       </ScrollView>
     </ProGate>
   );
@@ -463,6 +523,11 @@ const createStyles = (colors: ThemeColors) =>
   shareText: { color: '#fff', fontWeight: '700', fontSize: font.body },
   photosBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
   photosText: { color: colors.primaryDark, fontWeight: '600', fontSize: font.body },
+  ringsRow: { flexDirection: 'row', justifyContent: 'space-around' },
+  ringItem: { alignItems: 'center', gap: 4 },
+  ringPct: { fontSize: font.body, fontWeight: '700', color: colors.text },
+  ringLabel: { fontSize: font.small, fontWeight: '600', color: colors.text },
+  ringSub: { fontSize: font.tiny, color: colors.textMuted },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   rangeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   rangeText: { fontSize: font.h3, fontWeight: '600', color: colors.text },

@@ -24,6 +24,7 @@ import { useProfile } from '../../hooks/useProfile';
 import { GLASS_ML, calculateGoals, glassesFromMl, planTips } from '../../services/goals';
 import { ensureNotificationPermission } from '../../services/notifications';
 import { STAPLES } from '../../services/staples';
+import { WEEK_OPTIONS, maxSafeRate, ratePerWeek, recommendedWeeks, saveGoalPlan } from '../../services/goalPlan';
 import type {
   ActivityLevel,
   DietPreference,
@@ -47,7 +48,7 @@ import { WelcomeScreen } from './WelcomeScreen';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
-type Step = 'goal' | 'name' | 'about' | 'potential' | 'body' | 'activity' | 'health' | 'habits' | 'diet' | 'staples';
+type Step = 'goal' | 'name' | 'about' | 'potential' | 'timeframe' | 'body' | 'activity' | 'health' | 'habits' | 'diet' | 'staples';
 
 const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'health', 'habits', 'diet', 'staples'];
 
@@ -112,6 +113,7 @@ const DIETS: { value: DietPreference; label: string }[] = [
 const COPY: Record<Step, { title: string; subtitle?: string }> = {
   name: { title: 'Como se chama?', subtitle: 'Vamos tratá-lo pelo nome na app.' },
   potential: { title: 'Tem um grande potencial para alcançar o seu objetivo' },
+  timeframe: { title: 'Em quanto tempo quer chegar à meta?', subtitle: 'Escolha um prazo realista para o seu peso desejado.' },
   goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
   about: { title: 'Fale-nos de si', subtitle: 'Usamos isto para calcular as suas calorias.' },
   body: { title: 'A sua altura e peso', subtitle: 'Pode ajustar mais tarde no Perfil.' },
@@ -128,6 +130,7 @@ const GOAL_PRIORITY: GoalType[] = ['lose_weight', 'gain_muscle', 'maintain', 'ea
 const SECTION: Record<Step, string> = {
   name: 'O seu nome',
   potential: 'O seu potencial',
+  timeframe: 'O seu prazo',
   goal: 'Metas',
   about: 'Sobre si',
   body: 'Medidas',
@@ -165,7 +168,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile, completeOnboarding, saveReminders, saveName } = useProfile();
-  const { displayName } = useAuth();
+  const { displayName, user } = useAuth();
   const [step, setStep] = useState(0);
   const [base, setBase] = useState<Base>(profile?.quiz ?? DEFAULTS);
   // Quem tinha escolhido "só saber as calorias" (opção retirada) volta a ver "Manter o meu peso" marcado.
@@ -181,6 +184,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const [sleep, setSleep] = useState(profile?.sleepHour ?? 22);
   const [saving, setSaving] = useState(false);
   const [welcome, setWelcome] = useState(false);
+  const [weeksPick, setWeeksPick] = useState<number | null>(null);
   const [name, setName] = useState(profile?.fullName || displayName || '');
   const touched = useRef(false);
   // O nome pode chegar do servidor depois de abrir o quiz: preenche uma única vez se ainda estiver vazio.
@@ -213,7 +217,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     if (mode === 'first') list.splice(1, 0, 'name');
     if (wantsTarget) {
       const at = list.indexOf('body');
-      if (at >= 0) list.splice(at + 1, 0, 'potential');
+      if (at >= 0) list.splice(at + 1, 0, 'potential', 'timeframe');
     }
     return list;
   }, [goalPicked, base.goal, mode, wantsTarget]);
@@ -263,6 +267,9 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     setSaving(true);
     try {
       await completeOnboarding(buildAnswers());
+      if (user?.id && wantsTarget) {
+        await saveGoalPlan(user.id, { weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal), startMs: Date.now(), startWeightKg: base.weightKg });
+      }
       const trimmed = name.trim();
       if (mode === 'first' && trimmed.length >= 2 && trimmed !== (profile?.fullName || displayName)) await saveName(trimmed).catch(() => undefined);
       // A hora de acordar e dormir (e as respostas do quiz) definem os horários dos lembretes de água.
@@ -365,6 +372,35 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
             </Text>
             <Text style={styles.note}>
               {base.weightKg} kg → {base.targetWeightKg} kg
+            </Text>
+          </>
+        )}
+
+        {current === 'timeframe' && (
+          <>
+            {WEEK_OPTIONS.map((w) => {
+              const rec = recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal);
+              const rate = ratePerWeek(base.weightKg, base.targetWeightKg, w);
+              const fast = rate > maxSafeRate(base.goal);
+              const chosen = (weeksPick ?? rec) === w;
+              const months = w >= 8 ? ` (≈ ${Math.round(w / 4.345)} ${tr('meses')})` : '';
+              return (
+                <QuizRow
+                  key={w}
+                  title={`${w} ${tr('semanas')}${months}`}
+                  subtitle={`${rate.toFixed(2).replace('.', ',')} kg ${tr('por semana')}${w === rec ? ` · ${tr('Recomendado')}` : fast ? ` · ${tr('Ritmo muito rápido')}` : ''}`}
+                  selected={chosen}
+                  onPress={() => setWeeksPick(w)}
+                />
+              );
+            })}
+            <Text style={styles.note}>
+              {tr('De {from} kg para {to} kg em {weeks} semanas. Chegaria por volta de {date}.', {
+                from: base.weightKg,
+                to: base.targetWeightKg,
+                weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal),
+                date: new Date(Date.now() + (weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal)) * 7 * 86400000).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }),
+              })}
             </Text>
           </>
         )}
