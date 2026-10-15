@@ -890,4 +890,10 @@ export const zh: Record<string, string> = {
   "Medalha Gota": "水滴奖章",
   "Medalha Coração": "爱心奖章",
   "Medalha Coroa": "皇冠奖章",
+  "Medalha Bronze": "铜牌",
+  "Medalha Prata": "银牌",
+  "Medalha Ouro": "金牌",
+  "Medalha Platina": "白金奖牌",
+  "Medalha Ametista": "紫水晶奖牌",
+  "Medalha Diamante": "钻石奖牌",
 };

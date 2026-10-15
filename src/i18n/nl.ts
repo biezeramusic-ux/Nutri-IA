@@ -890,4 +890,10 @@ export const nl: Record<string, string> = {
   "Medalha Gota": "Druppel-medaille",
   "Medalha Coração": "Hart-medaille",
   "Medalha Coroa": "Kroon-medaille",
+  "Medalha Bronze": "Bronzen medaille",
+  "Medalha Prata": "Zilveren medaille",
+  "Medalha Ouro": "Gouden medaille",
+  "Medalha Platina": "Platina medaille",
+  "Medalha Ametista": "Amethisten medaille",
+  "Medalha Diamante": "Diamanten medaille",
 };
