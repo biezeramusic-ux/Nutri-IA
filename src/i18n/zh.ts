@@ -884,4 +884,10 @@ export const zh: Record<string, string> = {
   "Medalha de ametista": "紫水晶奖牌",
   "Medalha de diamante": "钻石奖牌",
   "Conquistou a {medal}!": "你获得了{medal}！",
+  "Medalha Broto": "嫩芽奖章",
+  "Medalha Maçã": "苹果奖章",
+  "Medalha Abacate": "牛油果奖章",
+  "Medalha Gota": "水滴奖章",
+  "Medalha Coração": "爱心奖章",
+  "Medalha Coroa": "皇冠奖章",
 };

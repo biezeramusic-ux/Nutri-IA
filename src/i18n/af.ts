@@ -884,4 +884,10 @@ export const af: Record<string, string> = {
   "Medalha de ametista": "Ametis-medalje",
   "Medalha de diamante": "Diamantmedalje",
   "Conquistou a {medal}!": "Jy het die {medal} verdien!",
+  "Medalha Broto": "Spruit-medalje",
+  "Medalha Maçã": "Appel-medalje",
+  "Medalha Abacate": "Avokado-medalje",
+  "Medalha Gota": "Druppel-medalje",
+  "Medalha Coração": "Hart-medalje",
+  "Medalha Coroa": "Kroon-medalje",
 };

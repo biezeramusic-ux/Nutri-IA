@@ -884,4 +884,10 @@ export const es: Record<string, string> = {
   "Medalha de ametista": "Medalla de amatista",
   "Medalha de diamante": "Medalla de diamante",
   "Conquistou a {medal}!": "¡Conseguiste la {medal}!",
+  "Medalha Broto": "Medalla Brote",
+  "Medalha Maçã": "Medalla Manzana",
+  "Medalha Abacate": "Medalla Aguacate",
+  "Medalha Gota": "Medalla Gota",
+  "Medalha Coração": "Medalla Corazón",
+  "Medalha Coroa": "Medalla Corona",
 };
