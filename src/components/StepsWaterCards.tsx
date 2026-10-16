@@ -53,7 +53,7 @@ export function StepsWaterCards() {
             <Text style={styles.sub}>
               / {STEPS_GOAL.toLocaleString('pt-PT')}
             </Text>
-            <Pressable onPress={() => router.push('/activity')} hitSlop={6} style={styles.connectPill}>
+            <Pressable onPress={() => router.push('/walk')} hitSlop={6} style={styles.connectPill}>
               <Text style={styles.connect}>{tr('Conectar')}</Text>
             </Pressable>
           </View>
