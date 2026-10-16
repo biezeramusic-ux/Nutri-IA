@@ -62,7 +62,7 @@ export function StepsWaterCards() {
           <View style={styles.burnIcon}>
             <Flame size={20} color="#F97316" />
           </View>
-          <Text style={styles.cardLabel}>{tr('Queimadas')}</Text>
+          <Text style={styles.cardLabel}>{tr('Calorias queimadas')}</Text>
           <Text style={styles.value}>
             {totals.kcal}
             <Text style={styles.of}> kcal</Text>

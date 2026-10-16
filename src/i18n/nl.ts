@@ -899,4 +899,5 @@ export const nl: Record<string, string> = {
   "{n} dias seguidos!": "{n} dagen op rij!",
   "Continue assim.": "Ga zo door.",
   "Acima": "Erboven",
+  "Calorias queimadas": "Verbrande calorieën",
 };

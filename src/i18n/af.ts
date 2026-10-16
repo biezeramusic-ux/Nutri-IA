@@ -899,4 +899,5 @@ export const af: Record<string, string> = {
   "{n} dias seguidos!": "{n} dae agtereenvolgend!",
   "Continue assim.": "Hou so aan.",
   "Acima": "Bo",
+  "Calorias queimadas": "Verbrande kalorieë",
 };

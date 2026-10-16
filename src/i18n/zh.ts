@@ -899,4 +899,5 @@ export const zh: Record<string, string> = {
   "{n} dias seguidos!": "连续 {n} 天！",
   "Continue assim.": "继续保持。",
   "Acima": "超出",
+  "Calorias queimadas": "消耗的卡路里",
 };

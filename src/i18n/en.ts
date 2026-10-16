@@ -899,4 +899,5 @@ export const en: Record<string, string> = {
   "{n} dias seguidos!": "{n} days in a row!",
   "Continue assim.": "Keep it up.",
   "Acima": "Over",
+  "Calorias queimadas": "Calories burned",
 };
