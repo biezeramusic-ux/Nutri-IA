@@ -1,26 +1,36 @@
 import { Pedometer } from 'expo-sensors';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
-import { connectSteps, disconnectSteps, isStepsConnected, type ConnectResult } from '../services/stepsConnection';
+import { readHealthConnectSteps } from '../services/healthConnect';
+import { connectSteps, disconnectSteps, getStepsSource, type ConnectResult, type StepsSource } from '../services/stepsConnection';
 
 /**
- * Passos automáticos pelo sensor do telemóvel (depois de ligar o Nutri Saúde).
- * iPhone: lê os passos do dia inteiro. Android: soma os passos dados enquanto a app está aberta.
+ * Passos automáticos. Google Health Connect (Android): passos do dia inteiro, mesmo com a app fechada.
+ * Sem Health Connect: iPhone lê o dia inteiro; Android soma os passos dados enquanto a app está aberta.
  */
 export function useStepsTracking(setSteps: (fn: (prev: number) => number) => void) {
-  const [connected, setConnected] = useState(false);
+  const [source, setSource] = useState<StepsSource | null>(null);
   const last = useRef(0);
 
   useEffect(() => {
     let alive = true;
-    void isStepsConnected().then((c) => alive && setConnected(c));
+    void getStepsSource().then((s) => alive && setSource(s));
     return () => {
       alive = false;
     };
   }, []);
 
   useEffect(() => {
-    if (!connected) return;
+    if (!source) return;
+    if (source === 'healthconnect') {
+      const read = async () => {
+        const n = await readHealthConnectSteps();
+        if (n !== null) setSteps((prev) => Math.max(prev, n));
+      };
+      void read();
+      const t = setInterval(() => void read(), 60000);
+      return () => clearInterval(t);
+    }
     if (Platform.OS === 'ios') {
       const read = async () => {
         try {
@@ -43,18 +53,18 @@ export function useStepsTracking(setSteps: (fn: (prev: number) => number) => voi
       if (delta > 0) setSteps((prev) => prev + delta);
     });
     return () => sub.remove();
-  }, [connected, setSteps]);
+  }, [source, setSteps]);
 
   const connect = useCallback(async (): Promise<ConnectResult> => {
     const r = await connectSteps();
-    if (r === 'ok') setConnected(true);
+    if (r.status === 'ok') setSource(r.source);
     return r;
   }, []);
 
   const disconnect = useCallback(async () => {
     await disconnectSteps();
-    setConnected(false);
+    setSource(null);
   }, []);
 
-  return { connected, connect, disconnect };
+  return { connected: source !== null, source, connect, disconnect };
 }

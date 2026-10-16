@@ -926,4 +926,8 @@ export const af: Record<string, string> = {
   "Permita o acesso à atividade física nas definições do telemóvel.": "Laat toegang tot fisieke aktiwiteit toe in jou foon se instellings.",
   "Não disponível": "Nie beskikbaar nie",
   "Este telemóvel não tem sensor de passos ou está a usar o navegador.": "Hierdie foon het nie 'n treë-sensor nie, of jy gebruik die blaaier.",
+  "Conecte o {app} para rastrear os seus passos": "Koppel {app} om jou treë te volg",
+  "Conectar o {app}": "Koppel {app}",
+  "Lidos do Google Health Connect, mesmo com a app fechada.": "Gelees uit Google Health Connect, selfs met die toep toe.",
+  "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "Installeer of dateer Google Health Connect op in die Play Store en probeer weer.",
 };

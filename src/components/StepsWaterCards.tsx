@@ -1,4 +1,5 @@
-import { Droplets, Flame, Footprints, HeartPulse, Route } from 'lucide-react-native';
+import { Droplets, Flame, Footprints, Route } from 'lucide-react-native';
+import { ConnectMark } from './ConnectMark';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
@@ -30,6 +31,7 @@ export function StepsWaterCards() {
   const tracking = useStepsTracking(setSteps);
   const [connectOpen, setConnectOpen] = useState(false);
   const [connecting, setConnecting] = useState(false);
+  const provider = Platform.OS === 'android' ? 'Google Health Connect' : 'Nutri Saúde';
   const stepsKcal = Math.round(steps * KCAL_PER_STEP);
   const burned = totals.kcal + stepsKcal;
   const water = useWater();
@@ -75,31 +77,27 @@ export function StepsWaterCards() {
                 <Text style={styles.ghostLabel}>{tr('Passos hoje')}</Text>
               </View>
               <View style={styles.connectBox}>
-                <View style={styles.healthMark}>
-                  <HeartPulse size={18} color="#fff" />
+                <ConnectMark size={34} />
+                <Text style={styles.connectText}>{tr('Conecte o {app} para rastrear os seus passos', { app: provider })}</Text>
+                <View style={styles.connectPill}>
+                  <Text style={styles.connect}>{tr('Conectar')}</Text>
                 </View>
-                <Text style={styles.connectText}>{tr('Conecte o Nutri Saúde para rastrear os seus passos')}</Text>
               </View>
             </>
           )}
         </Pressable>
 
         <View style={[styles.card, styles.burnCard]}>
-          <View>
-            <View style={styles.burnTop}>
-              <Flame size={20} color="#F97316" />
-              <Text style={styles.burnNumber}>{burned}</Text>
-            </View>
-            <Text style={styles.burnLabel}>{tr('Calorias queimadas')}</Text>
+          <View style={styles.burnIcon}>
+            <Flame size={20} color="#F97316" />
           </View>
-          <View style={styles.stepsPill}>
-            <View style={styles.pillIcon}>
-              <Footprints size={13} color="#fff" />
-            </View>
-            <View>
-              <Text style={styles.pillLabel}>{tr('Passos')}</Text>
-              <Text style={styles.pillValue}>+{stepsKcal}</Text>
-            </View>
+          <Text style={styles.cardLabel}>{tr('Calorias queimadas')}</Text>
+          <Text style={styles.value}>
+            {burned}
+            <Text style={styles.of}> kcal</Text>
+          </Text>
+          <View style={styles.burnTrack}>
+            <View style={[styles.burnFill, { width: `${Math.min(100, (burned / 500) * 100)}%` }]} />
           </View>
         </View>
       </View>
@@ -124,13 +122,13 @@ export function StepsWaterCards() {
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setConnectOpen(false)} />
           <View style={styles.sheet}>
             <View style={styles.grabber} />
-            <View style={styles.bigMark}>
-              <HeartPulse size={34} color="#fff" />
+            <View style={{ alignSelf: 'center' }}>
+              <ConnectMark size={76} />
             </View>
-            <Text style={styles.sheetHeadline}>{tr('Conectar Nutri Saúde')}</Text>
+            <Text style={styles.sheetHeadline}>{tr('Conectar o {app}', { app: provider })}</Text>
             <Text style={styles.sheetBody}>{tr('Siga os seus passos, a rota e as calorias queimadas num só sítio.')}</Text>
             {[
-              { icon: Footprints, t: 'Passos do dia', d: 'Pelo sensor de movimento do telemóvel.' },
+              { icon: Footprints, t: 'Passos do dia', d: Platform.OS === 'android' ? 'Lidos do Google Health Connect, mesmo com a app fechada.' : 'Pelo sensor de movimento do telemóvel.' },
               { icon: Route, t: 'Rota e km', d: 'Com a localização, só enquanto caminha.' },
               { icon: Flame, t: 'Calorias queimadas', d: 'Calculadas a partir dos seus passos.' },
             ].map((r) => (
@@ -151,13 +149,15 @@ export function StepsWaterCards() {
                 setConnecting(true);
                 const r = await tracking.connect();
                 setConnecting(false);
-                if (r === 'ok') setConnectOpen(false);
+                if (r.status === 'ok') setConnectOpen(false);
                 else
                   Alert.alert(
-                    r === 'denied' ? tr('Permissão necessária') : tr('Não disponível'),
-                    r === 'denied'
+                    r.status === 'denied' ? tr('Permissão necessária') : tr('Não disponível'),
+                    r.status === 'denied'
                       ? tr('Permita o acesso à atividade física nas definições do telemóvel.')
-                      : tr('Este telemóvel não tem sensor de passos ou está a usar o navegador.'),
+                      : r.status === 'not_installed'
+                        ? tr('Instale ou atualize o Google Health Connect na Play Store e tente outra vez.')
+                        : tr('Este telemóvel não tem sensor de passos ou está a usar o navegador.'),
                   );
               }}
             >
@@ -207,25 +207,17 @@ export function StepsWaterCards() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     row: { flexDirection: 'row', gap: 10 },
-    stepsCard: { flex: 1.1, height: 190, justifyContent: 'space-between' },
-    burnCard: { flex: 1, height: 190, justifyContent: 'space-between' },
+    stepsCard: { flex: 1.1, height: 222, justifyContent: 'space-between' },
+    burnCard: { flex: 1, height: 222, justifyContent: 'center', gap: 6, backgroundColor: colors.limeSoft, borderColor: 'transparent' },
     ghostNumber: { fontSize: 26, fontWeight: '800', color: colors.text },
     ghostOf: { fontSize: font.small, fontWeight: '500', color: colors.textMuted },
     ghostLabel: { fontSize: font.small, color: colors.textMuted },
-    connectBox: { backgroundColor: colors.card, borderRadius: 16, padding: 10, gap: 6, borderWidth: 1, borderColor: colors.border, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
-    healthMark: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#2E9E4F', alignItems: 'center', justifyContent: 'center' },
+    connectBox: { backgroundColor: colors.card, borderRadius: 16, padding: 10, gap: 8, borderWidth: 1, borderColor: colors.border, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
     connectText: { fontSize: font.small, fontWeight: '700', color: colors.text, lineHeight: 17 },
     ringNumber: { fontSize: 20, fontWeight: '800', color: colors.text },
     ringSub: { fontSize: font.tiny, color: colors.textMuted },
     routeHint: { flexDirection: 'row', alignItems: 'center', gap: 5, justifyContent: 'center' },
     routeHintText: { fontSize: font.tiny, color: colors.textMuted },
-    burnTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    burnNumber: { fontSize: 28, fontWeight: '800', color: colors.text },
-    burnLabel: { fontSize: font.small, color: colors.textMuted, marginTop: 2 },
-    stepsPill: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.surface, borderRadius: 14, padding: 8 },
-    pillIcon: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },
-    pillLabel: { fontSize: font.tiny, color: colors.textMuted },
-    pillValue: { fontSize: font.small, fontWeight: '800', color: colors.text },
     waterBtn: { borderWidth: 1.5, borderColor: colors.text, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 10 },
     waterBtnText: { fontSize: font.body, fontWeight: '700', color: colors.text },
     bigMark: { alignSelf: 'center', width: 72, height: 72, borderRadius: 36, backgroundColor: '#2E9E4F', alignItems: 'center', justifyContent: 'center' },

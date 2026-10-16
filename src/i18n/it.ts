@@ -926,4 +926,8 @@ export const it: Record<string, string> = {
   "Permita o acesso à atividade física nas definições do telemóvel.": "Consenti l'accesso all'attività fisica nelle impostazioni del telefono.",
   "Não disponível": "Non disponibile",
   "Este telemóvel não tem sensor de passos ou está a usar o navegador.": "Questo telefono non ha un sensore di passi, o stai usando il browser.",
+  "Conecte o {app} para rastrear os seus passos": "Collega {app} per tracciare i tuoi passi",
+  "Conectar o {app}": "Collega {app}",
+  "Lidos do Google Health Connect, mesmo com a app fechada.": "Letti da Google Health Connect, anche con l'app chiusa.",
+  "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "Installa o aggiorna Google Health Connect dal Play Store e riprova.",
 };

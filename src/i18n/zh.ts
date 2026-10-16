@@ -926,4 +926,8 @@ export const zh: Record<string, string> = {
   "Permita o acesso à atividade física nas definições do telemóvel.": "请在手机设置中允许访问身体活动。",
   "Não disponível": "不可用",
   "Este telemóvel não tem sensor de passos ou está a usar o navegador.": "此手机没有计步传感器，或你正在使用浏览器。",
+  "Conecte o {app} para rastrear os seus passos": "连接 {app} 以追踪你的步数",
+  "Conectar o {app}": "连接 {app}",
+  "Lidos do Google Health Connect, mesmo com a app fechada.": "从 Google Health Connect 读取，应用关闭时也可用。",
+  "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "请在 Play 商店安装或更新 Google Health Connect 后重试。",
 };
