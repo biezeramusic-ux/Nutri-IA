@@ -1,11 +1,14 @@
-import { Droplets, Flame, Footprints, Plus } from 'lucide-react-native';
+import { Droplets, Flame, Footprints, HeartPulse, Route } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './AppText';
 import { ProgressRing } from './ProgressRing';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { Alert } from '../i18n/alert';
 import { useActivity } from '../hooks/useActivity';
+import { useStepsTracking } from '../hooks/useStepsTracking';
+import { KCAL_PER_STEP } from '../services/stepsConnection';
 import { useTheme } from '../hooks/useTheme';
 import { useWater } from '../hooks/useWater';
 import { STEPS_GOAL } from '../services/activity';
@@ -23,7 +26,12 @@ export function StepsWaterCards() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
-  const { steps, totals } = useActivity();
+  const { steps, setSteps, totals } = useActivity();
+  const tracking = useStepsTracking(setSteps);
+  const [connectOpen, setConnectOpen] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const stepsKcal = Math.round(steps * KCAL_PER_STEP);
+  const burned = totals.kcal + stepsKcal;
   const water = useWater();
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
@@ -43,50 +51,121 @@ export function StepsWaterCards() {
   return (
     <View style={{ gap: 10 }}>
       <View style={styles.row}>
-        <View style={[styles.card, styles.stepsCard]}>
-          <ProgressRing size={64} strokeWidth={7} progress={steps / STEPS_GOAL} color={colors.primary}>
-            <Footprints size={20} color={colors.primary} />
-          </ProgressRing>
-          <View style={{ flex: 1, gap: 1 }}>
-            <Text style={styles.cardLabel}>{tr('Passos hoje')}</Text>
-            <Text style={styles.value}>{steps.toLocaleString('pt-PT')}</Text>
-            <Text style={styles.sub}>
-              / {STEPS_GOAL.toLocaleString('pt-PT')}
-            </Text>
-            <Pressable onPress={() => router.push('/walk')} hitSlop={6} style={styles.connectPill}>
-              <Text style={styles.connect}>{tr('Conectar')}</Text>
-            </Pressable>
-          </View>
-        </View>
+        <Pressable style={[styles.card, styles.stepsCard]} onPress={() => (tracking.connected ? router.push('/walk') : setConnectOpen(true))}>
+          {tracking.connected ? (
+            <>
+              <Text style={styles.cardLabel}>{tr('Passos hoje')}</Text>
+              <View style={{ alignItems: 'center', flex: 1, justifyContent: 'center' }}>
+                <ProgressRing size={104} strokeWidth={10} progress={steps / STEPS_GOAL} color={colors.primary}>
+                  <Text style={styles.ringNumber}>{steps.toLocaleString('pt-PT')}</Text>
+                  <Text style={styles.ringSub}>/ {STEPS_GOAL.toLocaleString('pt-PT')}</Text>
+                </ProgressRing>
+              </View>
+              <View style={styles.routeHint}>
+                <Route size={13} color={colors.textMuted} />
+                <Text style={styles.routeHintText}>{tr('Ver caminhadas')}</Text>
+              </View>
+            </>
+          ) : (
+            <>
+              <View style={{ opacity: 0.35 }}>
+                <Text style={styles.ghostNumber}>
+                  0<Text style={styles.ghostOf}> /{STEPS_GOAL}</Text>
+                </Text>
+                <Text style={styles.ghostLabel}>{tr('Passos hoje')}</Text>
+              </View>
+              <View style={styles.connectBox}>
+                <View style={styles.healthMark}>
+                  <HeartPulse size={18} color="#fff" />
+                </View>
+                <Text style={styles.connectText}>{tr('Conecte o Nutri Saúde para rastrear os seus passos')}</Text>
+              </View>
+            </>
+          )}
+        </Pressable>
+
         <View style={[styles.card, styles.burnCard]}>
-          <View style={styles.burnIcon}>
-            <Flame size={20} color="#F97316" />
+          <View>
+            <View style={styles.burnTop}>
+              <Flame size={20} color="#F97316" />
+              <Text style={styles.burnNumber}>{burned}</Text>
+            </View>
+            <Text style={styles.burnLabel}>{tr('Calorias queimadas')}</Text>
           </View>
-          <Text style={styles.cardLabel}>{tr('Calorias queimadas')}</Text>
-          <Text style={styles.value}>
-            {totals.kcal}
-            <Text style={styles.of}> kcal</Text>
-          </Text>
-          <View style={styles.burnTrack}>
-            <View style={[styles.burnFill, { width: `${Math.min(100, (totals.kcal / 500) * 100)}%` }]} />
+          <View style={styles.stepsPill}>
+            <View style={styles.pillIcon}>
+              <Footprints size={13} color="#fff" />
+            </View>
+            <View>
+              <Text style={styles.pillLabel}>{tr('Passos')}</Text>
+              <Text style={styles.pillValue}>+{stepsKcal}</Text>
+            </View>
           </View>
         </View>
       </View>
 
       <View style={[styles.card, styles.waterRow]}>
         <View style={styles.waterIcon}>
-          <Droplets size={18} color={colors.water} />
+          <Droplets size={20} color={colors.water} />
         </View>
         <View style={{ flex: 1 }}>
+          <Text style={styles.sub}>{tr('Água')}</Text>
           <Text style={styles.value}>
             {drank} <Text style={styles.of}>ml</Text>
           </Text>
-          <Text style={styles.sub}>{tr('Registrar água')}</Text>
         </View>
-        <Pressable style={styles.plus} onPress={() => setOpen(true)} accessibilityLabel={tr('Registrar água')}>
-          <Plus size={18} color={colors.background} />
+        <Pressable style={styles.waterBtn} onPress={() => setOpen(true)}>
+          <Text style={styles.waterBtnText}>{tr('Registrar água')}</Text>
         </Pressable>
       </View>
+
+      <Modal visible={connectOpen} transparent animationType="slide" onRequestClose={() => setConnectOpen(false)}>
+        <View style={styles.overlay}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setConnectOpen(false)} />
+          <View style={styles.sheet}>
+            <View style={styles.grabber} />
+            <View style={styles.bigMark}>
+              <HeartPulse size={34} color="#fff" />
+            </View>
+            <Text style={styles.sheetHeadline}>{tr('Conectar Nutri Saúde')}</Text>
+            <Text style={styles.sheetBody}>{tr('Siga os seus passos, a rota e as calorias queimadas num só sítio.')}</Text>
+            {[
+              { icon: Footprints, t: 'Passos do dia', d: 'Pelo sensor de movimento do telemóvel.' },
+              { icon: Route, t: 'Rota e km', d: 'Com a localização, só enquanto caminha.' },
+              { icon: Flame, t: 'Calorias queimadas', d: 'Calculadas a partir dos seus passos.' },
+            ].map((r) => (
+              <View key={r.t} style={styles.feature}>
+                <View style={styles.featureIcon}>
+                  <r.icon size={18} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.featureTitle}>{tr(r.t)}</Text>
+                  <Text style={styles.featureDesc}>{tr(r.d)}</Text>
+                </View>
+              </View>
+            ))}
+            <Pressable
+              style={[styles.cta, connecting && { opacity: 0.6 }]}
+              disabled={connecting}
+              onPress={async () => {
+                setConnecting(true);
+                const r = await tracking.connect();
+                setConnecting(false);
+                if (r === 'ok') setConnectOpen(false);
+                else
+                  Alert.alert(
+                    r === 'denied' ? tr('Permissão necessária') : tr('Não disponível'),
+                    r === 'denied'
+                      ? tr('Permita o acesso à atividade física nas definições do telemóvel.')
+                      : tr('Este telemóvel não tem sensor de passos ou está a usar o navegador.'),
+                  );
+              }}
+            >
+              <Text style={styles.ctaText}>{tr('Conectar')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
 
       <Modal visible={open} transparent animationType="slide" onRequestClose={close}>
         <KeyboardAvoidingView style={styles.overlay} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -128,8 +207,34 @@ export function StepsWaterCards() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     row: { flexDirection: 'row', gap: 10 },
-    stepsCard: { flex: 1.45, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.primarySoft, borderColor: 'transparent' },
-    burnCard: { flex: 1, gap: 4, backgroundColor: colors.limeSoft, borderColor: 'transparent' },
+    stepsCard: { flex: 1.1, height: 190, justifyContent: 'space-between' },
+    burnCard: { flex: 1, height: 190, justifyContent: 'space-between' },
+    ghostNumber: { fontSize: 26, fontWeight: '800', color: colors.text },
+    ghostOf: { fontSize: font.small, fontWeight: '500', color: colors.textMuted },
+    ghostLabel: { fontSize: font.small, color: colors.textMuted },
+    connectBox: { backgroundColor: colors.card, borderRadius: 16, padding: 10, gap: 6, borderWidth: 1, borderColor: colors.border, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2 },
+    healthMark: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#2E9E4F', alignItems: 'center', justifyContent: 'center' },
+    connectText: { fontSize: font.small, fontWeight: '700', color: colors.text, lineHeight: 17 },
+    ringNumber: { fontSize: 20, fontWeight: '800', color: colors.text },
+    ringSub: { fontSize: font.tiny, color: colors.textMuted },
+    routeHint: { flexDirection: 'row', alignItems: 'center', gap: 5, justifyContent: 'center' },
+    routeHintText: { fontSize: font.tiny, color: colors.textMuted },
+    burnTop: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    burnNumber: { fontSize: 28, fontWeight: '800', color: colors.text },
+    burnLabel: { fontSize: font.small, color: colors.textMuted, marginTop: 2 },
+    stepsPill: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.surface, borderRadius: 14, padding: 8 },
+    pillIcon: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },
+    pillLabel: { fontSize: font.tiny, color: colors.textMuted },
+    pillValue: { fontSize: font.small, fontWeight: '800', color: colors.text },
+    waterBtn: { borderWidth: 1.5, borderColor: colors.text, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 10 },
+    waterBtnText: { fontSize: font.body, fontWeight: '700', color: colors.text },
+    bigMark: { alignSelf: 'center', width: 72, height: 72, borderRadius: 36, backgroundColor: '#2E9E4F', alignItems: 'center', justifyContent: 'center' },
+    sheetHeadline: { fontSize: font.h2, fontWeight: '800', color: colors.text, textAlign: 'center' },
+    sheetBody: { fontSize: font.body, color: colors.textMuted, textAlign: 'center', lineHeight: 21 },
+    feature: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    featureIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+    featureTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },
+    featureDesc: { fontSize: font.small, color: colors.textMuted },
     burnIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
     burnTrack: { height: 6, borderRadius: 3, backgroundColor: colors.card, overflow: 'hidden', marginTop: 4 },
     burnFill: { height: 6, borderRadius: 3, backgroundColor: '#F97316' },

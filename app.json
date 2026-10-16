@@ -26,7 +26,8 @@
       "permissions": [
         "CAMERA",
         "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION"
+        "ACCESS_COARSE_LOCATION",
+        "ACTIVITY_RECOGNITION"
       ],
       "predictiveBackGestureEnabled": false
     },
@@ -56,6 +57,12 @@
         {
           "icon": "./assets/notification-icon.png",
           "color": "#4CAF50"
+        }
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "O Nutri IA usa o sensor de movimento para contar os seus passos."
         }
       ],
       [
