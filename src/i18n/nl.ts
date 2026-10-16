@@ -898,4 +898,5 @@ export const nl: Record<string, string> = {
   "Medalha Diamante": "Diamanten medaille",
   "{n} dias seguidos!": "{n} dagen op rij!",
   "Continue assim.": "Ga zo door.",
+  "Acima": "Erboven",
 };

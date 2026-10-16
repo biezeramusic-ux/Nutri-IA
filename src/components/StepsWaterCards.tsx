@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './AppText';
+import { ProgressRing } from './ProgressRing';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { useActivity } from '../hooks/useActivity';
 import { useTheme } from '../hooks/useTheme';
@@ -42,29 +43,33 @@ export function StepsWaterCards() {
   return (
     <View style={{ gap: 10 }}>
       <View style={styles.row}>
-        <View style={[styles.card, { flex: 1.35 }]}>
-          <View style={styles.head}>
-            <Text style={styles.title}>{tr('Passos hoje')}</Text>
-            <Footprints size={16} color={colors.text} />
+        <View style={[styles.card, styles.stepsCard]}>
+          <ProgressRing size={64} strokeWidth={7} progress={steps / STEPS_GOAL} color={colors.primary}>
+            <Footprints size={20} color={colors.primary} />
+          </ProgressRing>
+          <View style={{ flex: 1, gap: 1 }}>
+            <Text style={styles.cardLabel}>{tr('Passos hoje')}</Text>
+            <Text style={styles.value}>{steps.toLocaleString('pt-PT')}</Text>
+            <Text style={styles.sub}>
+              / {STEPS_GOAL.toLocaleString('pt-PT')}
+            </Text>
+            <Pressable onPress={() => router.push('/activity')} hitSlop={6} style={styles.connectPill}>
+              <Text style={styles.connect}>{tr('Conectar')}</Text>
+            </Pressable>
           </View>
-          <Text style={styles.value}>
-            {steps.toLocaleString('pt-PT')}
-            <Text style={styles.of}> / {STEPS_GOAL.toLocaleString('pt-PT')}</Text>
-          </Text>
-          <View style={styles.track}>
-            <View style={[styles.fill, { width: `${Math.min(100, (steps / STEPS_GOAL) * 100)}%` }]} />
-          </View>
-          <Pressable onPress={() => router.push('/activity')} hitSlop={6}>
-            <Text style={styles.connect}>{tr('Conectar')}</Text>
-          </Pressable>
         </View>
-        <View style={[styles.card, { flex: 1 }]}>
-          <View style={styles.head}>
-            <Text style={styles.title}>{tr('Queimadas')}</Text>
-            <Flame size={16} color={colors.text} />
+        <View style={[styles.card, styles.burnCard]}>
+          <View style={styles.burnIcon}>
+            <Flame size={20} color="#F97316" />
           </View>
-          <Text style={styles.value}>{totals.kcal}</Text>
-          <Text style={styles.sub}>{tr('kcal hoje')}</Text>
+          <Text style={styles.cardLabel}>{tr('Queimadas')}</Text>
+          <Text style={styles.value}>
+            {totals.kcal}
+            <Text style={styles.of}> kcal</Text>
+          </Text>
+          <View style={styles.burnTrack}>
+            <View style={[styles.burnFill, { width: `${Math.min(100, (totals.kcal / 500) * 100)}%` }]} />
+          </View>
         </View>
       </View>
 
@@ -123,6 +128,13 @@ export function StepsWaterCards() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     row: { flexDirection: 'row', gap: 10 },
+    stepsCard: { flex: 1.45, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.primarySoft, borderColor: 'transparent' },
+    burnCard: { flex: 1, gap: 4, backgroundColor: colors.limeSoft, borderColor: 'transparent' },
+    burnIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
+    burnTrack: { height: 6, borderRadius: 3, backgroundColor: colors.card, overflow: 'hidden', marginTop: 4 },
+    burnFill: { height: 6, borderRadius: 3, backgroundColor: '#F97316' },
+    cardLabel: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
+    connectPill: { alignSelf: 'flex-start', backgroundColor: colors.text, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4, marginTop: 4 },
     card: { ...cardBase(colors), padding: 14, gap: 6 },
     head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     title: { fontSize: font.body, fontWeight: '600', color: colors.text },
@@ -131,7 +143,7 @@ const createStyles = (colors: ThemeColors) =>
     sub: { fontSize: font.tiny, color: colors.textMuted },
     track: { height: 6, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
     fill: { height: 6, borderRadius: 3, backgroundColor: colors.text },
-    connect: { fontSize: font.small, fontWeight: '600', color: colors.primary },
+    connect: { fontSize: 11, fontWeight: '700', color: colors.background },
     waterRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     waterIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.waterSoft, alignItems: 'center', justifyContent: 'center' },
     plus: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },

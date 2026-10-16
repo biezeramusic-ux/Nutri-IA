@@ -12,7 +12,6 @@ import { Logo } from '../../components/Logo';
 import { MealSection } from '../../components/MealSection';
 import { ProBadge } from '../../components/ProOverlay';
 import { ScanCard } from '../../components/ScanCard';
-import { FastingCard } from '../../components/FastingCard';
 import { StepsWaterCards } from '../../components/StepsWaterCards';
 import { StreakCard } from '../../components/StreakCard';
 import { SearchBar } from '../../components/SearchBar';
@@ -167,12 +166,6 @@ export default function HomeScreen() {
         <View style={styles.pad}>
           <StepsWaterCards />
         </View>
-
-        {profile?.goal === 'lose_weight' && (
-          <View style={styles.pad}>
-            <FastingCard />
-          </View>
-        )}
 
         <View style={[styles.pad, { gap: 10 }]}>
           {MEAL_TYPES.map((t) => (

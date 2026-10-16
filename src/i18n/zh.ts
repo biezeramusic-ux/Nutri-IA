@@ -898,4 +898,5 @@ export const zh: Record<string, string> = {
   "Medalha Diamante": "钻石奖牌",
   "{n} dias seguidos!": "连续 {n} 天！",
   "Continue assim.": "继续保持。",
+  "Acima": "超出",
 };
