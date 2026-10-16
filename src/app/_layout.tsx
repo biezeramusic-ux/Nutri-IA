@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthGate } from '../components/AuthGate';
 import { ReferralRedeemer } from '../components/ReferralRedeemer';
 import { RemindersSync } from '../components/RemindersSync';
+import { StreakCelebration } from '../components/StreakCelebration';
 import { WidgetSync } from '../components/WidgetSync';
 import { ThemeProvider, useTheme } from '../hooks/useTheme';
 import { AuthProvider } from '../hooks/useAuth';
@@ -46,6 +47,7 @@ function ThemedApp() {
               </Stack>
               <RemindersSync />
               <WidgetSync />
+              <StreakCelebration />
               <ReferralRedeemer />
               <AuthGate />
             </WaterProvider>

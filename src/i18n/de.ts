@@ -896,4 +896,6 @@ export const de: Record<string, string> = {
   "Medalha Platina": "Platinmedaille",
   "Medalha Ametista": "Amethystmedaille",
   "Medalha Diamante": "Diamantmedaille",
+  "{n} dias seguidos!": "{n} Tage in Folge!",
+  "Continue assim.": "Weiter so.",
 };
