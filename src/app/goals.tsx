@@ -167,7 +167,7 @@ const createStyles = (colors: ThemeColors) =>
   planLabel: { fontSize: font.tiny, color: colors.textMuted },
   small: { fontSize: font.small, color: colors.textMuted, lineHeight: 17 },
   cta: { height: 46, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  ctaText: { color: '#fff', fontWeight: '600', fontSize: font.body },
+  ctaText: { color: colors.onPrimary, fontWeight: '600', fontSize: font.body },
   link: { alignItems: 'center', paddingVertical: 4 },
   linkText: { fontSize: font.small, fontWeight: '600', color: colors.primaryDark },
 });

@@ -268,7 +268,7 @@ const createStyles = (colors: ThemeColors) =>
     routeHintText: { fontSize: font.tiny, color: colors.textMuted },
     waterBtn: { borderWidth: 1.5, borderColor: colors.text, borderRadius: radius.pill, paddingHorizontal: 18, paddingVertical: 10 },
     waterBtnText: { fontSize: font.body, fontWeight: '700', color: colors.text },
-    bigMark: { alignSelf: 'center', width: 72, height: 72, borderRadius: 36, backgroundColor: '#2E9E4F', alignItems: 'center', justifyContent: 'center' },
+    bigMark: { alignSelf: 'center', width: 72, height: 72, borderRadius: 36, backgroundColor: '#0F172A', alignItems: 'center', justifyContent: 'center' },
     sheetHeadline: { fontSize: font.h2, fontWeight: '800', color: colors.text, textAlign: 'center' },
     sheetBody: { fontSize: font.body, color: colors.textMuted, textAlign: 'center', lineHeight: 21 },
     gpsRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },

@@ -72,7 +72,7 @@ const createStyles = (colors: ThemeColors) =>
   title: { fontSize: font.h2, fontWeight: '700', color: colors.text, textAlign: 'center' },
   body: { fontSize: font.body, color: colors.textMuted, textAlign: 'center', lineHeight: 20, marginBottom: 4 },
   button: { backgroundColor: colors.primary, borderRadius: radius.md, height: 46, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' },
-  buttonText: { color: '#fff', fontWeight: '600', fontSize: font.body },
+  buttonText: { color: colors.onPrimary, fontWeight: '600', fontSize: font.body },
   badge: { backgroundColor: colors.limeSoft, borderRadius: radius.pill, paddingHorizontal: 7, paddingVertical: 2, borderWidth: 1, borderColor: colors.lime },
   badgeText: { fontSize: 9, fontWeight: '800', color: colors.limeDark, letterSpacing: 0.5 },
 });

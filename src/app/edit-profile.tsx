@@ -96,7 +96,7 @@ export default function EditProfileScreen() {
               </View>
             )}
             <View style={styles.camBadge}>
-              <Camera size={14} color="#fff" />
+              <Camera size={14} color={colors.onPrimary} />
             </View>
           </Pressable>
           <Pressable onPress={changePhoto}>
@@ -120,7 +120,7 @@ export default function EditProfileScreen() {
 
       <View style={[styles.bar, { paddingBottom: insets.bottom + 12 }]}>
         <Pressable onPress={() => void save()} disabled={saving} style={({ pressed }) => [styles.cta, (pressed || saving) && { opacity: 0.85 }]}>
-          {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>{tr('Guardar')}</Text>}
+          {saving ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.ctaText}>{tr('Guardar')}</Text>}
         </Pressable>
       </View>
     </KeyboardAvoidingView>
@@ -141,5 +141,5 @@ const createStyles = (colors: ThemeColors) =>
     input: { height: 48, borderRadius: radius.md, backgroundColor: colors.surface, paddingHorizontal: 14, fontSize: font.body, color: colors.text },
     bar: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: SCREEN_PADDING, paddingTop: 12 },
     cta: { height: 50, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-    ctaText: { color: '#fff', fontSize: font.h3, fontWeight: '700' },
+    ctaText: { color: colors.onPrimary, fontSize: font.h3, fontWeight: '700' },
   });

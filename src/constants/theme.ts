@@ -1,11 +1,13 @@
-/** Sistema de design do Nutri IA: neutros slate + Verde Saúde, pensado para ecrãs de telemóvel. */
+/** Sistema de design do Nutri IA: neutros slate + preto e branco com cor só nos dados (macros, água, medalhas), pensado para ecrãs de telemóvel. */
 export const lightColors = {
+  /** Texto/ícone sobre fundos `primary`. */
+  onPrimary: '#FFFFFF',
   background: '#F8FAFC',
   card: '#FFFFFF',
   surface: '#F1F5F9',
-  primary: '#4CAF50',
-  primaryDark: '#2E7D32',
-  primarySoft: '#ECF7ED',
+  primary: '#0F172A',
+  primaryDark: '#0F172A',
+  primarySoft: '#F1F5F9',
   lime: '#FBBF24',
   limeSoft: '#FFF7E0',
   limeDark: '#B45309',
@@ -30,12 +32,13 @@ export const lightColors = {
 export type ThemeColors = { [K in keyof typeof lightColors]: string };
 
 export const darkColors: ThemeColors = {
+  onPrimary: '#0A0A0A',
   background: '#000000',
   card: '#111111',
   surface: '#1A1A1A',
-  primary: '#4CAF50',
-  primaryDark: '#7BD87F',
-  primarySoft: '#14231A',
+  primary: '#FAFAFA',
+  primaryDark: '#FAFAFA',
+  primarySoft: '#1A1A1A',
   lime: '#FBBF24',
   limeSoft: '#241E0E',
   limeDark: '#FCD34D',

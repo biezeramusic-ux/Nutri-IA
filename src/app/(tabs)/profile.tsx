@@ -156,7 +156,7 @@ export default function ProfileScreen() {
           </View>
         </View>
         <Pressable style={styles.editBtn} onPress={() => router.push('/edit-profile')}>
-          <Pencil size={14} color="#fff" />
+          <Pencil size={14} color={colors.onPrimary} />
           <Text style={styles.editText}>{tr('Editar perfil')}</Text>
         </Pressable>
       </View>
@@ -300,7 +300,7 @@ const createStyles = (colors: ThemeColors) =>
     switchRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     sub: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
     cta: { flexDirection: 'row', gap: 8, backgroundColor: colors.primary, borderRadius: radius.md, height: 46, alignItems: 'center', justifyContent: 'center' },
-    ctaText: { color: '#fff', fontWeight: '700', fontSize: font.body },
+    ctaText: { color: colors.onPrimary, fontWeight: '700', fontSize: font.body },
     signOut: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.dangerSoft, marginTop: 8 },
     signOutText: { color: colors.danger, fontWeight: '600', fontSize: font.body },
   });

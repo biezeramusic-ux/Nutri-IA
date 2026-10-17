@@ -10,8 +10,8 @@ export function ConnectMark({ size = 40 }: { size?: number }) {
       <Svg width={size} height={size} viewBox="0 0 40 40">
         <Defs>
           <LinearGradient id="cm" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0" stopColor="#4ADE80" />
-            <Stop offset="1" stopColor="#16A34A" />
+            <Stop offset="0" stopColor="#334155" />
+            <Stop offset="1" stopColor="#0F172A" />
           </LinearGradient>
         </Defs>
         <Circle cx="20" cy="20" r="20" fill="url(#cm)" />
@@ -28,7 +28,7 @@ export function ConnectMark({ size = 40 }: { size?: number }) {
           width: badge,
           height: badge,
           borderRadius: badge / 2,
-          backgroundColor: '#0F172A',
+          backgroundColor: '#2563EB',
           borderWidth: 2,
           borderColor: '#fff',
           alignItems: 'center',
