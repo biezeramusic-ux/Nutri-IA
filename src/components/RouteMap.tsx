@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Image, View } from 'react-native';
 import Svg, { Circle, Line, Polyline } from 'react-native-svg';
 import { useTheme } from '../hooks/useTheme';
@@ -7,6 +7,25 @@ import { distanceBetween, type RoutePoint } from '../services/walks';
 import { tr } from '../i18n';
 
 const TILE = 256;
+
+/** Fontes de mapa, por ordem: se uma falhar (bloqueio ou sem rede), tenta a seguinte. */
+const PROVIDERS: { url: (z: number, x: number, y: number) => string; credit: string }[] = [
+  { url: (z, x, y) => `https://tile.openstreetmap.org/${z}/${x}/${y}.png`, credit: '© OpenStreetMap' },
+  { url: (z, x, y) => `https://a.basemaps.cartocdn.com/rastertiles/voyager/${z}/${x}/${y}.png`, credit: '© OpenStreetMap © CARTO' },
+  { url: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}`, credit: '© Esri' },
+];
+
+function Tile({ z, x, y, left, top }: { z: number; x: number; y: number; left: number; top: number }) {
+  const [p, setP] = useState(0);
+  const prov = PROVIDERS[Math.min(p, PROVIDERS.length - 1)];
+  return (
+    <Image
+      source={{ uri: prov.url(z, x, y), headers: { 'User-Agent': 'NutriIA/1.0 (mz.nutriai.app)' } }}
+      onError={() => setP((v) => Math.min(v + 1, PROVIDERS.length - 1))}
+      style={{ position: 'absolute', left, top, width: TILE, height: TILE }}
+    />
+  );
+}
 
 /** Cor do troço pela velocidade (km/h): azul lento, verde, amarelo, laranja, vermelho rápido. */
 const SPEED_COLORS = ['#3B82F6', '#22C55E', '#FACC15', '#F97316', '#EF4444'];
@@ -47,12 +66,12 @@ export function RouteMap({ points, width, height = 220, tiles = true }: { points
     const ty0 = Math.floor(oy / TILE);
     const ty1 = Math.floor((oy + height) / TILE);
     const max = 2 ** z;
-    const list: { key: string; uri: string; left: number; top: number }[] = [];
+    const list: { key: string; z: number; x: number; y: number; left: number; top: number }[] = [];
     for (let tx = tx0; tx <= tx1; tx++)
       for (let ty = ty0; ty <= ty1; ty++) {
         if (ty < 0 || ty >= max) continue;
         const wx = ((tx % max) + max) % max;
-        list.push({ key: `${z}-${tx}-${ty}`, uri: `https://tile.openstreetmap.org/${z}/${wx}/${ty}.png`, left: tx * TILE - ox, top: ty * TILE - oy });
+        list.push({ key: `${z}-${tx}-${ty}`, z, x: wx, y: ty, left: tx * TILE - ox, top: ty * TILE - oy });
       }
     // Velocidade de cada troço, suavizada com os vizinhos, para colorir o percurso.
     const raw = points.slice(1).map((p, i) => {
@@ -71,7 +90,7 @@ export function RouteMap({ points, width, height = 220, tiles = true }: { points
     <View style={{ width, height, borderRadius: 20, overflow: 'hidden', backgroundColor: colors.surface }}>
       {tiles &&
         view?.list.map((t) => (
-          <Image key={t.key} source={{ uri: t.uri }} style={{ position: 'absolute', left: t.left, top: t.top, width: TILE, height: TILE }} />
+          <Tile key={t.key} z={t.z} x={t.x} y={t.y} left={t.left} top={t.top} />
         ))}
       <Svg width={width} height={height} style={{ position: 'absolute', left: 0, top: 0 }}>
         {view && view.path.length === 1 && (
