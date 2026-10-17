@@ -2,6 +2,7 @@ import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { Platform } from 'react-native';
 import { tr } from '../i18n';
 import type { MealType } from '../types';
+import { personalize } from './reminderText';
 import { planMealReminders } from './mealReminderPlan';
 import { planWaterReminders, type ReminderPlanInput } from './waterReminderPlan';
 
@@ -116,7 +117,7 @@ export async function scheduleMealWaterNudge(): Promise<void> {
     await N.scheduleNotificationAsync({
       content: {
         title: tr('Água'),
-        body: tr('Beba um copo de água com a sua refeição.'),
+        body: personalize(tr('{name}, beba um copo de água com a sua refeição.')),
         data: { kind: KIND_MEAL },
       },
       trigger: {
@@ -171,7 +172,7 @@ export async function scheduleFastEnd(endAt: Date | null): Promise<void> {
     await N.scheduleNotificationAsync({
       content: {
         title: tr('Jejum concluído'),
-        body: tr('Parabéns! Completou o seu jejum. Já pode comer.'),
+        body: personalize(tr('Parabéns, {name}! Completou o seu jejum. Já pode comer.')),
         data: { kind: KIND_FAST },
       },
       trigger: { type: N.SchedulableTriggerInputTypes.DATE, date: endAt, channelId: MEAL_CHANNEL_ID },

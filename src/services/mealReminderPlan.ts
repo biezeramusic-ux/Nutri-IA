@@ -1,5 +1,6 @@
 import type { MealType } from '../types';
 import { tr } from '../i18n';
+import { personalize } from './reminderText';
 
 export interface PlannedMealReminder {
   at: Date;
@@ -25,28 +26,28 @@ const SLOTS: Slot[] = [
     hour: 8,
     minute: 0,
     title: TITLE,
-    bodies: ['Hora do pequeno-almoço! Registe-o para manter o seu acompanhamento preciso.', 'Bom dia! Lembre-se de adicionar o pequeno-almoço ao diário.'],
+    bodies: ['{name}, hora do pequeno-almoço! Registe-o para manter o seu acompanhamento preciso.', 'Bom dia, {name}! Lembre-se de adicionar o pequeno-almoço ao diário.'],
   },
   {
     type: 'lunch',
     hour: 12,
     minute: 30,
     title: TITLE,
-    bodies: ['Hora do almoço! Registe-o para manter o seu acompanhamento preciso.', 'Bom almoço! Lembre-se de adicioná-lo ao diário.'],
+    bodies: ['{name}, hora do almoço! Registe-o para manter o seu acompanhamento preciso.', 'Bom almoço, {name}! Lembre-se de adicioná-lo ao diário.'],
   },
   {
     type: 'snack',
     hour: 16,
     minute: 0,
     title: TITLE,
-    bodies: ['Hora do lanche! Registe-o para manter o seu acompanhamento preciso.', 'Bom lanche! Lembre-se de adicioná-lo ao diário.'],
+    bodies: ['{name}, hora do lanche! Registe-o para manter o seu acompanhamento preciso.', 'Bom lanche, {name}! Lembre-se de adicioná-lo ao diário.'],
   },
   {
     type: 'dinner',
     hour: 20,
     minute: 30,
     title: TITLE,
-    bodies: ['Hora do jantar! Registe-o para manter o seu acompanhamento preciso.', 'Bom jantar! Lembre-se de adicioná-lo ao diário.'],
+    bodies: ['{name}, hora do jantar! Registe-o para manter o seu acompanhamento preciso.', 'Bom jantar, {name}! Lembre-se de adicioná-lo ao diário.'],
   },
 ];
 
@@ -61,7 +62,7 @@ interface Input {
 }
 
 /** Planeia os lembretes de refeição dos próximos dias, com mensagens a rodar. */
-export function planMealReminders({ now, loggedToday, days = DAYS_AHEAD }: Input): PlannedMealReminder[] {
+export function planMealReminders({ now, firstName, loggedToday, days = DAYS_AHEAD }: Input): PlannedMealReminder[] {
   const result: PlannedMealReminder[] = [];
   const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86_400_000);
   for (let d = 0; d < days; d++) {
@@ -70,7 +71,7 @@ export function planMealReminders({ now, loggedToday, days = DAYS_AHEAD }: Input
       const at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), slot.hour, slot.minute, 0, 0);
       if (at.getTime() <= now.getTime() + 60_000) return;
       if (d === 0 && loggedToday.includes(slot.type)) return;
-      const body = tr(slot.bodies[(dayOfYear + d + s) % slot.bodies.length]);
+      const body = personalize(tr(slot.bodies[(dayOfYear + d + s) % slot.bodies.length]), firstName);
       result.push({ at, title: tr(slot.title), body });
     });
   }

@@ -1,5 +1,6 @@
 import type { ActivityLevel, GoalType, Habits, QuizAnswers } from '../types';
 import { tr } from '../i18n';
+import { personalize } from './reminderText';
 
 /** Dados do quiz que personalizam os horários da água. */
 export interface WaterProfile {
@@ -42,13 +43,13 @@ const MAX_PER_DAY = 8;
 
 /** Mensagens simples, no estilo de uma notificação normal de hidratação. */
 const SIMPLE_MESSAGES = [
-  'Está na hora de beber água e manter uma boa hidratação.',
-  'Um copo de água agora ajuda a manter-se hidratado.',
-  'Lembrete: beba água e cuide da sua hidratação.',
+  '{name}, está na hora de beber água e manter uma boa hidratação.',
+  '{name}, um copo de água agora ajuda a manter-se hidratado.',
+  'Lembrete, {name}: beba água e cuide da sua hidratação.',
 ];
 
-function pickMessage(index: number): string {
-  return tr(SIMPLE_MESSAGES[index % SIMPLE_MESSAGES.length]);
+function pickMessage(index: number, name?: string): string {
+  return personalize(tr(SIMPLE_MESSAGES[index % SIMPLE_MESSAGES.length]), name);
 }
 
 /**
@@ -104,7 +105,7 @@ export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] 
       if (remaining <= 0) continue;
       times = times.filter((t) => t.getTime() > now.getTime() + 5 * MINUTE).slice(0, Math.max(1, remaining));
     }
-    times.forEach((at, i) => result.push({ at, title, body: pickMessage(d + i) }));
+    times.forEach((at, i) => result.push({ at, title, body: pickMessage(d + i, input.firstName) }));
   }
 
   return result.filter((r) => r.at.getTime() > now.getTime()).sort((a, b) => a.at.getTime() - b.at.getTime());
