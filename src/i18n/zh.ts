@@ -956,4 +956,9 @@ export const zh: Record<string, string> = {
   "Registrar depois": "稍后记录",
   "Por registar": "待记录",
   "queimadas": "已消耗",
+  "O GPS é necessário para encontrar a sua localização e mostrar o mapa e a rota. Permita a localização nas definições do telemóvel.": "需要 GPS 才能找到你的位置并显示地图和路线。请在手机设置中允许定位。",
+  "Ligue o GPS (localização) do telemóvel e tente outra vez.": "请打开手机的 GPS（定位）后重试。",
+  "GPS obrigatório": "必须开启 GPS",
+  "Abrir definições": "打开设置",
+  "GPS obrigatório: encontra a sua localização e mostra o mapa. Só é usado enquanto caminha.": "需要 GPS：找到你的位置并显示地图。仅在步行时使用。",
 };

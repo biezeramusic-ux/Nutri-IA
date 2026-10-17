@@ -956,4 +956,9 @@ export const af: Record<string, string> = {
   "Registrar depois": "Teken later aan",
   "Por registar": "Om aan te teken",
   "queimadas": "verbrand",
+  "O GPS é necessário para encontrar a sua localização e mostrar o mapa e a rota. Permita a localização nas definições do telemóvel.": "GPS is nodig om jou ligging te vind en die kaart en roete te wys. Laat ligging toe in jou foon se instellings.",
+  "Ligue o GPS (localização) do telemóvel e tente outra vez.": "Skakel jou foon se GPS (ligging) aan en probeer weer.",
+  "GPS obrigatório": "GPS vereis",
+  "Abrir definições": "Maak instellings oop",
+  "GPS obrigatório: encontra a sua localização e mostra o mapa. Só é usado enquanto caminha.": "GPS vereis: vind jou ligging en wys die kaart. Net gebruik terwyl jy stap.",
 };

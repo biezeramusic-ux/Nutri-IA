@@ -20,7 +20,7 @@ export function RouteMap({ points, width, height = 220, tiles = true }: { points
   const pad = 34;
 
   const view = useMemo(() => {
-    if (points.length < 2) return null;
+    if (points.length < 1) return null;
     const lats = points.map((p) => p.lat);
     const lngs = points.map((p) => p.lng);
     const minLat = Math.min(...lats);
@@ -30,7 +30,7 @@ export function RouteMap({ points, width, height = 220, tiles = true }: { points
     const bw0 = Math.max(worldX(maxLng, 0) - worldX(minLng, 0), 1e-9);
     const bh0 = Math.max(worldY(minLat, 0) - worldY(maxLat, 0), 1e-9);
     const fit = Math.min((width - pad * 2) / bw0, (height - pad * 2) / bh0);
-    const z = Math.max(1, Math.min(17, Math.floor(Math.log2(fit))));
+    const z = points.length === 1 ? 16 : Math.max(1, Math.min(17, Math.floor(Math.log2(fit))));
     const cx = (worldX(minLng, z) + worldX(maxLng, z)) / 2;
     const cy = (worldY(minLat, z) + worldY(maxLat, z)) / 2;
     const ox = cx - width / 2;
@@ -64,7 +64,13 @@ export function RouteMap({ points, width, height = 220, tiles = true }: { points
             <Stop offset="1" stopColor="#F97316" />
           </LinearGradient>
         </Defs>
-        {view && (
+        {view && view.path.length === 1 && (
+          <>
+            <Circle cx={view.path[0].x} cy={view.path[0].y} r={22} fill="#2563EB" opacity={0.18} />
+            <Circle cx={view.path[0].x} cy={view.path[0].y} r={9} fill="#2563EB" stroke="#fff" strokeWidth={3.5} />
+          </>
+        )}
+        {view && view.path.length > 1 && (
           <>
             <Polyline points={view.path.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')} fill="none" stroke="#fff" strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" />
             <Polyline points={view.path.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')} fill="none" stroke="url(#route)" strokeWidth={5} strokeLinecap="round" strokeLinejoin="round" />

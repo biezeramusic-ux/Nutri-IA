@@ -2,7 +2,7 @@ import { Droplets, Flame, Footprints, Route, Timer } from 'lucide-react-native';
 import { ConnectMark } from './ConnectMark';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from './AppText';
 import { ProgressRing } from './ProgressRing';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
@@ -150,7 +150,7 @@ export function StepsWaterCards() {
             <Text style={styles.sheetBody}>{tr('Siga os seus passos, a rota e as calorias queimadas num só sítio.')}</Text>
             {[
               { icon: Footprints, t: 'Passos do dia', d: Platform.OS === 'android' ? 'Lidos do Google Health Connect, mesmo com a app fechada.' : Platform.OS === 'ios' ? 'Lidos do Apple Saúde, incluindo o Apple Watch.' : 'Pelo sensor de movimento do telemóvel.' },
-              { icon: Route, t: 'Rota e km', d: 'Com a localização, só enquanto caminha.' },
+              { icon: Route, t: 'Rota e km', d: 'GPS obrigatório: encontra a sua localização e mostra o mapa. Só é usado enquanto caminha.' },
               { icon: Flame, t: 'Calorias queimadas', d: 'Calculadas a partir dos seus passos.' },
             ].map((r) => (
               <View key={r.t} style={styles.feature}>
@@ -171,15 +171,29 @@ export function StepsWaterCards() {
                 const r = await tracking.connect();
                 setConnecting(false);
                 if (r.status === 'ok') setConnectOpen(false);
-                else
+                else {
+                  const msg =
+                    r.status === 'location_denied'
+                      ? tr('O GPS é necessário para encontrar a sua localização e mostrar o mapa e a rota. Permita a localização nas definições do telemóvel.')
+                      : r.status === 'gps_off'
+                        ? tr('Ligue o GPS (localização) do telemóvel e tente outra vez.')
+                        : r.status === 'denied'
+                          ? tr('Permita o acesso à atividade física nas definições do telemóvel.')
+                          : r.status === 'not_installed'
+                            ? tr('Instale ou atualize o Google Health Connect na Play Store e tente outra vez.')
+                            : tr('Este telemóvel não tem sensor de passos ou está a usar o navegador.');
+                  const needsSettings = r.status === 'location_denied' || r.status === 'denied';
                   Alert.alert(
-                    r.status === 'denied' ? tr('Permissão necessária') : tr('Não disponível'),
-                    r.status === 'denied'
-                      ? tr('Permita o acesso à atividade física nas definições do telemóvel.')
-                      : r.status === 'not_installed'
-                        ? tr('Instale ou atualize o Google Health Connect na Play Store e tente outra vez.')
-                        : tr('Este telemóvel não tem sensor de passos ou está a usar o navegador.'),
+                    r.status === 'location_denied' || r.status === 'gps_off' ? tr('GPS obrigatório') : r.status === 'denied' ? tr('Permissão necessária') : tr('Não disponível'),
+                    msg,
+                    needsSettings
+                      ? [
+                          { text: tr('Cancelar'), style: 'cancel' },
+                          { text: tr('Abrir definições'), onPress: () => void Linking.openSettings() },
+                        ]
+                      : undefined,
                   );
+                }
               }}
             >
               <Text style={styles.ctaText}>{tr('Conectar')}</Text>

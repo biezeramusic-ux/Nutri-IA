@@ -956,4 +956,9 @@ export const nl: Record<string, string> = {
   "Registrar depois": "Later registreren",
   "Por registar": "Te registreren",
   "queimadas": "verbrand",
+  "O GPS é necessário para encontrar a sua localização e mostrar o mapa e a rota. Permita a localização nas definições do telemóvel.": "GPS is nodig om je locatie te vinden en de kaart en route te tonen. Sta locatie toe in de instellingen van je telefoon.",
+  "Ligue o GPS (localização) do telemóvel e tente outra vez.": "Zet de GPS (locatie) van je telefoon aan en probeer opnieuw.",
+  "GPS obrigatório": "GPS vereist",
+  "Abrir definições": "Instellingen openen",
+  "GPS obrigatório: encontra a sua localização e mostra o mapa. Só é usado enquanto caminha.": "GPS vereist: vindt je locatie en toont de kaart. Alleen gebruikt tijdens het wandelen.",
 };

@@ -956,4 +956,9 @@ export const de: Record<string, string> = {
   "Registrar depois": "Später eintragen",
   "Por registar": "Offen",
   "queimadas": "verbrannt",
+  "O GPS é necessário para encontrar a sua localização e mostrar o mapa e a rota. Permita a localização nas definições do telemóvel.": "GPS ist nötig, um deinen Standort zu finden und Karte und Route zu zeigen. Erlaube den Standort in den Handy-Einstellungen.",
+  "Ligue o GPS (localização) do telemóvel e tente outra vez.": "Schalte das GPS (Standort) deines Handys ein und versuche es erneut.",
+  "GPS obrigatório": "GPS erforderlich",
+  "Abrir definições": "Einstellungen öffnen",
+  "GPS obrigatório: encontra a sua localização e mostra o mapa. Só é usado enquanto caminha.": "GPS erforderlich: findet deinen Standort und zeigt die Karte. Nur während des Gehens genutzt.",
 };

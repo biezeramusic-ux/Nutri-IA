@@ -1,4 +1,5 @@
 import * as Haptics from 'expo-haptics';
+import * as Location from 'expo-location';
 import { Footprints, MapPin, Route, Timer, Trash } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -42,6 +43,7 @@ export default function WalkScreen() {
   const tracker = useWalkTracker();
   const [walks, setWalks] = useState<Walk[]>([]);
   const [open, setOpen] = useState<Walk | null>(null);
+  const [here, setHere] = useState<{ lat: number; lng: number; t: number } | null>(null);
   const userId = user?.id ?? null;
   const heightCm = profile?.quiz?.heightCm ?? 165;
   const weightKg = profile?.quiz?.weightKg ?? 65;
@@ -56,6 +58,18 @@ export default function WalkScreen() {
       if (wanted) setOpen(wanted);
     });
   }, [userId, openParam]);
+
+  // Mapa verdadeiro com a posição atual (antes de começar a caminhar).
+  useEffect(() => {
+    if (!tracker.granted || tracker.active) return;
+    let alive = true;
+    void Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+      .then((l) => alive && setHere({ lat: l.coords.latitude, lng: l.coords.longitude, t: l.timestamp }))
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [tracker.granted, tracker.active]);
 
   const today = dayOf(Date.now());
   const todayWalks = walks.filter((w) => dayOf(w.start) === today && isRegistered(w));
@@ -136,6 +150,13 @@ export default function WalkScreen() {
 
         {tracker.granted && !tracker.active && !open && (
           <>
+            {here && (
+              <View style={styles.card}>
+                <Text style={styles.section}>{tr('Você está aqui')}</Text>
+                <RouteMap points={[here]} width={mapW} height={190} />
+                <Text style={styles.credit2}>© OpenStreetMap</Text>
+              </View>
+            )}
             <View style={styles.card}>
               <Text style={styles.section}>{tr('Hoje')}</Text>
               <View style={styles.statsRow}>
@@ -262,6 +283,7 @@ const createStyles = (colors: ThemeColors) =>
     rowTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },
     rowSteps: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
     hero: { backgroundColor: '#0F172A', borderRadius: 24, padding: 18, alignItems: 'center', gap: 10 },
+    credit2: { fontSize: 10, color: colors.textFaint, textAlign: 'right' },
     heroTitle: { fontSize: font.small, fontWeight: '600', color: 'rgba(255,255,255,0.65)' },
     heroStat: { alignItems: 'center' },
     heroLabel: { fontSize: font.small, color: 'rgba(255,255,255,0.7)' },
