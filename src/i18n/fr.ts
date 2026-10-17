@@ -952,4 +952,8 @@ export const fr: Record<string, string> = {
   "Bom jantar, {name}! Lembre-se de adicioná-lo ao diário.": "Bon dîner, {name} ! N'oubliez pas de l'ajouter à votre journal.",
   "{name}, beba um copo de água com a sua refeição.": "{name}, buvez un verre d'eau avec votre repas.",
   "Parabéns, {name}! Completou o seu jejum. Já pode comer.": "Bravo, {name} ! Vous avez terminé votre jeûne. Vous pouvez manger.",
+  "Registrar corrida": "Enregistrer la course",
+  "Registrar depois": "Enregistrer plus tard",
+  "Por registar": "À enregistrer",
+  "queimadas": "brûlées",
 };

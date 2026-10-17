@@ -952,4 +952,8 @@ export const af: Record<string, string> = {
   "Bom jantar, {name}! Lembre-se de adicioná-lo ao diário.": "Smaaklike aandete, {name}! Onthou om dit by jou dagboek te voeg.",
   "{name}, beba um copo de água com a sua refeição.": "{name}, drink 'n glas water by jou maaltyd.",
   "Parabéns, {name}! Completou o seu jejum. Já pode comer.": "Geluk, {name}! Jy het jou vas voltooi. Jy kan nou eet.",
+  "Registrar corrida": "Teken hardloop aan",
+  "Registrar depois": "Teken later aan",
+  "Por registar": "Om aan te teken",
+  "queimadas": "verbrand",
 };

@@ -14,6 +14,8 @@ export interface Walk {
   steps: number;
   kcal: number;
   points: RoutePoint[];
+  /** false = terminada mas ainda por registar (conta para o dia só depois de registada). */
+  registered?: boolean;
 }
 
 const key = (userId: string) => `nutria.walks.${userId}`;
@@ -73,3 +75,33 @@ export function formatPace(distanceM: number, ms: number): string {
   const ss = Math.round((minPerKm - mm) * 60);
   return `${mm}:${String(ss === 60 ? 59 : ss).padStart(2, '0')}`;
 }
+
+/** Atualiza uma caminhada guardada (ex.: marcar como registada). */
+export async function updateWalk(userId: string, walk: Walk): Promise<Walk[]> {
+  const list = (await loadWalks(userId)).map((w) => (w.id === walk.id ? walk : w));
+  await AsyncStorage.setItem(key(userId), JSON.stringify(list)).catch(() => undefined);
+  return list;
+}
+
+/** MET pela velocidade média (km/h): caminhada leve, rápida, corrida leve, corrida. */
+export function metForSpeed(kmh: number): number {
+  if (kmh < 4) return 3;
+  if (kmh < 5.5) return 3.8;
+  if (kmh < 6.5) return 5;
+  if (kmh < 8) return 7;
+  if (kmh < 9.7) return 9;
+  return 11;
+}
+
+/** Calorias gastas pela distância, tempo e peso (MET da velocidade média × peso × horas). */
+export function kcalForWalk(distanceM: number, ms: number, weightKg: number): number {
+  const hours = ms / 3600000;
+  if (hours <= 0) return 0;
+  const kmh = distanceM / 1000 / hours;
+  return Math.round(metForSpeed(kmh) * weightKg * hours);
+}
+
+/** "Corrida" quando a velocidade média passa dos 7,5 km/h, senão "Caminhada". */
+export const isRun = (distanceM: number, ms: number): boolean => ms > 0 && distanceM / 1000 / (ms / 3600000) >= 7.5;
+
+export const isRegistered = (w: Walk): boolean => w.registered !== false;

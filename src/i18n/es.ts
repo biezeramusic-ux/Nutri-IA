@@ -952,4 +952,8 @@ export const es: Record<string, string> = {
   "Bom jantar, {name}! Lembre-se de adicioná-lo ao diário.": "¡Buen provecho, {name}! Recuerda añadirla a tu diario.",
   "{name}, beba um copo de água com a sua refeição.": "{name}, bebe un vaso de agua con tu comida.",
   "Parabéns, {name}! Completou o seu jejum. Já pode comer.": "¡Felicidades, {name}! Completaste tu ayuno. Ya puedes comer.",
+  "Registrar corrida": "Registrar carrera",
+  "Registrar depois": "Registrar después",
+  "Por registar": "Por registrar",
+  "queimadas": "quemadas",
 };

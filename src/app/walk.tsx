@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { Footprints, MapPin, Route, Timer, Trash } from 'lucide-react-native';
+import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,10 +15,17 @@ import { useProfile } from '../hooks/useProfile';
 import { useTheme } from '../hooks/useTheme';
 import { useWalkTracker } from '../hooks/useWalkTracker';
 import { formatHMS } from '../hooks/useFasting';
-import { estimateKcal } from '../services/activity';
-import { deleteWalk, formatKm, formatPace, loadWalks, saveWalk, stepsFromDistance, thinPoints, type Walk } from '../services/walks';
+import { deleteWalk, formatKm, formatPace, isRegistered, isRun, kcalForWalk, loadWalks, saveWalk, stepsFromDistance, thinPoints, updateWalk, type Walk } from '../services/walks';
 import { todayKey } from '../services/date';
 import { tr } from '../i18n';
+
+const formatDuration = (ms: number): string => {
+  const total = Math.round(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const sec = total % 60;
+  return h > 0 ? `${h}h ${m}min` : `${m}min ${sec}s`;
+};
 
 const dayOf = (ms: number) => todayKey(new Date(ms));
 const clock = (ms: number) => `${String(new Date(ms).getHours()).padStart(2, '0')}:${String(new Date(ms).getMinutes()).padStart(2, '0')}`;
@@ -30,7 +38,7 @@ export default function WalkScreen() {
   const { width } = useWindowDimensions();
   const { user } = useAuth();
   const { profile } = useProfile();
-  const { setSteps, add } = useActivity();
+  const { setSteps } = useActivity();
   const tracker = useWalkTracker();
   const [walks, setWalks] = useState<Walk[]>([]);
   const [open, setOpen] = useState<Walk | null>(null);
@@ -39,12 +47,18 @@ export default function WalkScreen() {
   const weightKg = profile?.quiz?.weightKg ?? 65;
   const mapW = width - SCREEN_PADDING * 2 - 32;
 
+  const { open: openParam } = useLocalSearchParams<{ open?: string }>();
   useEffect(() => {
-    if (userId) void loadWalks(userId).then(setWalks);
-  }, [userId]);
+    if (!userId) return;
+    void loadWalks(userId).then((list) => {
+      setWalks(list);
+      const wanted = openParam ? list.find((w) => w.id === openParam) : undefined;
+      if (wanted) setOpen(wanted);
+    });
+  }, [userId, openParam]);
 
   const today = dayOf(Date.now());
-  const todayWalks = walks.filter((w) => dayOf(w.start) === today);
+  const todayWalks = walks.filter((w) => dayOf(w.start) === today && isRegistered(w));
   const todayM = todayWalks.reduce((s, w) => s + w.distanceM, 0);
   const todayMs = todayWalks.reduce((s, w) => s + (w.end - w.start), 0);
   const todaySteps = todayWalks.reduce((s, w) => s + w.steps, 0);
@@ -56,22 +70,30 @@ export default function WalkScreen() {
       Alert.alert(tr('Caminhada muito curta'), tr('Caminhe um pouco mais para ficar registada.'));
       return;
     }
-    const minutes = Math.max(1, Math.round((endedAt - startedAt) / 60000));
-    const steps = stepsFromDistance(tracker.distanceM, heightCm);
+    const ms = endedAt - startedAt;
     const walk: Walk = {
       id: String(startedAt),
       start: startedAt,
       end: endedAt,
       distanceM: Math.round(tracker.distanceM),
-      steps,
-      kcal: estimateKcal(3.5, weightKg, minutes),
+      steps: stepsFromDistance(tracker.distanceM, heightCm),
+      kcal: kcalForWalk(tracker.distanceM, ms, weightKg),
       points: thinPoints(tracker.points),
+      registered: false,
     };
     setWalks(await saveWalk(userId, walk));
-    setSteps((s) => s + steps);
-    void add({ type: 'Caminhada', minutes, kcal: walk.kcal }).catch(() => undefined);
     setOpen(walk);
-  }, [tracker, userId, heightCm, weightKg, setSteps, add]);
+  }, [tracker, userId, heightCm, weightKg]);
+
+  /** Regista a corrida: conta os passos e as calorias no dia. */
+  const register = async (w: Walk) => {
+    if (!userId) return;
+    const done = { ...w, registered: true };
+    setWalks(await updateWalk(userId, done));
+    setSteps((s) => s + w.steps);
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+    setOpen(done);
+  };
 
   const remove = (w: Walk) =>
     Alert.alert(tr('Apagar caminhada'), tr('Esta caminhada fica apagada.'), [
@@ -144,27 +166,49 @@ export default function WalkScreen() {
         )}
 
         {open && !tracker.active && (
-          <View style={[styles.card, { gap: 14 }]}>
-            <Text style={styles.section}>
-              {dateLabel(open.start)} · {clock(open.start)} → {clock(open.end)}
-            </Text>
-            <RouteMap points={open.points} width={mapW} />
-            <View style={styles.statsRow}>
-              {stat(<Route size={18} color={colors.primary} />, `${formatKm(open.distanceM)} km`, tr('Distância'))}
-              {stat(<Timer size={18} color={colors.primary} />, formatHMS(open.end - open.start).slice(0, 5), tr('Tempo'))}
-              {stat(<Footprints size={18} color={colors.primary} />, String(open.steps), tr('Passos'))}
+          <View style={{ gap: 12 }}>
+            <View style={styles.hero}>
+              <Text style={styles.heroTitle}>
+                {isRun(open.distanceM, open.end - open.start) ? tr('Corrida') : tr('Caminhada')} · {dateLabel(open.start)} · {clock(open.start)}
+              </Text>
+              <View style={styles.heroStat}>
+                <Text style={styles.heroLabel}>{tr('Distância')}</Text>
+                <Text style={styles.heroValue}>{formatKm(open.distanceM)} km</Text>
+              </View>
+              <View style={styles.heroStat}>
+                <Text style={styles.heroLabel}>{tr('Passos')}</Text>
+                <Text style={styles.heroValue}>{open.steps.toLocaleString('pt-PT')}</Text>
+              </View>
+              <View style={styles.heroStat}>
+                <Text style={styles.heroLabel}>{tr('Tempo')}</Text>
+                <Text style={styles.heroValue}>{formatDuration(open.end - open.start)}</Text>
+              </View>
+              <RouteMap points={open.points} width={width - SCREEN_PADDING * 2 - 36} height={230} />
+              <Text style={styles.heroFoot}>
+                {tr('Ritmo')} {formatPace(open.distanceM, open.end - open.start)} min/km · {open.kcal} kcal {tr('queimadas')}
+              </Text>
+              <Text style={styles.credit}>© OpenStreetMap</Text>
             </View>
-            <Text style={styles.hint}>
-              {tr('Ritmo')} {formatPace(open.distanceM, open.end - open.start)} min/km · {open.kcal} kcal
-            </Text>
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <Pressable style={[styles.cta, { flex: 1, backgroundColor: colors.surface }]} onPress={() => setOpen(null)}>
-                <Text style={[styles.ctaText, { color: colors.text }]}>{tr('Fechar')}</Text>
-              </Pressable>
-              <Pressable style={styles.trash} onPress={() => remove(open)}>
-                <Trash size={18} color={colors.danger} />
-              </Pressable>
-            </View>
+
+            {!isRegistered(open) ? (
+              <>
+                <Pressable style={styles.cta} onPress={() => void register(open)}>
+                  <Text style={styles.ctaText}>{tr('Registrar corrida')}</Text>
+                </Pressable>
+                <Pressable style={[styles.cta, { backgroundColor: colors.surface }]} onPress={() => setOpen(null)}>
+                  <Text style={[styles.ctaText, { color: colors.text }]}>{tr('Registrar depois')}</Text>
+                </Pressable>
+              </>
+            ) : (
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <Pressable style={[styles.cta, { flex: 1, backgroundColor: colors.surface }]} onPress={() => setOpen(null)}>
+                  <Text style={[styles.ctaText, { color: colors.text }]}>{tr('Fechar')}</Text>
+                </Pressable>
+                <Pressable style={styles.trash} onPress={() => remove(open)}>
+                  <Trash size={18} color={colors.danger} />
+                </Pressable>
+              </View>
+            )}
           </View>
         )}
 
@@ -182,7 +226,13 @@ export default function WalkScreen() {
                     {dateLabel(w.start)} · {clock(w.start)} · {formatHMS(w.end - w.start).slice(0, 5)}
                   </Text>
                 </View>
-                <Text style={styles.rowSteps}>{w.steps} {tr('passos')}</Text>
+                {isRegistered(w) ? (
+                  <Text style={styles.rowSteps}>{w.steps} {tr('passos')}</Text>
+                ) : (
+                  <View style={styles.pending}>
+                    <Text style={styles.pendingText}>{tr('Por registar')}</Text>
+                  </View>
+                )}
               </Pressable>
             ))}
           </View>
@@ -211,5 +261,14 @@ const createStyles = (colors: ThemeColors) =>
     rowIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
     rowTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },
     rowSteps: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
+    hero: { backgroundColor: '#0F172A', borderRadius: 24, padding: 18, alignItems: 'center', gap: 10 },
+    heroTitle: { fontSize: font.small, fontWeight: '600', color: 'rgba(255,255,255,0.65)' },
+    heroStat: { alignItems: 'center' },
+    heroLabel: { fontSize: font.small, color: 'rgba(255,255,255,0.7)' },
+    heroValue: { fontSize: 32, fontWeight: '800', color: '#fff', letterSpacing: -0.5 },
+    heroFoot: { fontSize: font.small, color: 'rgba(255,255,255,0.75)' },
+    credit: { fontSize: 10, color: 'rgba(255,255,255,0.4)' },
+    pending: { backgroundColor: '#FEF3C7', borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 },
+    pendingText: { fontSize: 11, fontWeight: '700', color: '#92400E' },
     trash: { width: 54, height: 54, borderRadius: 27, backgroundColor: colors.dangerSoft, alignItems: 'center', justifyContent: 'center' },
   });

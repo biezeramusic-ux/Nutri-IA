@@ -952,4 +952,8 @@ export const zh: Record<string, string> = {
   "Bom jantar, {name}! Lembre-se de adicioná-lo ao diário.": "{name}，祝你晚餐愉快！记得添加到日记中。",
   "{name}, beba um copo de água com a sua refeição.": "{name}，用餐时喝一杯水。",
   "Parabéns, {name}! Completou o seu jejum. Já pode comer.": "恭喜，{name}！你完成了断食，现在可以进食了。",
+  "Registrar corrida": "记录跑步",
+  "Registrar depois": "稍后记录",
+  "Por registar": "待记录",
+  "queimadas": "已消耗",
 };

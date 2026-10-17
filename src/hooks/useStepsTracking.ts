@@ -22,7 +22,7 @@ export function useStepsTracking(setSteps: (fn: (prev: number) => number) => voi
   }, []);
 
   useEffect(() => {
-    if (!source) return;
+    if (!source || Platform.OS === 'web') return;
     if (source === 'healthconnect' || source === 'applehealth') {
       const read = async () => {
         const n = source === 'applehealth' ? await readAppleHealthSteps() : await readHealthConnectSteps();
@@ -48,12 +48,16 @@ export function useStepsTracking(setSteps: (fn: (prev: number) => number) => voi
       return () => clearInterval(t);
     }
     last.current = 0;
-    const sub = Pedometer.watchStepCount((e) => {
-      const delta = e.steps - last.current;
-      last.current = e.steps;
-      if (delta > 0) setSteps((prev) => prev + delta);
-    });
-    return () => sub.remove();
+    try {
+      const sub = Pedometer.watchStepCount((e) => {
+        const delta = e.steps - last.current;
+        last.current = e.steps;
+        if (delta > 0) setSteps((prev) => prev + delta);
+      });
+      return () => sub.remove();
+    } catch {
+      return undefined;
+    }
   }, [source, setSteps]);
 
   const connect = useCallback(async (): Promise<ConnectResult> => {
