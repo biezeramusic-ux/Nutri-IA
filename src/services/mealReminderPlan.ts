@@ -43,7 +43,7 @@ const SLOTS: Slot[] = [
   },
   {
     type: 'dinner',
-    hour: 19,
+    hour: 20,
     minute: 30,
     title: TITLE,
     bodies: ['Hora do jantar! Registe-o para manter o seu acompanhamento preciso.', 'Bom jantar! Lembre-se de adicioná-lo ao diário.'],
