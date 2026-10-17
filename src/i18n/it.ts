@@ -930,4 +930,5 @@ export const it: Record<string, string> = {
   "Conectar o {app}": "Collega {app}",
   "Lidos do Google Health Connect, mesmo com a app fechada.": "Letti da Google Health Connect, anche con l'app chiusa.",
   "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "Installa o aggiorna Google Health Connect dal Play Store e riprova.",
+  "Lidos do Apple Saúde, incluindo o Apple Watch.": "Letti da Apple Salute, compreso l'Apple Watch.",
 };

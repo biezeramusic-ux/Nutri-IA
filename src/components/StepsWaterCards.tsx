@@ -31,7 +31,7 @@ export function StepsWaterCards() {
   const tracking = useStepsTracking(setSteps);
   const [connectOpen, setConnectOpen] = useState(false);
   const [connecting, setConnecting] = useState(false);
-  const provider = Platform.OS === 'android' ? 'Google Health Connect' : 'Nutri Saúde';
+  const provider = Platform.OS === 'android' ? 'Google Health Connect' : Platform.OS === 'ios' ? 'Apple Saúde' : 'Nutri Saúde';
   const stepsKcal = Math.round(steps * KCAL_PER_STEP);
   const burned = totals.kcal + stepsKcal;
   const water = useWater();
@@ -128,7 +128,7 @@ export function StepsWaterCards() {
             <Text style={styles.sheetHeadline}>{tr('Conectar o {app}', { app: provider })}</Text>
             <Text style={styles.sheetBody}>{tr('Siga os seus passos, a rota e as calorias queimadas num só sítio.')}</Text>
             {[
-              { icon: Footprints, t: 'Passos do dia', d: Platform.OS === 'android' ? 'Lidos do Google Health Connect, mesmo com a app fechada.' : 'Pelo sensor de movimento do telemóvel.' },
+              { icon: Footprints, t: 'Passos do dia', d: Platform.OS === 'android' ? 'Lidos do Google Health Connect, mesmo com a app fechada.' : Platform.OS === 'ios' ? 'Lidos do Apple Saúde, incluindo o Apple Watch.' : 'Pelo sensor de movimento do telemóvel.' },
               { icon: Route, t: 'Rota e km', d: 'Com a localização, só enquanto caminha.' },
               { icon: Flame, t: 'Calorias queimadas', d: 'Calculadas a partir dos seus passos.' },
             ].map((r) => (

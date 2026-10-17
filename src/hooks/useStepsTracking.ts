@@ -1,11 +1,12 @@
 import { Pedometer } from 'expo-sensors';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
+import { readAppleHealthSteps } from '../services/appleHealth';
 import { readHealthConnectSteps } from '../services/healthConnect';
 import { connectSteps, disconnectSteps, getStepsSource, type ConnectResult, type StepsSource } from '../services/stepsConnection';
 
 /**
- * Passos automáticos. Google Health Connect (Android): passos do dia inteiro, mesmo com a app fechada.
+ * Passos automáticos. Google Health Connect (Android) e Apple Saúde (iPhone): passos do dia inteiro, de todas as fontes.
  * Sem Health Connect: iPhone lê o dia inteiro; Android soma os passos dados enquanto a app está aberta.
  */
 export function useStepsTracking(setSteps: (fn: (prev: number) => number) => void) {
@@ -22,9 +23,9 @@ export function useStepsTracking(setSteps: (fn: (prev: number) => number) => voi
 
   useEffect(() => {
     if (!source) return;
-    if (source === 'healthconnect') {
+    if (source === 'healthconnect' || source === 'applehealth') {
       const read = async () => {
-        const n = await readHealthConnectSteps();
+        const n = source === 'applehealth' ? await readAppleHealthSteps() : await readHealthConnectSteps();
         if (n !== null) setSteps((prev) => Math.max(prev, n));
       };
       void read();

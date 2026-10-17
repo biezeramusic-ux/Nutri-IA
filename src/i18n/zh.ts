@@ -930,4 +930,5 @@ export const zh: Record<string, string> = {
   "Conectar o {app}": "连接 {app}",
   "Lidos do Google Health Connect, mesmo com a app fechada.": "从 Google Health Connect 读取，应用关闭时也可用。",
   "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "请在 Play 商店安装或更新 Google Health Connect 后重试。",
+  "Lidos do Apple Saúde, incluindo o Apple Watch.": "从 Apple 健康读取，包括 Apple Watch。",
 };

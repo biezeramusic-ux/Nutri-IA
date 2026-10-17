@@ -930,4 +930,5 @@ export const af: Record<string, string> = {
   "Conectar o {app}": "Koppel {app}",
   "Lidos do Google Health Connect, mesmo com a app fechada.": "Gelees uit Google Health Connect, selfs met die toep toe.",
   "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "Installeer of dateer Google Health Connect op in die Play Store en probeer weer.",
+  "Lidos do Apple Saúde, incluindo o Apple Watch.": "Gelees uit Apple Gesondheid, insluitend Apple Watch.",
 };

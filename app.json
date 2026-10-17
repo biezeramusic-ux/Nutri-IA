@@ -63,6 +63,13 @@
       ],
       "react-native-health-connect",
       [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "O Nutri IA lê os seus passos e distância do Apple Saúde para mostrar a sua atividade.",
+          "NSHealthUpdateUsageDescription": false
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "android": {
