@@ -931,4 +931,12 @@ export const it: Record<string, string> = {
   "Lidos do Google Health Connect, mesmo com a app fechada.": "Letti da Google Health Connect, anche con l'app chiusa.",
   "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "Installa o aggiorna Google Health Connect dal Play Store e riprova.",
   "Lidos do Apple Saúde, incluindo o Apple Watch.": "Letti da Apple Salute, compreso l'Apple Watch.",
+  "Hora do pequeno-almoço! Registe-o para manter o seu acompanhamento preciso.": "È l'ora della colazione! Registrala per un monitoraggio preciso.",
+  "Bom dia! Lembre-se de adicionar o pequeno-almoço ao diário.": "Buongiorno! Ricorda di aggiungere la colazione al diario.",
+  "Hora do almoço! Registe-o para manter o seu acompanhamento preciso.": "È l'ora del pranzo! Registralo per un monitoraggio preciso.",
+  "Bom almoço! Lembre-se de adicioná-lo ao diário.": "Buon pranzo! Ricorda di aggiungerlo al diario.",
+  "Hora do lanche! Registe-o para manter o seu acompanhamento preciso.": "È l'ora dello spuntino! Registralo per un monitoraggio preciso.",
+  "Bom lanche! Lembre-se de adicioná-lo ao diário.": "Buono spuntino! Ricorda di aggiungerlo al diario.",
+  "Hora do jantar! Registe-o para manter o seu acompanhamento preciso.": "È l'ora della cena! Registrala per un monitoraggio preciso.",
+  "Bom jantar! Lembre-se de adicioná-lo ao diário.": "Buona cena! Ricorda di aggiungerla al diario.",
 };

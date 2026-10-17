@@ -931,4 +931,12 @@ export const af: Record<string, string> = {
   "Lidos do Google Health Connect, mesmo com a app fechada.": "Gelees uit Google Health Connect, selfs met die toep toe.",
   "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "Installeer of dateer Google Health Connect op in die Play Store en probeer weer.",
   "Lidos do Apple Saúde, incluindo o Apple Watch.": "Gelees uit Apple Gesondheid, insluitend Apple Watch.",
+  "Hora do pequeno-almoço! Registe-o para manter o seu acompanhamento preciso.": "Tyd vir ontbyt! Teken dit aan om jou opsporing akkuraat te hou.",
+  "Bom dia! Lembre-se de adicionar o pequeno-almoço ao diário.": "Goeiemôre! Onthou om ontbyt by jou dagboek te voeg.",
+  "Hora do almoço! Registe-o para manter o seu acompanhamento preciso.": "Tyd vir middagete! Teken dit aan om jou opsporing akkuraat te hou.",
+  "Bom almoço! Lembre-se de adicioná-lo ao diário.": "Smaaklike ete! Onthou om dit by jou dagboek te voeg.",
+  "Hora do lanche! Registe-o para manter o seu acompanhamento preciso.": "Tyd vir 'n peuselhappie! Teken dit aan om jou opsporing akkuraat te hou.",
+  "Bom lanche! Lembre-se de adicioná-lo ao diário.": "Smaaklike peuselhappie! Onthou om dit by jou dagboek te voeg.",
+  "Hora do jantar! Registe-o para manter o seu acompanhamento preciso.": "Tyd vir aandete! Teken dit aan om jou opsporing akkuraat te hou.",
+  "Bom jantar! Lembre-se de adicioná-lo ao diário.": "Smaaklike aandete! Onthou om dit by jou dagboek te voeg.",
 };

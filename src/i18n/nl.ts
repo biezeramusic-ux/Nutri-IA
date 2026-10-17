@@ -931,4 +931,12 @@ export const nl: Record<string, string> = {
   "Lidos do Google Health Connect, mesmo com a app fechada.": "Gelezen uit Google Health Connect, ook met gesloten app.",
   "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "Installeer of update Google Health Connect in de Play Store en probeer opnieuw.",
   "Lidos do Apple Saúde, incluindo o Apple Watch.": "Gelezen uit Apple Gezondheid, inclusief Apple Watch.",
+  "Hora do pequeno-almoço! Registe-o para manter o seu acompanhamento preciso.": "Tijd voor ontbijt! Registreer het voor een nauwkeurige tracking.",
+  "Bom dia! Lembre-se de adicionar o pequeno-almoço ao diário.": "Goedemorgen! Vergeet niet het ontbijt aan je dagboek toe te voegen.",
+  "Hora do almoço! Registe-o para manter o seu acompanhamento preciso.": "Tijd voor lunch! Registreer het voor een nauwkeurige tracking.",
+  "Bom almoço! Lembre-se de adicioná-lo ao diário.": "Smakelijk eten! Vergeet niet het aan je dagboek toe te voegen.",
+  "Hora do lanche! Registe-o para manter o seu acompanhamento preciso.": "Tijd voor een snack! Registreer hem voor een nauwkeurige tracking.",
+  "Bom lanche! Lembre-se de adicioná-lo ao diário.": "Smakelijk! Vergeet niet hem aan je dagboek toe te voegen.",
+  "Hora do jantar! Registe-o para manter o seu acompanhamento preciso.": "Tijd voor het avondeten! Registreer het voor een nauwkeurige tracking.",
+  "Bom jantar! Lembre-se de adicioná-lo ao diário.": "Smakelijk eten! Vergeet niet het aan je dagboek toe te voegen.",
 };

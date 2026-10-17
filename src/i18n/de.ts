@@ -931,4 +931,12 @@ export const de: Record<string, string> = {
   "Lidos do Google Health Connect, mesmo com a app fechada.": "Aus Google Health Connect gelesen, auch bei geschlossener App.",
   "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "Installiere oder aktualisiere Google Health Connect im Play Store und versuche es erneut.",
   "Lidos do Apple Saúde, incluindo o Apple Watch.": "Aus Apple Health gelesen, einschließlich Apple Watch.",
+  "Hora do pequeno-almoço! Registe-o para manter o seu acompanhamento preciso.": "Zeit fürs Frühstück! Trage es ein, damit dein Tracking genau bleibt.",
+  "Bom dia! Lembre-se de adicionar o pequeno-almoço ao diário.": "Guten Morgen! Denk daran, das Frühstück ins Tagebuch einzutragen.",
+  "Hora do almoço! Registe-o para manter o seu acompanhamento preciso.": "Zeit fürs Mittagessen! Trage es ein, damit dein Tracking genau bleibt.",
+  "Bom almoço! Lembre-se de adicioná-lo ao diário.": "Guten Appetit! Denk daran, es ins Tagebuch einzutragen.",
+  "Hora do lanche! Registe-o para manter o seu acompanhamento preciso.": "Zeit für einen Snack! Trage ihn ein, damit dein Tracking genau bleibt.",
+  "Bom lanche! Lembre-se de adicioná-lo ao diário.": "Guten Appetit! Denk daran, ihn ins Tagebuch einzutragen.",
+  "Hora do jantar! Registe-o para manter o seu acompanhamento preciso.": "Zeit fürs Abendessen! Trage es ein, damit dein Tracking genau bleibt.",
+  "Bom jantar! Lembre-se de adicioná-lo ao diário.": "Guten Appetit! Denk daran, es ins Tagebuch einzutragen.",
 };

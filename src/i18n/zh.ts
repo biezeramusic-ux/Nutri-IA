@@ -931,4 +931,12 @@ export const zh: Record<string, string> = {
   "Lidos do Google Health Connect, mesmo com a app fechada.": "从 Google Health Connect 读取，应用关闭时也可用。",
   "Instale ou atualize o Google Health Connect na Play Store e tente outra vez.": "请在 Play 商店安装或更新 Google Health Connect 后重试。",
   "Lidos do Apple Saúde, incluindo o Apple Watch.": "从 Apple 健康读取，包括 Apple Watch。",
+  "Hora do pequeno-almoço! Registe-o para manter o seu acompanhamento preciso.": "早餐时间！记录下来，让你的追踪保持准确。",
+  "Bom dia! Lembre-se de adicionar o pequeno-almoço ao diário.": "早上好！记得把早餐添加到日记中。",
+  "Hora do almoço! Registe-o para manter o seu acompanhamento preciso.": "午餐时间！记录下来，让你的追踪保持准确。",
+  "Bom almoço! Lembre-se de adicioná-lo ao diário.": "祝你午餐愉快！记得添加到日记中。",
+  "Hora do lanche! Registe-o para manter o seu acompanhamento preciso.": "加餐时间！记录下来，让你的追踪保持准确。",
+  "Bom lanche! Lembre-se de adicioná-lo ao diário.": "祝你加餐愉快！记得添加到日记中。",
+  "Hora do jantar! Registe-o para manter o seu acompanhamento preciso.": "晚餐时间！记录下来，让你的追踪保持准确。",
+  "Bom jantar! Lembre-se de adicioná-lo ao diário.": "祝你晚餐愉快！记得添加到日记中。",
 };

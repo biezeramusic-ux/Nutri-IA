@@ -115,7 +115,7 @@ export async function scheduleMealWaterNudge(): Promise<void> {
     await cancelByKind(N, KIND_MEAL);
     await N.scheduleNotificationAsync({
       content: {
-        title: tr('🥤 Refeição registada'),
+        title: tr('Água'),
         body: tr('Beba um copo de água com a sua refeição.'),
         data: { kind: KIND_MEAL },
       },
