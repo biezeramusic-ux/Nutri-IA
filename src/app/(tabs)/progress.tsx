@@ -13,6 +13,7 @@ import { LineChart } from '../../components/LineChart';
 import { ProGate } from '../../components/ProOverlay';
 import { NumberStepper } from '../../components/quiz/NumberStepper';
 import { SegmentedControl } from '../../components/SegmentedControl';
+import { MedalsGallery } from '../../components/MedalsGallery';
 import { StreakCard } from '../../components/StreakCard';
 import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
@@ -400,6 +401,7 @@ export default function ProgressScreen() {
 
 
         <StreakCard streak={streak} last7={last7} />
+        <MedalsGallery best={streak.best} />
 
         <Pressable
           style={styles.shareBtn}

@@ -969,4 +969,6 @@ export const af: Record<string, string> = {
   "Opcional. Mostra o mapa do percurso e a distância. Só é usado enquanto caminha.": "Opsioneel. Wys die roetekaart en afstand. Net gebruik terwyl jy stap.",
   "Lento": "Stadig",
   "Rápido": "Vinnig",
+  "Medalhas": "Medaljes",
+  "Registe uma refeição todos os dias para conquistar as medalhas.": "Teken elke dag 'n maaltyd aan om die medaljes te verdien.",
 };

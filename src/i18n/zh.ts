@@ -969,4 +969,6 @@ export const zh: Record<string, string> = {
   "Opcional. Mostra o mapa do percurso e a distância. Só é usado enquanto caminha.": "可选。显示路线地图和距离。仅在步行时使用。",
   "Lento": "慢",
   "Rápido": "快",
+  "Medalhas": "奖章",
+  "Registe uma refeição todos os dias para conquistar as medalhas.": "每天记录一餐即可获得奖章。",
 };

@@ -969,4 +969,6 @@ export const it: Record<string, string> = {
   "Opcional. Mostra o mapa do percurso e a distância. Só é usado enquanto caminha.": "Facoltativo. Mostra la mappa del percorso e la distanza. Usato solo mentre cammini.",
   "Lento": "Lento",
   "Rápido": "Veloce",
+  "Medalhas": "Medaglie",
+  "Registe uma refeição todos os dias para conquistar as medalhas.": "Registra un pasto ogni giorno per ottenere le medaglie.",
 };
