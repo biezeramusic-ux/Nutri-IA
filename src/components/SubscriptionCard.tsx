@@ -19,7 +19,7 @@ export function SubscriptionCard() {
   const { isPremium, trialDaysLeft, lockReason, scansLeftToday, mealsLeft } = useSubscription();
 
   const expired = !isPremium && lockReason === 'trial_expired';
-  const title = isPremium ? 'Nutri IA Pro' : expired ? 'Teste terminado' : 'Teste grátis';
+  const title = isPremium ? 'Nutri AI Pro' : expired ? 'Teste terminado' : 'Teste grátis';
   const big = isPremium
     ? tr('Ativo')
     : expired

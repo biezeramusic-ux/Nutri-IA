@@ -50,7 +50,7 @@ export default function ProfileScreen() {
     if (value && !notificationsSupported) {
       Alert.alert(tr('Disponível na app instalada'), tr('As notificações não funcionam no Expo Go. Instale a app (APK) para receber os lembretes.'));
     } else if (value && !(await scheduleMealReminders(true))) {
-      Alert.alert(tr('Notificações desligadas'), tr('Ative as notificações do Nutri IA nas definições do telemóvel.'));
+      Alert.alert(tr('Notificações desligadas'), tr('Ative as notificações do Nutri AI nas definições do telemóvel.'));
       return;
     } else if (!value) {
       await scheduleMealReminders(false);
@@ -96,7 +96,7 @@ export default function ProfileScreen() {
         tr('As notificações não funcionam no Expo Go. Instale a app (APK) para receber os lembretes. A sua escolha fica guardada.'),
       );
     } else if (value && !(await ensureNotificationPermission(true))) {
-      Alert.alert(tr('Notificações desligadas'), tr('Ative as notificações do Nutri IA nas definições do telemóvel para receber lembretes.'));
+      Alert.alert(tr('Notificações desligadas'), tr('Ative as notificações do Nutri AI nas definições do telemóvel para receber lembretes.'));
     }
     setReminders(value);
   };
@@ -152,7 +152,7 @@ export default function ProfileScreen() {
         <View style={styles.chipRow}>
           <View style={[styles.planChip, isPremium && styles.planChipPro]}>
             {isPremium && <Crown size={12} color="#0B1F3A" />}
-            <Text style={[styles.planChipText, isPremium && { color: '#0B1F3A' }]}>{isPremium ? 'Nutri IA Pro' : planText}</Text>
+            <Text style={[styles.planChipText, isPremium && { color: '#0B1F3A' }]}>{isPremium ? 'Nutri AI Pro' : planText}</Text>
           </View>
         </View>
         <Pressable style={styles.editBtn} onPress={() => router.push('/edit-profile')}>
@@ -211,7 +211,7 @@ export default function ProfileScreen() {
           <View style={styles.switchRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardTitle}>{tr('Lembretes de água')}</Text>
-              <Text style={styles.sub}>{tr('O Nutri IA avisa-o para beber água ao longo do dia.')}</Text>
+              <Text style={styles.sub}>{tr('O Nutri AI avisa-o para beber água ao longo do dia.')}</Text>
             </View>
             <Switch
               value={reminders}

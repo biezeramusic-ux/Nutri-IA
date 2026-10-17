@@ -16,7 +16,7 @@ export function buildWeeklyReport(meals: Meal[], goals: DailyGoals, name: string
   const streak = computeStreak(meals);
 
   const lines = [
-    (name ? tr('📊 Resumo da semana de {name} · Nutri IA', { name }) : tr('📊 Resumo da semana · Nutri IA')),
+    (name ? tr('📊 Resumo da semana de {name} · Nutri AI', { name }) : tr('📊 Resumo da semana · Nutri AI')),
     '',
     tr('📅 Dias com registo: {days}/7 ({meals} refeições)', { days: logged.length, meals: count }),
     tr('🔥 Média: {kcal} kcal/dia (meta {goal})', { kcal: avg((t) => t.kcal), goal: goals.calories }),
@@ -24,7 +24,7 @@ export function buildWeeklyReport(meals: Meal[], goals: DailyGoals, name: string
   ];
   if (streak.current > 0) lines.push(tr(streak.current === 1 ? '⚡ Sequência: 1 dia seguido' : '⚡ Sequência: {n} dias seguidos', { n: streak.current }));
   if (inviteCode) {
-    lines.push('', tr('Experimente o Nutri IA com 3 dias grátis. Use o meu código: {code}', { code: inviteCode }));
+    lines.push('', tr('Experimente o Nutri AI com 3 dias grátis. Use o meu código: {code}', { code: inviteCode }));
   }
   return lines.join('\n');
 }

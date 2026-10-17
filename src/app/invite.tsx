@@ -26,7 +26,7 @@ export default function InviteScreen() {
     if (!code) return;
     try {
       await Share.share({
-        message: tr('Estou a usar o Nutri IA para contar calorias com uma foto do prato. Use o meu código {code} ao criar a conta e ganhe 3 dias grátis.', { code }),
+        message: tr('Estou a usar o Nutri AI para contar calorias com uma foto do prato. Use o meu código {code} ao criar a conta e ganhe 3 dias grátis.', { code }),
       });
     } catch {
       // partilha cancelada

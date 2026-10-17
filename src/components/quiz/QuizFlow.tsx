@@ -118,7 +118,7 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
   about: { title: 'Fale-nos de si', subtitle: 'Usamos isto para calcular as suas calorias.' },
   body: { title: 'A sua altura e peso', subtitle: 'Pode ajustar mais tarde no Perfil.' },
   activity: { title: 'Como é o seu dia a dia?', subtitle: 'Quanto mais ativo, mais calorias e água precisa.' },
-  health: { title: 'Tem alguma condição de saúde?', subtitle: 'Opcional. O Nutri IA não substitui o seu médico.' },
+  health: { title: 'Tem alguma condição de saúde?', subtitle: 'Opcional. O Nutri AI não substitui o seu médico.' },
   habits: { title: 'Os seus hábitos', subtitle: 'Responda sim ou não.' },
   diet: { title: 'Restrições e alergias', subtitle: 'Opcional. Escolha o que se aplica.' },
   staples: { title: 'O que come mais no dia a dia?', subtitle: 'Opcional. Ajuda-nos a sugerir melhores escolhas.' },
@@ -362,13 +362,13 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           <>
             <PotentialChart
               title={pickedGoals.includes('lose_weight') ? tr('A sua transição de peso') : tr('A sua evolução')}
-              withLabel={tr('Com o Nutri IA')}
+              withLabel={tr('Com o Nutri AI')}
               withoutLabel={tr('Da forma tradicional')}
             />
             <Text style={styles.note}>
               {pickedGoals.includes('lose_weight')
-                ? tr('Sem acompanhamento, perder peso costuma ser lento e difícil de manter. Com o Nutri IA, depois dos primeiros 7 dias o progresso acelera.')
-                : tr('Sem acompanhamento, ganhar massa costuma ser lento e irregular. Com o Nutri IA, depois dos primeiros 7 dias o progresso acelera.')}
+                ? tr('Sem acompanhamento, perder peso costuma ser lento e difícil de manter. Com o Nutri AI, depois dos primeiros 7 dias o progresso acelera.')
+                : tr('Sem acompanhamento, ganhar massa costuma ser lento e irregular. Com o Nutri AI, depois dos primeiros 7 dias o progresso acelera.')}
             </Text>
             <Text style={styles.note}>
               {base.weightKg} kg → {base.targetWeightKg} kg

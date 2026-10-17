@@ -134,7 +134,7 @@ export function PaymentSheet({ visible, plan, originalPrice, isExtending, onClos
                   <Check size={34} color="#fff" strokeWidth={3} />
                 </View>
                 <Text style={styles.okTitle}>{tr('Plano ativo')}</Text>
-                <Text style={styles.okSub}>{tr('Bem-vindo ao Nutri IA Pro 👑')}</Text>
+                <Text style={styles.okSub}>{tr('Bem-vindo ao Nutri AI Pro 👑')}</Text>
                 <View style={styles.okCard}>
                   <View style={styles.sumRow}>
                     <Text style={styles.sumLabel}>{tr('Plano')}</Text>
@@ -167,7 +167,7 @@ export function PaymentSheet({ visible, plan, originalPrice, isExtending, onClos
                 <View style={styles.summary}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.planName}>
-                      Nutri IA Pro · {tr(plan.label)}
+                      Nutri AI Pro · {tr(plan.label)}
                     </Text>
                     <Text style={styles.planSub}>{plan.days > 7 ? tr('≈ {n} MT/mês', { n: perMonth }) : tr('Sem compromisso')}</Text>
                   </View>

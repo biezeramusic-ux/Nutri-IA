@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Nutri IA",
+    "name": "Nutri AI",
     "slug": "nutri-ai",
     "scheme": "nutriai",
     "version": "1.0.0",
@@ -11,8 +11,8 @@
       "supportsTablet": false,
       "bundleIdentifier": "mz.nutriai.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "O Nutri IA usa a câmera para analisar as suas refeições.",
-        "NSLocationWhenInUseUsageDescription": "O Nutri IA usa a sua localização para desenhar a rota e contar os km das suas caminhadas."
+        "NSCameraUsageDescription": "O Nutri AI usa a câmera para analisar as suas refeições.",
+        "NSLocationWhenInUseUsageDescription": "O Nutri AI usa a sua localização para desenhar a rota e contar os km das suas caminhadas."
       }
     },
     "android": {
@@ -51,7 +51,7 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "O Nutri IA usa a câmera para analisar as suas refeições."
+          "cameraPermission": "O Nutri AI usa a câmera para analisar as suas refeições."
         }
       ],
       [
@@ -65,7 +65,7 @@
       [
         "@kingstinct/react-native-healthkit",
         {
-          "NSHealthShareUsageDescription": "O Nutri IA lê os seus passos e distância do Apple Saúde para mostrar a sua atividade.",
+          "NSHealthShareUsageDescription": "O Nutri AI lê os seus passos e distância do Apple Saúde para mostrar a sua atividade.",
           "NSHealthUpdateUsageDescription": false
         }
       ],
@@ -80,19 +80,19 @@
       [
         "expo-sensors",
         {
-          "motionPermission": "O Nutri IA usa o sensor de movimento para contar os seus passos."
+          "motionPermission": "O Nutri AI usa o sensor de movimento para contar os seus passos."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "O Nutri IA usa a sua localização para desenhar a rota e contar os km das suas caminhadas."
+          "locationWhenInUsePermission": "O Nutri AI usa a sua localização para desenhar a rota e contar os km das suas caminhadas."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "O Nutri IA acede às suas fotos para analisar refeições."
+          "photosPermission": "O Nutri AI acede às suas fotos para analisar refeições."
         }
       ],
       [
@@ -101,7 +101,7 @@
           "widgets": [
             {
               "name": "NutritionWidget",
-              "label": "Nutri IA",
+              "label": "Nutri AI",
               "description": "Calorias e macros do dia, e atalho para adicionar um alimento.",
               "minWidth": "250dp",
               "minHeight": "130dp",
@@ -112,7 +112,7 @@
             },
             {
               "name": "CaloriesWidget",
-              "label": "Nutri IA · Calorias",
+              "label": "Nutri AI · Calorias",
               "description": "Anel com as calorias que faltam hoje.",
               "minWidth": "110dp",
               "minHeight": "110dp",
@@ -123,7 +123,7 @@
             },
             {
               "name": "WaterWidget",
-              "label": "Nutri IA · Água",
+              "label": "Nutri AI · Água",
               "description": "Água de hoje e atalho para registar.",
               "minWidth": "180dp",
               "minHeight": "110dp",

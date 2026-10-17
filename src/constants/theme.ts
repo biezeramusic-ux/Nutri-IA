@@ -1,4 +1,4 @@
-/** Sistema de design do Nutri IA: neutros slate + Verde Saúde, pensado para ecrãs de telemóvel. */
+/** Sistema de design do Nutri AI: neutros slate + Verde Saúde, pensado para ecrãs de telemóvel. */
 export const lightColors = {
   background: '#F8FAFC',
   card: '#FFFFFF',

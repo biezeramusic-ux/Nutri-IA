@@ -34,7 +34,7 @@ export default function FavoritesScreen() {
     } catch (e) {
       const message = e instanceof Error ? e.message : '';
       if (message.includes('meal_limit_reached') || message.includes('trial_expired')) {
-        Alert.alert(tr('Limite do teste grátis'), tr('Com o Nutri IA Pro os registos são ilimitados.'), [
+        Alert.alert(tr('Limite do teste grátis'), tr('Com o Nutri AI Pro os registos são ilimitados.'), [
           { text: tr('Agora não'), style: 'cancel' },
           { text: tr('Ver planos'), onPress: () => router.push('/paywall') },
         ]);

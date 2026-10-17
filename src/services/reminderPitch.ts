@@ -15,5 +15,5 @@ export function reminderPitch(goal: GoalType | null, habits: Habits | null, wate
   if (habits?.sugaryDrinks) lead = tr('Trocar refrigerantes e sumos açucarados por água faz uma grande diferença.');
   else if (habits && !habits.drinksEnoughWater) lead = tr('Vimos que bebe pouca água. Pequenos lembretes ajudam a criar o hábito.');
   const liters = (waterMl / 1000).toFixed(1).replace('.', ',');
-  return `${lead} ${tr('A sua meta é {liters} L por dia e o Nutri IA avisa-o nas horas certas.', { liters })}`;
+  return `${lead} ${tr('A sua meta é {liters} L por dia e o Nutri AI avisa-o nas horas certas.', { liters })}`;
 }

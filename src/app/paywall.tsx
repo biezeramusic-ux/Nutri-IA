@@ -128,7 +128,7 @@ export default function PaywallScreen() {
           <View style={styles.logoWrap}>
             <Logo size={44} />
           </View>
-          <Text style={styles.title}>{tr(isPro ? 'Assinatura Pro 👑' : 'Nutri IA Pro 👑')}</Text>
+          <Text style={styles.title}>{tr(isPro ? 'Assinatura Pro 👑' : 'Nutri AI Pro 👑')}</Text>
           <Text style={styles.subtitle}>{tr('Coma melhor, sem adivinhar. Todos os planos têm os mesmos recursos.')}</Text>
         </View>
 
@@ -212,7 +212,7 @@ export default function PaywallScreen() {
       <View style={[styles.cta, { paddingBottom: insets.bottom + 12 }]}>
         <View style={styles.ctaInfo}>
           <Text style={styles.ctaPlan} numberOfLines={1}>
-            Nutri IA Pro · {tr(plan.label)}
+            Nutri AI Pro · {tr(plan.label)}
           </Text>
           <Text style={styles.ctaPrice} numberOfLines={1}>
             {formatMT(plan.priceMT)} MT {tr(plan.period)}

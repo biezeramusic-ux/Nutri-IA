@@ -101,7 +101,7 @@ export default function HomeScreen() {
     setActivating(true);
     try {
       if (!(await ensureNotificationPermission(true))) {
-        Alert.alert(tr('Notificações desligadas'), tr('Ative as notificações do Nutri IA nas definições do telemóvel.'));
+        Alert.alert(tr('Notificações desligadas'), tr('Ative as notificações do Nutri AI nas definições do telemóvel.'));
         return;
       }
       if (profile) {
