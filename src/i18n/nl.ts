@@ -79,7 +79,7 @@ export const nl: Record<string, string> = {
   "Atividades de hoje": "Activiteiten van vandaag",
   "Até 5 registos de refeições": "Tot 5 maaltijdlogs",
   "Automático": "Automatisch",
-  "Avisos às 8h15, 12h45 e 19h30 para registar o que comeu.": "Herinneringen om 8:15, 12:45 en 19:30 om te loggen wat je at.",
+  "Avisos às 8h, 12h30, 16h e 20h30 para registar o que comeu.": "Herinneringen om 8:00, 12:30, 16:00 en 20:30 om te loggen wat je at.",
   "Azeite": "Olijfolie",
   "Azul": "Blauw",
   "Badgias": "Badgias",

@@ -79,7 +79,7 @@ export const zh: Record<string, string> = {
   "Atividades de hoje": "今日运动",
   "Até 5 registos de refeições": "最多 5 次餐食记录",
   "Automático": "自动",
-  "Avisos às 8h15, 12h45 e 19h30 para registar o que comeu.": "在 8:15、12:45 和 19:30 提醒你记录饮食。",
+  "Avisos às 8h, 12h30, 16h e 20h30 para registar o que comeu.": "在 8:00、12:30、16:00 和 20:30 提醒你记录饮食。",
   "Azeite": "橄榄油",
   "Azul": "蓝色",
   "Badgias": "炸豆饼",

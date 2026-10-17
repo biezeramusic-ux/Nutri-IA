@@ -79,7 +79,7 @@ export const es: Record<string, string> = {
   "Atividades de hoje": "Actividades de hoy",
   "Até 5 registos de refeições": "Hasta 5 registros de comidas",
   "Automático": "Automático",
-  "Avisos às 8h15, 12h45 e 19h30 para registar o que comeu.": "Avisos a las 8:15, 12:45 y 19:30 para registrar lo que comiste.",
+  "Avisos às 8h, 12h30, 16h e 20h30 para registar o que comeu.": "Avisos a las 8:00, 12:30, 16:00 y 20:30 para registrar lo que comiste.",
   "Azeite": "Aceite de oliva",
   "Azul": "Azul",
   "Badgias": "Badgias",

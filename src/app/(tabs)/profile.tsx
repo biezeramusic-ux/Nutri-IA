@@ -241,7 +241,7 @@ export default function ProfileScreen() {
           <View style={styles.switchRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardTitle}>{tr('Lembretes de refeição')}</Text>
-              <Text style={styles.sub}>{tr('Avisos às 8h15, 12h45 e 19h30 para registar o que comeu.')}</Text>
+              <Text style={styles.sub}>{tr('Avisos às 8h, 12h30, 16h e 20h30 para registar o que comeu.')}</Text>
             </View>
             <Switch
               value={mealReminders}
