@@ -31,7 +31,7 @@ export function NumberStepper({ label, value, unit, min, max, step = 1, onChange
           {!!unit && <Text style={styles.unit}> {unit}</Text>}
         </Text>
         <Pressable style={[styles.btn, styles.btnPrimary]} onPress={() => set(value + step)} hitSlop={8} accessibilityLabel={`Aumentar ${label}`}>
-          <Plus size={18} color={colors.onPrimary} />
+          <Plus size={18} color="#fff" />
         </Pressable>
       </View>
     </View>

@@ -136,7 +136,7 @@ const createStyles = (colors: ThemeColors) =>
   section: { fontSize: font.h2, fontWeight: '700', color: colors.text, marginTop: 4 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   cta: { height: 46, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  ctaText: { color: colors.onPrimary, fontWeight: '600', fontSize: font.body },
+  ctaText: { color: '#fff', fontWeight: '600', fontSize: font.body },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 4 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: 10 },
   rowTitle: { fontSize: font.body, fontWeight: '600', color: colors.text },

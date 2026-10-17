@@ -70,7 +70,7 @@ export default function FavoritesScreen() {
                 </Text>
               </View>
               <Pressable style={styles.add} onPress={() => void addToToday(i)} accessibilityLabel={tr('Registar hoje')}>
-                <Plus size={18} color={colors.onPrimary} />
+                <Plus size={18} color="#fff" />
               </Pressable>
               <Pressable onPress={() => void remove(f.id)} hitSlop={10} accessibilityLabel={tr('Remover')}>
                 <Trash size={18} color={colors.textFaint} />

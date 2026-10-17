@@ -52,5 +52,5 @@ const createStyles = (colors: ThemeColors) =>
   title: { fontSize: font.h2, fontWeight: '700', color: colors.text, textAlign: 'center' },
   body: { fontSize: font.body, color: colors.textMuted, textAlign: 'center', marginBottom: 6, lineHeight: 20 },
   button: { backgroundColor: colors.primary, borderRadius: radius.md, height: 46, alignSelf: 'stretch', alignItems: 'center', justifyContent: 'center' },
-  buttonText: { color: colors.onPrimary, fontWeight: '600', fontSize: font.body },
+  buttonText: { color: '#fff', fontWeight: '600', fontSize: font.body },
 });

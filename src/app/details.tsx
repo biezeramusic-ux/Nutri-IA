@@ -137,7 +137,7 @@ export default function DetailsScreen() {
               </Pressable>
               {!saved && (
                 <Pressable style={[styles.editBtn, editing && styles.editBtnOn]} onPress={() => setEditing((e) => !e)} accessibilityLabel={tr('Corrigir refeição')}>
-                  <Pencil size={16} color={editing ? colors.onPrimary : colors.text} />
+                  <Pencil size={16} color={editing ? '#fff' : colors.text} />
                 </Pressable>
               )}
             </View>
@@ -191,7 +191,7 @@ export default function DetailsScreen() {
               maxLength={200}
             />
             <Pressable style={[styles.aiBtn, (refining || correction.trim().length < 3) && { opacity: 0.6 }]} disabled={refining || correction.trim().length < 3} onPress={() => void applyCorrection()}>
-              {refining ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.aiBtnText}>{tr('Corrigir com IA')}</Text>}
+              {refining ? <ActivityIndicator color="#fff" /> : <Text style={styles.aiBtnText}>{tr('Corrigir com IA')}</Text>}
             </Pressable>
           </View>
         )}
@@ -301,7 +301,7 @@ export default function DetailsScreen() {
             <ActivityIndicator color="#fff" />
           ) : (
             <>
-              {saved ? <CircleCheck size={18} color={colors.onPrimary} /> : <Bookmark size={18} color={colors.onPrimary} />}
+              {saved ? <CircleCheck size={18} color="#fff" /> : <Bookmark size={18} color="#fff" />}
               <Text style={styles.saveText}>{saved ? 'Salvo no diário' : 'Salvar no meu Diário'}</Text>
             </>
           )}
@@ -323,7 +323,7 @@ const createStyles = (colors: ThemeColors) =>
   scoreMax: { color: 'rgba(255,255,255,0.8)', fontSize: 10, marginTop: 6 },
   scoreTitle: { fontSize: font.h3, fontWeight: '700', color: colors.text },
   aiBtn: { height: 44, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  aiBtnText: { color: colors.onPrimary, fontWeight: '700', fontSize: font.body },
+  aiBtnText: { color: '#fff', fontWeight: '700', fontSize: font.body },
   editBtnOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   name: { fontSize: font.h1, fontWeight: '700', color: colors.text, textAlign: 'center', letterSpacing: -0.3 },
   weight: { fontSize: font.body, color: colors.textMuted },
@@ -361,9 +361,9 @@ const createStyles = (colors: ThemeColors) =>
   teaser: { backgroundColor: colors.limeSoft, borderRadius: radius.card, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 10 },
   teaserHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   teaserBtn: { height: 44, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  teaserBtnText: { color: colors.onPrimary, fontWeight: '600', fontSize: font.body },
+  teaserBtnText: { color: '#fff', fontWeight: '600', fontSize: font.body },
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: SCREEN_PADDING, paddingTop: 10, backgroundColor: colors.background },
   save: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   saved: { backgroundColor: colors.textFaint },
-  saveText: { color: colors.onPrimary, fontSize: font.h3, fontWeight: '600' },
+  saveText: { color: '#fff', fontSize: font.h3, fontWeight: '600' },
 });

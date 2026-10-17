@@ -409,7 +409,7 @@ export default function ProgressScreen() {
             void Share.share({ message: buildWeeklyReport(meals, goals, displayName.split(' ')[0] ?? '', referral.code || undefined) }).catch(() => undefined)
           }
         >
-          <Share2 size={16} color={colors.onPrimary} />
+          <Share2 size={16} color="#fff" />
           <Text style={styles.shareText}>{tr('Partilhar resumo da semana')}</Text>
         </Pressable>
           </>
@@ -450,7 +450,7 @@ export default function ProgressScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             {NUTRIENTS.map((n) => (
               <Pressable key={n.key} onPress={() => setNutrient(n.key)} style={[styles.chip, nutrient === n.key && { backgroundColor: n.color[1], borderColor: n.color[1] }]}>
-                <Text style={[styles.chipText, nutrient === n.key && { color: colors.onPrimary }]}>{tr(n.label)}</Text>
+                <Text style={[styles.chipText, nutrient === n.key && { color: '#fff' }]}>{tr(n.label)}</Text>
               </Pressable>
             ))}
           </ScrollView>
@@ -531,7 +531,7 @@ export default function ProgressScreen() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   shareBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  shareText: { color: colors.onPrimary, fontWeight: '700', fontSize: font.body },
+  shareText: { color: '#fff', fontWeight: '700', fontSize: font.body },
   photosBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
   photosText: { color: colors.primaryDark, fontWeight: '600', fontSize: font.body },
   ringsRow: { flexDirection: 'row', justifyContent: 'space-around' },
@@ -584,7 +584,7 @@ const createStyles = (colors: ThemeColors) =>
   ghost: { flex: 1, height: 44, borderRadius: radius.md, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   ghostText: { color: colors.textMuted, fontWeight: '600', fontSize: font.body },
   primary: { flex: 1.4, height: 44, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-  primaryText: { color: colors.onPrimary, fontWeight: '600', fontSize: font.body },
+  primaryText: { color: '#fff', fontWeight: '600', fontSize: font.body },
   summaryCard: { backgroundColor: colors.limeSoft, borderRadius: radius.card, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 8 },
   summaryText: { fontSize: font.body, color: colors.text, lineHeight: 21 },
 });

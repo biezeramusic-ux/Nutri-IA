@@ -269,7 +269,7 @@ export default function ScannerScreen() {
             />
             <Text style={styles.textHint}>{tr('Dica: toque no microfone do teclado para falar.')}</Text>
             <Pressable style={[styles.btn, styles.btnPrimary, (!description.trim() || busy) && { opacity: 0.4 }]} disabled={!description.trim() || busy} onPress={() => void submitDescription()}>
-              {busy ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.btnPrimaryText}>{tr('Analisar')}</Text>}
+              {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnPrimaryText}>{tr('Analisar')}</Text>}
             </Pressable>
           </View>
           {modeBar}
@@ -301,7 +301,7 @@ const createStyles = (colors: ThemeColors) =>
   permTitle: { fontSize: font.h2, fontWeight: '700', color: colors.text },
   permBody: { fontSize: font.body, color: colors.textMuted, textAlign: 'center' },
   permButton: { backgroundColor: colors.primary, borderRadius: radius.md, height: 46, paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
-  permButtonText: { color: colors.onPrimary, fontWeight: '600', fontSize: font.body },
+  permButtonText: { color: '#fff', fontWeight: '600', fontSize: font.body },
   top: { position: 'absolute', top: 0, left: 0, right: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
   roundBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' },
   hint: { color: '#fff', fontWeight: '500', fontSize: font.small, backgroundColor: 'rgba(0,0,0,0.45)', paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.pill, overflow: 'hidden' },
@@ -333,5 +333,5 @@ const createStyles = (colors: ThemeColors) =>
   btnGhost: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
   btnGhostText: { color: colors.text, fontWeight: '600', fontSize: font.body },
   btnPrimary: { backgroundColor: colors.primary },
-  btnPrimaryText: { color: colors.onPrimary, fontWeight: '600', fontSize: font.body },
+  btnPrimaryText: { color: '#fff', fontWeight: '600', fontSize: font.body },
 });

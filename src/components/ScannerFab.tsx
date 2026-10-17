@@ -27,7 +27,7 @@ export function ScannerFab({ onPress, accessibilityState }: Props) {
         }}
         style={({ pressed }) => [styles.fab, focused && styles.focused, pressed && styles.pressed]}
       >
-        <Camera size={24} color={colors.onPrimary} strokeWidth={2} />
+        <Camera size={24} color="#fff" strokeWidth={2} />
       </Pressable>
     </View>
   );

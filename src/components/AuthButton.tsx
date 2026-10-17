@@ -23,7 +23,7 @@ export function AuthButton({ title, onPress, loading, disabled }: Props) {
       accessibilityRole="button"
       style={({ pressed }) => [styles.button, inactive && styles.inactive, pressed && styles.pressed]}
     >
-      {loading ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.text}>{title}</Text>}
+      {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.text}>{title}</Text>}
     </Pressable>
   );
 }
@@ -39,5 +39,5 @@ const createStyles = (colors: ThemeColors) =>
   },
   inactive: { opacity: 0.65 },
   pressed: { opacity: 0.9 },
-  text: { color: colors.onPrimary, fontSize: font.h3, fontWeight: '600' },
+  text: { color: '#fff', fontSize: font.h3, fontWeight: '600' },
 });

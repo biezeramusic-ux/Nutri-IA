@@ -67,7 +67,7 @@ export default function ProgressPhotosScreen() {
           <ScreenHeader title={tr('Fotos de progresso')} />
           <Text style={styles.sub}>{tr('As fotos ficam guardadas na sua conta (privadas, reduzidas a ~50 KB) e também no telemóvel.')}</Text>
           <Pressable style={styles.cta} onPress={() => void take()}>
-            <Camera size={18} color={colors.onPrimary} />
+            <Camera size={18} color="#fff" />
             <Text style={styles.ctaText}>{tr('Tirar foto de hoje')}</Text>
           </Pressable>
           <View style={styles.grid}>
@@ -95,7 +95,7 @@ const createStyles = (colors: ThemeColors) =>
     root: { flex: 1, backgroundColor: colors.background },
     sub: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
     cta: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-    ctaText: { color: colors.onPrimary, fontWeight: '700', fontSize: font.body },
+    ctaText: { color: '#fff', fontWeight: '700', fontSize: font.body },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
     item: { width: '48%', backgroundColor: colors.card, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
     img: { width: '100%', aspectRatio: 3 / 4, backgroundColor: colors.surface },

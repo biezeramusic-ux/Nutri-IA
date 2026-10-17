@@ -98,7 +98,7 @@ export default function InviteScreen() {
             </Text>
           </View>
           <Pressable style={[styles.cta, !code && { opacity: 0.6 }]} disabled={!code} onPress={() => void share()}>
-            <Send size={16} color={colors.onPrimary} />
+            <Send size={16} color="#fff" />
             <Text style={styles.ctaText}>{tr('Partilhar convite')}</Text>
           </Pressable>
         </View>
@@ -143,7 +143,7 @@ const createStyles = (colors: ThemeColors) =>
     codeBox: { backgroundColor: colors.surface, borderRadius: radius.md, borderWidth: 1.5, borderStyle: 'dashed', borderColor: colors.primary, alignItems: 'center', paddingVertical: 14 },
     code: { fontSize: 26, fontWeight: '800', letterSpacing: 2, color: colors.text },
     cta: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-    ctaText: { color: colors.onPrimary, fontWeight: '700', fontSize: font.body },
+    ctaText: { color: '#fff', fontWeight: '700', fontSize: font.body },
     input: { height: 48, borderRadius: radius.md, backgroundColor: colors.surface, paddingHorizontal: 14, fontSize: font.body, color: colors.text, letterSpacing: 1 },
     secondary: { height: 46, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
     secondaryText: { color: colors.primaryDark, fontWeight: '600', fontSize: font.body },
