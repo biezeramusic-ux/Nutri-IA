@@ -25,16 +25,11 @@ export type ConnectResult =
   | { status: 'ok'; source: StepsSource }
   | { status: 'denied' | 'unavailable' | 'not_installed' | 'location_denied' | 'gps_off' };
 
-/** Liga os passos e o GPS. A localização é obrigatória (mapa certo, rota e km); os passos vêm do Google Health Connect / Apple Saúde ou do sensor. */
-export async function connectSteps(): Promise<ConnectResult> {
+/** Liga os passos (Google Health Connect / Apple Saúde ou sensor). O GPS é opcional: serve para o mapa, a rota e os km. */
+export async function connectSteps(opts: { gps: boolean } = { gps: true }): Promise<ConnectResult> {
   try {
     if (Platform.OS === 'web') return { status: 'unavailable' };
-    // 1) GPS: obrigatório. Sem ele não há mapa nem rota.
-    if (!(await Location.hasServicesEnabledAsync().catch(() => true))) return { status: 'gps_off' };
-    const loc = await Location.requestForegroundPermissionsAsync();
-    if (!loc.granted) return { status: 'location_denied' };
-
-    // 2) Passos.
+    // Passos.
     let source: StepsSource | null = null;
 
     if (Platform.OS === 'android') {
@@ -56,6 +51,8 @@ export async function connectSteps(): Promise<ConnectResult> {
       source = 'sensor';
     }
 
+    // GPS opcional: se a pessoa recusar, os passos ficam ligados na mesma (só não há mapa).
+    if (opts.gps) await Location.requestForegroundPermissionsAsync().catch(() => undefined);
     await AsyncStorage.setItem(KEY, source);
     return { status: 'ok', source };
   } catch {

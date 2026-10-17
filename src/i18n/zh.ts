@@ -961,4 +961,12 @@ export const zh: Record<string, string> = {
   "GPS obrigatório": "必须开启 GPS",
   "Abrir definições": "打开设置",
   "GPS obrigatório: encontra a sua localização e mostra o mapa. Só é usado enquanto caminha.": "需要 GPS：找到你的位置并显示地图。仅在步行时使用。",
+  "Ligar o GPS (opcional)": "开启 GPS（可选）",
+  "O GPS mostra o mapa do percurso e mede a distância. Sem ele, os passos continuam a contar. Só é usado enquanto caminha.": "GPS 会显示路线地图并测量距离。没有它，步数仍会计入。仅在步行时使用。",
+  "GPS necessário para caminhar": "步行需要 GPS",
+  "Para medir a distância e desenhar o mapa da caminhada precisamos da sua localização. Permita-a nas definições.": "要测量距离并绘制步行地图，我们需要你的位置。请在设置中允许。",
+  "Mapa, rota e km (GPS)": "地图、路线和公里数 (GPS)",
+  "Opcional. Mostra o mapa do percurso e a distância. Só é usado enquanto caminha.": "可选。显示路线地图和距离。仅在步行时使用。",
+  "Lento": "慢",
+  "Rápido": "快",
 };

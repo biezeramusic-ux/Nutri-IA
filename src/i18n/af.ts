@@ -961,4 +961,12 @@ export const af: Record<string, string> = {
   "GPS obrigatório": "GPS vereis",
   "Abrir definições": "Maak instellings oop",
   "GPS obrigatório: encontra a sua localização e mostra o mapa. Só é usado enquanto caminha.": "GPS vereis: vind jou ligging en wys die kaart. Net gebruik terwyl jy stap.",
+  "Ligar o GPS (opcional)": "Skakel GPS aan (opsioneel)",
+  "O GPS mostra o mapa do percurso e mede a distância. Sem ele, os passos continuam a contar. Só é usado enquanto caminha.": "GPS wys die roetekaart en meet afstand. Sonder dit tel treë steeds. Net gebruik terwyl jy stap.",
+  "GPS necessário para caminhar": "GPS nodig om te stap",
+  "Para medir a distância e desenhar o mapa da caminhada precisamos da sua localização. Permita-a nas definições.": "Om afstand te meet en die kaart te teken het ons jou ligging nodig. Laat dit toe in instellings.",
+  "Mapa, rota e km (GPS)": "Kaart, roete en km (GPS)",
+  "Opcional. Mostra o mapa do percurso e a distância. Só é usado enquanto caminha.": "Opsioneel. Wys die roetekaart en afstand. Net gebruik terwyl jy stap.",
+  "Lento": "Stadig",
+  "Rápido": "Vinnig",
 };

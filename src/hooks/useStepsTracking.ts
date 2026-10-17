@@ -60,8 +60,8 @@ export function useStepsTracking(setSteps: (fn: (prev: number) => number) => voi
     }
   }, [source, setSteps]);
 
-  const connect = useCallback(async (): Promise<ConnectResult> => {
-    const r = await connectSteps();
+  const connect = useCallback(async (gps = true): Promise<ConnectResult> => {
+    const r = await connectSteps({ gps });
     if (r.status === 'ok') setSource(r.source);
     return r;
   }, []);

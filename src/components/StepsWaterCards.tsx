@@ -2,7 +2,7 @@ import { Droplets, Flame, Footprints, Route, Timer } from 'lucide-react-native';
 import { ConnectMark } from './ConnectMark';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Linking, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Linking, Modal, Platform, Pressable, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { Text } from './AppText';
 import { ProgressRing } from './ProgressRing';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
@@ -33,6 +33,7 @@ export function StepsWaterCards() {
   const tracking = useStepsTracking(setSteps);
   const [connectOpen, setConnectOpen] = useState(false);
   const [connecting, setConnecting] = useState(false);
+  const [useGps, setUseGps] = useState(true);
   const provider = Platform.OS === 'android' ? 'Google Health Connect' : Platform.OS === 'ios' ? 'Apple Saúde' : 'Nutri Saúde';
   const today = useTodayWalks();
   // Os passos das corridas já têm as suas calorias (pela distância e tempo); os outros passos contam 0,04 kcal cada.
@@ -150,8 +151,7 @@ export function StepsWaterCards() {
             <Text style={styles.sheetBody}>{tr('Siga os seus passos, a rota e as calorias queimadas num só sítio.')}</Text>
             {[
               { icon: Footprints, t: 'Passos do dia', d: Platform.OS === 'android' ? 'Lidos do Google Health Connect, mesmo com a app fechada.' : Platform.OS === 'ios' ? 'Lidos do Apple Saúde, incluindo o Apple Watch.' : 'Pelo sensor de movimento do telemóvel.' },
-              { icon: Route, t: 'Rota e km', d: 'GPS obrigatório: encontra a sua localização e mostra o mapa. Só é usado enquanto caminha.' },
-              { icon: Flame, t: 'Calorias queimadas', d: 'Calculadas a partir dos seus passos.' },
+                            { icon: Flame, t: 'Calorias queimadas', d: 'Calculadas a partir dos seus passos.' },
             ].map((r) => (
               <View key={r.t} style={styles.feature}>
                 <View style={styles.featureIcon}>
@@ -163,28 +163,34 @@ export function StepsWaterCards() {
                 </View>
               </View>
             ))}
+            <View style={styles.gpsRow}>
+              <View style={styles.featureIcon}>
+                <Route size={18} color={colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.featureTitle}>{tr('Mapa, rota e km (GPS)')}</Text>
+                <Text style={styles.featureDesc}>{tr('Opcional. Mostra o mapa do percurso e a distância. Só é usado enquanto caminha.')}</Text>
+              </View>
+              <Switch value={useGps} onValueChange={setUseGps} trackColor={{ true: colors.primary, false: colors.border }} />
+            </View>
             <Pressable
               style={[styles.cta, connecting && { opacity: 0.6 }]}
               disabled={connecting}
               onPress={async () => {
                 setConnecting(true);
-                const r = await tracking.connect();
+                const r = await tracking.connect(useGps);
                 setConnecting(false);
                 if (r.status === 'ok') setConnectOpen(false);
                 else {
                   const msg =
-                    r.status === 'location_denied'
-                      ? tr('O GPS é necessário para encontrar a sua localização e mostrar o mapa e a rota. Permita a localização nas definições do telemóvel.')
-                      : r.status === 'gps_off'
-                        ? tr('Ligue o GPS (localização) do telemóvel e tente outra vez.')
-                        : r.status === 'denied'
-                          ? tr('Permita o acesso à atividade física nas definições do telemóvel.')
-                          : r.status === 'not_installed'
-                            ? tr('Instale ou atualize o Google Health Connect na Play Store e tente outra vez.')
-                            : tr('Este telemóvel não tem sensor de passos ou está a usar o navegador.');
-                  const needsSettings = r.status === 'location_denied' || r.status === 'denied';
+                    r.status === 'denied'
+                      ? tr('Permita o acesso à atividade física nas definições do telemóvel.')
+                      : r.status === 'not_installed'
+                        ? tr('Instale ou atualize o Google Health Connect na Play Store e tente outra vez.')
+                        : tr('Este telemóvel não tem sensor de passos ou está a usar o navegador.');
+                  const needsSettings = r.status === 'denied';
                   Alert.alert(
-                    r.status === 'location_denied' || r.status === 'gps_off' ? tr('GPS obrigatório') : r.status === 'denied' ? tr('Permissão necessária') : tr('Não disponível'),
+                    r.status === 'denied' ? tr('Permissão necessária') : tr('Não disponível'),
                     msg,
                     needsSettings
                       ? [
@@ -265,6 +271,7 @@ const createStyles = (colors: ThemeColors) =>
     bigMark: { alignSelf: 'center', width: 72, height: 72, borderRadius: 36, backgroundColor: '#2E9E4F', alignItems: 'center', justifyContent: 'center' },
     sheetHeadline: { fontSize: font.h2, fontWeight: '800', color: colors.text, textAlign: 'center' },
     sheetBody: { fontSize: font.body, color: colors.textMuted, textAlign: 'center', lineHeight: 21 },
+    gpsRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     feature: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     featureIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
     featureTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },

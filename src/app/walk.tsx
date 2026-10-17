@@ -3,7 +3,7 @@ import * as Location from 'expo-location';
 import { Footprints, MapPin, Route, Timer, Trash } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { RouteMap } from '../components/RouteMap';
@@ -99,6 +99,15 @@ export default function WalkScreen() {
     setOpen(walk);
   }, [tracker, userId, heightCm, weightKg]);
 
+  const startWalk = async () => {
+    const ok = await tracker.start();
+    if (!ok)
+      Alert.alert(tr('GPS necessário para caminhar'), tr('Para medir a distância e desenhar o mapa da caminhada precisamos da sua localização. Permita-a nas definições.'), [
+        { text: tr('Cancelar'), style: 'cancel' },
+        { text: tr('Abrir definições'), onPress: () => void Linking.openSettings() },
+      ]);
+  };
+
   /** Regista a corrida: conta os passos e as calorias no dia. */
   const register = async (w: Walk) => {
     if (!userId) return;
@@ -140,15 +149,15 @@ export default function WalkScreen() {
             <View style={styles.pin}>
               <MapPin size={30} color={colors.primary} />
             </View>
-            <Text style={styles.title}>{tr('Conectar a localização')}</Text>
-            <Text style={styles.body}>{tr('Para desenhar a rota, contar os km e o tempo da sua caminhada, o Nutri IA precisa da sua localização. Só é usada enquanto caminha.')}</Text>
+            <Text style={styles.title}>{tr('Ligar o GPS (opcional)')}</Text>
+            <Text style={styles.body}>{tr('O GPS mostra o mapa do percurso e mede a distância. Sem ele, os passos continuam a contar. Só é usado enquanto caminha.')}</Text>
             <Pressable style={styles.cta} onPress={() => void tracker.requestPermission()}>
               <Text style={styles.ctaText}>{tr('Permitir localização')}</Text>
             </Pressable>
           </View>
         )}
 
-        {tracker.granted && !tracker.active && !open && (
+        {!tracker.active && !open && (
           <>
             {here && (
               <View style={styles.card}>
@@ -165,7 +174,7 @@ export default function WalkScreen() {
                 {stat(<Footprints size={18} color={colors.primary} />, String(todaySteps), tr('Passos'))}
               </View>
             </View>
-            <Pressable style={styles.cta} onPress={() => void tracker.start()}>
+            <Pressable style={styles.cta} onPress={() => void startWalk()}>
               <Text style={styles.ctaText}>{tr('Iniciar caminhada')}</Text>
             </Pressable>
             <Text style={styles.hint}>{tr('Mantenha o ecrã ligado e a app aberta durante a caminhada.')}</Text>

@@ -961,4 +961,12 @@ export const de: Record<string, string> = {
   "GPS obrigatório": "GPS erforderlich",
   "Abrir definições": "Einstellungen öffnen",
   "GPS obrigatório: encontra a sua localização e mostra o mapa. Só é usado enquanto caminha.": "GPS erforderlich: findet deinen Standort und zeigt die Karte. Nur während des Gehens genutzt.",
+  "Ligar o GPS (opcional)": "GPS einschalten (optional)",
+  "O GPS mostra o mapa do percurso e mede a distância. Sem ele, os passos continuam a contar. Só é usado enquanto caminha.": "GPS zeigt die Routenkarte und misst die Strecke. Ohne GPS werden Schritte weiter gezählt. Nur während des Gehens genutzt.",
+  "GPS necessário para caminhar": "GPS nötig zum Gehen",
+  "Para medir a distância e desenhar o mapa da caminhada precisamos da sua localização. Permita-a nas definições.": "Um die Strecke zu messen und die Karte zu zeichnen, brauchen wir deinen Standort. Erlaube ihn in den Einstellungen.",
+  "Mapa, rota e km (GPS)": "Karte, Route und km (GPS)",
+  "Opcional. Mostra o mapa do percurso e a distância. Só é usado enquanto caminha.": "Optional. Zeigt Routenkarte und Strecke. Nur während des Gehens genutzt.",
+  "Lento": "Langsam",
+  "Rápido": "Schnell",
 };
