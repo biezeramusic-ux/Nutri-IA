@@ -1,7 +1,8 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Camera, Keyboard, ScanBarcode, X } from 'lucide-react-native';
+import { Camera, Image as ImageIcon, Keyboard, ScanBarcode, ScanLine, Search, X, Zap, ZapOff } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../../components/AppText';
@@ -37,6 +38,7 @@ export default function ScannerScreen() {
   const [meal, setMeal] = useState<Meal | null>(null);
   const [fallback, setFallback] = useState(false);
   const [mode, setMode] = useState<Mode>('photo');
+  const [torch, setTorch] = useState(false);
   const [description, setDescription] = useState('');
   const lastCode = useRef('');
   // A refeição vem do botão "+" do diário (ex.: Lanche); senão deduz-se pela hora.
@@ -147,13 +149,13 @@ export default function ScannerScreen() {
   const modeBar = (
     <View style={styles.modeBar}>
       {([
-        ['photo', Camera, tr('Foto')],
         ['barcode', ScanBarcode, tr('Código de barras')],
+        ['photo', ScanLine, tr('Scan IA')],
         ['text', Keyboard, tr('Descrever')],
       ] as const).map(([key, Icon, label]) => (
         <Pressable key={key} onPress={() => changeMode(key)} style={[styles.modeBtn, mode === key && styles.modeBtnOn]}>
-          <Icon size={15} color={mode === key ? '#0F172A' : '#fff'} />
-          <Text style={[styles.modeText, mode === key && { color: '#0F172A' }]}>{label}</Text>
+          <Icon size={15} color="#fff" />
+          <Text style={styles.modeText}>{label}</Text>
         </Pressable>
       ))}
     </View>
@@ -166,6 +168,21 @@ export default function ScannerScreen() {
       if (!photo) throw new Error('Sem foto');
       return photo.uri;
     });
+
+  const pickFromGallery = () =>
+    run(async () => {
+      const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7 });
+      return res.canceled ? null : res.assets[0].uri;
+    });
+
+  const hintText =
+    mode === 'barcode'
+      ? tr('Aponte para o código de barras')
+      : mode === 'text'
+        ? tr('Descreva o que comeu')
+        : !isPro && scansLeftToday != null
+          ? tr('{n} análises restantes hoje', { n: scansLeftToday })
+          : tr('Enquadre o prato dentro do visor');
 
   if (!permission) return <View style={styles.root} />;
 
@@ -197,6 +214,7 @@ export default function ScannerScreen() {
           style={StyleSheet.absoluteFill}
           facing="back"
           barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39'] }}
+          enableTorch={torch}
           onBarcodeScanned={mode === 'barcode' ? (r) => void onBarcode(r) : undefined}
         />
       )}
@@ -205,21 +223,20 @@ export default function ScannerScreen() {
         <Pressable style={[styles.roundBtn, mode === 'text' && { backgroundColor: colors.surface }]} onPress={() => router.navigate('/')}>
           <X size={20} color={mode === 'text' ? colors.text : '#fff'} />
         </Pressable>
-        <Text style={styles.hint}>
-          {mode === 'barcode'
-            ? tr('Aponte para o código de barras')
-            : mode === 'text'
-              ? tr('Descreva o que comeu')
-              : !isPro && scansLeftToday != null
-                ? tr('{n} análises restantes hoje', { n: scansLeftToday })
-                : 'Enquadre o prato dentro do visor'}
-        </Text>
-        <View style={styles.roundBtn} />
+        <Text style={[styles.screenTitle, mode === 'text' && { color: colors.text }]}>{tr('Adicionar alimento')}</Text>
+        {mode === 'text' ? (
+          <View style={styles.roundBtn} />
+        ) : (
+          <Pressable style={styles.searchPill} onPress={() => changeMode('text')}>
+            <Search size={14} color="#fff" />
+            <Text style={styles.searchText}>{tr('Pesquisar')}</Text>
+          </Pressable>
+        )}
       </View>
 
       {mode !== 'text' && (
       <View style={styles.finderWrap} pointerEvents="none">
-        <View style={[styles.finder, mode === 'barcode' && { width: 280, height: 150 }]}>
+        <View style={[styles.finder, mode === 'barcode' && { width: 300, height: 170 }]}>
           <View style={[styles.corner, styles.tl]} />
           <View style={[styles.corner, styles.tr]} />
           <View style={[styles.corner, styles.bl]} />
@@ -275,15 +292,29 @@ export default function ScannerScreen() {
           {modeBar}
         </KeyboardAvoidingView>
       ) : (
-        <View style={[styles.shutterWrap, { paddingBottom: insets.bottom + 24 }]}>
-          {mode === 'photo' ? (
-            <Pressable onPress={() => void capture()} style={styles.shutterOuter} disabled={busy}>
-              {busy ? <ActivityIndicator color={colors.primary} /> : <View style={styles.shutterInner} />}
+        <View style={[styles.shutterWrap, { paddingBottom: insets.bottom + 18 }]}>
+          <View style={styles.hintPill}>
+            <Text style={styles.hintText}>{busy ? (mode === 'barcode' ? tr('A procurar o produto…') : tr('A analisar o prato…')) : hintText}</Text>
+          </View>
+          <View style={styles.controls}>
+            {mode === 'photo' ? (
+              <Pressable style={styles.sideBtn} onPress={() => void pickFromGallery()} disabled={busy} accessibilityLabel={tr('Escolher da galeria')}>
+                <ImageIcon size={20} color="#fff" />
+              </Pressable>
+            ) : (
+              <View style={styles.sideBtn} />
+            )}
+            {mode === 'photo' ? (
+              <Pressable onPress={() => void capture()} style={styles.shutterOuter} disabled={busy}>
+                {busy ? <ActivityIndicator color="#fff" /> : <View style={styles.shutterInner} />}
+              </Pressable>
+            ) : (
+              <View style={styles.shutterOuter}>{busy && <ActivityIndicator color="#fff" />}</View>
+            )}
+            <Pressable style={[styles.sideBtn, torch && { backgroundColor: '#fff' }]} onPress={() => setTorch((t) => !t)} accessibilityLabel={tr('Lanterna')}>
+              {torch ? <Zap size={20} color="#0F172A" /> : <ZapOff size={20} color="#fff" />}
             </Pressable>
-          ) : (
-            busy && <ActivityIndicator color="#fff" />
-          )}
-          {busy && <Text style={styles.busy}>{mode === 'barcode' ? tr('A procurar o produto…') : tr('A analisar o prato…')}</Text>}
+          </View>
           {modeBar}
         </View>
       )}
@@ -306,18 +337,25 @@ const createStyles = (colors: ThemeColors) =>
   roundBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center' },
   hint: { color: '#fff', fontWeight: '500', fontSize: font.small, backgroundColor: 'rgba(0,0,0,0.45)', paddingHorizontal: 12, paddingVertical: 7, borderRadius: radius.pill, overflow: 'hidden' },
   finderWrap: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', paddingBottom: 60 },
-  finder: { width: 240, height: 240, borderRadius: 28 },
-  corner: { position: 'absolute', width: CORNER, height: CORNER, borderColor: colors.primary, borderWidth: 4 },
+  finder: { width: 280, height: 280, borderRadius: 28 },
+  corner: { position: 'absolute', width: CORNER, height: CORNER, borderColor: '#fff', borderWidth: 4 },
   tl: { top: 0, left: 0, borderRightWidth: 0, borderBottomWidth: 0, borderTopLeftRadius: 28 },
   tr: { top: 0, right: 0, borderLeftWidth: 0, borderBottomWidth: 0, borderTopRightRadius: 28 },
   bl: { bottom: 0, left: 0, borderRightWidth: 0, borderTopWidth: 0, borderBottomLeftRadius: 28 },
   br: { bottom: 0, right: 0, borderLeftWidth: 0, borderTopWidth: 0, borderBottomRightRadius: 28 },
   shutterWrap: { position: 'absolute', bottom: 0, left: 0, right: 0, alignItems: 'center', gap: 8 },
-  shutterOuter: { width: 68, height: 68, borderRadius: 34, borderWidth: 4, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' },
-  shutterInner: { width: 50, height: 50, borderRadius: 25, backgroundColor: colors.primary },
-  modeBar: { flexDirection: 'row', alignSelf: 'center', gap: 6, backgroundColor: 'rgba(0,0,0,0.5)', padding: 4, borderRadius: radius.pill, marginTop: 6 },
-  modeBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill },
-  modeBtnOn: { backgroundColor: '#fff' },
+  shutterOuter: { width: 76, height: 76, borderRadius: 38, borderWidth: 4, borderColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  shutterInner: { width: 58, height: 58, borderRadius: 29, backgroundColor: '#fff' },
+  controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch', paddingHorizontal: 36 },
+  sideBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
+  hintPill: { backgroundColor: 'rgba(0,0,0,0.55)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: radius.pill },
+  hintText: { color: '#fff', fontWeight: '500', fontSize: font.small },
+  screenTitle: { color: '#fff', fontSize: font.h3, fontWeight: '700' },
+  searchPill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: radius.pill, paddingHorizontal: 12, height: 36 },
+  searchText: { color: '#fff', fontSize: font.small, fontWeight: '600' },
+  modeBar: { flexDirection: 'row', alignSelf: 'center', gap: 4, backgroundColor: 'rgba(20,20,20,0.78)', padding: 5, borderRadius: radius.pill, marginTop: 4 },
+  modeBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 11, paddingVertical: 9, borderRadius: radius.pill },
+  modeBtnOn: { backgroundColor: 'rgba(255,255,255,0.22)' },
   modeText: { color: '#fff', fontSize: font.small, fontWeight: '600' },
   textWrap: { position: 'absolute', left: 0, right: 0, bottom: 0, top: 90, justifyContent: 'flex-end', paddingBottom: 24, gap: 8 },
   textCard: { marginHorizontal: 16, backgroundColor: colors.card, borderRadius: 22, borderWidth: 1, borderColor: colors.border, padding: 16, gap: 10 },

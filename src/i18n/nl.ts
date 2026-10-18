@@ -971,4 +971,7 @@ export const nl: Record<string, string> = {
   "Rápido": "Snel",
   "Medalhas": "Medailles",
   "Registe uma refeição todos os dias para conquistar as medalhas.": "Registreer elke dag een maaltijd om de medailles te verdienen.",
+  "Scan IA": "AI-scan",
+  "Pesquisar": "Zoeken",
+  "Lanterna": "Zaklamp",
 };

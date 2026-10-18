@@ -971,4 +971,7 @@ export const en: Record<string, string> = {
   "Rápido": "Fast",
   "Medalhas": "Medals",
   "Registe uma refeição todos os dias para conquistar as medalhas.": "Log a meal every day to earn the medals.",
+  "Scan IA": "AI Scan",
+  "Pesquisar": "Search",
+  "Lanterna": "Flashlight",
 };

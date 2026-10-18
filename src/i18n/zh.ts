@@ -971,4 +971,7 @@ export const zh: Record<string, string> = {
   "Rápido": "快",
   "Medalhas": "奖章",
   "Registe uma refeição todos os dias para conquistar as medalhas.": "每天记录一餐即可获得奖章。",
+  "Scan IA": "AI 扫描",
+  "Pesquisar": "搜索",
+  "Lanterna": "手电筒",
 };

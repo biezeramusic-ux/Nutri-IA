@@ -971,4 +971,7 @@ export const de: Record<string, string> = {
   "Rápido": "Schnell",
   "Medalhas": "Medaillen",
   "Registe uma refeição todos os dias para conquistar as medalhas.": "Trage jeden Tag eine Mahlzeit ein, um die Medaillen zu verdienen.",
+  "Scan IA": "KI-Scan",
+  "Pesquisar": "Suchen",
+  "Lanterna": "Taschenlampe",
 };
