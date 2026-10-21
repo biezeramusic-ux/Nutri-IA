@@ -974,4 +974,6 @@ export const en: Record<string, string> = {
   "Scan IA": "AI Scan",
   "Pesquisar": "Search",
   "Lanterna": "Flashlight",
+  "da meta": "of goal",
+  "de certeza": "confidence",
 };

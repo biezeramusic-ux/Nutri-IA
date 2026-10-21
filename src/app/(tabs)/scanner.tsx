@@ -8,12 +8,12 @@ import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LockOverlay } from '../../components/LockOverlay';
-import { MacroSquareCard } from '../../components/MacroSquareCard';
+import { ScanResultSheet } from '../../components/ScanResultSheet';
 import { font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
 import { useDiary } from '../../hooks/useDiary';
 import { useSubscription } from '../../hooks/useSubscription';
-import { buildMeal, macroPercentages } from '../../services/foodCatalog';
+import { buildMeal } from '../../services/foodCatalog';
 import { describeFood, recognizeFood } from '../../services/foodRecognition';
 import { lookupBarcode } from '../../services/barcode';
 import { compressImage } from '../../services/imageCompressor';
@@ -218,8 +218,6 @@ export default function ScannerScreen() {
     );
   }
 
-  const macros = meal ? macroPercentages(meal.analysis) : null;
-
   return (
     <View style={styles.root}>
       {mode === 'text' ? (
@@ -276,36 +274,17 @@ export default function ScannerScreen() {
       </View>
       )}
 
-      {meal && macros ? (
-        <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
-          <Text style={styles.dish}>
-            {meal.analysis.food_name} - {meal.analysis.estimated_weight_grams}g
-          </Text>
-          <Text style={styles.kcal}>
-            {meal.analysis.calories} kcal{fallback ? ` · ${tr('exemplo (sem ligação à IA)')}` : ''}
-          </Text>
-          <View style={styles.macroRow}>
-            <MacroSquareCard label={tr('Carboidratos')} percent={macros.carbs} grams={meal.analysis.carbs_g} color={colors.carbs} />
-            <MacroSquareCard label={tr('Proteínas')} percent={macros.protein} grams={meal.analysis.protein_g} color={colors.protein} />
-            <MacroSquareCard label={tr('Gorduras')} percent={macros.fats} grams={meal.analysis.fats_g} color={colors.fats} />
-          </View>
-          <View style={styles.actions}>
-            <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => {
-                setMeal(null);
-                setShot(null);
-              }}>
-              <Text style={styles.btnGhostText}>{tr('Novo scan')}</Text>
-            </Pressable>
-            <Pressable
-              style={[styles.btn, styles.btnPrimary]}
-              onPress={() => {
-                router.push({ pathname: '/details', params: { id: meal.id } });
-              }}
-            >
-              <Text style={styles.btnPrimaryText}>{tr('Ver detalhes')}</Text>
-            </Pressable>
-          </View>
-        </View>
+      {meal ? (
+        <ScanResultSheet
+          meal={meal}
+          fallback={fallback}
+          bottomInset={insets.bottom}
+          onNew={() => {
+            setMeal(null);
+            setShot(null);
+          }}
+          onDetails={() => router.push({ pathname: '/details', params: { id: meal.id } })}
+        />
       ) : mode === 'text' ? (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.textWrap}>
           <View style={styles.textCard}>

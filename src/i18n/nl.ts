@@ -974,4 +974,6 @@ export const nl: Record<string, string> = {
   "Scan IA": "AI-scan",
   "Pesquisar": "Zoeken",
   "Lanterna": "Zaklamp",
+  "da meta": "van het doel",
+  "de certeza": "zekerheid",
 };

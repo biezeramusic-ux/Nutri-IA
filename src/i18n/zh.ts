@@ -974,4 +974,6 @@ export const zh: Record<string, string> = {
   "Scan IA": "AI 扫描",
   "Pesquisar": "搜索",
   "Lanterna": "手电筒",
+  "da meta": "占目标",
+  "de certeza": "把握",
 };

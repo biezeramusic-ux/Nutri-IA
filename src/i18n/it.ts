@@ -974,4 +974,6 @@ export const it: Record<string, string> = {
   "Scan IA": "Scansione IA",
   "Pesquisar": "Cerca",
   "Lanterna": "Torcia",
+  "da meta": "dell'obiettivo",
+  "de certeza": "di certezza",
 };
