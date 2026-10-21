@@ -12,6 +12,7 @@ import {
 import { AppState } from 'react-native';
 import { deleteMealById, insertMeal, listMeals } from '../services/repositories/meals';
 import { EXTRA_NUMBER_KEYS, type FoodAnalysis, type Meal, type MealType } from '../types';
+import { persistLocalPhoto } from '../services/localPhotos';
 import { useAuth } from './useAuth';
 
 interface DiaryContextValue {
@@ -197,11 +198,13 @@ export function DiaryProvider({ children }: { children: ReactNode }) {
         const message = e instanceof Error ? e.message : '';
         if (!NETWORK_ERROR.test(message) || LIMIT_ERROR.test(message)) throw e;
         // Sem ligação: guarda no telemóvel e sincroniza quando a rede voltar.
-        const queued = [...(await loadPending(userId)).filter((m) => m.id !== meal.id), meal];
+        // A foto fica já guardada no telemóvel (a da câmara está numa pasta temporária).
+        const kept: Meal = meal.photoUri ? { ...meal, photoUri: persistLocalPhoto(meal.id, meal.photoUri) ?? meal.photoUri } : meal;
+        const queued = [...(await loadPending(userId)).filter((m) => m.id !== meal.id), kept];
         await storePending(userId, queued);
         setPending(queued);
-        await rememberLocal(userId, meal.id, meal);
-        setMeals((prev) => [meal, ...prev.filter((m) => m.id !== meal.id)]);
+        await rememberLocal(userId, meal.id, kept);
+        setMeals((prev) => [withType(kept), ...prev.filter((m) => m.id !== meal.id)]);
       }
     },
     [userId, withType, rememberLocal],

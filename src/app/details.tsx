@@ -2,12 +2,13 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Bookmark, CircleCheck, Drumstick, Flame, Pencil, ShieldCheck, Sparkles, Star, Wheat } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlowerChart } from '../components/FlowerChart';
 import { NutritionFacts } from '../components/NutritionFacts';
+import { MealPhoto } from '../components/MealPhoto';
 import { MacroCards } from '../components/MacroCards';
 import { ProBadge } from '../components/ProOverlay';
 import { NumberStepper } from '../components/quiz/NumberStepper';
@@ -145,13 +146,7 @@ export default function DetailsScreen() {
         />
 
         <View style={styles.hero}>
-          {meal.photoUri ? (
-            <Image source={{ uri: meal.photoUri }} style={styles.heroImg} resizeMode="cover" />
-          ) : (
-            <View style={[styles.heroImg, styles.heroEmoji]}>
-              <Text style={{ fontSize: 64 }}>{mealEmoji(analysis.food_name)}</Text>
-            </View>
-          )}
+          <MealPhoto uri={meal.photoUri} name={analysis.food_name} style={styles.heroImg} emojiSize={64} />
           <View style={styles.heroBody}>
             <View style={styles.heroTitleRow}>
               <Text style={styles.name} numberOfLines={2}>

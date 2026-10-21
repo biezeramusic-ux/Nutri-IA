@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { MealPhoto } from './MealPhoto';
 import { Text } from '../components/AppText';
 import { cardBase, font, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
@@ -13,13 +14,7 @@ export function ScanCard({ meal, onPress }: { meal: Meal; onPress: () => void })
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-      {meal.photoUri ? (
-        <Image source={{ uri: meal.photoUri }} style={styles.photo} />
-      ) : (
-        <View style={[styles.photo, styles.placeholder]}>
-          <Text style={{ fontSize: 32 }}>{mealEmoji(meal.analysis.food_name)}</Text>
-        </View>
-      )}
+      <MealPhoto uri={meal.photoUri} name={meal.analysis.food_name} style={styles.photo} emojiSize={32} />
       <Text style={styles.name} numberOfLines={2}>
         {meal.analysis.food_name}
       </Text>

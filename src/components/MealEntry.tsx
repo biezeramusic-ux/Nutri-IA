@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Leaf, Star, Trash2 } from 'lucide-react-native';
 import { Image, Pressable, StyleSheet, View } from 'react-native';
+import { MealPhoto } from './MealPhoto';
 import { Text } from './AppText';
 import { font, radius, type ThemeColors } from '../constants/theme';
 import { useProfile } from '../hooks/useProfile';
@@ -34,13 +35,7 @@ export function MealEntry({ meal, onPress, onDelete, favorite, onToggleFavorite 
   const scoreColor = score >= 7 ? { bg: '#DCFCE7', fg: '#166534', icon: '#16A34A' } : score >= 4 ? { bg: '#FEF3C7', fg: '#92400E', icon: '#D97706' } : { bg: '#FEE2E2', fg: '#991B1B', icon: '#DC2626' };
   return (
     <Pressable onPress={onPress} style={styles.row} accessibilityRole="button">
-      {meal.photoUri ? (
-        <Image source={{ uri: meal.photoUri }} style={styles.photo} />
-      ) : (
-        <View style={[styles.photo, styles.placeholder]}>
-          <Text style={{ fontSize: 30 }}>{mealEmoji(a.food_name)}</Text>
-        </View>
-      )}
+      <MealPhoto uri={meal.photoUri} name={a.food_name} style={styles.photo} emojiSize={30} />
       <View style={styles.info}>
         <View style={styles.top}>
           <Text style={styles.name} numberOfLines={2}>
