@@ -1009,7 +1009,7 @@ export const de: Record<string, string> = {
   "Como prefere ser acompanhado?": "Wie möchtest du begleitet werden?",
   "Estamos a configurar tudo para si": "Wir richten alles für dich ein",
   "A equilibrar os macros…": "Gleiche deine Makros aus…",
-  "A personalizar o plano com IA…": "Personalisiere deinen Plan mit KI…",
+  "A personalizar o seu plano…": "Personalisiere deinen Plan…",
   "A finalizar resultados…": "Ergebnisse werden abgeschlossen…",
   "Recomendação diária para": "Tägliche Empfehlung für",
   "Pontuação de saúde": "Gesundheitswert",

@@ -1009,7 +1009,7 @@ export const en: Record<string, string> = {
   "Como prefere ser acompanhado?": "How do you prefer to be supported?",
   "Estamos a configurar tudo para si": "We're setting everything up for you",
   "A equilibrar os macros…": "Balancing your macros…",
-  "A personalizar o plano com IA…": "Personalizing your plan with AI…",
+  "A personalizar o seu plano…": "Personalizing your plan…",
   "A finalizar resultados…": "Finalizing results…",
   "Recomendação diária para": "Daily recommendation for",
   "Pontuação de saúde": "Health score",

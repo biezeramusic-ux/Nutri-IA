@@ -1009,7 +1009,7 @@ export const fr: Record<string, string> = {
   "Como prefere ser acompanhado?": "Comment préférez-vous être accompagné ?",
   "Estamos a configurar tudo para si": "Nous configurons tout pour vous",
   "A equilibrar os macros…": "Équilibrage de vos macros…",
-  "A personalizar o plano com IA…": "Personnalisation de votre plan avec l'IA…",
+  "A personalizar o seu plano…": "Personnalisation de votre plan…",
   "A finalizar resultados…": "Finalisation des résultats…",
   "Recomendação diária para": "Recommandation quotidienne pour",
   "Pontuação de saúde": "Score santé",

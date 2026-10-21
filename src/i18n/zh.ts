@@ -1009,7 +1009,7 @@ export const zh: Record<string, string> = {
   "Como prefere ser acompanhado?": "你希望如何被陪伴？",
   "Estamos a configurar tudo para si": "我们正在为你设置一切",
   "A equilibrar os macros…": "正在平衡你的宏量营养素…",
-  "A personalizar o plano com IA…": "正在用 AI 个性化你的计划…",
+  "A personalizar o seu plano…": "正在个性化你的计划…",
   "A finalizar resultados…": "正在完成结果…",
   "Recomendação diária para": "每日推荐：",
   "Pontuação de saúde": "健康评分",

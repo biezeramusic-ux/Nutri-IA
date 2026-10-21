@@ -1009,7 +1009,7 @@ export const nl: Record<string, string> = {
   "Como prefere ser acompanhado?": "Hoe wil je begeleid worden?",
   "Estamos a configurar tudo para si": "We stellen alles voor je in",
   "A equilibrar os macros…": "Je macro's afstemmen…",
-  "A personalizar o plano com IA…": "Je plan personaliseren met AI…",
+  "A personalizar o seu plano…": "Je plan personaliseren…",
   "A finalizar resultados…": "Resultaten afronden…",
   "Recomendação diária para": "Dagelijkse aanbeveling voor",
   "Pontuação de saúde": "Gezondheidsscore",
