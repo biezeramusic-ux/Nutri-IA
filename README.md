@@ -1,4 +1,4 @@
-# Nutri IA 🥗
+# Nutri AI 🥗
 
 Contador de calorias por foto, feito para Moçambique e utilizadores internacionais.
 Expo SDK 57 · Expo Router · React Native · TypeScript estrito.
