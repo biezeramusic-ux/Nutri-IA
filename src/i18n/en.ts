@@ -1014,4 +1014,5 @@ export const en: Record<string, string> = {
   "Recomendação diária para": "Daily recommendation for",
   "Pontuação de saúde": "Health score",
   "Conecte os passos para ver": "Connect steps to see",
+  "Este prato é {pct}% das calorias do seu dia.": "This dish is {pct}% of your day's calories.",
 };

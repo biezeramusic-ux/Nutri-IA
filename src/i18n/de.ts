@@ -1014,4 +1014,5 @@ export const de: Record<string, string> = {
   "Recomendação diária para": "Tägliche Empfehlung für",
   "Pontuação de saúde": "Gesundheitswert",
   "Conecte os passos para ver": "Verbinde die Schritte, um sie zu sehen",
+  "Este prato é {pct}% das calorias do seu dia.": "Dieses Gericht macht {pct}% deiner Tageskalorien aus.",
 };

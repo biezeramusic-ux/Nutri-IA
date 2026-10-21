@@ -1,14 +1,14 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Bookmark, CircleCheck, Drumstick, Pencil, ShieldCheck, Sparkles, Star, Wheat } from 'lucide-react-native';
+import { Bookmark, CircleCheck, Drumstick, Flame, Pencil, ShieldCheck, Sparkles, Star, Wheat } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FlowerChart } from '../components/FlowerChart';
 import { NutritionFacts } from '../components/NutritionFacts';
-import { MacroSquareCard } from '../components/MacroSquareCard';
+import { MacroCards } from '../components/MacroCards';
 import { ProBadge } from '../components/ProOverlay';
 import { NumberStepper } from '../components/quiz/NumberStepper';
 import { ScreenHeader } from '../components/ScreenHeader';
@@ -144,21 +144,45 @@ export default function DetailsScreen() {
           }
         />
 
-        <View style={{ alignItems: 'center', gap: 4 }}>
-          <Text style={{ fontSize: 44 }}>{mealEmoji(analysis.food_name)}</Text>
-          <Text style={styles.name}>{analysis.food_name}</Text>
-          <Text style={styles.weight}>{analysis.estimated_weight_grams} g</Text>
-          <Text style={styles.kcal}>
-            {analysis.calories} <Text style={styles.kcalUnit}>{tr('kcal')}</Text>
-          </Text>
-          {confidence && (
-            <View style={styles.confidence}>
-              <ShieldCheck size={14} color={confidence.color} />
-              <Text style={[styles.confidenceText, { color: confidence.color }]}>
-                {confidence.text} ({analysis.confidence}%)
-              </Text>
+        <View style={styles.hero}>
+          {meal.photoUri ? (
+            <Image source={{ uri: meal.photoUri }} style={styles.heroImg} resizeMode="cover" />
+          ) : (
+            <View style={[styles.heroImg, styles.heroEmoji]}>
+              <Text style={{ fontSize: 64 }}>{mealEmoji(analysis.food_name)}</Text>
             </View>
           )}
+          <View style={styles.heroBody}>
+            <View style={styles.heroTitleRow}>
+              <Text style={styles.name} numberOfLines={2}>
+                {analysis.food_name}
+              </Text>
+              <View style={styles.weightPill}>
+                <Text style={styles.weightPillText}>{analysis.estimated_weight_grams} g</Text>
+              </View>
+            </View>
+            <View style={styles.kcalRow}>
+              <View style={styles.flame}>
+                <Flame size={22} color="#F97316" />
+              </View>
+              <Text style={styles.kcal}>{analysis.calories}</Text>
+              <Text style={styles.kcalUnit}>{tr('kcal')}</Text>
+              {confidence && (
+                <View style={styles.confidence}>
+                  <ShieldCheck size={14} color={confidence.color} />
+                  <Text style={[styles.confidenceText, { color: confidence.color }]}>{analysis.confidence}%</Text>
+                </View>
+              )}
+            </View>
+            <View style={{ gap: 6 }}>
+              <View style={styles.dayTrack}>
+                <View style={[styles.dayFill, { width: `${Math.min(100, Math.round((analysis.calories / Math.max(1, goals.calories)) * 100))}%` }]} />
+              </View>
+              <Text style={styles.small}>
+                {tr('Este prato é {pct}% das calorias do seu dia.', { pct: Math.round((analysis.calories / Math.max(1, goals.calories)) * 100) })}
+              </Text>
+            </View>
+          </View>
         </View>
 
         {editing && !saved && (
@@ -207,11 +231,7 @@ export default function DetailsScreen() {
           </View>
         </View>
 
-        <View style={styles.macroRow}>
-          <MacroSquareCard label={tr('Carboidratos')} percent={macros.carbs} grams={analysis.carbs_g} color={colors.carbs} />
-          <MacroSquareCard label={tr('Proteínas')} percent={macros.protein} grams={analysis.protein_g} color={colors.protein} />
-          <MacroSquareCard label={tr('Gorduras')} percent={macros.fats} grams={analysis.fats_g} color={colors.fats} />
-        </View>
+        <MacroCards analysis={analysis} />
 
         {isPro ? (
           <>
@@ -325,11 +345,22 @@ const createStyles = (colors: ThemeColors) =>
   aiBtn: { height: 44, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   aiBtnText: { color: '#fff', fontWeight: '700', fontSize: font.body },
   editBtnOn: { backgroundColor: colors.primary, borderColor: colors.primary },
-  name: { fontSize: font.h1, fontWeight: '700', color: colors.text, textAlign: 'center', letterSpacing: -0.3 },
+  hero: { backgroundColor: colors.card, borderRadius: 26, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
+  heroImg: { width: '100%', height: 190, backgroundColor: colors.surface },
+  heroEmoji: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.limeSoft },
+  heroBody: { padding: 16, gap: 12 },
+  heroTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  weightPill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
+  weightPillText: { fontSize: font.small, fontWeight: '700', color: colors.textMuted },
+  kcalRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  flame: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
+  dayTrack: { height: 8, borderRadius: 4, backgroundColor: colors.surface, overflow: 'hidden' },
+  dayFill: { height: 8, borderRadius: 4, backgroundColor: '#F97316' },
+  name: { flex: 1, fontSize: font.h1, fontWeight: '800', color: colors.text, letterSpacing: -0.3 },
   weight: { fontSize: font.body, color: colors.textMuted },
-  kcal: { fontSize: 34, fontWeight: '700', color: colors.text, letterSpacing: -0.8, marginTop: 2 },
-  kcalUnit: { fontSize: font.h3, fontWeight: '500', color: colors.textMuted },
-  confidence: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4, marginTop: 4 },
+  kcal: { fontSize: 40, fontWeight: '800', color: colors.text, letterSpacing: -1 },
+  kcalUnit: { fontSize: font.h3, fontWeight: '600', color: colors.textMuted, marginTop: 10, flex: 1 },
+  confidence: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 6 },
   confidenceText: { fontSize: font.small, fontWeight: '600' },
   macroRow: { flexDirection: 'row', gap: 10 },
   card: { ...cardBase(colors), padding: 16, gap: 12 },

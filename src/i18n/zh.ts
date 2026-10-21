@@ -1014,4 +1014,5 @@ export const zh: Record<string, string> = {
   "Recomendação diária para": "每日推荐：",
   "Pontuação de saúde": "健康评分",
   "Conecte os passos para ver": "连接步数后查看",
+  "Este prato é {pct}% das calorias do seu dia.": "这道菜占你一天热量的 {pct}%。",
 };
