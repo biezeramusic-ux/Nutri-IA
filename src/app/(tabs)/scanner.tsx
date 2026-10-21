@@ -1,10 +1,9 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { Camera, Image as ImageIcon, Keyboard, ScanBarcode, ScanLine, Search, X, Zap, ZapOff } from 'lucide-react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { Camera, Keyboard, ScanBarcode, ScanLine, Search, X, Zap, ZapOff } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,6 +38,9 @@ export default function ScannerScreen() {
   const [fallback, setFallback] = useState(false);
   const [mode, setMode] = useState<Mode>('photo');
   const [torch, setTorch] = useState(false);
+  // Foto tirada: fica no ecrã com a animação de análise enquanto a IA trabalha.
+  const [shot, setShot] = useState<string | null>(null);
+  const sweep = useRef(new Animated.Value(0)).current;
   const [description, setDescription] = useState('');
   const lastCode = useRef('');
   // A refeição vem do botão "+" do diário (ex.: Lanche); senão deduz-se pela hora.
@@ -60,6 +62,7 @@ export default function ScannerScreen() {
     const { allowed, analysis, isFallback } = await recognizeFood(small.base64);
     void refresh();
     if (!allowed) {
+      setShot(null);
       router.push('/paywall');
       return;
     }
@@ -82,6 +85,7 @@ export default function ScannerScreen() {
       const uri = await getUri();
       if (uri) await analyze(uri);
     } catch {
+      setShot(null);
       Alert.alert(tr('Erro'), tr('Não foi possível analisar a foto. Verifique a ligação e tente novamente.'));
     } finally {
       setBusy(false);
@@ -142,6 +146,7 @@ export default function ScannerScreen() {
 
   const changeMode = (m: Mode) => {
     setMode(m);
+    setShot(null);
     lastCode.current = '';
     setMeal(null);
   };
@@ -166,14 +171,25 @@ export default function ScannerScreen() {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
       const photo = await cameraRef.current?.takePictureAsync({ quality: 0.7, skipProcessing: true });
       if (!photo) throw new Error('Sem foto');
+      setShot(photo.uri);
       return photo.uri;
     });
 
-  const pickFromGallery = () =>
-    run(async () => {
-      const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.7 });
-      return res.canceled ? null : res.assets[0].uri;
-    });
+  const scanning = busy && !!shot;
+  useEffect(() => {
+    if (!scanning) {
+      sweep.setValue(0);
+      return;
+    }
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(sweep, { toValue: 1, duration: 1100, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(sweep, { toValue: 0, duration: 1100, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [scanning, sweep]);
 
   const hintText =
     mode === 'barcode'
@@ -219,6 +235,13 @@ export default function ScannerScreen() {
         />
       )}
 
+      {shot && mode === 'photo' && (
+        <>
+          <Image source={{ uri: shot }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+          {scanning && <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.28)' }]} />}
+        </>
+      )}
+
       <View style={[styles.top, { paddingTop: insets.top + 12 }]}>
         <Pressable style={[styles.roundBtn, mode === 'text' && { backgroundColor: colors.surface }]} onPress={() => router.navigate('/')}>
           <X size={20} color={mode === 'text' ? colors.text : '#fff'} />
@@ -241,6 +264,14 @@ export default function ScannerScreen() {
           <View style={[styles.corner, styles.tr]} />
           <View style={[styles.corner, styles.bl]} />
           <View style={[styles.corner, styles.br]} />
+          {scanning && (
+            <Animated.View
+              style={[
+                styles.scanLine,
+                { transform: [{ translateY: sweep.interpolate({ inputRange: [0, 1], outputRange: [8, 270] }) }] },
+              ]}
+            />
+          )}
         </View>
       </View>
       )}
@@ -259,7 +290,10 @@ export default function ScannerScreen() {
             <MacroSquareCard label={tr('Gorduras')} percent={macros.fats} grams={meal.analysis.fats_g} color={colors.fats} />
           </View>
           <View style={styles.actions}>
-            <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => setMeal(null)}>
+            <Pressable style={[styles.btn, styles.btnGhost]} onPress={() => {
+                setMeal(null);
+                setShot(null);
+              }}>
               <Text style={styles.btnGhostText}>{tr('Novo scan')}</Text>
             </Pressable>
             <Pressable
@@ -296,14 +330,9 @@ export default function ScannerScreen() {
           <View style={styles.hintPill}>
             <Text style={styles.hintText}>{busy ? (mode === 'barcode' ? tr('A procurar o produto…') : tr('A analisar o prato…')) : hintText}</Text>
           </View>
+          {!scanning && (
           <View style={styles.controls}>
-            {mode === 'photo' ? (
-              <Pressable style={styles.sideBtn} onPress={() => void pickFromGallery()} disabled={busy} accessibilityLabel={tr('Escolher da galeria')}>
-                <ImageIcon size={20} color="#fff" />
-              </Pressable>
-            ) : (
-              <View style={styles.sideBtn} />
-            )}
+            <View style={styles.sideBtn} />
             {mode === 'photo' ? (
               <Pressable onPress={() => void capture()} style={styles.shutterOuter} disabled={busy}>
                 {busy ? <ActivityIndicator color="#fff" /> : <View style={styles.shutterInner} />}
@@ -315,7 +344,8 @@ export default function ScannerScreen() {
               {torch ? <Zap size={20} color="#0F172A" /> : <ZapOff size={20} color="#fff" />}
             </Pressable>
           </View>
-          {modeBar}
+          )}
+          {!scanning && modeBar}
         </View>
       )}
 
@@ -348,6 +378,7 @@ const createStyles = (colors: ThemeColors) =>
   shutterInner: { width: 58, height: 58, borderRadius: 29, backgroundColor: '#fff' },
   controls: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch', paddingHorizontal: 36 },
   sideBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
+  scanLine: { position: 'absolute', left: 4, right: 4, height: 3, borderRadius: 2, backgroundColor: '#fff', shadowColor: '#fff', shadowOpacity: 0.95, shadowRadius: 12, shadowOffset: { width: 0, height: 0 }, elevation: 6 },
   hintPill: { backgroundColor: 'rgba(0,0,0,0.55)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: radius.pill },
   hintText: { color: '#fff', fontWeight: '500', fontSize: font.small },
   screenTitle: { color: '#fff', fontSize: font.h3, fontWeight: '700' },
