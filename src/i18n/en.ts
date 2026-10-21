@@ -1013,4 +1013,5 @@ export const en: Record<string, string> = {
   "A finalizar resultados…": "Finalizing results…",
   "Recomendação diária para": "Daily recommendation for",
   "Pontuação de saúde": "Health score",
+  "Conecte os passos para ver": "Connect steps to see",
 };

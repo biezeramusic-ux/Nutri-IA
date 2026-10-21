@@ -1013,4 +1013,5 @@ export const zh: Record<string, string> = {
   "A finalizar resultados…": "正在完成结果…",
   "Recomendação diária para": "每日推荐：",
   "Pontuação de saúde": "健康评分",
+  "Conecte os passos para ver": "连接步数后查看",
 };

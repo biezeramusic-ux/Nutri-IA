@@ -1013,4 +1013,5 @@ export const de: Record<string, string> = {
   "A finalizar resultados…": "Ergebnisse werden abgeschlossen…",
   "Recomendação diária para": "Tägliche Empfehlung für",
   "Pontuação de saúde": "Gesundheitswert",
+  "Conecte os passos para ver": "Verbinde die Schritte, um sie zu sehen",
 };

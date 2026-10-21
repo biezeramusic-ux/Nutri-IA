@@ -1,4 +1,4 @@
-import { Droplets, Flame, Footprints, Route, Timer } from 'lucide-react-native';
+import { Droplets, Flame, Footprints, Route } from 'lucide-react-native';
 import { ConnectMark } from './ConnectMark';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -10,7 +10,6 @@ import { Alert } from '../i18n/alert';
 import { useActivity } from '../hooks/useActivity';
 import { useStepsTracking } from '../hooks/useStepsTracking';
 import { useTodayWalks } from '../hooks/useTodayWalks';
-import { formatKm } from '../services/walks';
 import { KCAL_PER_STEP } from '../services/stepsConnection';
 import { useTheme } from '../hooks/useTheme';
 import { useWater } from '../hooks/useWater';
@@ -93,35 +92,28 @@ export function StepsWaterCards() {
           )}
         </Pressable>
 
-        <View style={[styles.card, styles.burnCard]}>
-          <View style={styles.burnHead}>
-            <View style={styles.burnIcon}>
-              <Flame size={20} color="#F97316" />
-            </View>
-            <View style={{ flex: 1, alignItems: 'flex-end' }}>
-              <Text style={styles.burnNumber}>{burned}</Text>
-              <Text style={styles.burnUnit}>kcal</Text>
-            </View>
+        <Pressable style={[styles.card, styles.burnCard]} onPress={() => (tracking.connected ? undefined : setConnectOpen(true))} disabled={tracking.connected}>
+          <View style={styles.burnIcon}>
+            <Flame size={22} color={tracking.connected ? '#F97316' : colors.textFaint} />
           </View>
-          <Text style={styles.cardLabel}>{tr('Calorias queimadas')}</Text>
-          <View style={{ gap: 5 }}>
-            <View style={styles.miniRow}>
-              <Route size={13} color={colors.textMuted} />
-              <Text style={styles.miniText}>{formatKm(today.distanceM)} km</Text>
-            </View>
-            <View style={styles.miniRow}>
-              <Footprints size={13} color={colors.textMuted} />
-              <Text style={styles.miniText}>{steps.toLocaleString('pt-PT')} {tr('passos')}</Text>
-            </View>
-            <View style={styles.miniRow}>
-              <Timer size={13} color={colors.textMuted} />
-              <Text style={styles.miniText}>{Math.round(today.ms / 60000)} min</Text>
-            </View>
+          <View style={{ gap: 2 }}>
+            <Text style={styles.cardLabel}>{tr('Calorias queimadas')}</Text>
+            {tracking.connected ? (
+              <>
+                <Text style={styles.burnNumber}>{burned}</Text>
+                <Text style={styles.burnUnit}>kcal</Text>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.burnNumber, { color: colors.textFaint }]}>--</Text>
+                <Text style={styles.burnUnit}>{tr('Conecte os passos para ver')}</Text>
+              </>
+            )}
           </View>
-          <Pressable style={styles.detailsBtn} onPress={() => router.push(today.last ? { pathname: '/walk', params: { open: today.last.id } } : '/walk')}>
-            <Text style={styles.detailsText}>{tr('Detalhes')}</Text>
-          </Pressable>
-        </View>
+          <View style={styles.burnTrack}>
+            <View style={[styles.burnFill, { width: tracking.connected ? `${Math.min(100, (burned / 500) * 100)}%` : '0%' }]} />
+          </View>
+        </Pressable>
       </View>
 
       <View style={[styles.card, styles.waterRow]}>
@@ -250,13 +242,9 @@ const createStyles = (colors: ThemeColors) =>
     row: { flexDirection: 'row', gap: 10 },
     stepsCard: { flex: 1.1, height: 222, justifyContent: 'space-between' },
     burnCard: { flex: 1, height: 222, justifyContent: 'space-between', backgroundColor: colors.limeSoft, borderColor: 'transparent' },
-    burnHead: { flexDirection: 'row', alignItems: 'center' },
-    burnNumber: { fontSize: 26, fontWeight: '800', color: colors.text, lineHeight: 28 },
-    burnUnit: { fontSize: font.tiny, color: colors.textMuted },
-    miniRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    miniText: { fontSize: font.small, fontWeight: '600', color: colors.text },
-    detailsBtn: { alignSelf: 'stretch', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.pill, paddingVertical: 7 },
-    detailsText: { fontSize: font.small, fontWeight: '700', color: colors.text },
+    burnNumber: { fontSize: 38, fontWeight: '800', color: colors.text, letterSpacing: -1, lineHeight: 42 },
+    burnUnit: { fontSize: font.small, color: colors.textMuted },
+
     ghostNumber: { fontSize: 26, fontWeight: '800', color: colors.text },
     ghostOf: { fontSize: font.small, fontWeight: '500', color: colors.textMuted },
     ghostLabel: { fontSize: font.small, color: colors.textMuted },
@@ -276,7 +264,7 @@ const createStyles = (colors: ThemeColors) =>
     featureIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
     featureTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },
     featureDesc: { fontSize: font.small, color: colors.textMuted },
-    burnIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
+    burnIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center', marginBottom: 2 },
     burnTrack: { height: 6, borderRadius: 3, backgroundColor: colors.card, overflow: 'hidden', marginTop: 4 },
     burnFill: { height: 6, borderRadius: 3, backgroundColor: '#F97316' },
     cardLabel: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },

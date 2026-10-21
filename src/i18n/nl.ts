@@ -1013,4 +1013,5 @@ export const nl: Record<string, string> = {
   "A finalizar resultados…": "Resultaten afronden…",
   "Recomendação diária para": "Dagelijkse aanbeveling voor",
   "Pontuação de saúde": "Gezondheidsscore",
+  "Conecte os passos para ver": "Koppel stappen om te zien",
 };
