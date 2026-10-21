@@ -43,14 +43,16 @@ import { QuizChip } from './QuizChip';
 import { CrownMark } from '../CrownMark';
 import { Logo } from '../Logo';
 import { PotentialChart } from './PotentialChart';
+import { ProcessingScreen } from './ProcessingScreen';
+import { buildCoachContext, saveCoachContext, type CoachExtras } from '../../services/coachProfile';
 import { QuizRow } from './QuizRow';
 import { WelcomeScreen } from './WelcomeScreen';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
-type Step = 'goal' | 'name' | 'about' | 'potential' | 'timeframe' | 'body' | 'activity' | 'health' | 'habits' | 'diet' | 'staples';
+type Step = 'goal' | 'name' | 'about' | 'potential' | 'timeframe' | 'body' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
 
-const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'health', 'habits', 'diet', 'staples'];
+const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'challenge', 'lifestyle', 'health', 'habits', 'motivation', 'diet', 'staples'];
 
 /** O quiz adapta-se ao objetivo: quem só quer saber as calorias responde ao mínimo. */
 function stepsFor(goal: GoalType): Step[] {
@@ -58,7 +60,7 @@ function stepsFor(goal: GoalType): Step[] {
     case 'track_calories':
       return ['goal', 'about', 'body', 'activity'];
     case 'maintain':
-      return ['goal', 'about', 'body', 'activity', 'health', 'diet'];
+      return ['goal', 'about', 'body', 'activity', 'challenge', 'health', 'diet'];
     case 'eat_healthy':
     case 'lose_weight':
     case 'gain_muscle':
@@ -91,6 +93,21 @@ const CONDITIONS: { value: HealthCondition; label: string }[] = [
   { value: 'pregnancy', label: 'Gravidez ou amamentação' },
 ];
 
+const CHALLENGES = ['Falta de tempo', 'Vontade de comer doces', 'Comer fora de horas', 'Não sei o que comer', 'Falta de motivação', 'Porções grandes', 'Beber pouca água'];
+const MOTIVATIONS = ['Ver resultados rápidos', 'Melhorar a saúde', 'Aparência', 'Mais energia', 'Desporto e desempenho', 'Família'];
+const SUPPORT_STYLES = ['Lembretes suaves', 'Desafios e medalhas', 'Gráficos e números'];
+const MEALS_PER_DAY: { value: number; label: string }[] = [
+  { value: 2, label: '2' },
+  { value: 3, label: '3' },
+  { value: 4, label: '4' },
+  { value: 5, label: '5 ou mais' },
+];
+const COOKING: { value: CoachExtras['cookingTime']; label: string }[] = [
+  { value: 'low', label: 'Pouco tempo' },
+  { value: 'normal', label: 'Tempo normal' },
+  { value: 'high', label: 'Muito tempo' },
+];
+
 const HABIT_QUESTIONS: { key: keyof Habits; text: string }[] = [
   { key: 'skipsMeals', text: 'Costuma saltar refeições?' },
   { key: 'eatsOut', text: 'Come fora de casa mais de 3 vezes por semana?' },
@@ -113,6 +130,9 @@ const DIETS: { value: DietPreference; label: string }[] = [
 const COPY: Record<Step, { title: string; subtitle?: string }> = {
   name: { title: 'Como se chama?', subtitle: 'Vamos tratá-lo pelo nome na app.' },
   potential: { title: 'Tem um grande potencial para alcançar o seu objetivo' },
+  challenge: { title: 'Qual é o seu maior desafio?', subtitle: 'Escolha até 3. Vamos ajudá-lo nisso.' },
+  lifestyle: { title: 'O seu dia a dia à mesa', subtitle: 'Ajuda-nos a sugerir melhores escolhas.' },
+  motivation: { title: 'O que mais o motiva?', subtitle: 'Escolha até 3 e diga-nos como prefere ser acompanhado.' },
   timeframe: { title: 'Em quanto tempo quer chegar à meta?', subtitle: 'Escolha um prazo realista para o seu peso desejado.' },
   goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
   about: { title: 'Fale-nos de si', subtitle: 'Usamos isto para calcular as suas calorias.' },
@@ -131,6 +151,9 @@ const SECTION: Record<Step, string> = {
   name: 'O seu nome',
   potential: 'O seu potencial',
   timeframe: 'O seu prazo',
+  challenge: 'O seu desafio',
+  lifestyle: 'Rotina',
+  motivation: 'Motivação',
   goal: 'Metas',
   about: 'Sobre si',
   body: 'Medidas',
@@ -185,6 +208,12 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const [saving, setSaving] = useState(false);
   const [welcome, setWelcome] = useState(false);
   const [weeksPick, setWeeksPick] = useState<number | null>(null);
+  const [challenges, setChallenges] = useState<string[]>([]);
+  const [mealsPerDay, setMealsPerDay] = useState(3);
+  const [cookingTime, setCookingTime] = useState<CoachExtras['cookingTime']>('normal');
+  const [motivations, setMotivations] = useState<string[]>([]);
+  const [supportStyle, setSupportStyle] = useState('');
+  const [processing, setProcessing] = useState(false);
   const [name, setName] = useState(profile?.fullName || displayName || '');
   const touched = useRef(false);
   // O nome pode chegar do servidor depois de abrir o quiz: preenche uma única vez se ainda estiver vazio.
@@ -267,6 +296,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     setSaving(true);
     try {
       await completeOnboarding(buildAnswers());
+      if (user?.id) {
+        const planWeeks = wantsTarget ? weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal) : undefined;
+        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks }, name.trim().split(' ')[0]));
+      }
       if (user?.id && wantsTarget) {
         await saveGoalPlan(user.id, { weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal), startMs: Date.now(), startWeightKg: base.weightKg });
       }
@@ -295,6 +328,17 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 
   if (welcome) {
     return <WelcomeScreen name={name.trim().split(' ')[0] || ''} female={base.sex === 'female'} saving={saving} onStart={() => void finish()} />;
+  }
+
+  if (processing) {
+    return (
+      <ProcessingScreen
+        onDone={() => {
+          setProcessing(false);
+          setStep(resultStep);
+        }}
+      />
+    );
   }
 
   if (step === resultStep && answers && goals) {
@@ -439,6 +483,60 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </>
         )}
 
+        {current === 'challenge' && (
+          <View style={styles.chips}>
+            {CHALLENGES.map((c) => (
+              <QuizChip
+                key={c}
+                label={tr(c)}
+                selected={challenges.includes(c)}
+                onPress={() => {
+                  touched.current = true;
+                  setChallenges((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : prev.length >= 3 ? prev : [...prev, c]));
+                }}
+              />
+            ))}
+          </View>
+        )}
+
+        {current === 'lifestyle' && (
+          <>
+            <Text style={styles.subHead}>{tr('Quantas refeições faz por dia?')}</Text>
+            <View style={styles.chips}>
+              {MEALS_PER_DAY.map((m) => (
+                <QuizChip key={m.value} label={tr(m.label)} selected={mealsPerDay === m.value} onPress={() => setMealsPerDay(m.value)} />
+              ))}
+            </View>
+            <Text style={styles.subHead}>{tr('Quanto tempo tem para cozinhar?')}</Text>
+            <View style={styles.chips}>
+              {COOKING.map((c) => (
+                <QuizChip key={c.value} label={tr(c.label)} selected={cookingTime === c.value} onPress={() => setCookingTime(c.value)} />
+              ))}
+            </View>
+          </>
+        )}
+
+        {current === 'motivation' && (
+          <>
+            <View style={styles.chips}>
+              {MOTIVATIONS.map((m) => (
+                <QuizChip
+                  key={m}
+                  label={tr(m)}
+                  selected={motivations.includes(m)}
+                  onPress={() => setMotivations((prev) => (prev.includes(m) ? prev.filter((x) => x !== m) : prev.length >= 3 ? prev : [...prev, m]))}
+                />
+              ))}
+            </View>
+            <Text style={styles.subHead}>{tr('Como prefere ser acompanhado?')}</Text>
+            <View style={styles.chips}>
+              {SUPPORT_STYLES.map((m) => (
+                <QuizChip key={m} label={tr(m)} selected={supportStyle === m} onPress={() => setSupportStyle(m)} />
+              ))}
+            </View>
+          </>
+        )}
+
         {current === 'health' && (
           <View style={styles.chips}>
             {CONDITIONS.map((c) => (
@@ -507,7 +605,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         <Pressable
           disabled={!canContinue || saving}
           style={({ pressed }) => [styles.cta, (!canContinue || saving) && styles.ctaOff, pressed && styles.ctaPressed]}
-          onPress={() => setStep(step + 1)}
+          onPress={() => (step === steps.length - 1 ? setProcessing(true) : setStep(step + 1))}
         >
           {saving ? (
             <ActivityIndicator color={colors.background} />
@@ -532,6 +630,7 @@ const createStyles = (colors: ThemeColors) =>
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   subtitle: { fontSize: font.body, color: colors.textMuted, lineHeight: 20 },
   resultHead: { alignItems: 'center', gap: 6, marginTop: 4 },
+  subHead: { fontSize: font.h3, fontWeight: '700', color: colors.text, marginTop: 6 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   kcalCard: { backgroundColor: colors.lime, borderRadius: radius.card, paddingVertical: 18, alignItems: 'center' },
   note: { fontSize: font.small, color: colors.textMuted, lineHeight: 18, textAlign: 'center' },

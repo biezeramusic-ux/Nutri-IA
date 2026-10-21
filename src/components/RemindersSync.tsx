@@ -9,6 +9,7 @@ import { useWater } from '../hooks/useWater';
 import { waterProfileFromQuiz } from '../services/waterReminderPlan';
 import { dayKeyOf, mealTypeOf } from '../services/dayUtils';
 import { todayKey } from '../services/date';
+import { loadCoachContext } from '../services/coachProfile';
 import { setReminderName } from '../services/reminderText';
 import { cancelWaterReminders, scheduleMealReminders, scheduleWaterReminders } from '../services/notifications';
 
@@ -30,6 +31,9 @@ export function RemindersSync() {
   const firstName = profile?.fullName.split(' ')[0] || undefined;
   const quiz = profile?.quiz;
   setReminderName(firstName);
+  useEffect(() => {
+    if (user?.id) void loadCoachContext(user.id);
+  }, [user?.id]);
 
   useEffect(() => {
     if (!user) {

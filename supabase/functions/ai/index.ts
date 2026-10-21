@@ -41,6 +41,11 @@ const LANG_NAMES: Record<string, string> = {
   af: 'Afrikaans',
   zh: 'Simplified Chinese',
 };
+/** Perfil da pessoa (do quiz) para personalizar as respostas; nunca é repetido tal e qual ao utilizador. */
+const personal = (ctx?: string) =>
+  typeof ctx === 'string' && ctx.trim()
+    ? ` Personalise tone, tips and health_analysis to this user profile (do not quote it literally, do not diagnose): ${ctx.trim().slice(0, 700)}.`
+    : '';
 const langName = (lang?: string) => (lang && LANG_NAMES[lang]) || 'Portuguese (Mozambique)';
 
 function json(body: unknown, status = 200) {
@@ -81,7 +86,7 @@ Deno.serve(async (req) => {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return json({ error: 'unauthorized' }, 401);
 
-  let body: { action?: string; image?: string; stats?: unknown; analysis?: unknown; instruction?: string; lang?: string; goal?: string };
+  let body: { action?: string; image?: string; stats?: unknown; analysis?: unknown; instruction?: string; lang?: string; goal?: string; context?: string };
   try {
     body = await req.json();
   } catch {
@@ -98,7 +103,7 @@ Deno.serve(async (req) => {
       const text = await gemini(
         [{ inlineData: { mimeType: 'image/jpeg', data: body.image } }, { text: 'Analyze this meal. Reply with the JSON object only.' }],
         true,
-        `${SCAN_PROMPT} Write food_name and health_analysis in ${langName(body.lang)}.`,
+        `${SCAN_PROMPT} Write food_name and health_analysis in ${langName(body.lang)}.${personal(body.context)}`,
       );
       return json({ allowed: true, status: access, text });
     }
@@ -113,7 +118,7 @@ Deno.serve(async (req) => {
       const text = await gemini(
         [{ text: JSON.stringify({ current: body.analysis, correction: instruction }) }],
         true,
-        `${REFINE_PROMPT} Write food_name and health_analysis in ${langName(body.lang)}.`,
+        `${REFINE_PROMPT} Write food_name and health_analysis in ${langName(body.lang)}.${personal(body.context)}`,
       );
       return json({ allowed: true, status: access, text });
     }
@@ -128,7 +133,7 @@ Deno.serve(async (req) => {
       const text = await gemini(
         [{ text: description }],
         true,
-        `${DESCRIBE_PROMPT} Write food_name and health_analysis in ${langName(body.lang)}.`,
+        `${DESCRIBE_PROMPT} Write food_name and health_analysis in ${langName(body.lang)}.${personal(body.context)}`,
       );
       return json({ allowed: true, status: access, text });
     }
@@ -136,7 +141,7 @@ Deno.serve(async (req) => {
     if (body.action === 'insight') {
       const { data: access } = await supabase.rpc('get_access_status');
       if (!access?.is_premium) return json({ error: 'pro_only' }, 403);
-      const text = await gemini([{ text: JSON.stringify(body.stats ?? {}).slice(0, 4000) }], false, `${INSIGHT_PROMPT} Reply in ${langName(body.lang)}.`);
+      const text = await gemini([{ text: JSON.stringify(body.stats ?? {}).slice(0, 4000) }], false, `${INSIGHT_PROMPT} Reply in ${langName(body.lang)}.${personal(body.context)}`);
       return json({ text: text.trim() });
     }
 

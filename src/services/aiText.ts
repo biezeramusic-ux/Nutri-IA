@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getLang } from '../i18n';
+import { getCoachContext } from './coachProfile';
 import { supabase } from './supabase';
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -7,7 +8,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 /** Resumo de progresso escrito pela IA (só PRO). Devolve null se não houver IA/rede. */
 export async function fetchProgressInsight(stats: Record<string, unknown>): Promise<string | null> {
   try {
-    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'insight', stats, lang: getLang() } });
+    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'insight', stats, lang: getLang(), context: getCoachContext() } });
     if (error || !data || typeof data.text !== 'string' || !data.text.trim()) return null;
     return data.text.trim();
   } catch {

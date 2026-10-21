@@ -117,7 +117,7 @@ export function QuizResult({ answers, goals, tips, firstName, saving, reminderTi
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
-  const [phase, setPhase] = useState<'calc' | 'welcome'>('calc');
+  const [phase, setPhase] = useState<'calc' | 'welcome'>('welcome');
   const cta = useRef(new Animated.Value(0)).current;
   const finishCalc = useCallback(() => setPhase('welcome'), []);
 

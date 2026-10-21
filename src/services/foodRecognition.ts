@@ -1,6 +1,7 @@
 import { EXTRA_NUMBER_KEYS, type FoodAnalysis } from '../types';
 import { getLang } from '../i18n';
 import { analyzeFromText } from './foodCatalog';
+import { getCoachContext } from './coachProfile';
 import { supabase } from './supabase';
 
 export const MOCK_VEGETABLE_SALAD: FoodAnalysis = {
@@ -69,7 +70,7 @@ export interface ScanOutcome extends RecognitionResult {
  */
 export async function recognizeFood(imageBase64: string): Promise<ScanOutcome> {
   try {
-    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'scan', image: imageBase64, lang: getLang() } });
+    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'scan', image: imageBase64, lang: getLang(), context: getCoachContext() } });
     if (error || !data) throw new Error('ai_unavailable');
     if (data.allowed === false) return { allowed: false, analysis: MOCK_VEGETABLE_SALAD, isFallback: true };
     return { allowed: true, analysis: parseAnalysis(String(data.text ?? '')), isFallback: false };
@@ -86,7 +87,7 @@ export type RefineOutcome =
 /** Corrige a análise com um texto do utilizador ("foi sem arroz"), através da função "ai". */
 export async function refineAnalysis(current: FoodAnalysis, instruction: string): Promise<RefineOutcome> {
   try {
-    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'refine', analysis: current, instruction, lang: getLang() } });
+    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'refine', analysis: current, instruction, lang: getLang(), context: getCoachContext() } });
     if (error || !data) return { status: 'unavailable' };
     if (data.allowed === false) return { status: 'blocked' };
     return { status: 'ok', analysis: parseAnalysis(String(data.text ?? '')) };
@@ -103,7 +104,7 @@ export type DescribeOutcome =
 /** Analisa o prato a partir de um texto ("comi xima com peixe"), pela função "ai". Sem IA usa o catálogo local. */
 export async function describeFood(description: string): Promise<DescribeOutcome> {
   try {
-    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'describe', instruction: description, lang: getLang() } });
+    const { data, error } = await supabase.functions.invoke('ai', { body: { action: 'describe', instruction: description, lang: getLang(), context: getCoachContext() } });
     if (error || !data) throw new Error('ai_unavailable');
     if (data.allowed === false) return { status: 'blocked' };
     const analysis = parseAnalysis(String(data.text ?? ''));
