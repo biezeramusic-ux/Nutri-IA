@@ -1015,4 +1015,6 @@ export const en: Record<string, string> = {
   "Pontuação de saúde": "Health score",
   "Conecte os passos para ver": "Connect steps to see",
   "Este prato é {pct}% das calorias do seu dia.": "This dish is {pct}% of your day's calories.",
+  "Conectar o sensor de passos": "Connect the step sensor",
+  "Para registar a sua corrida, ligue o sensor de passos do telemóvel (obrigatório) e a localização para ver o mapa.": "To log your run, connect your phone's step sensor (required) and your location to see the map.",
 };

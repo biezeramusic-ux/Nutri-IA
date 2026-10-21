@@ -1015,4 +1015,6 @@ export const zh: Record<string, string> = {
   "Pontuação de saúde": "健康评分",
   "Conecte os passos para ver": "连接步数后查看",
   "Este prato é {pct}% das calorias do seu dia.": "这道菜占你一天热量的 {pct}%。",
+  "Conectar o sensor de passos": "连接计步传感器",
+  "Para registar a sua corrida, ligue o sensor de passos do telemóvel (obrigatório) e a localização para ver o mapa.": "要记录跑步，请连接手机的计步传感器（必需）和定位以查看地图。",
 };

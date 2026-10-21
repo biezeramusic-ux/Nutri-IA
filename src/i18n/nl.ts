@@ -1015,4 +1015,6 @@ export const nl: Record<string, string> = {
   "Pontuação de saúde": "Gezondheidsscore",
   "Conecte os passos para ver": "Koppel stappen om te zien",
   "Este prato é {pct}% das calorias do seu dia.": "Dit gerecht is {pct}% van je dagelijkse calorieën.",
+  "Conectar o sensor de passos": "Stappensensor koppelen",
+  "Para registar a sua corrida, ligue o sensor de passos do telemóvel (obrigatório) e a localização para ver o mapa.": "Om je run te registreren, koppel je de stappensensor van je telefoon (vereist) en je locatie voor de kaart.",
 };

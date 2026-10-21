@@ -1015,4 +1015,6 @@ export const de: Record<string, string> = {
   "Pontuação de saúde": "Gesundheitswert",
   "Conecte os passos para ver": "Verbinde die Schritte, um sie zu sehen",
   "Este prato é {pct}% das calorias do seu dia.": "Dieses Gericht macht {pct}% deiner Tageskalorien aus.",
+  "Conectar o sensor de passos": "Schrittsensor verbinden",
+  "Para registar a sua corrida, ligue o sensor de passos do telemóvel (obrigatório) e a localização para ver o mapa.": "Um deinen Lauf zu erfassen, verbinde den Schrittsensor deines Handys (erforderlich) und den Standort für die Karte.",
 };

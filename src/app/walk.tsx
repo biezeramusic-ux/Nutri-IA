@@ -3,7 +3,7 @@ import * as Location from 'expo-location';
 import { Footprints, MapPin, Route, Timer, Trash } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { RouteMap } from '../components/RouteMap';
@@ -15,6 +15,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useProfile } from '../hooks/useProfile';
 import { useTheme } from '../hooks/useTheme';
 import { useWalkTracker } from '../hooks/useWalkTracker';
+import { ConnectMark } from '../components/ConnectMark';
+import { connectSteps, getStepsSource } from '../services/stepsConnection';
 import { formatHMS } from '../hooks/useFasting';
 import { deleteWalk, formatKm, formatPace, isRegistered, isRun, kcalForWalk, loadWalks, saveWalk, stepsFromDistance, thinPoints, updateWalk, type Walk } from '../services/walks';
 import { todayKey } from '../services/date';
@@ -43,11 +45,42 @@ export default function WalkScreen() {
   const tracker = useWalkTracker();
   const [walks, setWalks] = useState<Walk[]>([]);
   const [open, setOpen] = useState<Walk | null>(null);
+  const [stepsOn, setStepsOn] = useState<boolean | null>(null);
+  const [connecting, setConnecting] = useState(false);
   const [here, setHere] = useState<{ lat: number; lng: number; t: number } | null>(null);
   const userId = user?.id ?? null;
   const heightCm = profile?.quiz?.heightCm ?? 165;
   const weightKg = profile?.quiz?.weightKg ?? 65;
   const mapW = width - SCREEN_PADDING * 2 - 32;
+
+  useEffect(() => {
+    void getStepsSource().then((src) => setStepsOn(src !== null));
+  }, []);
+
+  const connectSensor = async () => {
+    setConnecting(true);
+    const r = await connectSteps({ gps: true });
+    setConnecting(false);
+    if (r.status === 'ok') {
+      setStepsOn(true);
+      void tracker.requestPermission();
+      return;
+    }
+    Alert.alert(
+      r.status === 'denied' ? tr('Permissão necessária') : tr('Não disponível'),
+      r.status === 'denied'
+        ? tr('Permita o acesso à atividade física nas definições do telemóvel.')
+        : r.status === 'not_installed'
+          ? tr('Instale ou atualize o Google Health Connect na Play Store e tente outra vez.')
+          : tr('Este telemóvel não tem sensor de passos ou está a usar o navegador.'),
+      r.status === 'denied'
+        ? [
+            { text: tr('Cancelar'), style: 'cancel' },
+            { text: tr('Abrir definições'), onPress: () => void Linking.openSettings() },
+          ]
+        : undefined,
+    );
+  };
 
   const { open: openParam } = useLocalSearchParams<{ open?: string }>();
   useEffect(() => {
@@ -144,7 +177,18 @@ export default function WalkScreen() {
       <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: SCREEN_PADDING, paddingBottom: insets.bottom + 32, gap: 14 }} showsVerticalScrollIndicator={false}>
         <ScreenHeader title={tr('Caminhada')} />
 
-        {tracker.granted === false && !tracker.active && (
+        {stepsOn === false && !tracker.active && !open && (
+          <View style={[styles.card, { alignItems: 'center', gap: 12 }]}>
+            <ConnectMark size={72} />
+            <Text style={styles.title}>{tr('Conectar o sensor de passos')}</Text>
+            <Text style={styles.body}>{tr('Para registar a sua corrida, ligue o sensor de passos do telemóvel (obrigatório) e a localização para ver o mapa.')}</Text>
+            <Pressable style={[styles.cta, connecting && { opacity: 0.6 }]} disabled={connecting} onPress={() => void connectSensor()}>
+              {connecting ? <ActivityIndicator color={'#fff'} /> : <Text style={styles.ctaText}>{tr('Conectar')}</Text>}
+            </Pressable>
+          </View>
+        )}
+
+        {stepsOn && tracker.granted === false && !tracker.active && (
           <View style={[styles.card, { alignItems: 'center', gap: 12 }]}>
             <View style={styles.pin}>
               <MapPin size={30} color={colors.primary} />
@@ -157,7 +201,7 @@ export default function WalkScreen() {
           </View>
         )}
 
-        {!tracker.active && !open && (
+        {stepsOn && !tracker.active && !open && (
           <>
             {here && (
               <View style={styles.card}>
