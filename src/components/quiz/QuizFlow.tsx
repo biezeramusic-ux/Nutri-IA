@@ -14,7 +14,7 @@ import {
   UserRound,
 } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -287,8 +287,17 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     if (main) setBase((b) => ({ ...b, goal: main }));
   };
 
+  const slide = useRef(new Animated.Value(1)).current;
+  const dir = useRef(1);
+  const goTo = (next: number) => {
+    dir.current = next >= step ? 1 : -1;
+    slide.setValue(0);
+    setStep(next);
+    Animated.timing(slide, { toValue: 1, duration: 420, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+  };
+
   const goBack = () => {
-    if (step > 0) setStep(step - 1);
+    if (step > 0) goTo(step - 1);
     else if (mode === 'redo') router.back();
   };
 
@@ -377,6 +386,16 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           ))}
         </View>
 
+        <Animated.View
+          style={{
+            gap: 12,
+            opacity: slide,
+            transform: [
+              { translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [dir.current * 70, 0] }) },
+              { translateY: slide.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) },
+            ],
+          }}
+        >
         {copy && (
           <View style={styles.head}>
             <Text style={styles.title}>{copy.title}</Text>
@@ -591,6 +610,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </View>
         )}
 
+        </Animated.View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
@@ -605,7 +625,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         <Pressable
           disabled={!canContinue || saving}
           style={({ pressed }) => [styles.cta, (!canContinue || saving) && styles.ctaOff, pressed && styles.ctaPressed]}
-          onPress={() => (step === steps.length - 1 ? setProcessing(true) : setStep(step + 1))}
+          onPress={() => (step === steps.length - 1 ? setProcessing(true) : goTo(step + 1))}
         >
           {saving ? (
             <ActivityIndicator color={colors.background} />
