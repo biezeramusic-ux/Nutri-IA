@@ -7,6 +7,8 @@ import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, View, us
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { RouteMap } from '../components/RouteMap';
+import { RunLive } from '../components/RunLive';
+import { RunShareCard } from '../components/RunShareCard';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { Alert } from '../i18n/alert';
@@ -39,7 +41,7 @@ export default function WalkScreen() {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const { user } = useAuth();
+  const { user, displayName } = useAuth();
   const { profile } = useProfile();
   const { setSteps } = useActivity();
   const tracker = useWalkTracker();
@@ -226,17 +228,18 @@ export default function WalkScreen() {
         )}
 
         {tracker.active && (
-          <View style={[styles.card, { gap: 14 }]}>
-            <RouteMap points={tracker.points} width={mapW} />
-            <View style={styles.statsRow}>
-              {stat(<Route size={18} color={colors.primary} />, `${formatKm(tracker.distanceM)} km`, tr('Distância'))}
-              {stat(<Timer size={18} color={colors.primary} />, formatHMS(tracker.elapsedMs), tr('Tempo'))}
-              {stat(<Footprints size={18} color={colors.primary} />, String(stepsFromDistance(tracker.distanceM, heightCm)), tr('Passos'))}
-            </View>
-            <Pressable style={[styles.cta, { backgroundColor: colors.danger }]} onPress={() => void finish()}>
-              <Text style={[styles.ctaText, { color: '#fff' }]}>{tr('Terminar caminhada')}</Text>
-            </Pressable>
-          </View>
+          <RunLive
+            points={tracker.points}
+            distanceM={tracker.distanceM}
+            elapsedMs={tracker.elapsedMs}
+            steps={stepsFromDistance(tracker.distanceM, heightCm)}
+            kcal={kcalForWalk(tracker.distanceM, tracker.elapsedMs, weightKg)}
+            paused={tracker.paused}
+            name={displayName ? displayName.split(' ')[0] : undefined}
+            width={width - SCREEN_PADDING * 2 - 32}
+            onTogglePause={tracker.togglePause}
+            onFinish={() => void finish()}
+          />
         )}
 
         {open && !tracker.active && (
@@ -263,6 +266,14 @@ export default function WalkScreen() {
               </Text>
               <Text style={styles.credit}>© OpenStreetMap</Text>
             </View>
+
+            <RunShareCard
+              points={open.points}
+              distanceM={open.distanceM}
+              ms={open.end - open.start}
+              title={isRun(open.distanceM, open.end - open.start) ? tr('Corrida') : tr('Caminhada')}
+              width={width - SCREEN_PADDING * 2}
+            />
 
             {!isRegistered(open) ? (
               <>

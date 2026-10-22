@@ -9,6 +9,10 @@ export function useWalkTracker() {
   const [points, setPoints] = useState<RoutePoint[]>([]);
   const [distanceM, setDistanceM] = useState(0);
   const [elapsedMs, setElapsedMs] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  const pauseStartRef = useRef(0);
+  const pausedTotalRef = useRef(0);
   const startRef = useRef(0);
   const subRef = useRef<Location.LocationSubscription | null>(null);
   const lastRef = useRef<RoutePoint | null>(null);
@@ -24,7 +28,7 @@ export function useWalkTracker() {
 
   useEffect(() => {
     if (!active) return;
-    const t = setInterval(() => setElapsedMs(Date.now() - startRef.current), 1000);
+    const t = setInterval(() => { if (!pausedRef.current) setElapsedMs(Date.now() - startRef.current - pausedTotalRef.current); }, 1000);
     return () => clearInterval(t);
   }, [active]);
 
@@ -40,11 +44,15 @@ export function useWalkTracker() {
     setDistanceM(0);
     setElapsedMs(0);
     lastRef.current = null;
+    pausedRef.current = false;
+    pausedTotalRef.current = 0;
+    setPaused(false);
     startRef.current = Date.now();
     setActive(true);
     subRef.current = await Location.watchPositionAsync(
       { accuracy: Location.Accuracy.High, distanceInterval: 4, timeInterval: 2000 },
       (loc) => {
+        if (pausedRef.current) return;
         const p: RoutePoint = { lat: loc.coords.latitude, lng: loc.coords.longitude, t: loc.timestamp };
         // Ignora leituras imprecisas ou saltos impossíveis (GPS a falhar).
         if ((loc.coords.accuracy ?? 0) > 35) return;
@@ -66,8 +74,26 @@ export function useWalkTracker() {
     subRef.current?.remove();
     subRef.current = null;
     setActive(false);
-    return { startedAt: startRef.current, endedAt: Date.now() };
+    const endedAt = Date.now();
+    if (pausedRef.current) pausedTotalRef.current += endedAt - pauseStartRef.current;
+    pausedRef.current = false;
+    setPaused(false);
+    // O tempo em pausa não conta: o início passa a ser o fim menos o tempo em movimento.
+    return { startedAt: endedAt - (endedAt - startRef.current - pausedTotalRef.current), endedAt };
   }, []);
 
-  return { granted, active, points, distanceM, elapsedMs, requestPermission, start, stop };
+  const togglePause = useCallback(() => {
+    if (pausedRef.current) {
+      pausedTotalRef.current += Date.now() - pauseStartRef.current;
+      lastRef.current = null;
+      pausedRef.current = false;
+      setPaused(false);
+    } else {
+      pauseStartRef.current = Date.now();
+      pausedRef.current = true;
+      setPaused(true);
+    }
+  }, []);
+
+  return { granted, active, paused, togglePause, points, distanceM, elapsedMs, requestPermission, start, stop };
 }

@@ -40,7 +40,7 @@ const worldY = (lat: number, z: number) => {
  * Mapa do percurso: mosaicos do OpenStreetMap por baixo e a rota por cima (início verde, fim laranja).
  * Sem internet, os mosaicos não aparecem e fica a rota sobre uma grelha.
  */
-export function RouteMap({ points, width, height = 220, tiles = true }: { points: RoutePoint[]; width: number; height?: number; tiles?: boolean }) {
+export function RouteMap({ points, width, height = 220, tiles = true, dark = false }: { points: RoutePoint[]; width: number; height?: number; tiles?: boolean; dark?: boolean }) {
   const { colors } = useTheme();
   const pad = 34;
 
@@ -92,6 +92,7 @@ export function RouteMap({ points, width, height = 220, tiles = true }: { points
         view?.list.map((t) => (
           <Tile key={t.key} z={t.z} x={t.x} y={t.y} left={t.left} top={t.top} />
         ))}
+      {dark && <View style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0, backgroundColor: 'rgba(8,12,18,0.66)' }} />}
       <Svg width={width} height={height} style={{ position: 'absolute', left: 0, top: 0 }}>
         {view && view.path.length === 1 && (
           <>
