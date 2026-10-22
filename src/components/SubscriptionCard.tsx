@@ -16,7 +16,9 @@ export function SubscriptionCard() {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
-  const { isPremium, trialDaysLeft, lockReason, scansLeftToday, mealsLeft } = useSubscription();
+  const { isPremium, trialDaysLeft, lockReason, scansLeftToday, mealsLeft, activePlan } = useSubscription();
+  const planInfo = activePlan ? PLANS.find((p) => p.id === activePlan.planId) : undefined;
+  const renewAt = planInfo && activePlan?.at ? new Date(activePlan.at + planInfo.days * 86400000) : null;
 
   const expired = !isPremium && lockReason === 'trial_expired';
   const title = isPremium ? 'Nutri AI Pro' : expired ? 'Teste terminado' : 'Teste grátis';
@@ -25,7 +27,7 @@ export function SubscriptionCard() {
     : expired
       ? tr('Desbloqueie o Pro')
       : tr(trialDaysLeft === 1 ? '1 dia restante' : '{n} dias restantes', { n: trialDaysLeft });
-  const cta = isPremium ? 'Prolongar plano' : expired ? 'Desbloquear Pro' : 'Ver planos Pro';
+  const cta = isPremium ? 'Renovar ou mudar de plano' : expired ? 'Desbloquear Pro' : 'Ver planos Pro';
   const progress = isPremium ? 1 : expired ? 0 : Math.min(1, Math.max(0, trialDaysLeft / TRIAL_DAYS));
 
   return (
@@ -56,6 +58,23 @@ export function SubscriptionCard() {
           {mealsLeft !== null && (
             <View style={styles.chip}>
               <Text style={styles.chipText}>{tr('{n} de {total} registos disponíveis', { n: Math.max(0, mealsLeft), total: FREE_MEALS_TOTAL })}</Text>
+            </View>
+          )}
+        </View>
+      )}
+
+      {isPremium && (
+        <View style={styles.chips}>
+          {!!planInfo && (
+            <View style={styles.chip}>
+              <Text style={styles.chipText}>{tr('Plano {name}', { name: tr(planInfo.label) })}</Text>
+            </View>
+          )}
+          {!!renewAt && (
+            <View style={styles.chip}>
+              <Text style={styles.chipText}>
+                {tr('Renova em {date}', { date: renewAt.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }) })}
+              </Text>
             </View>
           )}
         </View>

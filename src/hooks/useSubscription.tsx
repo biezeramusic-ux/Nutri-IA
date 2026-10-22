@@ -39,7 +39,7 @@ interface SubscriptionContextValue extends AccessStatus {
   consumeScan: () => Promise<ConsumeScanResult>;
   activatePlan: (plan: PlanId, paidMT?: number) => Promise<void>;
   /** Último plano pago neste aparelho (para mostrar o preço activo). */
-  activePlan: { planId: PlanId; priceMT: number } | null;
+  activePlan: { planId: PlanId; priceMT: number; at?: number } | null;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextValue | null>(null);
@@ -50,7 +50,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const userId = user?.id ?? null;
   const [status, setStatus] = useState<AccessStatus>(INITIAL);
   const [loading, setLoading] = useState(false);
-  const [activePlan, setActivePlan] = useState<{ planId: PlanId; priceMT: number } | null>(null);
+  const [activePlan, setActivePlan] = useState<{ planId: PlanId; priceMT: number; at?: number } | null>(null);
   const planKey = userId ? `nutria.activePlan.${userId}` : null;
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
     async (plan: PlanId, paidMT?: number) => {
       setStatus(await activatePlanRemote(plan));
       if (paidMT != null) {
-        const next = { planId: plan, priceMT: paidMT };
+        const next = { planId: plan, priceMT: paidMT, at: Date.now() };
         setActivePlan(next);
         if (planKey) AsyncStorage.setItem(planKey, JSON.stringify(next)).catch(() => {});
       }
