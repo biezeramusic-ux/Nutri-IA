@@ -30,7 +30,7 @@ export function QuizRow({ title, subtitle, selected, onPress, multi = false }: P
         {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
       </View>
       <View style={[styles.box, multi ? styles.square : styles.circle, selected && styles.boxOn]}>
-        {selected && <Check size={14} color={colors.background} strokeWidth={3.5} />}
+        {selected && <Check size={14} color="#fff" strokeWidth={3.5} />}
       </View>
     </Pressable>
   );
@@ -50,7 +50,7 @@ const createStyles = (colors: ThemeColors) =>
       borderWidth: 1.5,
       borderColor: 'transparent',
     },
-    selected: { borderColor: colors.text, backgroundColor: colors.card },
+    selected: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
     pressed: { opacity: 0.85 },
     text: { flex: 1 },
     title: { fontSize: font.h3, fontWeight: '700', color: colors.text },
@@ -58,5 +58,5 @@ const createStyles = (colors: ThemeColors) =>
     box: { width: 24, height: 24, borderWidth: 2, borderColor: colors.textFaint, alignItems: 'center', justifyContent: 'center' },
     square: { borderRadius: 6 },
     circle: { borderRadius: 12 },
-    boxOn: { backgroundColor: colors.text, borderColor: colors.text },
+    boxOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   });

@@ -14,7 +14,7 @@ import {
   UserRound,
 } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -52,7 +52,7 @@ import { tr } from '../../i18n';
 
 type Step = 'goal' | 'name' | 'about' | 'potential' | 'timeframe' | 'body' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
 
-const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'challenge', 'lifestyle', 'health', 'habits', 'motivation', 'diet', 'staples'];
+const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'lifestyle', 'habits', 'challenge', 'motivation', 'health', 'diet', 'staples'];
 
 /** O quiz adapta-se ao objetivo: quem só quer saber as calorias responde ao mínimo. */
 function stepsFor(goal: GoalType): Step[] {
@@ -130,16 +130,16 @@ const DIETS: { value: DietPreference; label: string }[] = [
 const COPY: Record<Step, { title: string; subtitle?: string }> = {
   name: { title: 'Como se chama?', subtitle: 'Vamos tratá-lo pelo nome na app.' },
   potential: { title: 'Tem um grande potencial para alcançar o seu objetivo' },
-  challenge: { title: 'Qual é o seu maior desafio?', subtitle: 'Escolha até 3. Vamos ajudá-lo nisso.' },
-  lifestyle: { title: 'O seu dia a dia à mesa', subtitle: 'Ajuda-nos a sugerir melhores escolhas.' },
+  challenge: { title: 'O que mais o trava?', subtitle: 'Escolha até 3. Vamos ajudá-lo a superar isso.' },
+  lifestyle: { title: 'Como são as suas refeições?', subtitle: 'Para ajustar horários e sugestões à sua rotina.' },
   motivation: { title: 'O que mais o motiva?', subtitle: 'Escolha até 3 e diga-nos como prefere ser acompanhado.' },
   timeframe: { title: 'Em quanto tempo quer chegar à meta?', subtitle: 'Escolha um prazo realista para o seu peso desejado.' },
   goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
-  about: { title: 'Fale-nos de si', subtitle: 'Usamos isto para calcular as suas calorias.' },
-  body: { title: 'A sua altura e peso', subtitle: 'Pode ajustar mais tarde no Perfil.' },
-  activity: { title: 'Como é o seu dia a dia?', subtitle: 'Quanto mais ativo, mais calorias e água precisa.' },
+  about: { title: 'Vamos conhecê-lo melhor', subtitle: 'O sexo e a idade mudam as calorias de que o corpo precisa.' },
+  body: { title: 'As suas medidas', subtitle: 'Altura e peso são a base do seu plano. Pode ajustar depois no Perfil.' },
+  activity: { title: 'Quão ativo é no dia a dia?', subtitle: 'Quanto mais se mexe, mais calorias e água precisa.' },
   health: { title: 'Tem alguma condição de saúde?', subtitle: 'Opcional. O Nutri AI não substitui o seu médico.' },
-  habits: { title: 'Os seus hábitos', subtitle: 'Responda sim ou não.' },
+  habits: { title: 'Os seus hábitos de hoje', subtitle: 'Sem julgamentos: serve só para o acompanhar melhor.' },
   diet: { title: 'Restrições e alergias', subtitle: 'Opcional. Escolha o que se aplica.' },
   staples: { title: 'O que come mais no dia a dia?', subtitle: 'Opcional. Ajuda-nos a sugerir melhores escolhas.' },
 };
@@ -190,6 +190,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const { profile, completeOnboarding, saveReminders, saveName } = useProfile();
   const { displayName, user } = useAuth();
   const [step, setStep] = useState(0);
@@ -293,7 +294,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     dir.current = next >= step ? 1 : -1;
     slide.setValue(0);
     setStep(next);
-    Animated.timing(slide, { toValue: 1, duration: 420, easing: Easing.out(Easing.cubic), useNativeDriver: true }).start();
+    Animated.timing(slide, { toValue: 1, duration: 480, easing: Easing.bezier(0.22, 1, 0.36, 1), useNativeDriver: true }).start();
   };
 
   const goBack = () => {
@@ -367,7 +368,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   }
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { overflow: 'hidden' }]}>
       <ScrollView
         contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: SCREEN_PADDING, paddingBottom: 120, gap: 12 }}
         showsVerticalScrollIndicator={false}
@@ -389,11 +390,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         <Animated.View
           style={{
             gap: 12,
-            opacity: slide,
-            transform: [
-              { translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [dir.current * 70, 0] }) },
-              { translateY: slide.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) },
-            ],
+            opacity: slide.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 1, 1] }),
+            transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [dir.current * width, 0] }) }],
           }}
         >
         {copy && (
@@ -628,7 +626,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           onPress={() => (step === steps.length - 1 ? setProcessing(true) : goTo(step + 1))}
         >
           {saving ? (
-            <ActivityIndicator color={colors.background} />
+            <ActivityIndicator color="#fff" />
           ) : (
             <Text style={styles.ctaText}>{step === steps.length - 1 ? 'Ver o meu plano' : 'Próximo'}</Text>
           )}
@@ -645,7 +643,7 @@ const createStyles = (colors: ThemeColors) =>
   section: { textAlign: 'center', fontSize: font.h3, fontWeight: '600', color: colors.text, marginBottom: 4 },
   progress: { flex: 1, flexDirection: 'row', gap: 4 },
   segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border },
-  segmentOn: { backgroundColor: colors.text },
+  segmentOn: { backgroundColor: colors.primary },
   head: { gap: 4, marginTop: 8, marginBottom: 4 },
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   subtitle: { fontSize: font.body, color: colors.textMuted, lineHeight: 20 },
@@ -666,9 +664,9 @@ const createStyles = (colors: ThemeColors) =>
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: SCREEN_PADDING, paddingTop: 10, backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border },
   backBtn: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   backOff: { opacity: 0.35 },
-  cta: { flex: 1, height: 56, borderRadius: 28, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },
+  cta: { flex: 1, height: 56, borderRadius: 28, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   ctaOff: { opacity: 0.45 },
   ctaPressed: { opacity: 0.9 },
-  ctaText: { color: colors.background, fontSize: font.h3, fontWeight: '600' },
+  ctaText: { color: '#fff', fontSize: font.h3, fontWeight: '600' },
   nameInput: { height: 60, borderRadius: radius.lg, backgroundColor: colors.surface, paddingHorizontal: 18, fontSize: font.h2, fontWeight: '600', color: colors.text },
 });
