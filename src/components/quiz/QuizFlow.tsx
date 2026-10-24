@@ -39,6 +39,7 @@ import { QuizResult } from './QuizResult';
 import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
+import { AgeStep, BmiStep, HeightStep, SexStep, WeightStep } from './BodySteps';
 import { QuizChip } from './QuizChip';
 import { CrownMark } from '../CrownMark';
 import { Logo } from '../Logo';
@@ -50,17 +51,17 @@ import { WelcomeScreen } from './WelcomeScreen';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
-type Step = 'goal' | 'name' | 'about' | 'potential' | 'timeframe' | 'body' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
+type Step = 'goal' | 'name' | 'sex' | 'age' | 'height' | 'weight' | 'bmi' | 'experience' | 'energy' | 'trainDays' | 'potential' | 'timeframe' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
 
-const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'lifestyle', 'habits', 'challenge', 'motivation', 'health', 'diet', 'staples'];
+const FULL_STEPS: Step[] = ['goal', 'sex', 'age', 'height', 'weight', 'bmi', 'activity', 'energy', 'trainDays', 'lifestyle', 'habits', 'challenge', 'motivation', 'health', 'diet', 'staples'];
 
 /** O quiz adapta-se ao objetivo: quem só quer saber as calorias responde ao mínimo. */
 function stepsFor(goal: GoalType): Step[] {
   switch (goal) {
     case 'track_calories':
-      return ['goal', 'about', 'body', 'activity'];
+      return ['goal', 'sex', 'age', 'height', 'weight', 'bmi', 'activity'];
     case 'maintain':
-      return ['goal', 'about', 'body', 'activity', 'challenge', 'health', 'diet'];
+      return ['goal', 'sex', 'age', 'height', 'weight', 'bmi', 'activity', 'energy', 'challenge', 'health', 'diet'];
     case 'eat_healthy':
     case 'lose_weight':
     case 'gain_muscle':
@@ -135,8 +136,14 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
   motivation: { title: 'O que mais o motiva?', subtitle: 'Escolha até 3 e diga-nos como prefere ser acompanhado.' },
   timeframe: { title: 'Em quanto tempo quer chegar à meta?', subtitle: 'Escolha um prazo realista para o seu peso desejado.' },
   goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
-  about: { title: 'Vamos conhecê-lo melhor', subtitle: 'O sexo e a idade mudam as calorias de que o corpo precisa.' },
-  body: { title: 'As suas medidas', subtitle: 'Altura e peso são a base do seu plano. Pode ajustar depois no Perfil.' },
+  sex: { title: 'Vamos conhecê-lo melhor', subtitle: 'O seu sexo muda as calorias de que o corpo precisa.' },
+  age: { title: 'Quantos anos tem?', subtitle: 'A idade ajusta o seu metabolismo. Arraste com calma.' },
+  height: { title: 'Qual é a sua altura?', subtitle: 'Puxe o boneco para cima até chegar à sua altura.' },
+  weight: { title: 'E o seu peso?', subtitle: 'Sem pressa. Pode ajustar mais tarde no Perfil.' },
+  bmi: { title: 'O seu ponto de partida', subtitle: 'Veja onde está hoje e para onde vamos juntos.' },
+  experience: { title: 'Já contou calorias antes?', subtitle: 'Sem problema se for a primeira vez, vamos passo a passo.' },
+  energy: { title: 'Como se sente ao longo do dia?', subtitle: 'A energia diz-nos muito sobre a sua alimentação.' },
+  trainDays: { title: 'Quantos dias treina por semana?', subtitle: 'Mesmo caminhadas contam.' },
   activity: { title: 'Quão ativo é no dia a dia?', subtitle: 'Quanto mais se mexe, mais calorias e água precisa.' },
   health: { title: 'Tem alguma condição de saúde?', subtitle: 'Opcional. O Nutri AI não substitui o seu médico.' },
   habits: { title: 'Os seus hábitos de hoje', subtitle: 'Sem julgamentos: serve só para o acompanhar melhor.' },
@@ -155,8 +162,14 @@ const SECTION: Record<Step, string> = {
   lifestyle: 'Rotina',
   motivation: 'Motivação',
   goal: 'Metas',
-  about: 'Sobre si',
-  body: 'Medidas',
+  sex: 'Sobre si',
+  age: 'Sobre si',
+  height: 'Medidas',
+  weight: 'Medidas',
+  bmi: 'O seu ponto de partida',
+  experience: 'Experiência',
+  energy: 'Energia',
+  trainDays: 'Treino',
   activity: 'Atividade',
   health: 'Saúde',
   habits: 'Hábitos',
@@ -215,6 +228,9 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const [motivations, setMotivations] = useState<string[]>([]);
   const [supportStyle, setSupportStyle] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [experience, setExperience] = useState('Nunca usei');
+  const [energy, setEnergy] = useState('Depende do dia');
+  const [trainDays, setTrainDays] = useState(3);
   const [name, setName] = useState(profile?.fullName || displayName || '');
   const touched = useRef(false);
   // O nome pode chegar do servidor depois de abrir o quiz: preenche uma única vez se ainda estiver vazio.
@@ -244,9 +260,9 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   // Até escolher o objetivo, mostra o percurso completo; depois ajusta-se ao objetivo.
   const steps = useMemo(() => {
     const list = [...(goalPicked ? stepsFor(base.goal) : FULL_STEPS)];
-    if (mode === 'first') list.splice(1, 0, 'name');
+    if (mode === 'first') list.splice(1, 0, 'name', 'experience');
     if (wantsTarget) {
-      const at = list.indexOf('body');
+      const at = list.indexOf('bmi');
       if (at >= 0) list.splice(at + 1, 0, 'potential', 'timeframe');
     }
     return list;
@@ -308,7 +324,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
       await completeOnboarding(buildAnswers());
       if (user?.id) {
         const planWeeks = wantsTarget ? weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal) : undefined;
-        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks }, name.trim().split(' ')[0]));
+        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks, experience, energy, trainDays }, name.trim().split(' ')[0]));
       }
       if (user?.id && wantsTarget) {
         await saveGoalPlan(user.id, { weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal), startMs: Date.now(), startWeightKg: base.weightKg });
@@ -370,7 +386,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   return (
     <View style={[styles.root, { overflow: 'hidden' }]}>
       <ScrollView
-        contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: SCREEN_PADDING, paddingBottom: 120, gap: 12 }}
+        contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: SCREEN_PADDING, paddingBottom: 130, gap: 16 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -389,7 +405,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 
         <Animated.View
           style={{
-            gap: 12,
+            gap: 16,
             opacity: slide.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 1, 1] }),
             transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [dir.current * width, 0] }) }],
           }}
@@ -466,22 +482,35 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </>
         )}
 
-        {current === 'about' && (
-          <>
-            <QuizRow title={tr('Mulher')} selected={base.sex === 'female'} onPress={() => update('sex', 'female')} />
-            <QuizRow title={tr('Homem')} selected={base.sex === 'male'} onPress={() => update('sex', 'male')} />
-            <NumberStepper label={tr('Idade')} value={base.age} unit="anos" min={10} max={100} onChange={(v) => update('age', v)} />
-          </>
+        {current === 'sex' && <SexStep sex={base.sex} age={base.age} onChange={(v) => update('sex', v)} />}
+        {current === 'age' && <AgeStep sex={base.sex} age={base.age} width={width - SCREEN_PADDING * 2} onChange={(v) => update('age', v)} />}
+        {current === 'height' && <HeightStep sex={base.sex} age={base.age} cm={base.heightCm} width={width - SCREEN_PADDING * 2} onChange={(v) => update('heightCm', v)} />}
+        {current === 'weight' && (
+          <WeightStep
+            kg={base.weightKg}
+            target={base.targetWeightKg}
+            wantsTarget={wantsTarget}
+            width={width - SCREEN_PADDING * 2}
+            onKg={(v) => update('weightKg', v)}
+            onTarget={(v) => update('targetWeightKg', v)}
+          />
         )}
+        {current === 'bmi' && <BmiStep weightKg={base.weightKg} heightCm={base.heightCm} goals={GOAL_ROWS.filter((r) => pickedIds.includes(r.id)).map((r) => r.title)} width={width - SCREEN_PADDING * 2} />}
 
-        {current === 'body' && (
-          <>
-            <NumberStepper label={tr('Altura')} value={base.heightCm} unit="cm" min={100} max={250} onChange={(v) => update('heightCm', v)} />
-            <NumberStepper label={tr('Peso atual')} value={base.weightKg} unit="kg" min={30} max={300} onChange={(v) => update('weightKg', v)} />
-            {wantsTarget && (
-              <NumberStepper label={tr('Peso desejado')} value={base.targetWeightKg} unit="kg" min={30} max={300} onChange={(v) => update('targetWeightKg', v)} />
-            )}
-          </>
+        {current === 'experience' &&
+          ['Nunca usei', 'Já experimentei', 'Uso com frequência'].map((o) => (
+            <QuizRow key={o} title={tr(o)} selected={experience === o} onPress={() => setExperience(o)} />
+          ))}
+        {current === 'energy' &&
+          ['Cansado muitas vezes', 'Depende do dia', 'Com muita energia'].map((o) => (
+            <QuizRow key={o} title={tr(o)} selected={energy === o} onPress={() => setEnergy(o)} />
+          ))}
+        {current === 'trainDays' && (
+          <View style={styles.chips}>
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((n) => (
+              <QuizChip key={n} label={n === 0 ? tr('Nenhum') : String(n)} selected={trainDays === n} onPress={() => setTrainDays(n)} />
+            ))}
+          </View>
         )}
 
         {current === 'activity' && (
