@@ -1,7 +1,6 @@
 import { Minus, Plus } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import Svg, { G, Line, Text as SvgText } from 'react-native-svg';
 import { Text } from '../AppText';
 import { font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
@@ -65,56 +64,6 @@ export function AgeStep({ sex, age, onChange, width }: { sex: Sex; age: number; 
       </View>
       <Big value={age} unit={tr('anos')} colors={colors} onMinus={() => onChange(Math.max(10, age - 1))} onPlus={() => onChange(Math.min(100, age + 1))} />
       <DragSlider value={age} min={10} max={100} length={width - 64} onChange={onChange} />
-    </View>
-  );
-}
-
-const MIN_CM = 100;
-const MAX_CM = 220;
-
-/** Ecrã da altura: puxe o boneco para cima (ou arraste a barra) até chegar à sua altura. */
-export function HeightStep({ sex, age, cm, onChange, width }: { sex: Sex; age: number; cm: number; onChange: (v: number) => void; width: number }) {
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
-  const areaH = 340;
-  const fpx = (v: number) => 60 + ((v - MIN_CM) / (MAX_CM - MIN_CM)) * 250;
-  const figH = fpx(cm);
-  const ticks: number[] = [];
-  for (let v = MIN_CM; v <= MAX_CM; v += 10) ticks.push(v);
-  const topY = areaH - figH;
-  const innerW = width - 32;
-  return (
-    <View style={styles.panel}>
-      <View style={{ height: areaH, width: innerW }}>
-        <Svg width={innerW} height={areaH} style={StyleSheet.absoluteFill}>
-          {ticks.map((v) => {
-            const y = areaH - fpx(v);
-            return (
-              <G key={v}>
-                <Line x1={0} y1={y} x2={v % 20 === 0 ? 26 : 14} y2={y} stroke={colors.textFaint} strokeWidth={2} />
-                {v % 20 === 0 && (
-                  <SvgText x={32} y={y + 4} fontSize={10} fill={colors.textMuted}>
-                    {v}
-                  </SvgText>
-                )}
-              </G>
-            );
-          })}
-          <Line x1={0} y1={topY} x2={innerW - 56} y2={topY} stroke={colors.primary} strokeWidth={2.5} strokeDasharray="6,6" />
-          <Line x1={0} y1={areaH - 1} x2={innerW - 56} y2={areaH - 1} stroke={colors.text} strokeWidth={3} />
-        </Svg>
-        <View style={{ position: 'absolute', left: 70, bottom: 4, alignItems: 'center' }}>
-          <BodyFigure sex={sex} age={age} h={figH} color={colors.primary} />
-        </View>
-        <View style={[styles.cmPill, { top: Math.max(0, topY - 34), left: innerW - 150 }]}>
-          <Text style={styles.cmText}>{cm} cm</Text>
-        </View>
-        <View style={{ position: 'absolute', right: 0, top: areaH - 300 }}>
-          <DragSlider axis="y" value={cm} min={MIN_CM} max={MAX_CM} length={300} onChange={onChange} />
-        </View>
-      </View>
-      <Big value={cm} unit="cm" colors={colors} onMinus={() => onChange(Math.max(MIN_CM, cm - 1))} onPlus={() => onChange(Math.min(MAX_CM, cm + 1))} />
-      <Text style={styles.tip}>{tr('Arraste a bolinha para cima ou para baixo até chegar à sua altura.')}</Text>
     </View>
   );
 }
@@ -199,8 +148,6 @@ const createStyles = (colors: ThemeColors) =>
     bigUnit: { fontSize: font.h3, fontWeight: '600', color: colors.textMuted },
     round: { width: 52, height: 52, borderRadius: 26, borderWidth: 2, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.card },
     roundOn: { backgroundColor: colors.primary },
-    cmPill: { position: 'absolute', backgroundColor: colors.primary, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 4 },
-    cmText: { color: '#fff', fontWeight: '800', fontSize: font.small },
     tip: { fontSize: font.small, color: colors.textMuted, textAlign: 'center', lineHeight: 18 },
     cardLabel: { fontSize: font.small, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
     bmi: { fontSize: 64, lineHeight: 70, fontWeight: '800', color: colors.text, letterSpacing: -2 },

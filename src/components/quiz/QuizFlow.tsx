@@ -39,7 +39,7 @@ import { QuizResult } from './QuizResult';
 import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
-import { AgeStep, BmiStep, HeightStep, SexStep, WeightStep } from './BodySteps';
+import { AgeStep, BmiStep, SexStep, WeightStep } from './BodySteps';
 import { QuizChip } from './QuizChip';
 import { CrownMark } from '../CrownMark';
 import { Logo } from '../Logo';
@@ -138,7 +138,7 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
   goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
   sex: { title: 'Vamos conhecê-lo melhor', subtitle: 'O seu sexo muda as calorias de que o corpo precisa.' },
   age: { title: 'Quantos anos tem?', subtitle: 'A idade ajusta o seu metabolismo. Arraste com calma.' },
-  height: { title: 'Qual é a sua altura?', subtitle: 'Puxe o boneco para cima até chegar à sua altura.' },
+  height: { title: 'Qual é a sua altura?', subtitle: 'Pode ajustar mais tarde no Perfil.' },
   weight: { title: 'E o seu peso?', subtitle: 'Sem pressa. Pode ajustar mais tarde no Perfil.' },
   bmi: { title: 'O seu ponto de partida', subtitle: 'Veja onde está hoje e para onde vamos juntos.' },
   experience: { title: 'Já contou calorias antes?', subtitle: 'Sem problema se for a primeira vez, vamos passo a passo.' },
@@ -484,7 +484,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 
         {current === 'sex' && <SexStep sex={base.sex} age={base.age} onChange={(v) => update('sex', v)} />}
         {current === 'age' && <AgeStep sex={base.sex} age={base.age} width={width - SCREEN_PADDING * 2} onChange={(v) => update('age', v)} />}
-        {current === 'height' && <HeightStep sex={base.sex} age={base.age} cm={base.heightCm} width={width - SCREEN_PADDING * 2} onChange={(v) => update('heightCm', v)} />}
+        {current === 'height' && <NumberStepper label={tr('Altura')} value={base.heightCm} unit="cm" min={100} max={250} onChange={(v) => update('heightCm', v)} />}
         {current === 'weight' && (
           <WeightStep
             kg={base.weightKg}
