@@ -1140,4 +1140,6 @@ export const en: Record<string, string> = {
   "Permitir notificações": "Allow notifications",
   "Notificações ativadas": "Notifications on",
   "Sem problema: pode ativar mais tarde nas definições do telemóvel.": "No problem: you can turn them on later in your phone settings.",
+  "A sua rotina": "Your routine",
+  "Saúde e alimentação": "Health and eating",
 };

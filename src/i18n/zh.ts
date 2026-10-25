@@ -1140,4 +1140,6 @@ export const zh: Record<string, string> = {
   "Permitir notificações": "允许通知",
   "Notificações ativadas": "通知已开启",
   "Sem problema: pode ativar mais tarde nas definições do telemóvel.": "没关系，您可以稍后在手机设置中开启。",
+  "A sua rotina": "您的日常",
+  "Saúde e alimentação": "健康与饮食",
 };

@@ -1140,4 +1140,6 @@ export const nl: Record<string, string> = {
   "Permitir notificações": "Meldingen toestaan",
   "Notificações ativadas": "Meldingen aan",
   "Sem problema: pode ativar mais tarde nas definições do telemóvel.": "Geen probleem: je kunt ze later aanzetten in de telefooninstellingen.",
+  "A sua rotina": "Je routine",
+  "Saúde e alimentação": "Gezondheid en voeding",
 };

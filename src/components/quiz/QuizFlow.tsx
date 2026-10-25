@@ -168,24 +168,25 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
 /** Quando há várias metas, a primeira desta lista é a que define as calorias. */
 const GOAL_PRIORITY: GoalType[] = ['lose_weight', 'gain_muscle', 'maintain', 'eat_healthy', 'track_calories'];
 
-const SECTION: Record<Step, string> = {
-  name: 'O seu nome',
-  potential: 'O seu potencial',
-  timeframe: 'O seu prazo',
-  source: 'Conhecer-nos',
-  experience: 'Experiência',
-  trust: 'Resultados duradouros',
-  challenge: 'O seu desafio',
-  lifestyle: 'Rotina',
-  motivation: 'Motivação',
-  goal: 'Metas',
+/** Os passos agrupam-se por tema: a barra de progresso e o título mostram em que grupo a pessoa está. */
+const GROUP: Record<Step, string> = {
+  goal: 'Começar',
+  name: 'Começar',
+  source: 'Começar',
+  experience: 'Começar',
   about: 'Sobre si',
-  body: 'Medidas',
-  activity: 'Atividade',
-  health: 'Saúde',
-  habits: 'Hábitos',
-  diet: 'Alimentação',
-  staples: 'Rotina alimentar',
+  body: 'Sobre si',
+  potential: 'Sobre si',
+  timeframe: 'Sobre si',
+  activity: 'A sua rotina',
+  lifestyle: 'A sua rotina',
+  habits: 'A sua rotina',
+  challenge: 'Motivação',
+  motivation: 'Motivação',
+  trust: 'Motivação',
+  health: 'Saúde e alimentação',
+  diet: 'Saúde e alimentação',
+  staples: 'Saúde e alimentação',
 };
 
 type Base = Omit<QuizAnswers, 'habits'>;
@@ -278,6 +279,15 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     return list;
   }, [goalPicked, base.goal, mode, wantsTarget]);
   const resultStep = steps.length;
+  const groups = useMemo(() => {
+    const out: { name: string; start: number; size: number }[] = [];
+    steps.forEach((st, i) => {
+      const last = out[out.length - 1];
+      if (last && last.name === GROUP[st]) last.size += 1;
+      else out.push({ name: GROUP[st], start: i, size: 1 });
+    });
+    return out;
+  }, [steps]);
 
   const answeredAllHabits = HABIT_QUESTIONS.every((q) => habits[q.key] !== undefined);
 
@@ -407,11 +417,21 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
             <CrownMark size={14} />
           </View>
         )}
-        <Text style={styles.section}>{current ? tr(SECTION[current]) : ''}</Text>
+        <View style={styles.sectionRow}>
+          <Text style={styles.section}>{current ? tr(GROUP[current]) : ''}</Text>
+          <Text style={styles.count}>
+            {Math.min(step + 1, steps.length)} / {steps.length}
+          </Text>
+        </View>
         <View style={styles.progress}>
-          {steps.map((s, i) => (
-            <View key={s} style={[styles.segment, i <= Math.min(step, steps.length - 1) && styles.segmentOn]} />
-          ))}
+          {groups.map((g) => {
+            const done = Math.max(0, Math.min(g.size, step + 1 - g.start));
+            return (
+              <View key={g.name + g.start} style={[styles.segment, { flex: g.size }]}>
+                <View style={[styles.segmentOn, { width: `${(done / g.size) * 100}%` }]} />
+              </View>
+            );
+          })}
         </View>
 
         <Animated.View
@@ -684,10 +704,12 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   brand: { alignItems: 'center', gap: 0, marginBottom: -11 },
-  section: { textAlign: 'center', fontSize: font.h3, fontWeight: '600', color: colors.text, marginBottom: 4 },
-  progress: { flex: 1, flexDirection: 'row', gap: 4 },
-  segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border },
-  segmentOn: { backgroundColor: colors.primary },
+  sectionRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 2 },
+  section: { fontSize: font.h3, fontWeight: '700', color: colors.primary },
+  count: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
+  progress: { flexDirection: 'row', gap: 5 },
+  segment: { height: 6, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
+  segmentOn: { height: 6, borderRadius: 3, backgroundColor: colors.primary },
   head: { gap: 4, marginTop: 8, marginBottom: 4 },
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   subtitle: { fontSize: font.body, color: colors.textMuted, lineHeight: 20 },

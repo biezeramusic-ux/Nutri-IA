@@ -1140,4 +1140,6 @@ export const it: Record<string, string> = {
   "Permitir notificações": "Consenti le notifiche",
   "Notificações ativadas": "Notifiche attivate",
   "Sem problema: pode ativar mais tarde nas definições do telemóvel.": "Nessun problema: puoi attivarle più tardi nelle impostazioni del telefono.",
+  "A sua rotina": "La tua routine",
+  "Saúde e alimentação": "Salute e alimentazione",
 };
