@@ -1,5 +1,5 @@
 import { Minus, Plus } from 'lucide-react-native';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../AppText';
 import { font, radius, type ThemeColors } from '../../constants/theme';
@@ -7,7 +7,8 @@ import { useTheme } from '../../hooks/useTheme';
 import { tr } from '../../i18n';
 import type { Sex } from '../../types';
 import { BodyFigure, lifeStage } from './BodyFigure';
-import { DragSlider } from './DragSlider';
+import { RulerPicker } from './RulerPicker';
+import { WheelPicker } from './WheelPicker';
 
 const STAGE_LABEL = { child: 'Criança', teen: 'Adolescente', adult: 'Adulto', senior: 'Sénior' } as const;
 
@@ -29,62 +30,80 @@ function Big({ value, unit, onMinus, onPlus, colors }: { value: string | number;
   );
 }
 
-/** Ecrã do sexo: dois cartões grandes com o desenho de cada um. */
-export function SexStep({ sex, onChange, age }: { sex: Sex; onChange: (s: Sex) => void; age: number }) {
-  const { colors } = useTheme();
-  const styles = useMemo(() => createStyles(colors), [colors]);
-  const pick = (s: Sex, label: string, tint: string) => (
-    <Pressable key={s} onPress={() => onChange(s)} style={[styles.sexCard, sex === s && styles.sexOn]}>
-      <BodyFigure sex={s} age={age} h={230} color={sex === s ? colors.primary : tint} />
-      <Text style={[styles.sexLabel, sex === s && { color: colors.primary }]}>{tr(label)}</Text>
-    </Pressable>
-  );
-  return (
-    <View style={{ flexDirection: 'row', gap: 14, marginTop: 8 }}>
-      {pick('female', 'Mulher', '#F9A8D4')}
-      {pick('male', 'Homem', '#93C5FD')}
-    </View>
-  );
-}
-
-/** Ecrã da idade: o boneco muda de fase (criança, adolescente, adulto, sénior) à medida que arrasta. */
-export function AgeStep({ sex, age, onChange, width }: { sex: Sex; age: number; onChange: (v: number) => void; width: number }) {
+/** Ecrã da idade: roda para escolher; o boneco pequeno muda de fase (criança, adolescente, adulto, sénior). */
+export function AgeStep({ sex, age, onChange }: { sex: Sex; age: number; onChange: (v: number) => void; width: number }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const stage = lifeStage(age);
-  const figH = stage === 'child' ? 150 : stage === 'teen' ? 190 : 230;
+  const figH = stage === 'child' ? 96 : stage === 'teen' ? 116 : 134;
   return (
     <View style={styles.panel}>
-      <View style={{ height: 250, justifyContent: 'flex-end', alignItems: 'center' }}>
+      <View style={{ height: 140, justifyContent: 'flex-end', alignItems: 'center' }}>
         <BodyFigure sex={sex} age={age} h={figH} color={colors.primary} />
-        <View style={styles.ground} />
       </View>
       <View style={styles.stageChip}>
         <Text style={styles.stageText}>{tr(STAGE_LABEL[stage])}</Text>
       </View>
-      <Big value={age} unit={tr('anos')} colors={colors} onMinus={() => onChange(Math.max(10, age - 1))} onPlus={() => onChange(Math.min(100, age + 1))} />
-      <DragSlider value={age} min={10} max={100} length={width - 64} onChange={onChange} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, alignSelf: 'stretch' }}>
+        <WheelPicker grow values={AGES} value={age} onChange={onChange} />
+        <Text style={styles.bigUnit}>{tr('anos')}</Text>
+      </View>
     </View>
   );
 }
 
-/** Peso (e peso desejado, se houver) com barra de arrastar e botões. */
+const AGES = Array.from({ length: 91 }, (_, i) => i + 10);
+const CMS = Array.from({ length: 151 }, (_, i) => i + 100);
+const FEET = [3, 4, 5, 6, 7, 8];
+const INCHES = Array.from({ length: 12 }, (_, i) => i);
+
+/** Altura numa roda, com troca entre cm e pés/polegadas. */
+export function HeightWheel({ cm, onChange }: { cm: number; onChange: (v: number) => void }) {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const [imperial, setImperial] = useState(false);
+  const totalIn = Math.round(cm / 2.54);
+  const ft = Math.max(3, Math.min(8, Math.floor(totalIn / 12)));
+  const inch = totalIn - Math.floor(totalIn / 12) * 12;
+  const setImp = (f: number, i: number) => onChange(Math.max(100, Math.min(250, Math.round((f * 12 + i) * 2.54))));
+  return (
+    <View style={styles.panel}>
+      <View style={styles.toggle}>
+        {[false, true].map((imp) => (
+          <Pressable key={String(imp)} style={[styles.toggleBtn, imperial === imp && styles.toggleOn]} onPress={() => setImperial(imp)}>
+            <Text style={[styles.toggleText, imperial === imp && { color: '#fff' }]}>{imp ? 'ft, in' : 'cm'}</Text>
+          </Pressable>
+        ))}
+      </View>
+      {imperial ? (
+        <View style={{ flexDirection: 'row', gap: 12, alignSelf: 'stretch' }}>
+          <WheelPicker grow values={FEET} value={ft} onChange={(f) => setImp(f, inch)} format={(v) => `${v} ft`} />
+          <WheelPicker grow values={INCHES} value={inch} onChange={(i) => setImp(ft, i)} format={(v) => `${v} in`} />
+        </View>
+      ) : (
+        <View style={{ alignSelf: 'stretch' }}>
+          <WheelPicker values={CMS} value={cm} onChange={onChange} format={(v) => `${v} cm`} />
+        </View>
+      )}
+    </View>
+  );
+}
+
+/** Peso (e peso desejado, se houver) em réguas: deslize e o risco do meio marca o valor. */
 export function WeightStep({ kg, target, wantsTarget, onKg, onTarget, width }: { kg: number; target: number; wantsTarget: boolean; onKg: (v: number) => void; onTarget: (v: number) => void; width: number }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const len = width - 64;
+  const w = width - 32;
   return (
     <View style={{ gap: 16 }}>
       <View style={styles.panel}>
         <Text style={styles.cardLabel}>{tr('Peso atual')}</Text>
-        <Big value={kg} unit="kg" colors={colors} onMinus={() => onKg(Math.max(30, kg - 1))} onPlus={() => onKg(Math.min(200, kg + 1))} />
-        <DragSlider value={kg} min={30} max={200} length={len} onChange={onKg} />
+        <RulerPicker value={kg} min={30} max={200} unit="kg" width={w} onChange={onKg} />
       </View>
       {wantsTarget && (
         <View style={styles.panel}>
           <Text style={styles.cardLabel}>{tr('Peso desejado')}</Text>
-          <Big value={target} unit="kg" colors={colors} onMinus={() => onTarget(Math.max(30, target - 1))} onPlus={() => onTarget(Math.min(200, target + 1))} />
-          <DragSlider value={target} min={30} max={200} length={len} onChange={onTarget} />
+          <RulerPicker value={target} min={30} max={200} unit="kg" width={w} onChange={onTarget} />
         </View>
       )}
     </View>
@@ -141,6 +160,10 @@ const createStyles = (colors: ThemeColors) =>
     sexOn: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
     sexLabel: { fontSize: font.h3, fontWeight: '800', color: colors.text },
     ground: { height: 3, width: '70%', borderRadius: 2, backgroundColor: colors.text },
+    toggle: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radius.pill, padding: 4 },
+    toggleBtn: { paddingHorizontal: 22, paddingVertical: 8, borderRadius: radius.pill },
+    toggleOn: { backgroundColor: colors.primary },
+    toggleText: { fontWeight: '700', color: colors.textMuted },
     stageChip: { backgroundColor: colors.primarySoft, borderRadius: radius.pill, paddingHorizontal: 14, paddingVertical: 5 },
     stageText: { fontSize: font.small, fontWeight: '700', color: colors.primary },
     bigRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch' },
