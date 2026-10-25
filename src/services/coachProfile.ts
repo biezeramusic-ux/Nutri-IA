@@ -14,6 +14,7 @@ export interface CoachExtras {
   trainDays?: number;
   hasCoach?: boolean;
   dietStyle?: string;
+  wantsTo?: string;
 }
 
 const key = (userId: string) => `nutria.coachContext.${userId}`;
@@ -48,6 +49,7 @@ export function buildCoachContext(a: QuizAnswers, extra: CoachExtras, firstName?
     extra.trainDays !== undefined ? `workouts_per_week=${extra.trainDays}` : '',
     extra.hasCoach !== undefined ? `has_trainer_or_nutritionist=${extra.hasCoach}` : '',
     extra.dietStyle ? `diet_style=${extra.dietStyle}` : '',
+    extra.wantsTo ? `wants_to=${extra.wantsTo}` : '',
     extra.supportStyle ? `support_style=${extra.supportStyle}` : '',
     a.habits.skipsMeals ? 'skips_meals' : '',
     a.habits.eatsOut ? 'eats_out_often' : '',

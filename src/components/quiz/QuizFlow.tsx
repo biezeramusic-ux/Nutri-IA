@@ -19,6 +19,12 @@ import {
   Music2,
   Search,
   Apple,
+  Bell,
+  HeartHandshake,
+  Smile,
+  Sun,
+  Trophy,
+  Utensils,
   Fish,
   Salad,
   Shuffle,
@@ -68,7 +74,7 @@ import { WelcomeScreen } from './WelcomeScreen';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
-type Step = 'goal' | 'name' | 'sex' | 'age' | 'height' | 'weight' | 'bmi' | 'experience' | 'source' | 'trust' | 'coach' | 'dietStyle' | 'energy' | 'trainDays' | 'potential' | 'timeframe' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
+type Step = 'goal' | 'name' | 'sex' | 'age' | 'height' | 'weight' | 'bmi' | 'experience' | 'source' | 'trust' | 'accomplish' | 'thanks' | 'notify' | 'coach' | 'dietStyle' | 'energy' | 'trainDays' | 'potential' | 'timeframe' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
 
 const FULL_STEPS: Step[] = ['goal', 'sex', 'age', 'height', 'weight', 'bmi', 'activity', 'energy', 'trainDays', 'coach', 'lifestyle', 'habits', 'challenge', 'motivation', 'trust', 'health', 'dietStyle', 'diet', 'staples'];
 
@@ -119,6 +125,17 @@ const SOURCES: { label: string; Icon: typeof Scale }[] = [
   { label: 'Google', Icon: Search },
   { label: 'Amigo ou família', Icon: Users },
   { label: 'Outro', Icon: MoreHorizontal },
+];
+const ACCOMPLISH: { label: string; Icon: typeof Scale }[] = [
+  { label: 'Comer e viver de forma mais saudável', Icon: Apple },
+  { label: 'Aumentar a minha energia e humor', Icon: Sun },
+  { label: 'Manter-me motivado e consistente', Icon: Dumbbell },
+  { label: 'Sentir-me melhor com o meu corpo', Icon: Smile },
+];
+const NOTIFY_USES: { title: string; body: string; Icon: typeof Scale }[] = [
+  { title: 'Lembretes de refeição', body: 'Um toque suave para registar o pequeno-almoço, o almoço e o jantar, sem esquecer nenhum.', Icon: Utensils },
+  { title: 'Lembretes de água', body: 'Avisos nos horários certos do seu dia para chegar à meta de água.', Icon: Droplets },
+  { title: 'Sequência e medalhas', body: 'Avisamos quando está perto de uma conquista ou de perder a sua sequência.', Icon: Trophy },
 ];
 const DIET_STYLES: { label: string; Icon: typeof Scale }[] = [
   { label: 'Equilibrada', Icon: Scale },
@@ -185,6 +202,9 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
   coach: { title: 'Trabalha com um personal trainer ou nutricionista?', subtitle: 'Se sim, a app complementa o acompanhamento que já tem.' },
   dietStyle: { title: 'Segue uma dieta específica?', subtitle: 'Escolha o estilo que mais se parece com o seu.' },
   source: { title: 'Onde ouviu falar de nós?', subtitle: 'Só para sabermos como chegou até aqui.' },
+  accomplish: { title: 'O que gostaria de conseguir?', subtitle: 'Além do número na balança, o que importa para si?' },
+  thanks: { title: 'Obrigado por confiar em nós', subtitle: 'Agora vamos personalizar o Nutri AI para si…' },
+  notify: { title: 'Alcance os seus objetivos com notificações', subtitle: 'Veja para que servem. Pode desligar quando quiser.' },
   trust: { title: 'Feito para o ajudar a manter o rumo', subtitle: 'Perder peso é uma parte. Manter é o que conta.' },
   energy: { title: 'Como se sente ao longo do dia?', subtitle: 'A energia diz-nos muito sobre a sua alimentação.' },
   trainDays: { title: 'Quantos treinos faz por semana?', subtitle: 'Será usado para calibrar o seu plano personalizado.' },
@@ -213,6 +233,9 @@ const SECTION: Record<Step, string> = {
   bmi: 'O seu ponto de partida',
   experience: 'Experiência',
   source: 'Conhecer-nos',
+  accomplish: 'Motivo',
+  thanks: 'Quase lá',
+  notify: 'Notificações',
   coach: 'Acompanhamento',
   dietStyle: 'Estilo alimentar',
   trust: 'Resultados duradouros',
@@ -280,6 +303,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const [energy, setEnergy] = useState('Depende do dia');
   const [trainDays, setTrainDays] = useState(4);
   const [source, setSource] = useState('');
+  const [wantsTo, setWantsTo] = useState('Comer e viver de forma mais saudável');
+  const [notifyOn, setNotifyOn] = useState<boolean | null>(null);
   const [hasCoach, setHasCoach] = useState(false);
   const [dietStyle, setDietStyle] = useState('Equilibrada');
   const [name, setName] = useState(profile?.fullName || displayName || '');
@@ -311,7 +336,9 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   // Até escolher o objetivo, mostra o percurso completo; depois ajusta-se ao objetivo.
   const steps = useMemo(() => {
     const list = [...(goalPicked ? stepsFor(base.goal) : FULL_STEPS)];
-    if (mode === 'first') list.splice(1, 0, 'name', 'source', 'experience');
+    if (mode === 'first') list.splice(1, 0, 'name', 'accomplish', 'source', 'experience');
+    else list.splice(1, 0, 'accomplish');
+    if (mode === 'first') list.push('thanks', 'notify');
     if (wantsTarget) {
       const at = list.indexOf('bmi');
       if (at >= 0) list.splice(at + 1, 0, 'potential', 'timeframe');
@@ -384,7 +411,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
       if (user?.id) {
         const planWeeks = wantsTarget ? weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal) : undefined;
         if (source) await AsyncStorage.setItem('nutria.source', source).catch(() => undefined);
-        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks, experience, energy, trainDays, hasCoach, dietStyle }, name.trim().split(' ')[0]));
+        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks, experience, energy, trainDays, hasCoach, dietStyle, wantsTo }, name.trim().split(' ')[0]));
       }
       if (user?.id && wantsTarget) {
         await saveGoalPlan(user.id, { weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal), startMs: Date.now(), startWeightKg: base.weightKg });
@@ -578,6 +605,43 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
             <Text style={styles.note}>{tr('Com acompanhamento diário, é muito mais fácil manter os resultados depois dos primeiros meses.')}</Text>
           </>
         )}
+        {current === 'accomplish' &&
+          ACCOMPLISH.map((o) => (
+            <QuizRow key={o.label} title={tr(o.label)} icon={<o.Icon size={18} color={colors.primary} />} selected={wantsTo === o.label} onPress={() => setWantsTo(o.label)} />
+          ))}
+        {current === 'thanks' && (
+          <View style={styles.thanks}>
+            <View style={styles.ring}>
+              <View style={styles.ringIn}>
+                <HeartHandshake size={72} color={colors.primary} strokeWidth={1.6} />
+              </View>
+            </View>
+            <Text style={styles.note}>{name.trim() ? tr('{name}, a sua jornada começa agora.', { name: name.trim().split(' ')[0] }) : tr('A sua jornada começa agora.')}</Text>
+          </View>
+        )}
+        {current === 'notify' && (
+          <>
+            {NOTIFY_USES.map((n) => (
+              <View key={n.title} style={styles.notifyRow}>
+                <View style={styles.notifyIcon}>
+                  <n.Icon size={20} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.notifyTitle}>{tr(n.title)}</Text>
+                  <Text style={styles.notifyBody}>{tr(n.body)}</Text>
+                </View>
+              </View>
+            ))}
+            <Pressable
+              style={[styles.allow, notifyOn && styles.allowOn]}
+              onPress={async () => setNotifyOn(await ensureNotificationPermission(true))}
+            >
+              <Bell size={18} color={notifyOn ? '#fff' : colors.primary} />
+              <Text style={[styles.allowText, notifyOn && { color: '#fff' }]}>{notifyOn ? tr('Notificações ativadas') : tr('Permitir notificações')}</Text>
+            </Pressable>
+            {notifyOn === false && <Text style={styles.note}>{tr('Sem problema: pode ativar mais tarde nas definições do telemóvel.')}</Text>}
+          </>
+        )}
         {current === 'coach' && (
           <>
             <QuizRow title={tr('Sim')} icon={<ThumbsUp size={18} color={colors.primary} />} selected={hasCoach} onPress={() => setHasCoach(true)} />
@@ -750,5 +814,15 @@ const createStyles = (colors: ThemeColors) =>
   ctaPressed: { opacity: 0.9 },
   ctaText: { color: '#fff', fontSize: font.h3, fontWeight: '600' },
   dots: { fontSize: 18, fontWeight: '900', color: colors.primary, letterSpacing: 1 },
+  thanks: { alignItems: 'center', gap: 22, marginTop: 24 },
+  ring: { width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  ringIn: { width: 160, height: 160, borderRadius: 80, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  notifyRow: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: colors.surface, borderRadius: radius.lg, padding: 14 },
+  notifyIcon: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  notifyTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },
+  notifyBody: { fontSize: font.small, color: colors.textMuted, lineHeight: 18, marginTop: 2 },
+  allow: { height: 54, borderRadius: 27, borderWidth: 2, borderColor: colors.primary, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.card },
+  allowOn: { backgroundColor: colors.primary },
+  allowText: { fontSize: font.h3, fontWeight: '700', color: colors.primary },
   nameInput: { height: 60, borderRadius: radius.lg, backgroundColor: colors.surface, paddingHorizontal: 18, fontSize: font.h2, fontWeight: '600', color: colors.text },
 });
