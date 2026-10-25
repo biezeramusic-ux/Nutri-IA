@@ -67,7 +67,7 @@ const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'lifestyle', 'h
 function stepsFor(goal: GoalType): Step[] {
   switch (goal) {
     case 'track_calories':
-      return ['goal', 'about', 'body', 'activity'];
+      return ['goal', 'about', 'body', 'activity', 'trust'];
     case 'maintain':
       return ['goal', 'about', 'body', 'activity', 'challenge', 'trust', 'health', 'diet'];
     case 'eat_healthy':
@@ -270,7 +270,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   // Até escolher o objetivo, mostra o percurso completo; depois ajusta-se ao objetivo.
   const steps = useMemo(() => {
     const list = [...(goalPicked ? stepsFor(base.goal) : FULL_STEPS)];
-    if (mode === 'first') list.splice(1, 0, 'name', 'source', 'experience');
+    list.splice(1, 0, ...(mode === 'first' ? (['name', 'source', 'experience'] as Step[]) : (['source', 'experience'] as Step[])));
     if (wantsTarget) {
       const at = list.indexOf('body');
       if (at >= 0) list.splice(at + 1, 0, 'potential', 'timeframe');
