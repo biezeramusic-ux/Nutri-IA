@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { Check } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
@@ -12,10 +12,12 @@ interface Props {
   onPress: () => void;
   /** Caixa quadrada (várias escolhas) ou círculo (uma só). */
   multi?: boolean;
+  /** Ícone numa bolha à esquerda (opcional). */
+  icon?: ReactNode;
 }
 
 /** Linha de resposta do quiz: fundo suave, texto forte e caixa de seleção à direita. */
-export function QuizRow({ title, subtitle, selected, onPress, multi = false }: Props) {
+export function QuizRow({ title, subtitle, selected, onPress, multi = false, icon }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
@@ -25,6 +27,7 @@ export function QuizRow({ title, subtitle, selected, onPress, multi = false }: P
       accessibilityState={{ checked: selected }}
       style={({ pressed }) => [styles.row, selected && styles.selected, pressed && styles.pressed]}
     >
+      {!!icon && <View style={[styles.bubble, selected && { backgroundColor: colors.card }]}>{icon}</View>}
       <View style={styles.text}>
         <Text style={styles.title}>{title}</Text>
         {!!subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
@@ -52,6 +55,7 @@ const createStyles = (colors: ThemeColors) =>
     },
     selected: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
     pressed: { opacity: 0.85 },
+    bubble: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
     text: { flex: 1 },
     title: { fontSize: font.h3, fontWeight: '700', color: colors.text },
     subtitle: { fontSize: font.small, color: colors.textMuted, marginTop: 2 },

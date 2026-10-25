@@ -4,6 +4,14 @@ import {
   Activity,
   Camera,
   ArrowLeft,
+  MessageCircle,
+  MoreHorizontal,
+  Music2,
+  Play,
+  Search,
+  ThumbsDown,
+  ThumbsUp,
+  Users,
   Droplets,
   Dumbbell,
   Footprints,
@@ -39,6 +47,7 @@ import { QuizResult } from './QuizResult';
 import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
+import { MaintainChart } from './MaintainChart';
 import { QuizChip } from './QuizChip';
 import { CrownMark } from '../CrownMark';
 import { Logo } from '../Logo';
@@ -50,9 +59,9 @@ import { WelcomeScreen } from './WelcomeScreen';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
-type Step = 'goal' | 'name' | 'about' | 'potential' | 'timeframe' | 'body' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
+type Step = 'goal' | 'name' | 'about' | 'source' | 'experience' | 'trust' | 'potential' | 'timeframe' | 'body' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
 
-const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'lifestyle', 'habits', 'challenge', 'motivation', 'health', 'diet', 'staples'];
+const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'lifestyle', 'habits', 'challenge', 'motivation', 'trust', 'health', 'diet', 'staples'];
 
 /** O quiz adapta-se ao objetivo: quem só quer saber as calorias responde ao mínimo. */
 function stepsFor(goal: GoalType): Step[] {
@@ -60,7 +69,7 @@ function stepsFor(goal: GoalType): Step[] {
     case 'track_calories':
       return ['goal', 'about', 'body', 'activity'];
     case 'maintain':
-      return ['goal', 'about', 'body', 'activity', 'challenge', 'health', 'diet'];
+      return ['goal', 'about', 'body', 'activity', 'challenge', 'trust', 'health', 'diet'];
     case 'eat_healthy':
     case 'lose_weight':
     case 'gain_muscle':
@@ -93,6 +102,15 @@ const CONDITIONS: { value: HealthCondition; label: string }[] = [
   { value: 'pregnancy', label: 'Gravidez ou amamentação' },
 ];
 
+const SOURCES: { label: string; Icon: typeof Scale }[] = [
+  { label: 'Instagram', Icon: Camera },
+  { label: 'Facebook', Icon: MessageCircle },
+  { label: 'TikTok', Icon: Music2 },
+  { label: 'YouTube', Icon: Play },
+  { label: 'Google', Icon: Search },
+  { label: 'Amigo ou família', Icon: Users },
+  { label: 'Outro', Icon: MoreHorizontal },
+];
 const CHALLENGES = ['Falta de tempo', 'Vontade de comer doces', 'Comer fora de horas', 'Não sei o que comer', 'Falta de motivação', 'Porções grandes', 'Beber pouca água'];
 const MOTIVATIONS = ['Ver resultados rápidos', 'Melhorar a saúde', 'Aparência', 'Mais energia', 'Desporto e desempenho', 'Família'];
 const SUPPORT_STYLES = ['Lembretes suaves', 'Desafios e medalhas', 'Gráficos e números'];
@@ -133,6 +151,9 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
   challenge: { title: 'O que mais o trava?', subtitle: 'Escolha até 3. Vamos ajudá-lo a superar isso.' },
   lifestyle: { title: 'Como são as suas refeições?', subtitle: 'Para ajustar horários e sugestões à sua rotina.' },
   motivation: { title: 'O que mais o motiva?', subtitle: 'Escolha até 3 e diga-nos como prefere ser acompanhado.' },
+  source: { title: 'Onde ouviu falar de nós?', subtitle: 'Só para sabermos como chegou até aqui.' },
+  experience: { title: 'Já experimentou outros aplicativos de controle de calorias?', subtitle: 'Sem problema se for a primeira vez, vamos passo a passo.' },
+  trust: { title: 'Feito para o ajudar a manter o rumo', subtitle: 'Perder peso é uma parte. Manter é o que conta.' },
   timeframe: { title: 'Em quanto tempo quer chegar à meta?', subtitle: 'Escolha um prazo realista para o seu peso desejado.' },
   goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
   about: { title: 'Vamos conhecê-lo melhor', subtitle: 'O sexo e a idade mudam as calorias de que o corpo precisa.' },
@@ -151,6 +172,9 @@ const SECTION: Record<Step, string> = {
   name: 'O seu nome',
   potential: 'O seu potencial',
   timeframe: 'O seu prazo',
+  source: 'Conhecer-nos',
+  experience: 'Experiência',
+  trust: 'Resultados duradouros',
   challenge: 'O seu desafio',
   lifestyle: 'Rotina',
   motivation: 'Motivação',
@@ -215,6 +239,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const [motivations, setMotivations] = useState<string[]>([]);
   const [supportStyle, setSupportStyle] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [source, setSource] = useState('');
+  const [experience, setExperience] = useState('Não');
   const [name, setName] = useState(profile?.fullName || displayName || '');
   const touched = useRef(false);
   // O nome pode chegar do servidor depois de abrir o quiz: preenche uma única vez se ainda estiver vazio.
@@ -244,7 +270,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   // Até escolher o objetivo, mostra o percurso completo; depois ajusta-se ao objetivo.
   const steps = useMemo(() => {
     const list = [...(goalPicked ? stepsFor(base.goal) : FULL_STEPS)];
-    if (mode === 'first') list.splice(1, 0, 'name');
+    if (mode === 'first') list.splice(1, 0, 'name', 'source', 'experience');
     if (wantsTarget) {
       const at = list.indexOf('body');
       if (at >= 0) list.splice(at + 1, 0, 'potential', 'timeframe');
@@ -308,7 +334,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
       await completeOnboarding(buildAnswers());
       if (user?.id) {
         const planWeeks = wantsTarget ? weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal) : undefined;
-        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks }, name.trim().split(' ')[0]));
+        if (source) await AsyncStorage.setItem('nutria.source', source).catch(() => undefined);
+        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks, experience }, name.trim().split(' ')[0]));
       }
       if (user?.id && wantsTarget) {
         await saveGoalPlan(user.id, { weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal), startMs: Date.now(), startWeightKg: base.weightKg });
@@ -399,6 +426,23 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
             <Text style={styles.title}>{copy.title}</Text>
             {!!copy.subtitle && <Text style={styles.subtitle}>{copy.subtitle}</Text>}
           </View>
+        )}
+
+        {current === 'source' &&
+          SOURCES.map((o) => (
+            <QuizRow key={o.label} title={tr(o.label)} icon={<o.Icon size={18} color={colors.primary} />} selected={source === o.label} onPress={() => setSource(o.label)} />
+          ))}
+        {current === 'experience' && (
+          <>
+            <QuizRow title={tr('Sim')} icon={<ThumbsUp size={18} color={colors.primary} />} selected={experience === 'Sim'} onPress={() => setExperience('Sim')} />
+            <QuizRow title={tr('Não')} icon={<ThumbsDown size={18} color={colors.primary} />} selected={experience === 'Não'} onPress={() => setExperience('Não')} />
+          </>
+        )}
+        {current === 'trust' && (
+          <>
+            <MaintainChart width={width - SCREEN_PADDING * 2} />
+            <Text style={styles.note}>{tr('Com acompanhamento diário, é muito mais fácil manter os resultados depois dos primeiros meses.')}</Text>
+          </>
         )}
 
         {current === 'goal' &&
