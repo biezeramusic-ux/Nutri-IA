@@ -1171,4 +1171,10 @@ export const zh: Record<string, string> = {
   "Devagar": "慢",
   "Ritmo suave, fácil de manter": "节奏轻松，容易坚持",
   "Chegaria por volta de {date}.": "预计在 {date} 前后达成。",
+  "{name}, beba água para cuidar da sua hidratação.": "{name}，喝水，照顾好您的水分。",
+  "{name}, está na hora de um copo de água: cuide da sua hidratação.": "{name}，该喝杯水了，照顾好您的水分。",
+  "Recomendamos cerca de {ml} ml agora.": "建议现在喝约 {ml} 毫升。",
+  "Ajuda a controlar a fome e a queimar gordura mais depressa.": "有助于控制饥饿，更快燃烧脂肪。",
+  "Ajuda a recuperar os músculos e a ganhar massa mais depressa.": "有助于肌肉恢复，更快增肌。",
+  "Ajuda a manter a energia e a chegar mais depressa ao seu objetivo.": "有助于保持精力，更快达成目标。",
 };

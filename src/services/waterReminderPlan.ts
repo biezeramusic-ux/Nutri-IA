@@ -1,5 +1,6 @@
 import type { ActivityLevel, GoalType, Habits, QuizAnswers } from '../types';
 import { tr } from '../i18n';
+import { GLASS_ML } from './goals';
 import { personalize } from './reminderText';
 
 /** Dados do quiz que personalizam os horários da água. */
@@ -41,15 +42,29 @@ export interface PlannedReminder {
 const MINUTE = 60 * 1000;
 const MAX_PER_DAY = 8;
 
-/** Mensagens simples, no estilo de uma notificação normal de hidratação. */
+/** Primeira linha: pede para beber água e cuidar da hidratação. */
 const SIMPLE_MESSAGES = [
-  '{name}, está na hora de beber água e manter uma boa hidratação.',
-  '{name}, um copo de água agora ajuda a manter-se hidratado.',
+  '{name}, beba água para cuidar da sua hidratação.',
+  '{name}, está na hora de um copo de água: cuide da sua hidratação.',
   'Lembrete, {name}: beba água e cuide da sua hidratação.',
 ];
 
-function pickMessage(index: number, name?: string): string {
-  return personalize(tr(SIMPLE_MESSAGES[index % SIMPLE_MESSAGES.length]), name);
+/** Porquê beber: ligado ao objetivo da pessoa. */
+function why(goal: GoalType | null): string {
+  if (goal === 'lose_weight') return tr('Ajuda a controlar a fome e a queimar gordura mais depressa.');
+  if (goal === 'gain_muscle') return tr('Ajuda a recuperar os músculos e a ganhar massa mais depressa.');
+  return tr('Ajuda a manter a energia e a chegar mais depressa ao seu objetivo.');
+}
+
+/** Mililitros recomendados por lembrete: o que falta da meta repartido pelos avisos que restam (arredondado a 50 ml). */
+export function mlPerReminder(missingMl: number, remainingReminders: number): number {
+  const raw = missingMl / Math.max(1, remainingReminders);
+  return Math.min(500, Math.max(100, Math.round(raw / 50) * 50));
+}
+
+function pickMessage(index: number, ml: number, goal: GoalType | null, name?: string): string {
+  const first = personalize(tr(SIMPLE_MESSAGES[index % SIMPLE_MESSAGES.length]), name);
+  return `${first}\n${tr('Recomendamos cerca de {ml} ml agora.', { ml })} ${why(goal)}`;
 }
 
 /**
@@ -96,6 +111,7 @@ export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] 
   const title = tr('Água');
   const minutes = waterMinutesOfDay(input);
   const result: PlannedReminder[] = [];
+  const goalMl = goalGlasses * GLASS_ML;
 
   for (let d = 0; d < days; d++) {
     const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d);
@@ -105,7 +121,9 @@ export function planWaterReminders(input: ReminderPlanInput): PlannedReminder[] 
       if (remaining <= 0) continue;
       times = times.filter((t) => t.getTime() > now.getTime() + 5 * MINUTE).slice(0, Math.max(1, remaining));
     }
-    times.forEach((at, i) => result.push({ at, title, body: pickMessage(d + i, input.firstName) }));
+    const missingMl = d === 0 ? Math.max(0, goalGlasses - glasses) * GLASS_ML : goalMl;
+    const ml = mlPerReminder(missingMl, times.length);
+    times.forEach((at, i) => result.push({ at, title, body: pickMessage(d + i, ml, input.goal, input.firstName) }));
   }
 
   return result.filter((r) => r.at.getTime() > now.getTime()).sort((a, b) => a.at.getTime() - b.at.getTime());

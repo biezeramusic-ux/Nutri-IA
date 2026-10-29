@@ -1171,4 +1171,10 @@ export const af: Record<string, string> = {
   "Devagar": "Stadig",
   "Ritmo suave, fácil de manter": "Sagte pas, maklik om vol te hou",
   "Chegaria por volta de {date}.": "Jy sal omtrent {date} aankom.",
+  "{name}, beba água para cuidar da sua hidratação.": "{name}, drink water om na jou hidrasie om te sien.",
+  "{name}, está na hora de um copo de água: cuide da sua hidratação.": "{name}, tyd vir 'n glas water: sorg vir jou hidrasie.",
+  "Recomendamos cerca de {ml} ml agora.": "Ons beveel nou omtrent {ml} ml aan.",
+  "Ajuda a controlar a fome e a queimar gordura mais depressa.": "Dit help om honger te beheer en vinniger vet te verbrand.",
+  "Ajuda a recuperar os músculos e a ganhar massa mais depressa.": "Dit help om spiere te herstel en vinniger massa te kry.",
+  "Ajuda a manter a energia e a chegar mais depressa ao seu objetivo.": "Dit hou jou energie hoog en bring jou vinniger by jou doelwit.",
 };

@@ -1171,4 +1171,10 @@ export const fr: Record<string, string> = {
   "Devagar": "Lent",
   "Ritmo suave, fácil de manter": "Rythme doux, facile à tenir",
   "Chegaria por volta de {date}.": "Vous y arriveriez vers le {date}.",
+  "{name}, beba água para cuidar da sua hidratação.": "{name}, buvez de l'eau pour prendre soin de votre hydratation.",
+  "{name}, está na hora de um copo de água: cuide da sua hidratação.": "{name}, c'est l'heure d'un verre d'eau : prenez soin de votre hydratation.",
+  "Recomendamos cerca de {ml} ml agora.": "Nous recommandons environ {ml} ml maintenant.",
+  "Ajuda a controlar a fome e a queimar gordura mais depressa.": "Cela aide à contrôler la faim et à brûler les graisses plus vite.",
+  "Ajuda a recuperar os músculos e a ganhar massa mais depressa.": "Cela aide à récupérer les muscles et à prendre de la masse plus vite.",
+  "Ajuda a manter a energia e a chegar mais depressa ao seu objetivo.": "Cela aide à garder votre énergie et à atteindre plus vite votre objectif.",
 };

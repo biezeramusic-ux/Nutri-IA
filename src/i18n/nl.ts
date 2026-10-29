@@ -1171,4 +1171,10 @@ export const nl: Record<string, string> = {
   "Devagar": "Langzaam",
   "Ritmo suave, fácil de manter": "Rustig tempo, makkelijk vol te houden",
   "Chegaria por volta de {date}.": "Je zou rond {date} aankomen.",
+  "{name}, beba água para cuidar da sua hidratação.": "{name}, drink water om goed gehydrateerd te blijven.",
+  "{name}, está na hora de um copo de água: cuide da sua hidratação.": "{name}, tijd voor een glas water: zorg goed voor je hydratatie.",
+  "Recomendamos cerca de {ml} ml agora.": "We raden nu ongeveer {ml} ml aan.",
+  "Ajuda a controlar a fome e a queimar gordura mais depressa.": "Het helpt de honger te beheersen en sneller vet te verbranden.",
+  "Ajuda a recuperar os músculos e a ganhar massa mais depressa.": "Het helpt je spieren herstellen en sneller massa opbouwen.",
+  "Ajuda a manter a energia e a chegar mais depressa ao seu objetivo.": "Het houdt je energie op peil en brengt je sneller bij je doel.",
 };
