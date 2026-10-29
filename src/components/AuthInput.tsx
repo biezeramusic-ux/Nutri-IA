@@ -52,14 +52,14 @@ export const AuthInput = forwardRef<TextInput, Props>(function AuthInput(
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  wrap: { gap: 6 },
-  label: { fontSize: font.small, fontWeight: '500', color: colors.text },
+  wrap: { gap: 3 },
+  label: { fontSize: font.tiny, fontWeight: '500', color: colors.text },
   field: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    height: 48,
-    paddingHorizontal: 14,
+    height: 42,
+    paddingHorizontal: 12,
     borderRadius: radius.md,
     backgroundColor: colors.card,
     borderWidth: 1,

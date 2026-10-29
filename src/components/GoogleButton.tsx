@@ -57,12 +57,12 @@ export function GoogleButton({ onPress, loading, disabled, title = 'Continuar co
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  wrap: { gap: 12 },
+  wrap: { gap: 8 },
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   line: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: colors.border },
   or: { color: colors.textMuted, fontSize: font.small },
   button: {
-    height: 48,
+    height: 44,
     borderRadius: radius.md,
     backgroundColor: colors.card,
     borderWidth: 1,

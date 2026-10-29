@@ -37,9 +37,9 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
             flexGrow: 1,
             justifyContent: 'flex-end',
             paddingTop: insets.top + 16,
-            paddingBottom: insets.bottom + 16,
-            paddingHorizontal: 16,
-            gap: 12,
+            paddingBottom: insets.bottom + 10,
+            paddingHorizontal: 12,
+            gap: 10,
           }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
@@ -71,21 +71,21 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  green: { ...StyleSheet.absoluteFill, width: undefined, height: undefined, opacity: 0.6 },
+  green: { ...StyleSheet.absoluteFill, width: undefined, height: undefined, opacity: 0.3 },
   shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.08)' },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 'auto' },
   logoBubble: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center' },
   brandText: { fontSize: font.h2, fontWeight: '700', color: '#fff' },
   card: {
-    backgroundColor: `${colors.card}F5`,
-    borderRadius: radius.card + 4,
+    backgroundColor: `${colors.card}EE`,
+    borderRadius: radius.card,
     borderWidth: 1,
     borderColor: 'rgba(226,232,240,0.9)',
-    padding: 20,
-    gap: 14,
+    padding: 14,
+    gap: 8,
   },
-  title: { fontSize: font.h1, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
-  subtitle: { fontSize: font.body, color: colors.textMuted, marginTop: -6, lineHeight: 20 },
+  title: { fontSize: font.h2, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
+  subtitle: { fontSize: font.small, color: colors.textMuted, marginTop: -4, lineHeight: 17 },
   config: {
     fontSize: font.small,
     color: colors.danger,

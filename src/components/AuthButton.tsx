@@ -31,7 +31,7 @@ export function AuthButton({ title, onPress, loading, disabled }: Props) {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   button: {
-    height: 48,
+    height: 44,
     borderRadius: radius.md,
     backgroundColor: colors.primary,
     alignItems: 'center',

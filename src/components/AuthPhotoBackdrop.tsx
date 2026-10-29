@@ -24,7 +24,7 @@ const IN_MS = 1300;
 export function AuthPhotoBackdrop() {
   const { width, height } = useWindowDimensions();
   // Foto maior que o ecrã, deslocada para o telemóvel ficar na parte de cima (o cartão cobre a de baixo).
-  const imgH = height * 1.35;
+  const imgH = height * 1.15;
   const imgW = imgH / 1.5;
   const [active, setActive] = useState(0);
   const prev = useRef<number | null>(null);
@@ -72,7 +72,7 @@ export function AuthPhotoBackdrop() {
             width: imgW,
             height: imgH,
             left: width / 2 - imgW * FOCUS[i].x,
-            top: height * 0.25 - imgH * FOCUS[i].y,
+            top: Math.max(height - imgH, Math.min(0, height * 0.22 - imgH * FOCUS[i].y)),
             zIndex: layer[i],
             opacity: opacity[i],
             transform: [{ translateX: slide[i] }, { scale: zoom[i] }],

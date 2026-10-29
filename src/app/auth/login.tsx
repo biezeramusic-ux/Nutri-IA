@@ -100,7 +100,7 @@ export default function LoginScreen() {
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-  form: { gap: 12 },
+  form: { gap: 8 },
   footer: { flexDirection: 'row', justifyContent: 'center' },
   footerText: { color: colors.textMuted, fontSize: font.body },
   link: { color: colors.primaryDark, fontSize: font.body, fontWeight: '600' },
