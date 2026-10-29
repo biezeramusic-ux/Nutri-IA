@@ -40,6 +40,7 @@ import { QuizResult } from './QuizResult';
 import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
+import { TypeText } from './TypeText';
 import { MaintainChart } from './MaintainChart';
 import { QuizChip } from './QuizChip';
 import { CrownMark } from '../CrownMark';
@@ -418,8 +419,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         >
         {copy && (
           <View style={styles.head}>
-            <Text style={styles.title}>{copy.title}</Text>
-            {!!copy.subtitle && <Text style={styles.subtitle}>{copy.subtitle}</Text>}
+            <TypeText key={`t-${current}`} text={tr(copy.title)} style={styles.title} />
+            {!!copy.subtitle && <TypeText key={`s-${current}`} text={tr(copy.subtitle)} style={styles.subtitle} delay={350 + copy.title.length * 38} msPerChar={16} />}
           </View>
         )}
 
