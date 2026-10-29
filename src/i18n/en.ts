@@ -1152,4 +1152,10 @@ export const en: Record<string, string> = {
   "Já registado hoje": "Already logged today",
   "Depois de registar, restam": "After logging, you have",
   "Restam hoje": "Left today",
+  "Último dia do teste grátis": "Last day of your free trial",
+  "Escolha um plano para continuar a registar e analisar as suas refeições.": "Choose a plan to keep logging and analyzing your meals.",
+  "Ao terminar, os scans e os registos ficam bloqueados. Veja os planos Pro.": "When it ends, scans and logging are locked. See the Pro plans.",
+  "kcal por dia": "kcal per day",
+  "dias seguidos": "days in a row",
+  "refeições": "meals",
 };

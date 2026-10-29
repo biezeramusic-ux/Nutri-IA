@@ -1152,4 +1152,10 @@ export const af: Record<string, string> = {
   "Já registado hoje": "Reeds vandag aangeteken",
   "Depois de registar, restam": "Na aanteken bly oor",
   "Restam hoje": "Vandag oor",
+  "Último dia do teste grátis": "Laaste dag van jou gratis proef",
+  "Escolha um plano para continuar a registar e analisar as suas refeições.": "Kies 'n plan om steeds jou maaltye aan te teken en te ontleed.",
+  "Ao terminar, os scans e os registos ficam bloqueados. Veja os planos Pro.": "Wanneer dit eindig, is skanderings en aantekeninge gesluit. Kyk na die Pro-planne.",
+  "kcal por dia": "kcal per dag",
+  "dias seguidos": "dae agtereenvolgend",
+  "refeições": "maaltye",
 };

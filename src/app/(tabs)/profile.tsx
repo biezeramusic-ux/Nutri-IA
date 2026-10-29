@@ -16,6 +16,9 @@ import { useSubscription } from '../../hooks/useSubscription';
 import { GLASS_ML, glassesFromMl } from '../../services/goals';
 import { ensureNotificationPermission, notificationsSupported, scheduleMealReminders } from '../../services/notifications';
 import { GOAL_LABEL } from '../../constants/labels';
+import { TrialReminder } from '../../components/TrialReminder';
+import { useDiary } from '../../hooks/useDiary';
+import { computeStreak } from '../../services/streak';
 import { SubscriptionCard } from '../../components/SubscriptionCard';
 import { LanguageSelector } from '../../components/LanguageSelector';
 import { ThemeChoice } from '../../components/ThemeChoice';
@@ -27,6 +30,8 @@ const SAVE_DELAY_MS = 700;
 export default function ProfileScreen() {
   const { colors, mode, setMode, isDark } = useTheme();
   const avatar = useAvatar();
+  const { meals } = useDiary();
+  const streakDays = useMemo(() => computeStreak(meals).current, [meals]);
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -140,28 +145,50 @@ export default function ProfileScreen() {
       <View style={[styles.hero, { paddingTop: insets.top + 16 }]}>
         <View style={styles.decoA} />
         <View style={styles.decoB} />
-        <Pressable style={styles.avatar} onPress={() => router.push('/edit-profile')} accessibilityLabel={tr('Editar perfil')}>
-          {avatar.uri ? (
-            <Image source={{ uri: avatar.uri }} style={styles.avatarImg} />
-          ) : (
-            <Text style={styles.avatarText}>{initials}</Text>
-          )}
-        </Pressable>
-        <Text style={styles.name}>{displayName || 'Utilizador'}</Text>
-        <Text style={styles.email}>{user?.email}</Text>
-        <View style={styles.chipRow}>
-          <View style={[styles.planChip, isPremium && styles.planChipPro]}>
-            {isPremium && <Crown size={12} color="#0B1F3A" />}
-            <Text style={[styles.planChipText, isPremium && { color: '#0B1F3A' }]}>{isPremium ? 'Nutri AI Pro' : planText}</Text>
+        <View style={styles.heroTop}>
+          <Pressable style={styles.avatarRing} onPress={() => router.push('/edit-profile')} accessibilityLabel={tr('Editar perfil')}>
+            <View style={styles.avatar}>
+              {avatar.uri ? <Image source={{ uri: avatar.uri }} style={styles.avatarImg} /> : <Text style={styles.avatarText}>{initials}</Text>}
+            </View>
+            <View style={styles.avatarBadge}>
+              <Pencil size={11} color="#fff" />
+            </View>
+          </Pressable>
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={styles.name} numberOfLines={1}>
+              {displayName || 'Utilizador'}
+            </Text>
+            <Text style={styles.email} numberOfLines={1}>
+              {user?.email}
+            </Text>
+            <View style={styles.chipRow}>
+              <View style={[styles.planChip, isPremium && styles.planChipPro]}>
+                {isPremium && <Crown size={12} color="#0B1F3A" />}
+                <Text style={[styles.planChipText, isPremium && { color: '#0B1F3A' }]}>{isPremium ? 'Nutri AI Pro' : planText}</Text>
+              </View>
+            </View>
           </View>
         </View>
-        <Pressable style={styles.editBtn} onPress={() => router.push('/edit-profile')}>
-          <Pencil size={14} color="#fff" />
-          <Text style={styles.editText}>{tr('Editar perfil')}</Text>
-        </Pressable>
+        <View style={styles.statsRow}>
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>{goals.calories}</Text>
+            <Text style={styles.statLabel}>{tr('kcal por dia')}</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>{streakDays}</Text>
+            <Text style={styles.statLabel}>{tr('dias seguidos')}</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.stat}>
+            <Text style={styles.statValue}>{meals.length}</Text>
+            <Text style={styles.statLabel}>{tr('refeições')}</Text>
+          </View>
+        </View>
       </View>
 
       <View style={styles.body}>
+        <TrialReminder />
         <Pressable style={styles.card} onPress={() => router.push('/goals')} accessibilityRole="button">
           <Text style={styles.cardTitle}>{tr('O meu plano diário')}</Text>
           <Text style={styles.goal}>{profile?.goal ? GOAL_LABEL[profile.goal] : 'Quiz por fazer'}</Text>
@@ -267,15 +294,23 @@ export default function ProfileScreen() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: colors.background },
-    hero: { backgroundColor: colors.hero, paddingHorizontal: SCREEN_PADDING, paddingBottom: 26, alignItems: 'center', gap: 4, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
+    hero: { backgroundColor: colors.hero, paddingHorizontal: SCREEN_PADDING, paddingBottom: 22, gap: 18, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden' },
     decoA: { position: 'absolute', width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primary, opacity: 0.3, top: -80, right: -70 },
     decoB: { position: 'absolute', width: 140, height: 140, borderRadius: 70, backgroundColor: colors.lime, opacity: 0.18, bottom: -50, left: -40 },
+    heroTop: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+    avatarRing: { width: 88, height: 88, borderRadius: 44, borderWidth: 2.5, borderColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
+    avatarBadge: { position: 'absolute', right: -2, bottom: -2, width: 26, height: 26, borderRadius: 13, backgroundColor: colors.primary, borderWidth: 2, borderColor: colors.hero, alignItems: 'center', justifyContent: 'center' },
+    statsRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 20, paddingVertical: 12 },
+    stat: { flex: 1, alignItems: 'center', gap: 2 },
+    statValue: { fontSize: font.h2, fontWeight: '800', color: '#fff' },
+    statLabel: { fontSize: font.tiny, color: 'rgba(255,255,255,0.7)', fontWeight: '600' },
+    statDivider: { width: 1, height: 28, backgroundColor: 'rgba(255,255,255,0.18)' },
     avatar: { width: 76, height: 76, borderRadius: 38, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: 'rgba(255,255,255,0.35)' },
     avatarImg: { width: 70, height: 70, borderRadius: 35 },
     avatarText: { fontSize: 28, fontWeight: '700', color: '#0B1F3A' },
-    name: { fontSize: font.h1, fontWeight: '700', color: '#fff', marginTop: 8 },
+    name: { fontSize: font.h1, fontWeight: '800', color: '#fff' },
     email: { fontSize: font.small, color: 'rgba(255,255,255,0.75)' },
-    chipRow: { flexDirection: 'row', marginTop: 8 },
+    chipRow: { flexDirection: 'row', marginTop: 6 },
     planChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(255,255,255,0.16)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 5 },
     planChipPro: { backgroundColor: colors.lime },
     planChipText: { fontSize: font.small, fontWeight: '600', color: '#fff' },

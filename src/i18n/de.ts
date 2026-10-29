@@ -1152,4 +1152,10 @@ export const de: Record<string, string> = {
   "Já registado hoje": "Heute bereits eingetragen",
   "Depois de registar, restam": "Nach dem Eintragen bleiben",
   "Restam hoje": "Heute übrig",
+  "Último dia do teste grátis": "Letzter Tag Ihrer Testphase",
+  "Escolha um plano para continuar a registar e analisar as suas refeições.": "Wählen Sie einen Tarif, um weiter Mahlzeiten zu erfassen und zu analysieren.",
+  "Ao terminar, os scans e os registos ficam bloqueados. Veja os planos Pro.": "Danach sind Scans und Einträge gesperrt. Sehen Sie die Pro-Tarife.",
+  "kcal por dia": "kcal pro Tag",
+  "dias seguidos": "Tage in Folge",
+  "refeições": "Mahlzeiten",
 };

@@ -1152,4 +1152,10 @@ export const zh: Record<string, string> = {
   "Já registado hoje": "今天已记录",
   "Depois de registar, restam": "记录后还剩",
   "Restam hoje": "今日剩余",
+  "Último dia do teste grátis": "免费试用最后一天",
+  "Escolha um plano para continuar a registar e analisar as suas refeições.": "选择套餐，继续记录和分析您的餐食。",
+  "Ao terminar, os scans e os registos ficam bloqueados. Veja os planos Pro.": "试用结束后，扫描和记录将被锁定。查看专业版套餐。",
+  "kcal por dia": "千卡/天",
+  "dias seguidos": "连续天数",
+  "refeições": "餐食",
 };

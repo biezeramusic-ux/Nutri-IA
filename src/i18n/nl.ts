@@ -1152,4 +1152,10 @@ export const nl: Record<string, string> = {
   "Já registado hoje": "Vandaag al gelogd",
   "Depois de registar, restam": "Na het loggen blijft over",
   "Restam hoje": "Vandaag over",
+  "Último dia do teste grátis": "Laatste dag van je gratis proef",
+  "Escolha um plano para continuar a registar e analisar as suas refeições.": "Kies een abonnement om je maaltijden te blijven loggen en analyseren.",
+  "Ao terminar, os scans e os registos ficam bloqueados. Veja os planos Pro.": "Daarna zijn scans en logs vergrendeld. Bekijk de Pro-abonnementen.",
+  "kcal por dia": "kcal per dag",
+  "dias seguidos": "dagen op rij",
+  "refeições": "maaltijden",
 };

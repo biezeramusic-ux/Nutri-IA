@@ -12,6 +12,7 @@ import { Logo } from '../../components/Logo';
 import { MealSection } from '../../components/MealSection';
 import { ProBadge } from '../../components/ProOverlay';
 import { ScanCard } from '../../components/ScanCard';
+import { TrialReminder } from '../../components/TrialReminder';
 import { StepsWaterCards } from '../../components/StepsWaterCards';
 import { StreakCard } from '../../components/StreakCard';
 import { SearchBar } from '../../components/SearchBar';
@@ -153,6 +154,10 @@ export default function HomeScreen() {
               <Text style={styles.proText}>PRO</Text>
             </View>
           )}
+        </View>
+
+        <View style={styles.pad}>
+          <TrialReminder />
         </View>
 
         <View style={styles.pad}>

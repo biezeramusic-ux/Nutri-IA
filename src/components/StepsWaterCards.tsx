@@ -25,7 +25,7 @@ const QUICK = [
 
 /** Passos + calorias queimadas e, por baixo, o registo rápido de água. */
 export function StepsWaterCards() {
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const { steps, setSteps, totals } = useActivity();
@@ -75,7 +75,7 @@ export function StepsWaterCards() {
             </>
           ) : (
             <>
-              <View style={{ opacity: 0.35 }}>
+              <View style={{ opacity: isDark ? 0.7 : 0.35 }}>
                 <Text style={styles.ghostNumber}>
                   0<Text style={styles.ghostOf}> /{STEPS_GOAL}</Text>
                 </Text>
