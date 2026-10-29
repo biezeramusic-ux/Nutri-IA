@@ -4,7 +4,6 @@ import { Text } from '../../components/AppText';
 import { cardBase, font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
 import { tr } from '../../i18n';
-import { Reveal } from './Reveal';
 
 interface Props {
   question: string;
@@ -17,7 +16,6 @@ export function YesNoRow({ question, value, onChange }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
-    <Reveal>
     <View style={styles.card}>
       <Text style={styles.question}>{question}</Text>
       <View style={styles.buttons}>
@@ -29,7 +27,6 @@ export function YesNoRow({ question, value, onChange }: Props) {
         </Pressable>
       </View>
     </View>
-    </Reveal>
   );
 }
 

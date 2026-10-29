@@ -9,12 +9,6 @@ export interface CoachExtras {
   motivations: string[];
   supportStyle: string;
   weeks?: number;
-  experience?: string;
-  energy?: string;
-  trainDays?: number;
-  wantsTo?: string;
-  hasCoach?: boolean;
-  dietStyle?: string;
 }
 
 const key = (userId: string) => `nutria.coachContext.${userId}`;
@@ -44,12 +38,6 @@ export function buildCoachContext(a: QuizAnswers, extra: CoachExtras, firstName?
     `meals_per_day=${extra.mealsPerDay}`,
     `cooking_time=${extra.cookingTime}`,
     extra.motivations.length ? `motivation=${extra.motivations.join('|')}` : '',
-    extra.experience ? `calorie_app_experience=${extra.experience}` : '',
-    extra.energy ? `daily_energy=${extra.energy}` : '',
-    extra.trainDays !== undefined ? `workouts_per_week=${extra.trainDays}` : '',
-    extra.hasCoach !== undefined ? `has_trainer_or_nutritionist=${extra.hasCoach}` : '',
-    extra.dietStyle ? `diet_style=${extra.dietStyle}` : '',
-    extra.wantsTo ? `wants_to=${extra.wantsTo}` : '',
     extra.supportStyle ? `support_style=${extra.supportStyle}` : '',
     a.habits.skipsMeals ? 'skips_meals' : '',
     a.habits.eatsOut ? 'eats_out_often' : '',

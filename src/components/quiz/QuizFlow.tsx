@@ -2,16 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import {
   Activity,
+  Camera,
   ArrowLeft,
-  Utensils,
-  Trophy,
-  Sun,
-  Smile,
-  HeartHandshake,
-  Bell,
-  Apple,
-  ThumbsDown,
-  ThumbsUp,
   Droplets,
   Dumbbell,
   Footprints,
@@ -22,7 +14,7 @@ import {
   UserRound,
 } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -32,7 +24,7 @@ import { useProfile } from '../../hooks/useProfile';
 import { GLASS_ML, calculateGoals, glassesFromMl, planTips } from '../../services/goals';
 import { ensureNotificationPermission } from '../../services/notifications';
 import { STAPLES } from '../../services/staples';
-import { maxSafeRate, recommendedWeeks, saveGoalPlan } from '../../services/goalPlan';
+import { WEEK_OPTIONS, maxSafeRate, ratePerWeek, recommendedWeeks, saveGoalPlan } from '../../services/goalPlan';
 import type {
   ActivityLevel,
   DietPreference,
@@ -47,11 +39,6 @@ import { QuizResult } from './QuizResult';
 import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
-import { TypeText } from './TypeText';
-import { SpeedPicker } from './SpeedPicker';
-import { Reveal, RevealProvider } from './Reveal';
-import { HeightRuler } from './HeightRuler';
-import { MaintainChart } from './MaintainChart';
 import { QuizChip } from './QuizChip';
 import { CrownMark } from '../CrownMark';
 import { Logo } from '../Logo';
@@ -63,17 +50,17 @@ import { WelcomeScreen } from './WelcomeScreen';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
-type Step = 'goal' | 'name' | 'about' | 'experience' | 'trust' | 'accomplish' | 'thanks' | 'notify' | 'potential' | 'timeframe' | 'body' | 'height' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
+type Step = 'goal' | 'name' | 'about' | 'potential' | 'timeframe' | 'body' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
 
-const FULL_STEPS: Step[] = ['goal', 'about', 'height', 'body', 'activity', 'lifestyle', 'habits', 'challenge', 'motivation', 'trust', 'health', 'diet', 'staples'];
+const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'challenge', 'lifestyle', 'health', 'habits', 'motivation', 'diet', 'staples'];
 
 /** O quiz adapta-se ao objetivo: quem só quer saber as calorias responde ao mínimo. */
 function stepsFor(goal: GoalType): Step[] {
   switch (goal) {
     case 'track_calories':
-      return ['goal', 'about', 'height', 'body', 'activity', 'trust'];
+      return ['goal', 'about', 'body', 'activity'];
     case 'maintain':
-      return ['goal', 'about', 'height', 'body', 'activity', 'challenge', 'trust', 'health', 'diet'];
+      return ['goal', 'about', 'body', 'activity', 'challenge', 'health', 'diet'];
     case 'eat_healthy':
     case 'lose_weight':
     case 'gain_muscle':
@@ -106,28 +93,7 @@ const CONDITIONS: { value: HealthCondition; label: string }[] = [
   { value: 'pregnancy', label: 'Gravidez ou amamentação' },
 ];
 
-const ACCOMPLISH: { label: string; Icon: typeof Scale }[] = [
-  { label: 'Comer e viver de forma mais saudável', Icon: Apple },
-  { label: 'Aumentar a minha energia e humor', Icon: Sun },
-  { label: 'Manter-me motivado e consistente', Icon: Dumbbell },
-  { label: 'Sentir-me melhor com o meu corpo', Icon: Smile },
-];
-const NOTIFY_USES: { title: string; body: string; Icon: typeof Scale }[] = [
-  { title: 'Lembretes de refeição', body: 'Um toque suave para registar o pequeno-almoço, o almoço e o jantar, sem esquecer nenhum.', Icon: Utensils },
-  { title: 'Lembretes de água', body: 'Avisos nos horários certos do seu dia para chegar à meta de água.', Icon: Droplets },
-  { title: 'Sequência e medalhas', body: 'Avisamos quando está perto de uma conquista ou de perder a sua sequência.', Icon: Trophy },
-];
 const CHALLENGES = ['Falta de tempo', 'Vontade de comer doces', 'Comer fora de horas', 'Não sei o que comer', 'Falta de motivação', 'Porções grandes', 'Beber pouca água'];
-/** Resposta de apoio ao desafio escolhido: mostra à pessoa que o Nutri AI a vai ajudar nisso. */
-const CHALLENGE_TIPS: Record<string, string> = {
-  'Falta de tempo': 'Vamos manter o registo rápido: uma foto e pronto, em poucos segundos.',
-  'Vontade de comer doces': 'Vamos sugerir trocas simples e avisá-lo quando o açúcar do dia estiver alto.',
-  'Comer fora de horas': 'Os lembretes de refeição ajudam a criar horários fixos ao longo do dia.',
-  'Não sei o que comer': 'Com base na sua meta e nos seus alimentos favoritos, damos ideias de pratos.',
-  'Falta de motivação': 'Sequências, medalhas e metas pequenas mantêm-no a avançar todos os dias.',
-  'Porções grandes': 'Mostramos as calorias de cada prato para ajustar as porções sem passar fome.',
-  'Beber pouca água': 'Lembretes de água nos horários certos do seu dia, até chegar à meta.',
-};
 const MOTIVATIONS = ['Ver resultados rápidos', 'Melhorar a saúde', 'Aparência', 'Mais energia', 'Desporto e desempenho', 'Família'];
 const SUPPORT_STYLES = ['Lembretes suaves', 'Desafios e medalhas', 'Gráficos e números'];
 const MEALS_PER_DAY: { value: number; label: string }[] = [
@@ -135,6 +101,11 @@ const MEALS_PER_DAY: { value: number; label: string }[] = [
   { value: 3, label: '3' },
   { value: 4, label: '4' },
   { value: 5, label: '5 ou mais' },
+];
+const COOKING: { value: CoachExtras['cookingTime']; label: string }[] = [
+  { value: 'low', label: 'Pouco tempo' },
+  { value: 'normal', label: 'Tempo normal' },
+  { value: 'high', label: 'Muito tempo' },
 ];
 
 const HABIT_QUESTIONS: { key: keyof Habits; text: string }[] = [
@@ -157,24 +128,18 @@ const DIETS: { value: DietPreference; label: string }[] = [
 ];
 
 const COPY: Record<Step, { title: string; subtitle?: string }> = {
-  name: { title: 'Olá! Como se chama?', subtitle: 'Vamos tratá-lo pelo nome na app.' },
+  name: { title: 'Como se chama?', subtitle: 'Vamos tratá-lo pelo nome na app.' },
   potential: { title: 'Tem um grande potencial para alcançar o seu objetivo' },
-  challenge: { title: 'O que mais o trava?', subtitle: 'Escolha até 3. Vamos ajudá-lo a superar isso.' },
-  lifestyle: { title: 'Como são as suas refeições?', subtitle: 'Para ajustar horários e sugestões à sua rotina.' },
+  challenge: { title: 'Qual é o seu maior desafio?', subtitle: 'Escolha até 3. Vamos ajudá-lo nisso.' },
+  lifestyle: { title: 'O seu dia a dia à mesa', subtitle: 'Ajuda-nos a sugerir melhores escolhas.' },
   motivation: { title: 'O que mais o motiva?', subtitle: 'Escolha até 3 e diga-nos como prefere ser acompanhado.' },
-  experience: { title: 'Já experimentou outros aplicativos de controle de calorias?', subtitle: 'Sem problema se for a primeira vez, vamos passo a passo.' },
-  accomplish: { title: 'O que gostaria de conseguir?', subtitle: 'Além do número na balança, o que importa para si?' },
-  thanks: { title: 'Obrigado por confiar em nós', subtitle: 'Agora vamos personalizar o Nutri AI para si…' },
-  notify: { title: 'Alcance os seus objetivos com notificações', subtitle: 'Veja para que servem. Pode desligar quando quiser.' },
-  trust: { title: 'Feito para o ajudar a manter o rumo', subtitle: 'Perder peso é uma parte. Manter é o que conta.' },
-  timeframe: { title: 'Qual a velocidade para chegar à meta?', subtitle: 'Arraste para escolher um ritmo realista.' },
+  timeframe: { title: 'Em quanto tempo quer chegar à meta?', subtitle: 'Escolha um prazo realista para o seu peso desejado.' },
   goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
-  about: { title: 'Vamos conhecê-lo melhor', subtitle: 'O sexo e a idade mudam as calorias de que o corpo precisa.' },
-  height: { title: 'Qual é a sua altura?', subtitle: 'Deslize a régua até chegar à sua altura.' },
-  body: { title: 'E o seu peso?', subtitle: 'Sem pressa. Pode ajustar depois no Perfil.' },
-  activity: { title: 'Quão ativo é no dia a dia?', subtitle: 'Quanto mais se mexe, mais calorias e água precisa.' },
+  about: { title: 'Fale-nos de si', subtitle: 'Usamos isto para calcular as suas calorias.' },
+  body: { title: 'A sua altura e peso', subtitle: 'Pode ajustar mais tarde no Perfil.' },
+  activity: { title: 'Como é o seu dia a dia?', subtitle: 'Quanto mais ativo, mais calorias e água precisa.' },
   health: { title: 'Tem alguma condição de saúde?', subtitle: 'Opcional. O Nutri AI não substitui o seu médico.' },
-  habits: { title: 'Os seus hábitos de hoje', subtitle: 'Sem julgamentos: serve só para o acompanhar melhor.' },
+  habits: { title: 'Os seus hábitos', subtitle: 'Responda sim ou não.' },
   diet: { title: 'Restrições e alergias', subtitle: 'Opcional. Escolha o que se aplica.' },
   staples: { title: 'O que come mais no dia a dia?', subtitle: 'Opcional. Ajuda-nos a sugerir melhores escolhas.' },
 };
@@ -184,11 +149,6 @@ const GOAL_PRIORITY: GoalType[] = ['lose_weight', 'gain_muscle', 'maintain', 'ea
 
 const SECTION: Record<Step, string> = {
   name: 'O seu nome',
-  experience: 'Experiência',
-  accomplish: 'Motivo',
-  thanks: 'Quase lá',
-  notify: 'Notificações',
-  trust: 'Resultados duradouros',
   potential: 'O seu potencial',
   timeframe: 'O seu prazo',
   challenge: 'O seu desafio',
@@ -197,7 +157,6 @@ const SECTION: Record<Step, string> = {
   goal: 'Metas',
   about: 'Sobre si',
   body: 'Medidas',
-  height: 'Medidas',
   activity: 'Atividade',
   health: 'Saúde',
   habits: 'Hábitos',
@@ -226,25 +185,11 @@ function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
-/** Um risco da barra de progresso: enche-se devagar quando a pessoa avança. */
-function Seg({ on, styles }: { on: boolean; styles: { segment: object; segmentOn: object } }) {
-  const v = useRef(new Animated.Value(on ? 1 : 0)).current;
-  useEffect(() => {
-    Animated.timing(v, { toValue: on ? 1 : 0, duration: 700, delay: on ? 450 : 0, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
-  }, [on, v]);
-  return (
-    <View style={styles.segment}>
-      <Animated.View style={[styles.segmentOn, { width: v.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }), height: '100%' }]} />
-    </View>
-  );
-}
-
 export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
   const { profile, completeOnboarding, saveReminders, saveName } = useProfile();
   const { displayName, user } = useAuth();
   const [step, setStep] = useState(0);
@@ -265,14 +210,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const [weeksPick, setWeeksPick] = useState<number | null>(null);
   const [challenges, setChallenges] = useState<string[]>([]);
   const [mealsPerDay, setMealsPerDay] = useState(3);
-  const cookingTime: CoachExtras['cookingTime'] = 'normal';
+  const [cookingTime, setCookingTime] = useState<CoachExtras['cookingTime']>('normal');
   const [motivations, setMotivations] = useState<string[]>([]);
   const [supportStyle, setSupportStyle] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [dragging, setDragging] = useState(false);
-  const [experience, setExperience] = useState('Não');
-  const [wantsTo, setWantsTo] = useState('Comer e viver de forma mais saudável');
-  const [notifyOn, setNotifyOn] = useState<boolean | null>(null);
   const [name, setName] = useState(profile?.fullName || displayName || '');
   const touched = useRef(false);
   // O nome pode chegar do servidor depois de abrir o quiz: preenche uma única vez se ainda estiver vazio.
@@ -302,11 +243,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   // Até escolher o objetivo, mostra o percurso completo; depois ajusta-se ao objetivo.
   const steps = useMemo(() => {
     const list = [...(goalPicked ? stepsFor(base.goal) : FULL_STEPS)];
-    list.splice(1, 0, 'accomplish', 'experience');
-    if (mode === 'first') {
-      list.unshift('name');
-      list.push('thanks', 'notify');
-    }
+    if (mode === 'first') list.splice(1, 0, 'name');
     if (wantsTarget) {
       const at = list.indexOf('body');
       if (at >= 0) list.splice(at + 1, 0, 'potential', 'timeframe');
@@ -314,6 +251,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     return list;
   }, [goalPicked, base.goal, mode, wantsTarget]);
   const resultStep = steps.length;
+
   const answeredAllHabits = HABIT_QUESTIONS.every((q) => habits[q.key] !== undefined);
 
   const buildAnswers = (): QuizAnswers => ({
@@ -349,28 +287,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     if (main) setBase((b) => ({ ...b, goal: main }));
   };
 
-  const slide = useRef(new Animated.Value(0)).current;
-  const dir = useRef(1);
-  const busy = useRef(false);
-  // A pergunta atual sai devagar para um lado e a seguinte entra suavemente do outro; as respostas aparecem depois.
-  const goTo = (next: number) => {
-    if (busy.current) return;
-    busy.current = true;
-    setTimeout(() => {
-      busy.current = false;
-    }, 1600);
-    dir.current = next >= step ? 1 : -1;
-    Animated.timing(slide, { toValue: -dir.current * 0.45, duration: 230, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(() => {
-      setStep(next);
-      slide.setValue(dir.current);
-      Animated.timing(slide, { toValue: 0, duration: 620, easing: Easing.bezier(0.22, 1, 0.36, 1), useNativeDriver: true }).start(() => {
-        busy.current = false;
-      });
-    });
-  };
-
   const goBack = () => {
-    if (step > 0) goTo(step - 1);
+    if (step > 0) setStep(step - 1);
     else if (mode === 'redo') router.back();
   };
 
@@ -380,7 +298,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
       await completeOnboarding(buildAnswers());
       if (user?.id) {
         const planWeeks = wantsTarget ? weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal) : undefined;
-        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks, experience, wantsTo }, name.trim().split(' ')[0]));
+        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks }, name.trim().split(' ')[0]));
       }
       if (user?.id && wantsTarget) {
         await saveGoalPlan(user.id, { weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal), startMs: Date.now(), startWeightKg: base.weightKg });
@@ -440,12 +358,11 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   }
 
   return (
-    <View style={[styles.root, { overflow: 'hidden' }]}>
+    <View style={styles.root}>
       <ScrollView
         contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: SCREEN_PADDING, paddingBottom: 120, gap: 12 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
-        scrollEnabled={!dragging}
       >
         {current === 'goal' && (
           <View style={styles.brand}>
@@ -455,75 +372,16 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         )}
         <Text style={styles.section}>{current ? tr(SECTION[current]) : ''}</Text>
         <View style={styles.progress}>
-          {steps.map((st, i) => (
-            <Seg key={st} on={i <= Math.min(step, steps.length - 1)} styles={styles} />
+          {steps.map((s, i) => (
+            <View key={s} style={[styles.segment, i <= Math.min(step, steps.length - 1) && styles.segmentOn]} />
           ))}
         </View>
 
-        <Animated.View
-          style={{
-            gap: 12,
-            opacity: slide.interpolate({ inputRange: [-1, -0.45, 0, 0.45, 1], outputRange: [0, 0.2, 1, 0.2, 0] }),
-            transform: [{ translateX: slide.interpolate({ inputRange: [-1, 1], outputRange: [-width, width] }) }],
-          }}
-        >
         {copy && (
           <View style={styles.head}>
-            <TypeText key={`t-${current}`} text={tr(copy.title)} style={styles.title} delay={700} msPerChar={45} />
-            {!!copy.subtitle && <TypeText key={`s-${current}`} text={tr(copy.subtitle)} style={styles.subtitle} delay={700 + copy.title.length * 45 + 150} msPerChar={18} />}
+            <Text style={styles.title}>{copy.title}</Text>
+            {!!copy.subtitle && <Text style={styles.subtitle}>{copy.subtitle}</Text>}
           </View>
-        )}
-
-        <RevealProvider stepKey={String(current)}>
-        <View style={{ gap: 16 }}>
-        {current === 'accomplish' &&
-          ACCOMPLISH.map((o) => (
-            <QuizRow key={o.label} title={tr(o.label)} icon={<o.Icon size={18} color={colors.primary} />} selected={wantsTo === o.label} onPress={() => setWantsTo(o.label)} />
-          ))}
-        {current === 'thanks' && (
-          <View style={styles.thanks}>
-            <View style={styles.ring}>
-              <View style={styles.ringIn}>
-                <HeartHandshake size={72} color={colors.primary} strokeWidth={1.6} />
-              </View>
-            </View>
-            <Text style={styles.note}>{name.trim() ? tr('{name}, a sua jornada começa agora.', { name: name.trim().split(' ')[0] }) : tr('A sua jornada começa agora.')}</Text>
-          </View>
-        )}
-        {current === 'notify' && (
-          <>
-            {NOTIFY_USES.map((n) => (
-              <View key={n.title} style={styles.notifyRow}>
-                <View style={styles.notifyIcon}>
-                  <n.Icon size={20} color={colors.primary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.notifyTitle}>{tr(n.title)}</Text>
-                  <Text style={styles.notifyBody}>{tr(n.body)}</Text>
-                </View>
-              </View>
-            ))}
-            <Pressable
-              style={[styles.allow, notifyOn && styles.allowOn]}
-              onPress={async () => setNotifyOn(await ensureNotificationPermission(true))}
-            >
-              <Bell size={18} color={notifyOn ? '#fff' : colors.primary} />
-              <Text style={[styles.allowText, notifyOn && { color: '#fff' }]}>{notifyOn ? tr('Notificações ativadas') : tr('Permitir notificações')}</Text>
-            </Pressable>
-            {notifyOn === false && <Text style={styles.note}>{tr('Sem problema: pode ativar mais tarde nas definições do telemóvel.')}</Text>}
-          </>
-        )}
-        {current === 'experience' && (
-          <>
-            <QuizRow title={tr('Sim')} icon={<ThumbsUp size={18} color={colors.primary} />} selected={experience === 'Sim'} onPress={() => setExperience('Sim')} />
-            <QuizRow title={tr('Não')} icon={<ThumbsDown size={18} color={colors.primary} />} selected={experience === 'Não'} onPress={() => setExperience('Não')} />
-          </>
-        )}
-        {current === 'trust' && (
-          <>
-            <Reveal><MaintainChart width={width - SCREEN_PADDING * 2} /></Reveal>
-            <Reveal><Text style={styles.note}>{tr('Com acompanhamento diário, é muito mais fácil manter os resultados depois dos primeiros meses.')}</Text></Reveal>
-          </>
         )}
 
         {current === 'goal' &&
@@ -532,7 +390,6 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           ))}
 
         {current === 'name' && (
-          <Reveal>
           <TextInput
             value={name}
             onChangeText={setName}
@@ -543,42 +400,53 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
             maxLength={40}
             style={styles.nameInput}
           />
-          </Reveal>
         )}
 
         {current === 'potential' && (
           <>
-            <Reveal><PotentialChart
+            <PotentialChart
               title={pickedGoals.includes('lose_weight') ? tr('A sua transição de peso') : tr('A sua evolução')}
               withLabel={tr('Com o Nutri AI')}
               withoutLabel={tr('Da forma tradicional')}
-            /></Reveal>
-            <Reveal>
+            />
             <Text style={styles.note}>
               {pickedGoals.includes('lose_weight')
                 ? tr('Sem acompanhamento, perder peso costuma ser lento e difícil de manter. Com o Nutri AI, depois dos primeiros 7 dias o progresso acelera.')
                 : tr('Sem acompanhamento, ganhar massa costuma ser lento e irregular. Com o Nutri AI, depois dos primeiros 7 dias o progresso acelera.')}
             </Text>
-            </Reveal>
-            <Reveal>
             <Text style={styles.note}>
               {base.weightKg} kg → {base.targetWeightKg} kg
             </Text>
-            </Reveal>
           </>
         )}
 
         {current === 'timeframe' && (
-          <Reveal>
-            <SpeedPicker
-              diffKg={Math.abs(base.targetWeightKg - base.weightKg)}
-              weeks={weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal)}
-              recommendedWeeks={recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal)}
-              safeRate={maxSafeRate(base.goal)}
-              width={width - SCREEN_PADDING * 2}
-              onWeeks={setWeeksPick}
-            />
-          </Reveal>
+          <>
+            {WEEK_OPTIONS.map((w) => {
+              const rec = recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal);
+              const rate = ratePerWeek(base.weightKg, base.targetWeightKg, w);
+              const fast = rate > maxSafeRate(base.goal);
+              const chosen = (weeksPick ?? rec) === w;
+              const months = w >= 8 ? ` (≈ ${Math.round(w / 4.345)} ${tr('meses')})` : '';
+              return (
+                <QuizRow
+                  key={w}
+                  title={`${w} ${tr('semanas')}${months}`}
+                  subtitle={`${rate.toFixed(2).replace('.', ',')} kg ${tr('por semana')}${w === rec ? ` · ${tr('Recomendado')}` : fast ? ` · ${tr('Ritmo muito rápido')}` : ''}`}
+                  selected={chosen}
+                  onPress={() => setWeeksPick(w)}
+                />
+              );
+            })}
+            <Text style={styles.note}>
+              {tr('De {from} kg para {to} kg em {weeks} semanas. Chegaria por volta de {date}.', {
+                from: base.weightKg,
+                to: base.targetWeightKg,
+                weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal),
+                date: new Date(Date.now() + (weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal)) * 7 * 86400000).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }),
+              })}
+            </Text>
+          </>
         )}
 
         {current === 'about' && (
@@ -589,10 +457,9 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </>
         )}
 
-        {current === 'height' && <Reveal><HeightRuler sex={base.sex} age={base.age} cm={base.heightCm} onChange={(v) => update('heightCm', v)} onDrag={setDragging} /></Reveal>}
-
         {current === 'body' && (
           <>
+            <NumberStepper label={tr('Altura')} value={base.heightCm} unit="cm" min={100} max={250} onChange={(v) => update('heightCm', v)} />
             <NumberStepper label={tr('Peso atual')} value={base.weightKg} unit="kg" min={30} max={300} onChange={(v) => update('weightKg', v)} />
             {wantsTarget && (
               <NumberStepper label={tr('Peso desejado')} value={base.targetWeightKg} unit="kg" min={30} max={300} onChange={(v) => update('targetWeightKg', v)} />
@@ -617,7 +484,6 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         )}
 
         {current === 'challenge' && (
-          <>
           <View style={styles.chips}>
             {CHALLENGES.map((c) => (
               <QuizChip
@@ -631,24 +497,20 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
               />
             ))}
           </View>
-          {challenges.length > 0 && (
-            <Reveal base={0}><View style={styles.tipCard}>
-              {challenges.map((c) => (
-                <Text key={c} style={styles.tipText}>
-                  • {tr(CHALLENGE_TIPS[c] ?? '')}
-                </Text>
-              ))}
-            </View></Reveal>
-          )}
-          </>
         )}
 
         {current === 'lifestyle' && (
           <>
-            <Reveal><Text style={styles.subHead}>{tr('Quantas refeições faz por dia?')}</Text></Reveal>
+            <Text style={styles.subHead}>{tr('Quantas refeições faz por dia?')}</Text>
             <View style={styles.chips}>
               {MEALS_PER_DAY.map((m) => (
                 <QuizChip key={m.value} label={tr(m.label)} selected={mealsPerDay === m.value} onPress={() => setMealsPerDay(m.value)} />
+              ))}
+            </View>
+            <Text style={styles.subHead}>{tr('Quanto tempo tem para cozinhar?')}</Text>
+            <View style={styles.chips}>
+              {COOKING.map((c) => (
+                <QuizChip key={c.value} label={tr(c.label)} selected={cookingTime === c.value} onPress={() => setCookingTime(c.value)} />
               ))}
             </View>
           </>
@@ -666,7 +528,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
                 />
               ))}
             </View>
-            <Reveal><Text style={styles.subHead}>{tr('Como prefere ser acompanhado?')}</Text></Reveal>
+            <Text style={styles.subHead}>{tr('Como prefere ser acompanhado?')}</Text>
             <View style={styles.chips}>
               {SUPPORT_STYLES.map((m) => (
                 <QuizChip key={m} label={tr(m)} selected={supportStyle === m} onPress={() => setSupportStyle(m)} />
@@ -729,9 +591,6 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </View>
         )}
 
-        </View>
-        </RevealProvider>
-        </Animated.View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
@@ -746,10 +605,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         <Pressable
           disabled={!canContinue || saving}
           style={({ pressed }) => [styles.cta, (!canContinue || saving) && styles.ctaOff, pressed && styles.ctaPressed]}
-          onPress={() => (step === steps.length - 1 ? setProcessing(true) : goTo(step + 1))}
+          onPress={() => (step === steps.length - 1 ? setProcessing(true) : setStep(step + 1))}
         >
           {saving ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.background} />
           ) : (
             <Text style={styles.ctaText}>{step === steps.length - 1 ? 'Ver o meu plano' : 'Próximo'}</Text>
           )}
@@ -764,9 +623,9 @@ const createStyles = (colors: ThemeColors) =>
   root: { flex: 1, backgroundColor: colors.background },
   brand: { alignItems: 'center', gap: 0, marginBottom: -11 },
   section: { textAlign: 'center', fontSize: font.h3, fontWeight: '600', color: colors.text, marginBottom: 4 },
-  progress: { flexDirection: 'row', gap: 4 },
-  segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
-  segmentOn: { backgroundColor: colors.primary },
+  progress: { flex: 1, flexDirection: 'row', gap: 4 },
+  segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border },
+  segmentOn: { backgroundColor: colors.text },
   head: { gap: 4, marginTop: 8, marginBottom: 4 },
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   subtitle: { fontSize: font.body, color: colors.textMuted, lineHeight: 20 },
@@ -787,21 +646,9 @@ const createStyles = (colors: ThemeColors) =>
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: SCREEN_PADDING, paddingTop: 10, backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border },
   backBtn: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   backOff: { opacity: 0.35 },
-  cta: { flex: 1, height: 56, borderRadius: 28, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  cta: { flex: 1, height: 56, borderRadius: 28, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },
   ctaOff: { opacity: 0.45 },
   ctaPressed: { opacity: 0.9 },
-  ctaText: { color: '#fff', fontSize: font.h3, fontWeight: '600' },
-  tipCard: { backgroundColor: colors.primarySoft, borderRadius: radius.lg, padding: 14, gap: 8, marginTop: 6 },
-  tipText: { fontSize: font.body, color: colors.text, lineHeight: 21 },
-  thanks: { alignItems: 'center', gap: 22, marginTop: 24 },
-  ring: { width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
-  ringIn: { width: 160, height: 160, borderRadius: 80, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
-  notifyRow: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: colors.surface, borderRadius: radius.lg, padding: 14 },
-  notifyIcon: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
-  notifyTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },
-  notifyBody: { fontSize: font.small, color: colors.textMuted, lineHeight: 18, marginTop: 2 },
-  allow: { height: 54, borderRadius: 27, borderWidth: 2, borderColor: colors.primary, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.card },
-  allowOn: { backgroundColor: colors.primary },
-  allowText: { fontSize: font.h3, fontWeight: '700', color: colors.primary },
+  ctaText: { color: colors.background, fontSize: font.h3, fontWeight: '600' },
   nameInput: { height: 60, borderRadius: radius.lg, backgroundColor: colors.surface, paddingHorizontal: 18, fontSize: font.h2, fontWeight: '600', color: colors.text },
 });

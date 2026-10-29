@@ -10,8 +10,7 @@ import { tr } from '../../i18n';
 const W = 300;
 const H = 170;
 const PAD = 14;
-const DURATION = 3200;
-const START_DELAY = 1100;
+const DURATION = 2600;
 
 // y de 0 (início) a 1 (objetivo). Com o Nutri AI: arranca devagar e depois acelera. Sem a app: lento e instável.
 const withApp = (t: number) => 0.1 + 0.88 * (1 / (1 + Math.exp(-7.5 * (t - 0.5))) - 0.023) / 0.954;
@@ -63,16 +62,13 @@ export function PotentialChart({
 
   useEffect(() => {
     let raf = 0;
-    let started = false;
-    const t0 = Date.now() + START_DELAY;
+    const t0 = Date.now();
     const tick = () => {
-      started = true;
-      const t = Math.min(1, Math.max(0, (Date.now() - t0) / DURATION));
+      const t = Math.min(1, (Date.now() - t0) / DURATION);
       setP(1 - Math.pow(1 - t, 2.2));
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    void started;
     return () => cancelAnimationFrame(raf);
   }, []);
 
