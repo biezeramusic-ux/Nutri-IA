@@ -1148,4 +1148,8 @@ export const zh: Record<string, string> = {
   "Boa escolha": "不错的选择",
   "Equilibrado": "均衡",
   "Pesado": "偏重",
+  "Meta de hoje": "今日目标",
+  "Já registado hoje": "今天已记录",
+  "Depois de registar, restam": "记录后还剩",
+  "Restam hoje": "今日剩余",
 };

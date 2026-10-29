@@ -1148,4 +1148,8 @@ export const es: Record<string, string> = {
   "Boa escolha": "Buena elección",
   "Equilibrado": "Equilibrado",
   "Pesado": "Pesado",
+  "Meta de hoje": "Meta de hoy",
+  "Já registado hoje": "Ya registrado hoy",
+  "Depois de registar, restam": "Tras registrar, quedan",
+  "Restam hoje": "Quedan hoy",
 };

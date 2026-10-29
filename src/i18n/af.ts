@@ -1148,4 +1148,8 @@ export const af: Record<string, string> = {
   "Boa escolha": "Goeie keuse",
   "Equilibrado": "Gebalanseerd",
   "Pesado": "Swaar",
+  "Meta de hoje": "Vandag se doelwit",
+  "Já registado hoje": "Reeds vandag aangeteken",
+  "Depois de registar, restam": "Na aanteken bly oor",
+  "Restam hoje": "Vandag oor",
 };

@@ -1148,4 +1148,8 @@ export const nl: Record<string, string> = {
   "Boa escolha": "Goede keuze",
   "Equilibrado": "Evenwichtig",
   "Pesado": "Zwaar",
+  "Meta de hoje": "Doel van vandaag",
+  "Já registado hoje": "Vandaag al gelogd",
+  "Depois de registar, restam": "Na het loggen blijft over",
+  "Restam hoje": "Vandaag over",
 };

@@ -6,6 +6,7 @@ import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View }
 import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Circle } from 'react-native-svg';
 import { FlowerChart } from '../components/FlowerChart';
 import { NutritionFacts } from '../components/NutritionFacts';
 import { MealPhoto } from '../components/MealPhoto';
@@ -21,9 +22,13 @@ import { useProfile } from '../hooks/useProfile';
 import { useSubscription } from '../hooks/useSubscription';
 import { deriveIngredients, macroPercentages, mealEmoji, proteinSources, scaleMeal } from '../services/foodCatalog';
 import { refineAnalysis } from '../services/foodRecognition';
-import { mealTypeOf } from '../services/dayUtils';
+import { dayKeyOf, mealTypeOf, mealsOfDay, sumMeals } from '../services/dayUtils';
 import { mealScoreForGoal } from '../services/healthScore';
 import { tr } from '../i18n';
+
+const RING = 120;
+const RING_R = 54;
+const RING_C = 2 * Math.PI * RING_R;
 
 function confidenceLabel(value: number, colors: ThemeColors): { text: string; color: string } {
   if (value >= 80) return { text: 'Confiança alta', color: colors.primaryDark };
@@ -66,6 +71,8 @@ export default function DetailsScreen() {
   const sources = proteinSources(meal);
   const confidence = analysis.confidence !== undefined ? confidenceLabel(analysis.confidence, colors) : null;
 
+  const eaten = sumMeals(mealsOfDay(meals, dayKeyOf(Date.now())).filter((m) => m.id !== meal.id)).kcal;
+  const left = Math.round(goals.calories - eaten - analysis.calories);
   const score = mealScoreForGoal(analysis, goals, profile?.goal ?? null, mealTypeOf(meal));
   const favorite = isFavorite(meal);
 
@@ -156,25 +163,43 @@ export default function DetailsScreen() {
                 <Text style={styles.weightPillText}>{analysis.estimated_weight_grams} g</Text>
               </View>
             </View>
-            <View style={styles.kcalRow}>
-              <View style={styles.flame}>
-                <Flame size={22} color="#F97316" />
-              </View>
+          </View>
+        </View>
+
+        <View style={styles.kcalCard}>
+          <View style={styles.ringBox}>
+            <Svg width={RING} height={RING} style={{ transform: [{ rotate: '-90deg' }] }}>
+              <Circle cx={RING / 2} cy={RING / 2} r={RING_R} stroke={colors.surface} strokeWidth={12} fill="none" />
+              <Circle
+                cx={RING / 2}
+                cy={RING / 2}
+                r={RING_R}
+                stroke="#F97316"
+                strokeWidth={12}
+                fill="none"
+                strokeLinecap="round"
+                strokeDasharray={`${RING_C}`}
+                strokeDashoffset={RING_C * (1 - Math.min(1, analysis.calories / Math.max(1, goals.calories)))}
+              />
+            </Svg>
+            <View style={styles.ringCenter}>
+              <Flame size={18} color="#F97316" />
               <Text style={styles.kcal}>{analysis.calories}</Text>
               <Text style={styles.kcalUnit}>{tr('kcal')}</Text>
-              {confidence && (
-                <View style={styles.confidence}>
-                  <ShieldCheck size={14} color={confidence.color} />
-                  <Text style={[styles.confidenceText, { color: confidence.color }]}>{analysis.confidence}%</Text>
-                </View>
-              )}
             </View>
-            <View style={{ gap: 6 }}>
-              <View style={styles.dayTrack}>
-                <View style={[styles.dayFill, { width: `${Math.min(100, Math.round((analysis.calories / Math.max(1, goals.calories)) * 100))}%` }]} />
-              </View>
-              <Text style={styles.small}>
-                {tr('Este prato é {pct}% das calorias do seu dia.', { pct: Math.round((analysis.calories / Math.max(1, goals.calories)) * 100) })}
+          </View>
+          <View style={{ flex: 1, gap: 8 }}>
+            <Text style={styles.kcalTitle}>
+              {tr('Este prato é {pct}% das calorias do seu dia.', { pct: Math.round((analysis.calories / Math.max(1, goals.calories)) * 100) })}
+            </Text>
+            <View style={styles.dayLine}>
+              <Text style={styles.small}>{tr('Meta de hoje')}</Text>
+              <Text style={styles.dayLineValue}>{goals.calories} kcal</Text>
+            </View>
+            <View style={styles.dayLine}>
+              <Text style={styles.small}>{saved ? tr('Restam hoje') : tr('Depois de registar, restam')}</Text>
+              <Text style={[styles.dayLineValue, { color: left < 0 ? colors.danger : colors.primaryDark }]}>
+                {left < 0 ? `+${-left}` : left} kcal
               </Text>
             </View>
           </View>
@@ -341,9 +366,15 @@ const createStyles = (colors: ThemeColors) =>
   aiBtnText: { color: '#fff', fontWeight: '700', fontSize: font.body },
   editBtnOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   hero: { backgroundColor: colors.card, borderRadius: 26, borderWidth: 1, borderColor: colors.border, overflow: 'hidden' },
-  heroImg: { width: '100%', height: 190, backgroundColor: colors.surface },
+  heroImg: { width: '100%', height: 230, backgroundColor: colors.surface },
   heroEmoji: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.limeSoft },
   heroBody: { padding: 16, gap: 12 },
+  kcalCard: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 16, padding: 16, borderRadius: 26 },
+  ringBox: { width: 120, height: 120, alignItems: 'center', justifyContent: 'center' },
+  ringCenter: { position: 'absolute', alignItems: 'center' },
+  kcalTitle: { fontSize: font.body, fontWeight: '700', color: colors.text, lineHeight: 20 },
+  dayLine: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 },
+  dayLineValue: { fontSize: font.small, fontWeight: '800', color: colors.text },
   heroTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   weightPill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
   weightPillText: { fontSize: font.small, fontWeight: '700', color: colors.textMuted },
@@ -353,8 +384,8 @@ const createStyles = (colors: ThemeColors) =>
   dayFill: { height: 8, borderRadius: 4, backgroundColor: '#F97316' },
   name: { flex: 1, fontSize: font.h1, fontWeight: '800', color: colors.text, letterSpacing: -0.3 },
   weight: { fontSize: font.body, color: colors.textMuted },
-  kcal: { fontSize: 40, fontWeight: '800', color: colors.text, letterSpacing: -1 },
-  kcalUnit: { fontSize: font.h3, fontWeight: '600', color: colors.textMuted, marginTop: 10, flex: 1 },
+  kcal: { fontSize: 30, lineHeight: 34, fontWeight: '800', color: colors.text, letterSpacing: -1 },
+  kcalUnit: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
   confidence: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 6 },
   confidenceText: { fontSize: font.small, fontWeight: '600' },
   macroRow: { flexDirection: 'row', gap: 10 },
