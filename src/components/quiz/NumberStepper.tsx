@@ -26,14 +26,14 @@ export function NumberStepper({ label, value, unit, min, max, step = 1, onChange
       <Text style={styles.label}>{label}</Text>
       <View style={styles.row}>
         <Pressable style={styles.btn} onPress={() => set(value - step)} hitSlop={8} accessibilityLabel={`Diminuir ${label}`}>
-          <Minus size={22} color={colors.text} strokeWidth={3} />
+          <Minus size={22} color={colors.primary} strokeWidth={3} />
         </Pressable>
         <View style={styles.center}>
           <Text style={styles.value}>{value}</Text>
           {!!unit && <Text style={styles.unit}>{unit}</Text>}
         </View>
         <Pressable style={[styles.btn, styles.btnPrimary]} onPress={() => set(value + step)} hitSlop={8} accessibilityLabel={`Aumentar ${label}`}>
-          <Plus size={22} color={colors.background} strokeWidth={3} />
+          <Plus size={22} color="#fff" strokeWidth={3} />
         </Pressable>
       </View>
       <View style={styles.ruler}>
@@ -50,21 +50,21 @@ export function NumberStepper({ label, value, unit, min, max, step = 1, onChange
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     wrap: {
-      backgroundColor: colors.card,
+      backgroundColor: colors.primarySoft,
       borderWidth: 1.5,
-      borderColor: colors.border,
+      borderColor: colors.primary,
       borderRadius: radius.card,
       padding: 16,
       gap: 10,
     },
-    label: { fontSize: font.small, fontWeight: '700', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 1 },
+    label: { fontSize: font.small, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
     row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    btn: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.surface, borderWidth: 0, alignItems: 'center', justifyContent: 'center' },
-    btnPrimary: { backgroundColor: colors.text },
+    btn: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.card, borderWidth: 2, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+    btnPrimary: { backgroundColor: colors.primary },
     center: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
     value: { fontSize: 48, lineHeight: 54, fontWeight: '800', color: colors.text, letterSpacing: -1 },
     unit: { fontSize: font.h3, color: colors.textMuted, fontWeight: '600' },
     ruler: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 28 },
-    tick: { width: 3, borderRadius: 2, backgroundColor: colors.textFaint },
+    tick: { width: 3, borderRadius: 2, backgroundColor: colors.primary },
     tickMid: { width: 4 },
   });

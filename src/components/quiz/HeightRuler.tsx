@@ -50,7 +50,7 @@ export function HeightRuler({ sex, age, cm, onChange }: { sex: Sex; age: number;
       <View style={styles.toggle}>
         {[false, true].map((imp) => (
           <Pressable key={String(imp)} style={[styles.toggleBtn, imperial === imp && styles.toggleOn]} onPress={() => setImperial(imp)}>
-            <Text style={[styles.toggleText, imperial === imp && { color: colors.background }]}>{imp ? 'FT' : 'CM'}</Text>
+            <Text style={[styles.toggleText, imperial === imp && { color: '#fff' }]}>{imp ? 'FT' : 'CM'}</Text>
           </Pressable>
         ))}
       </View>
@@ -98,13 +98,13 @@ const createStyles = (colors: ThemeColors) =>
     wrap: { gap: 6 },
     toggle: { flexDirection: 'row', alignSelf: 'center', gap: 8 },
     toggleBtn: { paddingHorizontal: 22, paddingVertical: 8, borderRadius: radius.md, borderWidth: 1.5, borderColor: colors.border, backgroundColor: colors.card },
-    toggleOn: { backgroundColor: colors.text, borderColor: colors.text },
+    toggleOn: { backgroundColor: colors.primary, borderColor: colors.primary },
     toggleText: { fontWeight: '800', color: colors.textMuted },
     big: { fontSize: 64, lineHeight: 72, fontWeight: '800', color: colors.text, letterSpacing: -2 },
     unit: { fontSize: 30, fontWeight: '700', color: colors.textFaint },
     ruler: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 80 },
     tickRow: { height: TICK, flexDirection: 'row', alignItems: 'center' },
     tickLabel: { position: 'absolute', left: 42, fontSize: font.small, color: colors.textMuted, lineHeight: 14 },
-    line: { position: 'absolute', left: 0, right: '30%', top: AREA_H / 2 - 1.5, height: 3, borderRadius: 2, backgroundColor: colors.text },
+    line: { position: 'absolute', left: 0, right: '30%', top: AREA_H / 2 - 1.5, height: 3, borderRadius: 2, backgroundColor: colors.primary },
     figure: { position: 'absolute', right: 20, bottom: 0, left: 90, alignItems: 'center', justifyContent: 'flex-end' },
   });

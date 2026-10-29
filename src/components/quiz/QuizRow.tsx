@@ -53,7 +53,7 @@ const createStyles = (colors: ThemeColors) =>
       borderWidth: 1.5,
       borderColor: 'transparent',
     },
-    selected: { borderColor: colors.text, backgroundColor: colors.card },
+    selected: { borderColor: colors.primary, backgroundColor: colors.primarySoft },
     pressed: { opacity: 0.85 },
     bubble: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
     text: { flex: 1 },
