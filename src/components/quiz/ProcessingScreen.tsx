@@ -9,7 +9,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { tr } from '../../i18n';
 
 const ITEMS = ['Calorias', 'Carboidratos', 'Proteína', 'Gorduras', 'Pontuação de saúde'];
-const STATUS = ['A calcular as suas calorias…', 'A equilibrar os macros…', 'A personalizar o seu plano…', 'A finalizar resultados…'];
+const STATUS = ['A calcular as suas calorias…', 'A equilibrar os macros…', 'A personalizar o plano com IA…', 'A finalizar resultados…'];
 const DURATION = 5200;
 
 /** "Estamos a configurar tudo para si": percentagem a subir, barra e a lista de itens a ficarem prontos, um a um. */
