@@ -16,6 +16,8 @@ export function TrialReminder() {
   const { isPremium, trialDaysLeft, lockReason, loading } = useSubscription();
   const styles = useMemo(() => createStyles(colors), [colors]);
   if (isPremium || loading) return null;
+  // Durante o teste normal não mostra nada: só avisa no último dia e quando terminou.
+  if (lockReason !== 'trial_expired' && trialDaysLeft > 1) return null;
 
   const expired = lockReason === 'trial_expired';
   const last = !expired && trialDaysLeft <= 1;

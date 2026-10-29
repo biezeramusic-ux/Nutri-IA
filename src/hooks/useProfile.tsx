@@ -44,6 +44,8 @@ const ProfileContext = createContext<ProfileContextValue | null>(null);
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const userId = user?.id ?? null;
+  const createdAt = user?.created_at ? Date.parse(user.created_at) : NaN;
+  const isNewAccount = Number.isNaN(createdAt) || Date.now() - createdAt < 24 * 3600 * 1000;
   const [profile, setProfile] = useState<UserProfile | null>(null);
   // Perfil "carregado" para este utilizador; evita mostrar a app antes de saber se falta o quiz.
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
@@ -139,7 +141,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       profile,
       loading: userId !== null && loadedFor !== userId,
       goals: profile?.goals ?? DEFAULT_GOALS,
-      needsOnboarding: profile !== null && !profile.onboardingCompleted,
+      // O quiz só é imposto a quem acabou de criar a conta (até 24 h). Contas antigas entram direto; podem refazê-lo nos Objetivos.
+      needsOnboarding: profile !== null && !profile.onboardingCompleted && isNewAccount,
       refresh,
       completeOnboarding,
       saveReminders,
@@ -147,7 +150,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       saveGoals,
       saveName,
     }),
-    [profile, userId, loadedFor, refresh, completeOnboarding, saveReminders, saveWaterGoalMl, saveGoals, saveName],
+    [profile, userId, loadedFor, isNewAccount, refresh, completeOnboarding, saveReminders, saveWaterGoalMl, saveGoals, saveName],
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
