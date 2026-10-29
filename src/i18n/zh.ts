@@ -1145,4 +1145,7 @@ export const zh: Record<string, string> = {
   "Olá! Como se chama?": "你好！您叫什么名字？",
   "Deslize a régua até chegar à sua altura.": "滑动标尺直到您的身高。",
   "Sem pressa. Pode ajustar depois no Perfil.": "不着急，之后可在“我的”中调整。",
+  "Boa escolha": "不错的选择",
+  "Equilibrado": "均衡",
+  "Pesado": "偏重",
 };

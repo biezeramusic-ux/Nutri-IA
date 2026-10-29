@@ -1145,4 +1145,7 @@ export const en: Record<string, string> = {
   "Olá! Como se chama?": "Hello! What's your name?",
   "Deslize a régua até chegar à sua altura.": "Slide the ruler until you reach your height.",
   "Sem pressa. Pode ajustar depois no Perfil.": "No rush. You can adjust later in Profile.",
+  "Boa escolha": "Good choice",
+  "Equilibrado": "Balanced",
+  "Pesado": "Heavy",
 };

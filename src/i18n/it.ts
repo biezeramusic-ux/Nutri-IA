@@ -1145,4 +1145,7 @@ export const it: Record<string, string> = {
   "Olá! Como se chama?": "Ciao! Come ti chiami?",
   "Deslize a régua até chegar à sua altura.": "Scorri il righello fino alla tua altezza.",
   "Sem pressa. Pode ajustar depois no Perfil.": "Senza fretta. Potrai modificarlo dopo nel Profilo.",
+  "Boa escolha": "Buona scelta",
+  "Equilibrado": "Equilibrato",
+  "Pesado": "Pesante",
 };

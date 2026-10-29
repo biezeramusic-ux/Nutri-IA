@@ -1145,4 +1145,7 @@ export const nl: Record<string, string> = {
   "Olá! Como se chama?": "Hallo! Hoe heet je?",
   "Deslize a régua até chegar à sua altura.": "Schuif de liniaal tot je lengte.",
   "Sem pressa. Pode ajustar depois no Perfil.": "Geen haast. Je kunt het later aanpassen in Profiel.",
+  "Boa escolha": "Goede keuze",
+  "Equilibrado": "Evenwichtig",
+  "Pesado": "Zwaar",
 };

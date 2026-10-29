@@ -56,6 +56,7 @@ export function ScanResultSheet({ meal, fallback, bottomInset, onNew, onDetails 
     ]).start();
   }, [slide, fill]);
 
+  const verdict = score >= 7 ? 'Boa escolha' : score >= 4 ? 'Equilibrado' : 'Pesado';
   const scoreColor = score >= 7 ? { bg: '#DCFCE7', fg: '#166534' } : score >= 4 ? { bg: '#FEF3C7', fg: '#92400E' } : { bg: '#FEE2E2', fg: '#991B1B' };
 
   const macros: { kind: MacroKind; label: string; g: number; goal: number; color: string }[] = [
@@ -73,16 +74,7 @@ export function ScanResultSheet({ meal, fallback, bottomInset, onNew, onDetails 
     >
       <View style={styles.grabber} />
 
-      <View style={styles.titleRow}>
-        <Text style={styles.dish} numberOfLines={2}>
-          {a.food_name}
-        </Text>
-        <View style={styles.weight}>
-          <Text style={styles.weightText}>{a.estimated_weight_grams} g</Text>
-        </View>
-      </View>
-
-      <View style={styles.bodyRow}>
+      <View style={styles.topRow}>
         <View style={styles.photoBox}>
           {meal.photoUri ? (
             <Image source={{ uri: meal.photoUri }} style={styles.photo} resizeMode="contain" />
@@ -90,56 +82,43 @@ export function ScanResultSheet({ meal, fallback, bottomInset, onNew, onDetails 
             <MealPhoto name={a.food_name} style={styles.photo} emojiSize={48} />
           )}
         </View>
-        <View style={styles.side}>
+        <View style={styles.topInfo}>
+          <Text style={styles.dish} numberOfLines={2}>
+            {a.food_name}
+          </Text>
+          <Text style={styles.weightText}>{a.estimated_weight_grams} g</Text>
           <View style={styles.kcalRow}>
-            <Flame size={20} color="#F97316" />
+            <Flame size={22} color="#F97316" />
             <Text style={styles.kcal}>{kcal}</Text>
             <Text style={styles.kcalUnit}>kcal</Text>
-            <View style={{ flex: 1 }} />
-            <View style={[styles.chip, { backgroundColor: scoreColor.bg }]}>
-              <Leaf size={12} color={scoreColor.fg} />
-              <Text style={[styles.chipText, { color: scoreColor.fg }]}>{score}/10</Text>
-            </View>
           </View>
-          {macros.map((m) => {
-            const pct = Math.round((m.g / Math.max(1, m.goal)) * 100);
-            return (
-              <View key={m.kind} style={styles.macroLine}>
-                <View style={[styles.macroIcon, { backgroundColor: `${m.color}22` }]}>
-                  <MacroGlyph kind={m.kind} color={m.color} size={15} />
-                </View>
-                <View style={{ flex: 1, gap: 3 }}>
-                  <View style={styles.macroTop}>
-                    <Text style={styles.macroLabel}>{tr(m.label)}</Text>
-                    <Text style={styles.macroGrams}>
-                      {Math.round(m.g)}
-                      <Text style={styles.macroUnit}> g</Text>
-                    </Text>
-                  </View>
-                  <View style={styles.track}>
-                    <Animated.View
-                      style={[
-                        styles.fillBar,
-                        { backgroundColor: m.color, width: fill.interpolate({ inputRange: [0, 1], outputRange: ['0%', `${Math.max(6, Math.min(100, pct))}%`] }) },
-                      ]}
-                    />
-                  </View>
-                </View>
-              </View>
-            );
-          })}
+          <View style={[styles.chip, { backgroundColor: scoreColor.bg }]}>
+            <Leaf size={13} color={scoreColor.fg} />
+            <Text style={[styles.chipText, { color: scoreColor.fg }]}>{tr(verdict)} · {score}/10</Text>
+          </View>
         </View>
       </View>
 
-      <View style={styles.metaRow}>
-        {typeof a.confidence === 'number' && !fallback && (
+      <View style={styles.macroRow}>
+        {macros.map((m) => (
+          <View key={m.kind} style={[styles.macro, { backgroundColor: `${m.color}18` }]}>
+            <MacroGlyph kind={m.kind} color={m.color} size={20} />
+            <Text style={[styles.macroGrams, { color: m.color }]}>{Math.round(m.g)} g</Text>
+            <Text style={styles.macroLabel}>{tr(m.label)}</Text>
+          </View>
+        ))}
+      </View>
+
+      {fallback ? (
+        <Text style={styles.metaText}>{tr('exemplo (sem ligação à IA)')}</Text>
+      ) : (
+        typeof a.confidence === 'number' && (
           <View style={styles.metaChip}>
             <ShieldCheck size={13} color={colors.textMuted} />
             <Text style={styles.metaText}>{a.confidence}% {tr('de certeza')}</Text>
           </View>
-        )}
-        {fallback && <Text style={styles.metaText}>{tr('exemplo (sem ligação à IA)')}</Text>}
-      </View>
+        )
+      )}
 
       <View style={styles.actions}>
         <Pressable style={[styles.btn, styles.btnGhost]} onPress={onNew}>
@@ -157,33 +136,23 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     sheet: { position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: colors.background, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 20, paddingTop: 10, gap: 14 },
     grabber: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: colors.border },
-    titleRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    dish: { flex: 1, fontSize: font.h1, fontWeight: '800', color: colors.text, letterSpacing: -0.3 },
-    weight: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
-    weightText: { fontSize: font.small, fontWeight: '700', color: colors.textMuted },
-    kcalRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    flame: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.limeSoft, alignItems: 'center', justifyContent: 'center' },
-    kcal: { fontSize: 32, fontWeight: '800', color: colors.text, letterSpacing: -1 },
-    kcalUnit: { fontSize: font.h3, fontWeight: '600', color: colors.textMuted, marginTop: 10 },
-    chip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 7 },
-    chipText: { fontSize: font.body, fontWeight: '800' },
-    bodyRow: { flexDirection: 'row', gap: 14, alignItems: 'stretch' },
-    photoBox: { width: '38%', minHeight: 170, borderRadius: 20, backgroundColor: colors.surface, overflow: 'hidden' },
-    photo: { width: '100%', height: '100%', minHeight: 170 },
-    side: { flex: 1, gap: 10, justifyContent: 'center' },
-    macroLine: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    macroTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-    macro: { flex: 1, backgroundColor: colors.card, borderRadius: 20, borderWidth: 1, borderColor: colors.border, padding: 12, gap: 3 },
-    macroIcon: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
-    macroGrams: { fontSize: font.h3, fontWeight: '800', color: colors.text },
-    macroUnit: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
+    topRow: { flexDirection: 'row', gap: 14, alignItems: 'center' },
+    photoBox: { width: '38%', aspectRatio: 0.8, borderRadius: 22, backgroundColor: colors.surface, overflow: 'hidden' },
+    photo: { width: '100%', height: '100%' },
+    topInfo: { flex: 1, gap: 6 },
+    dish: { fontSize: font.h1, fontWeight: '800', color: colors.text, letterSpacing: -0.3 },
+    weightText: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
+    kcalRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    kcal: { fontSize: 44, lineHeight: 50, fontWeight: '800', color: colors.text, letterSpacing: -1 },
+    kcalUnit: { fontSize: font.h3, fontWeight: '600', color: colors.textMuted, marginTop: 12 },
+    chip: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', gap: 5, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
+    chipText: { fontSize: font.small, fontWeight: '800' },
+    macroRow: { flexDirection: 'row', gap: 10 },
+    macro: { flex: 1, borderRadius: 20, paddingVertical: 14, alignItems: 'center', gap: 4 },
+    macroGrams: { fontSize: font.h1, fontWeight: '800' },
     macroLabel: { fontSize: font.small, fontWeight: '600', color: colors.text },
-    track: { height: 6, borderRadius: 3, backgroundColor: colors.surface, overflow: 'hidden', marginTop: 4 },
-    fillBar: { height: 6, borderRadius: 3 },
-    macroPct: { fontSize: font.tiny, color: colors.textMuted },
-    metaRow: { flexDirection: 'row', justifyContent: 'center', minHeight: 16 },
-    metaChip: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-    metaText: { fontSize: font.small, color: colors.textMuted },
+    metaChip: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
+    metaText: { fontSize: font.small, color: colors.textMuted, textAlign: 'center' },
     actions: { flexDirection: 'row', gap: 10 },
     btn: { flex: 1, height: 52, borderRadius: radius.pill, alignItems: 'center', justifyContent: 'center' },
     btnGhost: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
