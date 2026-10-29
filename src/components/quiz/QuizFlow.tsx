@@ -380,7 +380,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {current === 'goal' && (
+        {step === 0 && (
           <View style={styles.brand}>
             <Logo size={36} />
             <CrownMark size={14} />
@@ -640,7 +640,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           onPress={() => (step === steps.length - 1 ? setProcessing(true) : goTo(step + 1))}
         >
           {saving ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color={colors.background} />
           ) : (
             <Text style={styles.ctaText}>{step === steps.length - 1 ? 'Ver o meu plano' : 'Próximo'}</Text>
           )}
@@ -657,7 +657,7 @@ const createStyles = (colors: ThemeColors) =>
   section: { textAlign: 'center', fontSize: font.h3, fontWeight: '600', color: colors.text, marginBottom: 4 },
   progress: { flexDirection: 'row', gap: 4 },
   segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border },
-  segmentOn: { backgroundColor: colors.primary },
+  segmentOn: { backgroundColor: colors.text },
   head: { gap: 4, marginTop: 8, marginBottom: 4 },
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   subtitle: { fontSize: font.body, color: colors.textMuted, lineHeight: 20 },
@@ -678,9 +678,9 @@ const createStyles = (colors: ThemeColors) =>
   footer: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: SCREEN_PADDING, paddingTop: 10, backgroundColor: colors.background, borderTopWidth: 1, borderTopColor: colors.border },
   backBtn: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
   backOff: { opacity: 0.35 },
-  cta: { flex: 1, height: 56, borderRadius: 28, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  cta: { flex: 1, height: 56, borderRadius: 28, backgroundColor: colors.text, alignItems: 'center', justifyContent: 'center' },
   ctaOff: { opacity: 0.45 },
   ctaPressed: { opacity: 0.9 },
-  ctaText: { color: '#fff', fontSize: font.h3, fontWeight: '600' },
+  ctaText: { color: colors.background, fontSize: font.h3, fontWeight: '600' },
   nameInput: { height: 60, borderRadius: radius.lg, backgroundColor: colors.surface, paddingHorizontal: 18, fontSize: font.h2, fontWeight: '600', color: colors.text },
 });
