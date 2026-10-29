@@ -1142,4 +1142,7 @@ export const nl: Record<string, string> = {
   "Sem problema: pode ativar mais tarde nas definições do telemóvel.": "Geen probleem: je kunt ze later aanzetten in de telefooninstellingen.",
   "A sua rotina": "Je routine",
   "Saúde e alimentação": "Gezondheid en voeding",
+  "Olá! Como se chama?": "Hallo! Hoe heet je?",
+  "Deslize a régua até chegar à sua altura.": "Schuif de liniaal tot je lengte.",
+  "Sem pressa. Pode ajustar depois no Perfil.": "Geen haast. Je kunt het later aanpassen in Profiel.",
 };

@@ -1142,4 +1142,7 @@ export const it: Record<string, string> = {
   "Sem problema: pode ativar mais tarde nas definições do telemóvel.": "Nessun problema: puoi attivarle più tardi nelle impostazioni del telefono.",
   "A sua rotina": "La tua routine",
   "Saúde e alimentação": "Salute e alimentazione",
+  "Olá! Como se chama?": "Ciao! Come ti chiami?",
+  "Deslize a régua até chegar à sua altura.": "Scorri il righello fino alla tua altezza.",
+  "Sem pressa. Pode ajustar depois no Perfil.": "Senza fretta. Potrai modificarlo dopo nel Profilo.",
 };

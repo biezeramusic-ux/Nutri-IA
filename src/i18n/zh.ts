@@ -1142,4 +1142,7 @@ export const zh: Record<string, string> = {
   "Sem problema: pode ativar mais tarde nas definições do telemóvel.": "没关系，您可以稍后在手机设置中开启。",
   "A sua rotina": "您的日常",
   "Saúde e alimentação": "健康与饮食",
+  "Olá! Como se chama?": "你好！您叫什么名字？",
+  "Deslize a régua até chegar à sua altura.": "滑动标尺直到您的身高。",
+  "Sem pressa. Pode ajustar depois no Perfil.": "不着急，之后可在“我的”中调整。",
 };

@@ -41,6 +41,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
 import { TypeText } from './TypeText';
+import { HeightRuler } from './HeightRuler';
 import { MaintainChart } from './MaintainChart';
 import { QuizChip } from './QuizChip';
 import { CrownMark } from '../CrownMark';
@@ -53,17 +54,17 @@ import { WelcomeScreen } from './WelcomeScreen';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
-type Step = 'goal' | 'name' | 'about' | 'experience' | 'trust' | 'potential' | 'timeframe' | 'body' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
+type Step = 'goal' | 'name' | 'about' | 'experience' | 'trust' | 'potential' | 'timeframe' | 'body' | 'height' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
 
-const FULL_STEPS: Step[] = ['goal', 'about', 'body', 'activity', 'lifestyle', 'habits', 'challenge', 'motivation', 'trust', 'health', 'diet', 'staples'];
+const FULL_STEPS: Step[] = ['goal', 'about', 'height', 'body', 'activity', 'lifestyle', 'habits', 'challenge', 'motivation', 'trust', 'health', 'diet', 'staples'];
 
 /** O quiz adapta-se ao objetivo: quem só quer saber as calorias responde ao mínimo. */
 function stepsFor(goal: GoalType): Step[] {
   switch (goal) {
     case 'track_calories':
-      return ['goal', 'about', 'body', 'activity', 'trust'];
+      return ['goal', 'about', 'height', 'body', 'activity', 'trust'];
     case 'maintain':
-      return ['goal', 'about', 'body', 'activity', 'challenge', 'trust', 'health', 'diet'];
+      return ['goal', 'about', 'height', 'body', 'activity', 'challenge', 'trust', 'health', 'diet'];
     case 'eat_healthy':
     case 'lose_weight':
     case 'gain_muscle':
@@ -126,7 +127,7 @@ const DIETS: { value: DietPreference; label: string }[] = [
 ];
 
 const COPY: Record<Step, { title: string; subtitle?: string }> = {
-  name: { title: 'Como se chama?', subtitle: 'Vamos tratá-lo pelo nome na app.' },
+  name: { title: 'Olá! Como se chama?', subtitle: 'Vamos tratá-lo pelo nome na app.' },
   potential: { title: 'Tem um grande potencial para alcançar o seu objetivo' },
   challenge: { title: 'O que mais o trava?', subtitle: 'Escolha até 3. Vamos ajudá-lo a superar isso.' },
   lifestyle: { title: 'Como são as suas refeições?', subtitle: 'Para ajustar horários e sugestões à sua rotina.' },
@@ -136,7 +137,8 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
   timeframe: { title: 'Em quanto tempo quer chegar à meta?', subtitle: 'Escolha um prazo realista para o seu peso desejado.' },
   goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
   about: { title: 'Vamos conhecê-lo melhor', subtitle: 'O sexo e a idade mudam as calorias de que o corpo precisa.' },
-  body: { title: 'As suas medidas', subtitle: 'Altura e peso são a base do seu plano. Pode ajustar depois no Perfil.' },
+  height: { title: 'Qual é a sua altura?', subtitle: 'Deslize a régua até chegar à sua altura.' },
+  body: { title: 'E o seu peso?', subtitle: 'Sem pressa. Pode ajustar depois no Perfil.' },
   activity: { title: 'Quão ativo é no dia a dia?', subtitle: 'Quanto mais se mexe, mais calorias e água precisa.' },
   health: { title: 'Tem alguma condição de saúde?', subtitle: 'Opcional. O Nutri AI não substitui o seu médico.' },
   habits: { title: 'Os seus hábitos de hoje', subtitle: 'Sem julgamentos: serve só para o acompanhar melhor.' },
@@ -154,6 +156,7 @@ const GROUP: Record<Step, string> = {
   experience: 'Começar',
   about: 'Sobre si',
   body: 'Sobre si',
+  height: 'Sobre si',
   potential: 'Sobre si',
   timeframe: 'Sobre si',
   activity: 'A sua rotina',
@@ -248,7 +251,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   // Até escolher o objetivo, mostra o percurso completo; depois ajusta-se ao objetivo.
   const steps = useMemo(() => {
     const list = [...(goalPicked ? stepsFor(base.goal) : FULL_STEPS)];
-    list.splice(1, 0, ...(mode === 'first' ? (['name', 'experience'] as Step[]) : (['experience'] as Step[])));
+    list.splice(1, 0, 'experience');
+    if (mode === 'first') list.unshift('name');
     if (wantsTarget) {
       const at = list.indexOf('body');
       if (at >= 0) list.splice(at + 1, 0, 'potential', 'timeframe');
@@ -510,9 +514,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </>
         )}
 
+        {current === 'height' && <HeightRuler sex={base.sex} age={base.age} cm={base.heightCm} onChange={(v) => update('heightCm', v)} />}
+
         {current === 'body' && (
           <>
-            <NumberStepper label={tr('Altura')} value={base.heightCm} unit="cm" min={100} max={250} onChange={(v) => update('heightCm', v)} />
             <NumberStepper label={tr('Peso atual')} value={base.weightKg} unit="kg" min={30} max={300} onChange={(v) => update('weightKg', v)} />
             {wantsTarget && (
               <NumberStepper label={tr('Peso desejado')} value={base.targetWeightKg} unit="kg" min={30} max={300} onChange={(v) => update('targetWeightKg', v)} />
