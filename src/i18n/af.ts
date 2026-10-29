@@ -1165,4 +1165,10 @@ export const af: Record<string, string> = {
   "Sequências, medalhas e metas pequenas mantêm-no a avançar todos os dias.": "Reekse, medaljes en klein doelwitte hou jou elke dag aan die gang.",
   "Mostramos as calorias de cada prato para ajustar as porções sem passar fome.": "Ons wys elke gereg se kalorieë sodat jy porsies kan aanpas sonder om honger te ly.",
   "Lembretes de água nos horários certos do seu dia, até chegar à meta.": "Waterherinneringe op die regte tye, tot jy jou doelwit bereik.",
+  "Qual a velocidade para chegar à meta?": "Hoe vinnig wil jy jou doelwit bereik?",
+  "Arraste para escolher um ritmo realista.": "Sleep om 'n realistiese pas te kies.",
+  "Ritmo para a sua meta": "Pas na jou doelwit",
+  "Devagar": "Stadig",
+  "Ritmo suave, fácil de manter": "Sagte pas, maklik om vol te hou",
+  "Chegaria por volta de {date}.": "Jy sal omtrent {date} aankom.",
 };

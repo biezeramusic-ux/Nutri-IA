@@ -1165,4 +1165,10 @@ export const zh: Record<string, string> = {
   "Sequências, medalhas e metas pequenas mantêm-no a avançar todos os dias.": "连续记录、奖章和小目标让您每天都在前进。",
   "Mostramos as calorias de cada prato para ajustar as porções sem passar fome.": "我们显示每道菜的热量，让您不挨饿也能调整份量。",
   "Lembretes de água nos horários certos do seu dia, até chegar à meta.": "在一天合适的时间提醒喝水，直到达成目标。",
+  "Qual a velocidade para chegar à meta?": "您想多快达成目标？",
+  "Arraste para escolher um ritmo realista.": "拖动选择一个现实的速度。",
+  "Ritmo para a sua meta": "达成目标的速度",
+  "Devagar": "慢",
+  "Ritmo suave, fácil de manter": "节奏轻松，容易坚持",
+  "Chegaria por volta de {date}.": "预计在 {date} 前后达成。",
 };

@@ -1165,4 +1165,10 @@ export const nl: Record<string, string> = {
   "Sequências, medalhas e metas pequenas mantêm-no a avançar todos os dias.": "Reeksen, medailles en kleine doelen houden je elke dag in beweging.",
   "Mostramos as calorias de cada prato para ajustar as porções sem passar fome.": "We tonen de calorieën van elk gerecht zodat je porties kunt aanpassen zonder honger.",
   "Lembretes de água nos horários certos do seu dia, até chegar à meta.": "Waterherinneringen op de juiste momenten, tot je je doel haalt.",
+  "Qual a velocidade para chegar à meta?": "Hoe snel wil je je doel bereiken?",
+  "Arraste para escolher um ritmo realista.": "Sleep om een realistisch tempo te kiezen.",
+  "Ritmo para a sua meta": "Tempo naar je doel",
+  "Devagar": "Langzaam",
+  "Ritmo suave, fácil de manter": "Rustig tempo, makkelijk vol te houden",
+  "Chegaria por volta de {date}.": "Je zou rond {date} aankomen.",
 };

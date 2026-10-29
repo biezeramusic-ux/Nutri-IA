@@ -3,6 +3,13 @@ import { useRouter } from 'expo-router';
 import {
   Activity,
   ArrowLeft,
+  Utensils,
+  Trophy,
+  Sun,
+  Smile,
+  HeartHandshake,
+  Bell,
+  Apple,
   ThumbsDown,
   ThumbsUp,
   Droplets,
@@ -25,7 +32,7 @@ import { useProfile } from '../../hooks/useProfile';
 import { GLASS_ML, calculateGoals, glassesFromMl, planTips } from '../../services/goals';
 import { ensureNotificationPermission } from '../../services/notifications';
 import { STAPLES } from '../../services/staples';
-import { WEEK_OPTIONS, maxSafeRate, ratePerWeek, recommendedWeeks, saveGoalPlan } from '../../services/goalPlan';
+import { maxSafeRate, recommendedWeeks, saveGoalPlan } from '../../services/goalPlan';
 import type {
   ActivityLevel,
   DietPreference,
@@ -41,6 +48,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
 import { TypeText } from './TypeText';
+import { SpeedPicker } from './SpeedPicker';
 import { Reveal, RevealProvider } from './Reveal';
 import { HeightRuler } from './HeightRuler';
 import { MaintainChart } from './MaintainChart';
@@ -55,7 +63,7 @@ import { WelcomeScreen } from './WelcomeScreen';
 import { YesNoRow } from './YesNoRow';
 import { tr } from '../../i18n';
 
-type Step = 'goal' | 'name' | 'about' | 'experience' | 'trust' | 'potential' | 'timeframe' | 'body' | 'height' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
+type Step = 'goal' | 'name' | 'about' | 'experience' | 'trust' | 'accomplish' | 'thanks' | 'notify' | 'potential' | 'timeframe' | 'body' | 'height' | 'activity' | 'challenge' | 'lifestyle' | 'health' | 'habits' | 'motivation' | 'diet' | 'staples';
 
 const FULL_STEPS: Step[] = ['goal', 'about', 'height', 'body', 'activity', 'lifestyle', 'habits', 'challenge', 'motivation', 'trust', 'health', 'diet', 'staples'];
 
@@ -98,6 +106,17 @@ const CONDITIONS: { value: HealthCondition; label: string }[] = [
   { value: 'pregnancy', label: 'Gravidez ou amamentação' },
 ];
 
+const ACCOMPLISH: { label: string; Icon: typeof Scale }[] = [
+  { label: 'Comer e viver de forma mais saudável', Icon: Apple },
+  { label: 'Aumentar a minha energia e humor', Icon: Sun },
+  { label: 'Manter-me motivado e consistente', Icon: Dumbbell },
+  { label: 'Sentir-me melhor com o meu corpo', Icon: Smile },
+];
+const NOTIFY_USES: { title: string; body: string; Icon: typeof Scale }[] = [
+  { title: 'Lembretes de refeição', body: 'Um toque suave para registar o pequeno-almoço, o almoço e o jantar, sem esquecer nenhum.', Icon: Utensils },
+  { title: 'Lembretes de água', body: 'Avisos nos horários certos do seu dia para chegar à meta de água.', Icon: Droplets },
+  { title: 'Sequência e medalhas', body: 'Avisamos quando está perto de uma conquista ou de perder a sua sequência.', Icon: Trophy },
+];
 const CHALLENGES = ['Falta de tempo', 'Vontade de comer doces', 'Comer fora de horas', 'Não sei o que comer', 'Falta de motivação', 'Porções grandes', 'Beber pouca água'];
 /** Resposta de apoio ao desafio escolhido: mostra à pessoa que o Nutri AI a vai ajudar nisso. */
 const CHALLENGE_TIPS: Record<string, string> = {
@@ -144,8 +163,11 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
   lifestyle: { title: 'Como são as suas refeições?', subtitle: 'Para ajustar horários e sugestões à sua rotina.' },
   motivation: { title: 'O que mais o motiva?', subtitle: 'Escolha até 3 e diga-nos como prefere ser acompanhado.' },
   experience: { title: 'Já experimentou outros aplicativos de controle de calorias?', subtitle: 'Sem problema se for a primeira vez, vamos passo a passo.' },
+  accomplish: { title: 'O que gostaria de conseguir?', subtitle: 'Além do número na balança, o que importa para si?' },
+  thanks: { title: 'Obrigado por confiar em nós', subtitle: 'Agora vamos personalizar o Nutri AI para si…' },
+  notify: { title: 'Alcance os seus objetivos com notificações', subtitle: 'Veja para que servem. Pode desligar quando quiser.' },
   trust: { title: 'Feito para o ajudar a manter o rumo', subtitle: 'Perder peso é uma parte. Manter é o que conta.' },
-  timeframe: { title: 'Em quanto tempo quer chegar à meta?', subtitle: 'Escolha um prazo realista para o seu peso desejado.' },
+  timeframe: { title: 'Qual a velocidade para chegar à meta?', subtitle: 'Arraste para escolher um ritmo realista.' },
   goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
   about: { title: 'Vamos conhecê-lo melhor', subtitle: 'O sexo e a idade mudam as calorias de que o corpo precisa.' },
   height: { title: 'Qual é a sua altura?', subtitle: 'Deslize a régua até chegar à sua altura.' },
@@ -163,6 +185,9 @@ const GOAL_PRIORITY: GoalType[] = ['lose_weight', 'gain_muscle', 'maintain', 'ea
 const SECTION: Record<Step, string> = {
   name: 'O seu nome',
   experience: 'Experiência',
+  accomplish: 'Motivo',
+  thanks: 'Quase lá',
+  notify: 'Notificações',
   trust: 'Resultados duradouros',
   potential: 'O seu potencial',
   timeframe: 'O seu prazo',
@@ -246,6 +271,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const [processing, setProcessing] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [experience, setExperience] = useState('Não');
+  const [wantsTo, setWantsTo] = useState('Comer e viver de forma mais saudável');
+  const [notifyOn, setNotifyOn] = useState<boolean | null>(null);
   const [name, setName] = useState(profile?.fullName || displayName || '');
   const touched = useRef(false);
   // O nome pode chegar do servidor depois de abrir o quiz: preenche uma única vez se ainda estiver vazio.
@@ -275,8 +302,11 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   // Até escolher o objetivo, mostra o percurso completo; depois ajusta-se ao objetivo.
   const steps = useMemo(() => {
     const list = [...(goalPicked ? stepsFor(base.goal) : FULL_STEPS)];
-    list.splice(1, 0, 'experience');
-    if (mode === 'first') list.unshift('name');
+    list.splice(1, 0, 'accomplish', 'experience');
+    if (mode === 'first') {
+      list.unshift('name');
+      list.push('thanks', 'notify');
+    }
     if (wantsTarget) {
       const at = list.indexOf('body');
       if (at >= 0) list.splice(at + 1, 0, 'potential', 'timeframe');
@@ -350,7 +380,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
       await completeOnboarding(buildAnswers());
       if (user?.id) {
         const planWeeks = wantsTarget ? weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal) : undefined;
-        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks, experience }, name.trim().split(' ')[0]));
+        await saveCoachContext(user.id, buildCoachContext(buildAnswers(), { challenges, mealsPerDay, cookingTime, motivations, supportStyle, weeks: planWeeks, experience, wantsTo }, name.trim().split(' ')[0]));
       }
       if (user?.id && wantsTarget) {
         await saveGoalPlan(user.id, { weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal), startMs: Date.now(), startWeightKg: base.weightKg });
@@ -446,6 +476,43 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
 
         <RevealProvider stepKey={String(current)}>
         <View style={{ gap: 16 }}>
+        {current === 'accomplish' &&
+          ACCOMPLISH.map((o) => (
+            <QuizRow key={o.label} title={tr(o.label)} icon={<o.Icon size={18} color={colors.primary} />} selected={wantsTo === o.label} onPress={() => setWantsTo(o.label)} />
+          ))}
+        {current === 'thanks' && (
+          <View style={styles.thanks}>
+            <View style={styles.ring}>
+              <View style={styles.ringIn}>
+                <HeartHandshake size={72} color={colors.primary} strokeWidth={1.6} />
+              </View>
+            </View>
+            <Text style={styles.note}>{name.trim() ? tr('{name}, a sua jornada começa agora.', { name: name.trim().split(' ')[0] }) : tr('A sua jornada começa agora.')}</Text>
+          </View>
+        )}
+        {current === 'notify' && (
+          <>
+            {NOTIFY_USES.map((n) => (
+              <View key={n.title} style={styles.notifyRow}>
+                <View style={styles.notifyIcon}>
+                  <n.Icon size={20} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.notifyTitle}>{tr(n.title)}</Text>
+                  <Text style={styles.notifyBody}>{tr(n.body)}</Text>
+                </View>
+              </View>
+            ))}
+            <Pressable
+              style={[styles.allow, notifyOn && styles.allowOn]}
+              onPress={async () => setNotifyOn(await ensureNotificationPermission(true))}
+            >
+              <Bell size={18} color={notifyOn ? '#fff' : colors.primary} />
+              <Text style={[styles.allowText, notifyOn && { color: '#fff' }]}>{notifyOn ? tr('Notificações ativadas') : tr('Permitir notificações')}</Text>
+            </Pressable>
+            {notifyOn === false && <Text style={styles.note}>{tr('Sem problema: pode ativar mais tarde nas definições do telemóvel.')}</Text>}
+          </>
+        )}
         {current === 'experience' && (
           <>
             <QuizRow title={tr('Sim')} icon={<ThumbsUp size={18} color={colors.primary} />} selected={experience === 'Sim'} onPress={() => setExperience('Sim')} />
@@ -502,34 +569,16 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         )}
 
         {current === 'timeframe' && (
-          <>
-            {WEEK_OPTIONS.map((w) => {
-              const rec = recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal);
-              const rate = ratePerWeek(base.weightKg, base.targetWeightKg, w);
-              const fast = rate > maxSafeRate(base.goal);
-              const chosen = (weeksPick ?? rec) === w;
-              const months = w >= 8 ? ` (≈ ${Math.round(w / 4.345)} ${tr('meses')})` : '';
-              return (
-                <QuizRow
-                  key={w}
-                  title={`${w} ${tr('semanas')}${months}`}
-                  subtitle={`${rate.toFixed(2).replace('.', ',')} kg ${tr('por semana')}${w === rec ? ` · ${tr('Recomendado')}` : fast ? ` · ${tr('Ritmo muito rápido')}` : ''}`}
-                  selected={chosen}
-                  onPress={() => setWeeksPick(w)}
-                />
-              );
-            })}
-            <Reveal>
-            <Text style={styles.note}>
-              {tr('De {from} kg para {to} kg em {weeks} semanas. Chegaria por volta de {date}.', {
-                from: base.weightKg,
-                to: base.targetWeightKg,
-                weeks: weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal),
-                date: new Date(Date.now() + (weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal)) * 7 * 86400000).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }),
-              })}
-            </Text>
-            </Reveal>
-          </>
+          <Reveal>
+            <SpeedPicker
+              diffKg={Math.abs(base.targetWeightKg - base.weightKg)}
+              weeks={weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal)}
+              recommendedWeeks={recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal)}
+              safeRate={maxSafeRate(base.goal)}
+              width={width - SCREEN_PADDING * 2}
+              onWeeks={setWeeksPick}
+            />
+          </Reveal>
         )}
 
         {current === 'about' && (
@@ -744,5 +793,15 @@ const createStyles = (colors: ThemeColors) =>
   ctaText: { color: '#fff', fontSize: font.h3, fontWeight: '600' },
   tipCard: { backgroundColor: colors.primarySoft, borderRadius: radius.lg, padding: 14, gap: 8, marginTop: 6 },
   tipText: { fontSize: font.body, color: colors.text, lineHeight: 21 },
+  thanks: { alignItems: 'center', gap: 22, marginTop: 24 },
+  ring: { width: 220, height: 220, borderRadius: 110, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  ringIn: { width: 160, height: 160, borderRadius: 80, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  notifyRow: { flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: colors.surface, borderRadius: radius.lg, padding: 14 },
+  notifyIcon: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  notifyTitle: { fontSize: font.body, fontWeight: '700', color: colors.text },
+  notifyBody: { fontSize: font.small, color: colors.textMuted, lineHeight: 18, marginTop: 2 },
+  allow: { height: 54, borderRadius: 27, borderWidth: 2, borderColor: colors.primary, flexDirection: 'row', gap: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.card },
+  allowOn: { backgroundColor: colors.primary },
+  allowText: { fontSize: font.h3, fontWeight: '700', color: colors.primary },
   nameInput: { height: 60, borderRadius: radius.lg, backgroundColor: colors.surface, paddingHorizontal: 18, fontSize: font.h2, fontWeight: '600', color: colors.text },
 });

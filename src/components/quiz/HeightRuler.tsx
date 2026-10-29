@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { NativeScrollEvent, NativeSyntheticEvent, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { PanResponder, Pressable, StyleSheet, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import Svg, { Line } from 'react-native-svg';
+import Svg, { G, Line, Text as SvgText } from 'react-native-svg';
 import { Text } from '../AppText';
 import { font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
@@ -25,27 +25,60 @@ const feetInches = (cm: number) => {
 export function HeightRuler({ sex, age, cm, onChange, onDrag }: { sex: Sex; age: number; cm: number; onChange: (v: number) => void; onDrag?: (dragging: boolean) => void }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const ref = useRef<ScrollView>(null);
   const [imperial, setImperial] = useState(false);
-  const last = useRef(cm);
+  const live = useRef({ cm, onChange, onDrag });
+  live.current = { cm, onChange, onDrag };
+  const startCm = useRef(cm);
+  const momentum = useRef<ReturnType<typeof setInterval> | null>(null);
+  const value = useRef(cm);
+  value.current = cm;
 
-  useEffect(() => {
-    const t = setTimeout(() => ref.current?.scrollTo({ y: (cm - MIN) * TICK, animated: false }), 30);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const v = Math.max(MIN, Math.min(MAX, MIN + Math.round(e.nativeEvent.contentOffset.y / TICK)));
-    if (v !== last.current) {
-      last.current = v;
-      onChange(v);
+  const apply = (v: number) => {
+    const next = Math.max(MIN, Math.min(MAX, Math.round(v)));
+    if (next !== live.current.cm) {
+      live.current.onChange(next);
       Haptics.selectionAsync().catch(() => undefined);
     }
   };
 
+  // Arraste com o dedo em qualquer ponto da zona: para cima a altura sobe, para baixo desce, com inércia ao largar.
+  const pan = useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderTerminationRequest: () => false,
+        onPanResponderGrant: () => {
+          if (momentum.current) clearInterval(momentum.current);
+          startCm.current = live.current.cm;
+          live.current.onDrag?.(true);
+        },
+        onPanResponderMove: (_, g) => apply(startCm.current - g.dy / TICK),
+        onPanResponderRelease: (_, g) => {
+          live.current.onDrag?.(false);
+          let v = Math.max(-1.2, Math.min(1.2, -g.vy * 2.5)); // cm por quadro (aprox.)
+          if (Math.abs(v) < 0.15) return;
+          let pos = live.current.cm;
+          momentum.current = setInterval(() => {
+            pos += v;
+            v *= 0.9;
+            apply(pos);
+            if (Math.abs(v) < 0.04 && momentum.current) clearInterval(momentum.current);
+          }, 16);
+        },
+        onPanResponderTerminate: () => live.current.onDrag?.(false),
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+  useEffect(() => () => {
+    if (momentum.current) clearInterval(momentum.current);
+  }, []);
+
   const figH = 150 + ((cm - MIN) / (MAX - MIN)) * 230;
-  const ticks = Array.from({ length: MAX - MIN + 1 }, (_, i) => MIN + i);
+  const half = Math.ceil(AREA_H / 2 / TICK) + 1;
+  const ticks: number[] = [];
+  for (let v = cm - half; v <= cm + half; v++) if (v >= MIN && v <= MAX) ticks.push(v);
 
   return (
     <View style={styles.wrap}>
@@ -61,41 +94,34 @@ export function HeightRuler({ sex, age, cm, onChange, onDrag }: { sex: Sex; age:
         {!imperial && <Text style={styles.unit}>cm</Text>}
       </View>
 
-      <View style={{ height: AREA_H }}>
+      <View style={{ height: AREA_H }} {...pan.panHandlers}>
         <View style={styles.figure} pointerEvents="none">
           <View style={{ opacity: 0.3 }}>
             <BodyFigure sex={sex} age={age} h={figH} color={colors.textMuted} />
           </View>
         </View>
-        <ScrollView
-          ref={ref}
-          showsVerticalScrollIndicator={false}
-          snapToInterval={TICK}
-          decelerationRate="fast"
-          scrollEventThrottle={16}
-          onScroll={onScroll}
-          style={styles.ruler}
-          nestedScrollEnabled
-          onTouchStart={() => onDrag?.(true)}
-          onTouchEnd={() => onDrag?.(false)}
-          onTouchCancel={() => onDrag?.(false)}
-          onScrollBeginDrag={() => onDrag?.(true)}
-          onMomentumScrollEnd={() => onDrag?.(false)}
-          contentContainerStyle={{ paddingVertical: AREA_H / 2 - TICK / 2 }}
-        >
-          {ticks.map((v) => {
-            const major = v % 5 === 0;
-            return (
-              <View key={v} style={styles.tickRow}>
-                <Svg width={70} height={TICK}>
-                  <Line x1={0} y1={TICK / 2} x2={major ? 36 : 20} y2={TICK / 2} stroke={major ? colors.textMuted : colors.textFaint} strokeWidth={major ? 2 : 1.2} />
-                </Svg>
-                {major && <Text style={styles.tickLabel}>{v}</Text>}
-              </View>
-            );
-          })}
-        </ScrollView>
+        <View style={styles.ruler} pointerEvents="none">
+          <Svg width={80} height={AREA_H}>
+            {ticks.map((v) => {
+              const y = AREA_H / 2 + (v - cm) * TICK;
+              const major = v % 5 === 0;
+              return (
+                <G key={v}>
+                  <Line x1={0} y1={y} x2={major ? 36 : 20} y2={y} stroke={major ? colors.textMuted : colors.textFaint} strokeWidth={major ? 2 : 1.2} />
+                  {major && (
+                    <SvgText x={42} y={y + 4} fontSize={13} fill={colors.textMuted}>
+                      {v}
+                    </SvgText>
+                  )}
+                </G>
+              );
+            })}
+          </Svg>
+        </View>
         <View style={styles.line} pointerEvents="none" />
+        <Text style={styles.hint} pointerEvents="none">
+          ↕
+        </Text>
       </View>
     </View>
   );
@@ -111,8 +137,7 @@ const createStyles = (colors: ThemeColors) =>
     big: { fontSize: 64, lineHeight: 72, fontWeight: '800', color: colors.text, letterSpacing: -2 },
     unit: { fontSize: 30, fontWeight: '700', color: colors.textFaint },
     ruler: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 80 },
-    tickRow: { height: TICK, flexDirection: 'row', alignItems: 'center' },
-    tickLabel: { position: 'absolute', left: 42, fontSize: font.small, color: colors.textMuted, lineHeight: 14 },
+    hint: { position: 'absolute', right: 8, top: AREA_H / 2 - 14, fontSize: 22, color: colors.textFaint },
     line: { position: 'absolute', left: 80, right: '30%', top: AREA_H / 2 - 1.5, height: 3, borderRadius: 2, backgroundColor: colors.primary },
     figure: { position: 'absolute', right: 20, bottom: 0, left: 90, alignItems: 'center', justifyContent: 'flex-end' },
   });

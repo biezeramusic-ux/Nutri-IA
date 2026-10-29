@@ -1165,4 +1165,10 @@ export const it: Record<string, string> = {
   "Sequências, medalhas e metas pequenas mantêm-no a avançar todos os dias.": "Serie, medaglie e piccoli obiettivi ti fanno andare avanti ogni giorno.",
   "Mostramos as calorias de cada prato para ajustar as porções sem passar fome.": "Mostriamo le calorie di ogni piatto per regolare le porzioni senza soffrire la fame.",
   "Lembretes de água nos horários certos do seu dia, até chegar à meta.": "Promemoria dell'acqua agli orari giusti, fino a raggiungere l'obiettivo.",
+  "Qual a velocidade para chegar à meta?": "Con quale velocità vuoi raggiungere l'obiettivo?",
+  "Arraste para escolher um ritmo realista.": "Trascina per scegliere un ritmo realistico.",
+  "Ritmo para a sua meta": "Ritmo verso il tuo obiettivo",
+  "Devagar": "Lento",
+  "Ritmo suave, fácil de manter": "Ritmo dolce, facile da mantenere",
+  "Chegaria por volta de {date}.": "Arriveresti intorno al {date}.",
 };
