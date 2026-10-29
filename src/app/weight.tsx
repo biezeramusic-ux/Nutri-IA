@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
-import { LineChart } from '../components/LineChart';
+import { WeightChart } from '../components/WeightChart';
 import { NumberStepper } from '../components/quiz/NumberStepper';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
@@ -151,7 +151,7 @@ export default function WeightScreen() {
             ))}
           </View>
           {inRange.length > 0 ? (
-            <LineChart points={inRange.map((l) => ({ label: dd(l.day), value: l.weightKg }))} width={chartW} height={180} goal={target} />
+            <WeightChart points={inRange.map((l) => ({ label: dd(l.day), value: l.weightKg }))} width={chartW} height={220} goal={target} goalLabel={tr('Meta')} />
           ) : (
             <Text style={styles.small}>{logs.length === 0 ? tr('Ainda não registou o peso. Toque em + para começar.') : tr('Sem registos de peso neste período.')}</Text>
           )}
@@ -203,9 +203,9 @@ const createStyles = (colors: ThemeColors) =>
     track: { height: 8, borderRadius: 4, backgroundColor: colors.surface, overflow: 'hidden' },
     fill: { height: 8, borderRadius: 4, backgroundColor: colors.primary },
     tabs: { flexDirection: 'row', backgroundColor: colors.surface, borderRadius: radius.md, padding: 3 },
-    tab: { flex: 1, alignItems: 'center', paddingVertical: 8, paddingHorizontal: 4, borderRadius: radius.md - 2 },
+    tab: { flex: 1, alignItems: 'center', paddingVertical: 8, paddingHorizontal: 2, borderRadius: radius.md - 2 },
     tabOn: { backgroundColor: colors.primary },
-    tabText: { fontSize: font.small, fontWeight: '700', color: colors.textMuted },
+    tabText: { fontSize: 12, fontWeight: '700', color: colors.textMuted },
     title: { fontSize: font.h3, fontWeight: '800', color: colors.text },
     entry: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderTopWidth: 1, borderTopColor: colors.border },
     entryKg: { fontSize: font.h3, fontWeight: '800', color: colors.text },
