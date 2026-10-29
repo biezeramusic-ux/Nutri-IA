@@ -1,4 +1,4 @@
-import { Flame, Leaf, ShieldCheck } from 'lucide-react-native';
+import { Flame, Leaf } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './AppText';
@@ -109,16 +109,7 @@ export function ScanResultSheet({ meal, fallback, bottomInset, onNew, onDetails 
         ))}
       </View>
 
-      {fallback ? (
-        <Text style={styles.metaText}>{tr('exemplo (sem ligação à IA)')}</Text>
-      ) : (
-        typeof a.confidence === 'number' && (
-          <View style={styles.metaChip}>
-            <ShieldCheck size={13} color={colors.textMuted} />
-            <Text style={styles.metaText}>{a.confidence}% {tr('de certeza')}</Text>
-          </View>
-        )
-      )}
+      {fallback && <Text style={styles.metaText}>{tr('exemplo (sem ligação à IA)')}</Text>}
 
       <View style={styles.actions}>
         <Pressable style={[styles.btn, styles.btnGhost]} onPress={onNew}>
