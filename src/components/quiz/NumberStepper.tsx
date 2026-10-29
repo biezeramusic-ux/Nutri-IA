@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
+import { Reveal } from './Reveal';
 
 interface Props {
   label: string;
@@ -22,6 +23,7 @@ export function NumberStepper({ label, value, unit, min, max, step = 1, onChange
   const styles = useMemo(() => createStyles(colors), [colors]);
   const set = (next: number) => onChange(Math.min(max, Math.max(min, next)));
   return (
+    <Reveal>
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.row}>
@@ -44,6 +46,7 @@ export function NumberStepper({ label, value, unit, min, max, step = 1, onChange
         })}
       </View>
     </View>
+    </Reveal>
   );
 }
 

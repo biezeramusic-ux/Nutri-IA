@@ -41,6 +41,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { MacroSquareCard } from '../MacroSquareCard';
 import { NumberStepper } from './NumberStepper';
 import { TypeText } from './TypeText';
+import { Reveal, RevealProvider } from './Reveal';
 import { HeightRuler } from './HeightRuler';
 import { MaintainChart } from './MaintainChart';
 import { QuizChip } from './QuizChip';
@@ -200,6 +201,19 @@ function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
 
+/** Um risco da barra de progresso: enche-se devagar quando a pessoa avança. */
+function Seg({ on, styles }: { on: boolean; styles: { segment: object; segmentOn: object } }) {
+  const v = useRef(new Animated.Value(on ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.timing(v, { toValue: on ? 1 : 0, duration: 700, delay: on ? 450 : 0, easing: Easing.out(Easing.cubic), useNativeDriver: false }).start();
+  }, [on, v]);
+  return (
+    <View style={styles.segment}>
+      <Animated.View style={[styles.segmentOn, { width: v.interpolate({ inputRange: [0, 1], outputRange: ['0%', '100%'] }), height: '100%' }]} />
+    </View>
+  );
+}
+
 export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -306,7 +320,6 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   };
 
   const slide = useRef(new Animated.Value(0)).current;
-  const bodyFade = useRef(new Animated.Value(0)).current;
   const dir = useRef(1);
   const busy = useRef(false);
   // A pergunta atual sai devagar para um lado e a seguinte entra suavemente do outro; as respostas aparecem depois.
@@ -325,10 +338,6 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
       });
     });
   };
-  useEffect(() => {
-    bodyFade.setValue(0);
-    Animated.timing(bodyFade, { toValue: 1, duration: 800, delay: 900, useNativeDriver: true }).start();
-  }, [step, bodyFade]);
 
   const goBack = () => {
     if (step > 0) goTo(step - 1);
@@ -417,7 +426,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         <Text style={styles.section}>{current ? tr(SECTION[current]) : ''}</Text>
         <View style={styles.progress}>
           {steps.map((st, i) => (
-            <View key={st} style={[styles.segment, i <= Math.min(step, steps.length - 1) && styles.segmentOn]} />
+            <Seg key={st} on={i <= Math.min(step, steps.length - 1)} styles={styles} />
           ))}
         </View>
 
@@ -435,7 +444,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </View>
         )}
 
-        <Animated.View style={{ gap: 16, opacity: bodyFade, transform: [{ translateY: bodyFade.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }}>
+        <RevealProvider stepKey={String(current)}>
+        <View style={{ gap: 16 }}>
         {current === 'experience' && (
           <>
             <QuizRow title={tr('Sim')} icon={<ThumbsUp size={18} color={colors.primary} />} selected={experience === 'Sim'} onPress={() => setExperience('Sim')} />
@@ -444,8 +454,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         )}
         {current === 'trust' && (
           <>
-            <MaintainChart width={width - SCREEN_PADDING * 2} />
-            <Text style={styles.note}>{tr('Com acompanhamento diário, é muito mais fácil manter os resultados depois dos primeiros meses.')}</Text>
+            <Reveal><MaintainChart width={width - SCREEN_PADDING * 2} /></Reveal>
+            <Reveal><Text style={styles.note}>{tr('Com acompanhamento diário, é muito mais fácil manter os resultados depois dos primeiros meses.')}</Text></Reveal>
           </>
         )}
 
@@ -455,6 +465,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           ))}
 
         {current === 'name' && (
+          <Reveal>
           <TextInput
             value={name}
             onChangeText={setName}
@@ -465,23 +476,28 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
             maxLength={40}
             style={styles.nameInput}
           />
+          </Reveal>
         )}
 
         {current === 'potential' && (
           <>
-            <PotentialChart
+            <Reveal><PotentialChart
               title={pickedGoals.includes('lose_weight') ? tr('A sua transição de peso') : tr('A sua evolução')}
               withLabel={tr('Com o Nutri AI')}
               withoutLabel={tr('Da forma tradicional')}
-            />
+            /></Reveal>
+            <Reveal>
             <Text style={styles.note}>
               {pickedGoals.includes('lose_weight')
                 ? tr('Sem acompanhamento, perder peso costuma ser lento e difícil de manter. Com o Nutri AI, depois dos primeiros 7 dias o progresso acelera.')
                 : tr('Sem acompanhamento, ganhar massa costuma ser lento e irregular. Com o Nutri AI, depois dos primeiros 7 dias o progresso acelera.')}
             </Text>
+            </Reveal>
+            <Reveal>
             <Text style={styles.note}>
               {base.weightKg} kg → {base.targetWeightKg} kg
             </Text>
+            </Reveal>
           </>
         )}
 
@@ -503,6 +519,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
                 />
               );
             })}
+            <Reveal>
             <Text style={styles.note}>
               {tr('De {from} kg para {to} kg em {weeks} semanas. Chegaria por volta de {date}.', {
                 from: base.weightKg,
@@ -511,6 +528,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
                 date: new Date(Date.now() + (weeksPick ?? recommendedWeeks(base.weightKg, base.targetWeightKg, base.goal)) * 7 * 86400000).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' }),
               })}
             </Text>
+            </Reveal>
           </>
         )}
 
@@ -522,7 +540,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </>
         )}
 
-        {current === 'height' && <HeightRuler sex={base.sex} age={base.age} cm={base.heightCm} onChange={(v) => update('heightCm', v)} onDrag={setDragging} />}
+        {current === 'height' && <Reveal><HeightRuler sex={base.sex} age={base.age} cm={base.heightCm} onChange={(v) => update('heightCm', v)} onDrag={setDragging} /></Reveal>}
 
         {current === 'body' && (
           <>
@@ -565,20 +583,20 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
             ))}
           </View>
           {challenges.length > 0 && (
-            <View style={styles.tipCard}>
+            <Reveal base={0}><View style={styles.tipCard}>
               {challenges.map((c) => (
                 <Text key={c} style={styles.tipText}>
                   • {tr(CHALLENGE_TIPS[c] ?? '')}
                 </Text>
               ))}
-            </View>
+            </View></Reveal>
           )}
           </>
         )}
 
         {current === 'lifestyle' && (
           <>
-            <Text style={styles.subHead}>{tr('Quantas refeições faz por dia?')}</Text>
+            <Reveal><Text style={styles.subHead}>{tr('Quantas refeições faz por dia?')}</Text></Reveal>
             <View style={styles.chips}>
               {MEALS_PER_DAY.map((m) => (
                 <QuizChip key={m.value} label={tr(m.label)} selected={mealsPerDay === m.value} onPress={() => setMealsPerDay(m.value)} />
@@ -599,7 +617,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
                 />
               ))}
             </View>
-            <Text style={styles.subHead}>{tr('Como prefere ser acompanhado?')}</Text>
+            <Reveal><Text style={styles.subHead}>{tr('Como prefere ser acompanhado?')}</Text></Reveal>
             <View style={styles.chips}>
               {SUPPORT_STYLES.map((m) => (
                 <QuizChip key={m} label={tr(m)} selected={supportStyle === m} onPress={() => setSupportStyle(m)} />
@@ -662,7 +680,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </View>
         )}
 
-        </Animated.View>
+        </View>
+        </RevealProvider>
         </Animated.View>
       </ScrollView>
 
@@ -697,7 +716,7 @@ const createStyles = (colors: ThemeColors) =>
   brand: { alignItems: 'center', gap: 0, marginBottom: -11 },
   section: { textAlign: 'center', fontSize: font.h3, fontWeight: '600', color: colors.text, marginBottom: 4 },
   progress: { flexDirection: 'row', gap: 4 },
-  segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border },
+  segment: { flex: 1, height: 5, borderRadius: 3, backgroundColor: colors.border, overflow: 'hidden' },
   segmentOn: { backgroundColor: colors.primary },
   head: { gap: 4, marginTop: 8, marginBottom: 4 },
   title: { fontSize: font.h1, lineHeight: 30, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },

@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from '../../components/AppText';
 import { font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
+import { Reveal } from './Reveal';
 
 interface Props {
   title: string;
@@ -21,6 +22,7 @@ export function QuizRow({ title, subtitle, selected, onPress, multi = false, ico
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
+    <Reveal>
     <Pressable
       onPress={onPress}
       accessibilityRole={multi ? 'checkbox' : 'radio'}
@@ -36,6 +38,7 @@ export function QuizRow({ title, subtitle, selected, onPress, multi = false, ico
         {selected && <Check size={14} color="#fff" strokeWidth={3.5} />}
       </View>
     </Pressable>
+    </Reveal>
   );
 }
 

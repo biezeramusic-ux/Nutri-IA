@@ -3,6 +3,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { Text } from '../../components/AppText';
 import { font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
+import { Reveal } from './Reveal';
 
 interface Props {
   label: string;
@@ -14,9 +15,11 @@ export function QuizChip({ label, selected, onPress }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   return (
+    <Reveal>
     <Pressable onPress={onPress} style={[styles.chip, selected && styles.selected]} accessibilityRole="button">
       <Text style={[styles.text, selected && styles.textSelected]}>{label}</Text>
     </Pressable>
+    </Reveal>
   );
 }
 
