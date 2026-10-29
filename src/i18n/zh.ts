@@ -1158,4 +1158,11 @@ export const zh: Record<string, string> = {
   "kcal por dia": "千卡/天",
   "dias seguidos": "连续天数",
   "refeições": "餐食",
+  "Vamos manter o registo rápido: uma foto e pronto, em poucos segundos.": "记录很快：拍一张照片，几秒钟搞定。",
+  "Vamos sugerir trocas simples e avisá-lo quando o açúcar do dia estiver alto.": "我们会建议简单的替代品，并在当天糖分偏高时提醒您。",
+  "Os lembretes de refeição ajudam a criar horários fixos ao longo do dia.": "用餐提醒帮助您养成固定的进餐时间。",
+  "Com base na sua meta e nos seus alimentos favoritos, damos ideias de pratos.": "根据您的目标和喜爱的食物，我们为您提供菜品灵感。",
+  "Sequências, medalhas e metas pequenas mantêm-no a avançar todos os dias.": "连续记录、奖章和小目标让您每天都在前进。",
+  "Mostramos as calorias de cada prato para ajustar as porções sem passar fome.": "我们显示每道菜的热量，让您不挨饿也能调整份量。",
+  "Lembretes de água nos horários certos do seu dia, até chegar à meta.": "在一天合适的时间提醒喝水，直到达成目标。",
 };

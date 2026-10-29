@@ -1158,4 +1158,11 @@ export const it: Record<string, string> = {
   "kcal por dia": "kcal al giorno",
   "dias seguidos": "giorni di fila",
   "refeições": "pasti",
+  "Vamos manter o registo rápido: uma foto e pronto, em poucos segundos.": "Manterremo la registrazione veloce: una foto e fatto, in pochi secondi.",
+  "Vamos sugerir trocas simples e avisá-lo quando o açúcar do dia estiver alto.": "Suggeriremo semplici sostituzioni e ti avviseremo quando lo zucchero del giorno è alto.",
+  "Os lembretes de refeição ajudam a criar horários fixos ao longo do dia.": "I promemoria dei pasti aiutano a creare orari fissi durante la giornata.",
+  "Com base na sua meta e nos seus alimentos favoritos, damos ideias de pratos.": "In base al tuo obiettivo e ai cibi preferiti, ti diamo idee per i piatti.",
+  "Sequências, medalhas e metas pequenas mantêm-no a avançar todos os dias.": "Serie, medaglie e piccoli obiettivi ti fanno andare avanti ogni giorno.",
+  "Mostramos as calorias de cada prato para ajustar as porções sem passar fome.": "Mostriamo le calorie di ogni piatto per regolare le porzioni senza soffrire la fame.",
+  "Lembretes de água nos horários certos do seu dia, até chegar à meta.": "Promemoria dell'acqua agli orari giusti, fino a raggiungere l'obiettivo.",
 };

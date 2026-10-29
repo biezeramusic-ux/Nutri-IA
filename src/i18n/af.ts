@@ -1158,4 +1158,11 @@ export const af: Record<string, string> = {
   "kcal por dia": "kcal per dag",
   "dias seguidos": "dae agtereenvolgend",
   "refeições": "maaltye",
+  "Vamos manter o registo rápido: uma foto e pronto, em poucos segundos.": "Ons hou die aanteken vinnig: een foto en klaar, in sekondes.",
+  "Vamos sugerir trocas simples e avisá-lo quando o açúcar do dia estiver alto.": "Ons stel eenvoudige ruiltjies voor en waarsku jou wanneer die dag se suiker hoog is.",
+  "Os lembretes de refeição ajudam a criar horários fixos ao longo do dia.": "Maaltydherinneringe help om vaste tye deur die dag te skep.",
+  "Com base na sua meta e nos seus alimentos favoritos, damos ideias de pratos.": "Gebaseer op jou doelwit en gunstelingkos gee ons idees vir etes.",
+  "Sequências, medalhas e metas pequenas mantêm-no a avançar todos os dias.": "Reekse, medaljes en klein doelwitte hou jou elke dag aan die gang.",
+  "Mostramos as calorias de cada prato para ajustar as porções sem passar fome.": "Ons wys elke gereg se kalorieë sodat jy porsies kan aanpas sonder om honger te ly.",
+  "Lembretes de água nos horários certos do seu dia, até chegar à meta.": "Waterherinneringe op die regte tye, tot jy jou doelwit bereik.",
 };

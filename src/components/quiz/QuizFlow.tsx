@@ -98,6 +98,16 @@ const CONDITIONS: { value: HealthCondition; label: string }[] = [
 ];
 
 const CHALLENGES = ['Falta de tempo', 'Vontade de comer doces', 'Comer fora de horas', 'Não sei o que comer', 'Falta de motivação', 'Porções grandes', 'Beber pouca água'];
+/** Resposta de apoio ao desafio escolhido: mostra à pessoa que o Nutri AI a vai ajudar nisso. */
+const CHALLENGE_TIPS: Record<string, string> = {
+  'Falta de tempo': 'Vamos manter o registo rápido: uma foto e pronto, em poucos segundos.',
+  'Vontade de comer doces': 'Vamos sugerir trocas simples e avisá-lo quando o açúcar do dia estiver alto.',
+  'Comer fora de horas': 'Os lembretes de refeição ajudam a criar horários fixos ao longo do dia.',
+  'Não sei o que comer': 'Com base na sua meta e nos seus alimentos favoritos, damos ideias de pratos.',
+  'Falta de motivação': 'Sequências, medalhas e metas pequenas mantêm-no a avançar todos os dias.',
+  'Porções grandes': 'Mostramos as calorias de cada prato para ajustar as porções sem passar fome.',
+  'Beber pouca água': 'Lembretes de água nos horários certos do seu dia, até chegar à meta.',
+};
 const MOTIVATIONS = ['Ver resultados rápidos', 'Melhorar a saúde', 'Aparência', 'Mais energia', 'Desporto e desempenho', 'Família'];
 const SUPPORT_STYLES = ['Lembretes suaves', 'Desafios e medalhas', 'Gráficos e números'];
 const MEALS_PER_DAY: { value: number; label: string }[] = [
@@ -295,14 +305,30 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
     if (main) setBase((b) => ({ ...b, goal: main }));
   };
 
-  const slide = useRef(new Animated.Value(1)).current;
+  const slide = useRef(new Animated.Value(0)).current;
+  const bodyFade = useRef(new Animated.Value(0)).current;
   const dir = useRef(1);
+  const busy = useRef(false);
+  // A pergunta atual sai devagar para um lado e a seguinte entra suavemente do outro; as respostas aparecem depois.
   const goTo = (next: number) => {
+    if (busy.current) return;
+    busy.current = true;
+    setTimeout(() => {
+      busy.current = false;
+    }, 1600);
     dir.current = next >= step ? 1 : -1;
-    slide.setValue(0);
-    setStep(next);
-    Animated.timing(slide, { toValue: 1, duration: 480, easing: Easing.bezier(0.22, 1, 0.36, 1), useNativeDriver: true }).start();
+    Animated.timing(slide, { toValue: -dir.current * 0.45, duration: 230, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(() => {
+      setStep(next);
+      slide.setValue(dir.current);
+      Animated.timing(slide, { toValue: 0, duration: 620, easing: Easing.bezier(0.22, 1, 0.36, 1), useNativeDriver: true }).start(() => {
+        busy.current = false;
+      });
+    });
   };
+  useEffect(() => {
+    bodyFade.setValue(0);
+    Animated.timing(bodyFade, { toValue: 1, duration: 800, delay: 900, useNativeDriver: true }).start();
+  }, [step, bodyFade]);
 
   const goBack = () => {
     if (step > 0) goTo(step - 1);
@@ -382,10 +408,12 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         keyboardShouldPersistTaps="handled"
         scrollEnabled={!dragging}
       >
-        <View style={styles.brand}>
-          <Logo size={36} />
-          <CrownMark size={14} />
-        </View>
+        {current === 'goal' && (
+          <View style={styles.brand}>
+            <Logo size={36} />
+            <CrownMark size={14} />
+          </View>
+        )}
         <Text style={styles.section}>{current ? tr(SECTION[current]) : ''}</Text>
         <View style={styles.progress}>
           {steps.map((st, i) => (
@@ -396,17 +424,18 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         <Animated.View
           style={{
             gap: 12,
-            opacity: slide.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0, 1, 1] }),
-            transform: [{ translateX: slide.interpolate({ inputRange: [0, 1], outputRange: [dir.current * width, 0] }) }],
+            opacity: slide.interpolate({ inputRange: [-1, -0.45, 0, 0.45, 1], outputRange: [0, 0.2, 1, 0.2, 0] }),
+            transform: [{ translateX: slide.interpolate({ inputRange: [-1, 1], outputRange: [-width, width] }) }],
           }}
         >
         {copy && (
           <View style={styles.head}>
-            <TypeText key={`t-${current}`} text={tr(copy.title)} style={styles.title} delay={250} msPerChar={24} />
-            {!!copy.subtitle && <TypeText key={`s-${current}`} text={tr(copy.subtitle)} style={styles.subtitle} delay={250 + copy.title.length * 24} msPerChar={9} />}
+            <TypeText key={`t-${current}`} text={tr(copy.title)} style={styles.title} delay={700} msPerChar={45} />
+            {!!copy.subtitle && <TypeText key={`s-${current}`} text={tr(copy.subtitle)} style={styles.subtitle} delay={700 + copy.title.length * 45 + 150} msPerChar={18} />}
           </View>
         )}
 
+        <Animated.View style={{ gap: 16, opacity: bodyFade, transform: [{ translateY: bodyFade.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) }] }}>
         {current === 'experience' && (
           <>
             <QuizRow title={tr('Sim')} icon={<ThumbsUp size={18} color={colors.primary} />} selected={experience === 'Sim'} onPress={() => setExperience('Sim')} />
@@ -521,6 +550,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         )}
 
         {current === 'challenge' && (
+          <>
           <View style={styles.chips}>
             {CHALLENGES.map((c) => (
               <QuizChip
@@ -534,6 +564,16 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
               />
             ))}
           </View>
+          {challenges.length > 0 && (
+            <View style={styles.tipCard}>
+              {challenges.map((c) => (
+                <Text key={c} style={styles.tipText}>
+                  • {tr(CHALLENGE_TIPS[c] ?? '')}
+                </Text>
+              ))}
+            </View>
+          )}
+          </>
         )}
 
         {current === 'lifestyle' && (
@@ -623,6 +663,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         )}
 
         </Animated.View>
+        </Animated.View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
@@ -682,5 +723,7 @@ const createStyles = (colors: ThemeColors) =>
   ctaOff: { opacity: 0.45 },
   ctaPressed: { opacity: 0.9 },
   ctaText: { color: '#fff', fontSize: font.h3, fontWeight: '600' },
+  tipCard: { backgroundColor: colors.primarySoft, borderRadius: radius.lg, padding: 14, gap: 8, marginTop: 6 },
+  tipText: { fontSize: font.body, color: colors.text, lineHeight: 21 },
   nameInput: { height: 60, borderRadius: radius.lg, backgroundColor: colors.surface, paddingHorizontal: 18, fontSize: font.h2, fontWeight: '600', color: colors.text },
 });
