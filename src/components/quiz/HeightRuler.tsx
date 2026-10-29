@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import Svg, { Line } from 'react-native-svg';
 import { Text } from '../AppText';
 import { font, radius, type ThemeColors } from '../../constants/theme';
@@ -10,7 +11,7 @@ import { BodyFigure } from './BodyFigure';
 const MIN = 100;
 const MAX = 220;
 const TICK = 10;
-const AREA_H = 400;
+const AREA_H = 420;
 
 const feetInches = (cm: number) => {
   const total = Math.round(cm / 2.54);
@@ -21,7 +22,7 @@ const feetInches = (cm: number) => {
  * Altura: régua vertical à esquerda (deslize) e uma silhueta transparente, feminina ou masculina,
  * que sobe e desce com a altura. O número grande mostra cm ou pés.
  */
-export function HeightRuler({ sex, age, cm, onChange }: { sex: Sex; age: number; cm: number; onChange: (v: number) => void }) {
+export function HeightRuler({ sex, age, cm, onChange, onDrag }: { sex: Sex; age: number; cm: number; onChange: (v: number) => void; onDrag?: (dragging: boolean) => void }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const ref = useRef<ScrollView>(null);
@@ -39,6 +40,7 @@ export function HeightRuler({ sex, age, cm, onChange }: { sex: Sex; age: number;
     if (v !== last.current) {
       last.current = v;
       onChange(v);
+      Haptics.selectionAsync().catch(() => undefined);
     }
   };
 
@@ -73,6 +75,12 @@ export function HeightRuler({ sex, age, cm, onChange }: { sex: Sex; age: number;
           scrollEventThrottle={16}
           onScroll={onScroll}
           style={styles.ruler}
+          nestedScrollEnabled
+          onTouchStart={() => onDrag?.(true)}
+          onTouchEnd={() => onDrag?.(false)}
+          onTouchCancel={() => onDrag?.(false)}
+          onScrollBeginDrag={() => onDrag?.(true)}
+          onMomentumScrollEnd={() => onDrag?.(false)}
           contentContainerStyle={{ paddingVertical: AREA_H / 2 - TICK / 2 }}
         >
           {ticks.map((v) => {
@@ -105,6 +113,6 @@ const createStyles = (colors: ThemeColors) =>
     ruler: { position: 'absolute', left: 0, top: 0, bottom: 0, width: 80 },
     tickRow: { height: TICK, flexDirection: 'row', alignItems: 'center' },
     tickLabel: { position: 'absolute', left: 42, fontSize: font.small, color: colors.textMuted, lineHeight: 14 },
-    line: { position: 'absolute', left: 0, right: '30%', top: AREA_H / 2 - 1.5, height: 3, borderRadius: 2, backgroundColor: colors.primary },
+    line: { position: 'absolute', left: 80, right: '30%', top: AREA_H / 2 - 1.5, height: 3, borderRadius: 2, backgroundColor: colors.primary },
     figure: { position: 'absolute', right: 20, bottom: 0, left: 90, alignItems: 'center', justifyContent: 'flex-end' },
   });

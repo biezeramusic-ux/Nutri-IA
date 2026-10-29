@@ -220,6 +220,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const [motivations, setMotivations] = useState<string[]>([]);
   const [supportStyle, setSupportStyle] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const [experience, setExperience] = useState('Não');
   const [name, setName] = useState(profile?.fullName || displayName || '');
   const touched = useRef(false);
@@ -379,6 +380,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: SCREEN_PADDING, paddingBottom: 120, gap: 12 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        scrollEnabled={!dragging}
       >
         <View style={styles.brand}>
           <Logo size={36} />
@@ -400,8 +402,8 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         >
         {copy && (
           <View style={styles.head}>
-            <TypeText key={`t-${current}`} text={tr(copy.title)} style={styles.title} />
-            {!!copy.subtitle && <TypeText key={`s-${current}`} text={tr(copy.subtitle)} style={styles.subtitle} delay={350 + copy.title.length * 38} msPerChar={16} />}
+            <TypeText key={`t-${current}`} text={tr(copy.title)} style={styles.title} delay={250} msPerChar={24} />
+            {!!copy.subtitle && <TypeText key={`s-${current}`} text={tr(copy.subtitle)} style={styles.subtitle} delay={250 + copy.title.length * 24} msPerChar={9} />}
           </View>
         )}
 
@@ -491,7 +493,7 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
           </>
         )}
 
-        {current === 'height' && <HeightRuler sex={base.sex} age={base.age} cm={base.heightCm} onChange={(v) => update('heightCm', v)} />}
+        {current === 'height' && <HeightRuler sex={base.sex} age={base.age} cm={base.heightCm} onChange={(v) => update('heightCm', v)} onDrag={setDragging} />}
 
         {current === 'body' && (
           <>
