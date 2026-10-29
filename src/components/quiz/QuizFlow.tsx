@@ -380,12 +380,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {step === 0 && (
-          <View style={styles.brand}>
-            <Logo size={36} />
-            <CrownMark size={14} />
-          </View>
-        )}
+        <View style={styles.brand}>
+          <Logo size={36} />
+          <CrownMark size={14} />
+        </View>
         <Text style={styles.section}>{current ? tr(SECTION[current]) : ''}</Text>
         <View style={styles.progress}>
           {steps.map((st, i) => (
