@@ -515,6 +515,10 @@ export default function ProgressScreen() {
           )}
         </View>
 
+            <Pressable style={styles.photosBtn} onPress={() => router.push('/weight')}>
+              <Scale size={16} color={colors.primaryDark} />
+              <Text style={styles.photosText}>{tr('Rastreador de peso e progresso')}</Text>
+            </Pressable>
             {profile?.goal === 'lose_weight' && <WeightChanges logs={logs} />}
         <Pressable style={styles.photosBtn} onPress={() => router.push('/progress-photos')}>
           <Camera size={16} color={colors.primaryDark} />
