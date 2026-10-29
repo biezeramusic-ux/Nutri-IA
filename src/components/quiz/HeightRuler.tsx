@@ -44,7 +44,6 @@ export function HeightRuler({ sex, age, cm, onChange }: { sex: Sex; age: number;
 
   const figH = 150 + ((cm - MIN) / (MAX - MIN)) * 230;
   const ticks = Array.from({ length: MAX - MIN + 1 }, (_, i) => MIN + i);
-  const ghost = `${colors.textFaint}`;
 
   return (
     <View style={styles.wrap}>
@@ -62,8 +61,8 @@ export function HeightRuler({ sex, age, cm, onChange }: { sex: Sex; age: number;
 
       <View style={{ height: AREA_H }}>
         <View style={styles.figure} pointerEvents="none">
-          <View style={{ opacity: 0.28 }}>
-            <BodyFigure sex={sex} age={age} h={figH} color={ghost} skin={ghost} hair={ghost} />
+          <View style={{ opacity: 0.3 }}>
+            <BodyFigure sex={sex} age={age} h={figH} color={colors.textMuted} />
           </View>
         </View>
         <ScrollView

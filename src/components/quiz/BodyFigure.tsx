@@ -1,57 +1,32 @@
-import Svg, { Circle, G, Path, Rect } from 'react-native-svg';
+import Svg, { Ellipse, Path } from 'react-native-svg';
 import type { Sex } from '../../types';
 
-/** Fase da vida pelo desenho: muda a proporção da cabeça, o cabelo e a postura. */
+/** Fase da vida pelo desenho: muda a proporção da cabeça e a postura. */
 export const lifeStage = (age: number): 'child' | 'teen' | 'adult' | 'senior' => (age < 13 ? 'child' : age < 20 ? 'teen' : age < 60 ? 'adult' : 'senior');
 
+const MALE_BODY =
+  'M22 52 Q30 44 44 46 L56 46 Q70 44 78 52 Q85 58 84 76 L86 118 Q86 125 80 125 L77 125 Q73 125 73 118 L72 86 L72 132 Q72 140 70 148 L30 148 Q28 140 28 132 L28 86 L27 118 Q27 125 23 125 L20 125 Q14 125 14 118 L16 76 Q15 58 22 52 Z';
+const MALE_LEGS = 'M30 146 L49 146 L48 249 Q48 257 42 257 L36 257 Q30 257 31 249 Z M51 146 L70 146 L69 249 Q70 257 64 257 L58 257 Q52 257 52 249 Z';
+const FEMALE_BODY =
+  'M29 52 Q35 46 44 46 L56 46 Q65 46 71 52 Q77 58 76 76 L79 116 Q79 123 75 123 L72 123 Q68 123 68 117 L66 88 Q66 102 70 114 Q80 130 83 156 L17 156 Q20 130 30 114 Q34 102 34 88 L32 117 Q32 123 28 123 L25 123 Q21 123 21 116 L24 76 Q23 58 29 52 Z';
+const FEMALE_LEGS = 'M34 154 L49 154 L48 249 Q48 257 42 257 L37 257 Q32 257 33 249 Z M51 154 L66 154 L67 249 Q68 257 63 257 L58 257 Q52 257 52 249 Z';
+const LONG_HAIR = 'M35 20 Q34 2 50 2 Q66 2 65 20 L68 52 Q60 56 50 54 Q40 56 32 52 Z';
+
 /**
- * Boneco que muda com o sexo, a idade e a altura. `h` é a altura do desenho em pixels (cabeça aos pés).
- * Mulher: vestido e cabelo comprido. Homem: calças e ombros mais largos. Crianças têm cabeça maior; idosos têm cabelo grisalho.
+ * Silhueta humana de uma só cor (use com opacidade para ficar transparente). `h` é a altura em pixels.
+ * A mulher tem cabelo comprido, cintura e vestido; o homem, ombros largos e calças. Crianças têm cabeça maior.
  */
-export function BodyFigure({ sex, age, h, color, hair, skin = '#F2C9A5' }: { sex: Sex; age: number; h: number; color: string; hair?: string; skin?: string }) {
+export function BodyFigure({ sex, age, h, color }: { sex: Sex; age: number; h: number; color: string; hair?: string; skin?: string }) {
   const stage = lifeStage(age);
-  const headR = h * (stage === 'child' ? 0.12 : stage === 'teen' ? 0.1 : 0.085);
-  const w = h * 0.6;
-  const cx = w / 2;
-  const neck = headR * 2 + h * 0.02;
-  const kid = stage === 'child' ? 0.82 : 1;
-  const shoulder = h * (sex === 'male' ? 0.19 : 0.16) * kid;
-  const torsoH = (h - neck) * 0.36;
-  const bottom = sex === 'female' ? neck + torsoH * 1.35 : neck + torsoH;
-  const hip = sex === 'female' ? shoulder * 1.45 : shoulder * 0.85;
-  const legW = h * 0.07 * kid;
-  const hairColor = hair ?? (stage === 'senior' ? '#CBD5E1' : '#3B2A20');
-  const arm = h * 0.05 * kid;
-  const pants = '#334155';
-  const handY = neck + torsoH * 0.95;
-  const legTop = sex === 'female' ? bottom : bottom - 6;
-  const elbow = shoulder + arm * 0.7;
+  const w = (h * 100) / 262;
+  const kid = stage === 'child';
   return (
-    <Svg width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
-      {/* pescoço */}
-      <Rect x={cx - headR * 0.35} y={headR * 1.8} width={headR * 0.7} height={neck - headR * 1.6} fill={skin} />
-      {/* pernas */}
-      <Rect x={cx - legW - 1.5} y={legTop} width={legW} height={h - legTop - 4} rx={legW / 3} fill={sex === 'male' ? pants : skin} />
-      <Rect x={cx + 1.5} y={legTop} width={legW} height={h - legTop - 4} rx={legW / 3} fill={sex === 'male' ? pants : skin} />
-      {/* sapatos */}
-      <Rect x={cx - legW - 3} y={h - 7} width={legW + 3} height={7} rx={3} fill="#1F2937" />
-      <Rect x={cx} y={h - 7} width={legW + 3} height={7} rx={3} fill="#1F2937" />
-      {/* braços */}
-      <Path d={`M ${cx - shoulder + 2} ${neck + 4} L ${cx - elbow} ${handY}`} stroke={skin} strokeWidth={arm} strokeLinecap="round" />
-      <Path d={`M ${cx + shoulder - 2} ${neck + 4} L ${cx + elbow} ${handY}`} stroke={skin} strokeWidth={arm} strokeLinecap="round" />
-      {/* tronco / vestido */}
-      <Path d={`M ${cx - shoulder} ${neck + 6} Q ${cx - shoulder} ${neck - 2} ${cx - shoulder * 0.45} ${neck - 2} L ${cx + shoulder * 0.45} ${neck - 2} Q ${cx + shoulder} ${neck - 2} ${cx + shoulder} ${neck + 6} L ${cx + hip} ${bottom} L ${cx - hip} ${bottom} Z`} fill={color} />
-      {/* cabelo atrás (mulher) */}
-      {sex === 'female' && stage !== 'child' && <Path d={`M ${cx - headR} ${headR} Q ${cx - headR * 1.25} ${headR * 2.8} ${cx - headR * 0.6} ${headR * 3.1} L ${cx + headR * 0.6} ${headR * 3.1} Q ${cx + headR * 1.25} ${headR * 2.8} ${cx + headR} ${headR} Z`} fill={hairColor} />}
-      {/* cabeça */}
-      <G>
-        <Circle cx={cx} cy={headR} r={headR} fill={skin} />
-        <Path d={`M ${cx - headR} ${headR} A ${headR} ${headR} 0 0 1 ${cx + headR} ${headR} Q ${cx} ${headR * 0.35} ${cx - headR} ${headR} Z`} fill={hairColor} />
-        <Circle cx={cx - headR * 0.35} cy={headR * 1.05} r={headR * 0.08} fill="#1F2937" />
-        <Circle cx={cx + headR * 0.35} cy={headR * 1.05} r={headR * 0.08} fill="#1F2937" />
-        <Path d={`M ${cx - headR * 0.3} ${headR * 1.4} Q ${cx} ${headR * 1.6} ${cx + headR * 0.3} ${headR * 1.4}`} stroke="#1F2937" strokeWidth={1.5} fill="none" strokeLinecap="round" />
-      </G>
-      {stage === 'senior' && <Path d={`M ${cx + elbow + arm * 0.6} ${handY} L ${cx + elbow + arm * 0.8} ${h - 2}`} stroke="#92400E" strokeWidth={3} strokeLinecap="round" />}
+    <Svg width={w} height={h} viewBox="0 0 100 262">
+      {sex === 'female' && !kid && <Path d={LONG_HAIR} fill={color} />}
+      <Ellipse cx={50} cy={kid ? 24 : 21} rx={kid ? 17 : 13.5} ry={kid ? 20 : 16.5} fill={color} />
+      <Path d="M44 34 L56 34 L57 48 L43 48 Z" fill={color} />
+      <Path d={sex === 'female' ? FEMALE_BODY : MALE_BODY} fill={color} />
+      <Path d={sex === 'female' ? FEMALE_LEGS : MALE_LEGS} fill={color} />
     </Svg>
   );
 }
