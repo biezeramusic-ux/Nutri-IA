@@ -71,8 +71,8 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   flex: { flex: 1 },
-  green: { ...StyleSheet.absoluteFill, width: undefined, height: undefined, opacity: 0.3 },
-  shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.08)' },
+  green: { ...StyleSheet.absoluteFill, width: undefined, height: undefined, opacity: 0.1 },
+  shade: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(0,0,0,0.02)' },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 'auto' },
   logoBubble: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center' },
   brandText: { fontSize: font.h2, fontWeight: '700', color: '#fff' },

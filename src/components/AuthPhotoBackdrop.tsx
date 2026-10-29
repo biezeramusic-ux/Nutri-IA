@@ -48,7 +48,7 @@ export function AuthPhotoBackdrop() {
     Animated.parallel([
       Animated.timing(opacity[active], { toValue: 1, duration: IN_MS, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
       Animated.timing(slide[active], { toValue: 0, duration: IN_MS + 300, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-      Animated.timing(zoom[active], { toValue: 1.14, duration: HOLD_MS + IN_MS * 2, easing: Easing.linear, useNativeDriver: true }),
+      Animated.timing(zoom[active], { toValue: 1.05, duration: HOLD_MS + IN_MS * 2, easing: Easing.linear, useNativeDriver: true }),
     ]).start(() => {
       // Nova foto já cobre tudo: esconde a anterior sem qualquer efeito visível.
       const p = prev.current;
