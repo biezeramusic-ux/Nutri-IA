@@ -31,6 +31,12 @@ const INSIGHT_PROMPT =
 const WATER_PROMPT =
   'You write push-notification texts for the Nutrifitness AI app reminding the user to drink water. Return strictly a JSON array of 6 different strings. Each one is a friendly, motivating sentence of at most 110 characters, tailored to the user goal, without medical claims. Do not include emojis or the user name.';
 
+const TIP_PROMPT =
+  "You are the fitness coach of 'Nutrifitness AI'. From the user profile, training place, level and today's numbers, write ONE short practical tip for today (max 2 sentences, at most 200 characters). For weight loss suggest cardio such as running or walking 2 to 3 km today and say it helps burn calories; for muscle gain suggest a specific strength focus and enough protein; for other goals suggest an easy active habit. Be friendly and specific, no medical claims, no diagnoses. Reply with the text only.";
+
+const PLAN_PROMPT =
+  "You are a certified personal trainer inside 'Nutrifitness AI'. Build ONE workout for the requested type, place (home = no or very little equipment, gym = machines and free weights, outdoor = park or street, studio = classes) and level, fitting the requested minutes and the user's goal. Return strictly a clean JSON object: { \"title\": string, \"minutes\": number, \"kcal\": number, \"warmup\": string[], \"exercises\": [ { \"name\": string, \"sets\": number, \"reps\": string, \"rest_sec\": number, \"tip\": string } ], \"cooldown\": string[], \"note\": string }. 5 to 8 exercises, safe for the level, short tips (max 90 characters), warmup and cooldown with 2 to 4 short items each, kcal is a rough estimate for the whole session. No medical claims.";
+
 const LANG_NAMES: Record<string, string> = {
   en: 'English',
   es: 'Spanish',
@@ -86,7 +92,7 @@ Deno.serve(async (req) => {
   const { data: userData } = await supabase.auth.getUser();
   if (!userData.user) return json({ error: 'unauthorized' }, 401);
 
-  let body: { action?: string; image?: string; stats?: unknown; analysis?: unknown; instruction?: string; lang?: string; goal?: string; context?: string };
+  let body: { action?: string; image?: string; stats?: unknown; analysis?: unknown; instruction?: string; lang?: string; goal?: string; context?: string; place?: string; level?: string; kind?: string; minutes?: number };
   try {
     body = await req.json();
   } catch {
@@ -148,6 +154,26 @@ Deno.serve(async (req) => {
     if (body.action === 'water') {
       const goal = typeof body.goal === 'string' ? body.goal.slice(0, 30) : 'generic';
       const text = await gemini([{ text: JSON.stringify({ goal }) }], true, `${WATER_PROMPT} Write in ${langName(body.lang)}.`);
+      return json({ text });
+    }
+
+    if (body.action === 'workout_tip') {
+      const info = { goal: body.goal ?? 'generic', place: body.place ?? 'home', level: body.level ?? 'beginner', stats: body.stats ?? {} };
+      const text = await gemini([{ text: JSON.stringify(info).slice(0, 2000) }], false, `${TIP_PROMPT} Reply in ${langName(body.lang)}.${personal(body.context)}`);
+      return json({ text: text.trim() });
+    }
+
+    if (body.action === 'workout_plan') {
+      const { data: access } = await supabase.rpc('get_access_status');
+      if (!access?.is_premium) return json({ error: 'pro_only' }, 403);
+      const info = {
+        type: String(body.kind ?? 'strength').slice(0, 30),
+        place: String(body.place ?? 'home').slice(0, 20),
+        level: String(body.level ?? 'beginner').slice(0, 20),
+        minutes: Math.min(90, Math.max(10, Number(body.minutes) || 30)),
+        goal: body.goal ?? 'generic',
+      };
+      const text = await gemini([{ text: JSON.stringify(info) }], true, `${PLAN_PROMPT} Write in ${langName(body.lang)}.${personal(body.context)}`);
       return json({ text });
     }
 

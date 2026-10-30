@@ -1,4 +1,4 @@
-import { Camera, Droplets, Star } from 'lucide-react-native';
+import { Camera, Droplets, Dumbbell, Star } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
@@ -148,6 +148,9 @@ export default function HomeScreen() {
             <Text style={styles.hello}>{firstName ? tr('Olá, {name} 👋', { name: firstName }) : tr('Olá 👋')}</Text>
             <Text style={styles.chipText}>{chipLabel}</Text>
           </View>
+          <Pressable style={styles.trainBtn} onPress={() => router.push('/training')} accessibilityLabel={tr('Treino')}>
+            <Dumbbell size={18} color={colors.text} />
+          </Pressable>
           {isPro && (
             <View style={styles.proPill}>
               <CrownMark size={11} />
@@ -224,6 +227,7 @@ const createStyles = (colors: ThemeColors) =>
   root: { flex: 1, backgroundColor: colors.background },
   pad: { paddingHorizontal: SCREEN_PADDING },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  trainBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
   proPill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: colors.text, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5 },
   proText: { fontSize: 11, fontWeight: '800', color: colors.background, letterSpacing: 0.8 },
   hello: { fontSize: font.h2, fontWeight: '700', color: colors.text },
