@@ -1187,4 +1187,5 @@ export const es: Record<string, string> = {
   "O ganho de peso inclui músculo. Combine com treino de força e proteína suficiente.": "El aumento de peso incluye músculo. Combínalo con entrenamiento de fuerza y suficiente proteína.",
   "Ainda não registou o peso. Toque em + para começar.": "Aún no has registrado tu peso. Toca + para empezar.",
   "Entradas de peso": "Registros de peso",
+  "Compare o antes e o depois do seu corpo.": "Compara tu cuerpo antes y después.",
 };

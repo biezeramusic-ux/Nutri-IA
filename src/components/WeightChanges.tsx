@@ -20,7 +20,7 @@ const WINDOWS: { label: string; days: number | null }[] = [
 const fmt = (n: number) => Math.abs(n).toFixed(1).replace('.', ',');
 
 /** Variação de peso em vários períodos (para quem quer perder peso). */
-export function WeightChanges({ logs }: { logs: WeightLog[] }) {
+export function WeightChanges({ logs, gaining = false }: { logs: WeightLog[]; gaining?: boolean }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const sorted = useMemo(() => [...logs].sort((a, b) => a.day.localeCompare(b.day)), [logs]);
@@ -45,7 +45,8 @@ export function WeightChanges({ logs }: { logs: WeightLog[] }) {
     <View style={styles.card}>
       <Text style={styles.title}>{tr('Alterações de peso')}</Text>
       {rows.map((r) => {
-        const color = r.delta === 0 ? colors.textFaint : r.delta < 0 ? colors.primary : colors.danger;
+        const good = gaining ? r.delta > 0 : r.delta < 0;
+        const color = r.delta === 0 ? colors.textFaint : good ? colors.primary : colors.danger;
         return (
           <View key={r.label} style={styles.row}>
             <Text style={styles.label}>{tr(r.label)}</Text>

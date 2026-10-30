@@ -1187,4 +1187,5 @@ export const zh: Record<string, string> = {
   "O ganho de peso inclui músculo. Combine com treino de força e proteína suficiente.": "体重增加包含肌肉。请结合力量训练和充足的蛋白质。",
   "Ainda não registou o peso. Toque em + para começar.": "您还没有记录体重。点按 + 开始。",
   "Entradas de peso": "体重记录",
+  "Compare o antes e o depois do seu corpo.": "对比您身体的前后变化。",
 };

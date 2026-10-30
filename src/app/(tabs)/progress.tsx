@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { JourneyChart } from '../../components/JourneyChart';
 import { ProgressRing } from '../../components/ProgressRing';
 import { WeightChanges } from '../../components/WeightChanges';
+import { PhotoPlusIcon } from '../../components/PhotoPlusIcon';
 import { WeightTracker } from '../../components/WeightTracker';
 import { StackedChart } from '../../components/StackedChart';
 import { LineChart } from '../../components/LineChart';
@@ -473,10 +474,15 @@ export default function ProgressScreen() {
 
         <WeightTracker width={chartWidth + 32} />
 
-            {profile?.goal === 'lose_weight' && <WeightChanges logs={logs} />}
-        <Pressable style={styles.photosBtn} onPress={() => router.push('/progress-photos')}>
-          <Camera size={16} color={colors.primaryDark} />
-          <Text style={styles.photosText}>{tr('Fotos de progresso (antes e depois)')}</Text>
+            <WeightChanges logs={logs} gaining={profile?.goal === 'gain_muscle'} />
+        <Pressable style={({ pressed }) => [styles.photosCard, pressed && { opacity: 0.92 }]} onPress={() => router.push('/progress-photos')} accessibilityRole="button">
+          <View style={styles.photosDeco} />
+          <PhotoPlusIcon size={58} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={styles.photosTitle}>{tr('Fotos de progresso')}</Text>
+            <Text style={styles.photosSub}>{tr('Compare o antes e o depois do seu corpo.')}</Text>
+          </View>
+          <ChevronRight size={22} color="#fff" />
         </Pressable>
 
           </>
@@ -490,6 +496,10 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   shareBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   shareText: { color: '#fff', fontWeight: '700', fontSize: font.body },
+  photosCard: { flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 24, padding: 16, backgroundColor: colors.primary, overflow: 'hidden' },
+  photosDeco: { position: 'absolute', width: 150, height: 150, borderRadius: 75, backgroundColor: '#fff', opacity: 0.12, right: -40, top: -50 },
+  photosTitle: { color: '#fff', fontSize: font.h3, fontWeight: '800' },
+  photosSub: { color: 'rgba(255,255,255,0.9)', fontSize: font.small, lineHeight: 18 },
   photosBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
   photosText: { color: colors.primaryDark, fontWeight: '600', fontSize: font.body },
   ringsRow: { flexDirection: 'row', justifyContent: 'space-around' },

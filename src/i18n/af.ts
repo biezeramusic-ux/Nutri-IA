@@ -1187,4 +1187,5 @@ export const af: Record<string, string> = {
   "O ganho de peso inclui músculo. Combine com treino de força e proteína suficiente.": "Gewigstoename sluit spiere in. Kombineer dit met kragoefening en genoeg proteïen.",
   "Ainda não registou o peso. Toque em + para começar.": "Jy het nog nie jou gewig aangeteken nie. Tik + om te begin.",
   "Entradas de peso": "Gewigsinskrywings",
+  "Compare o antes e o depois do seu corpo.": "Vergelyk jou liggaam voor en na.",
 };

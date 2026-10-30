@@ -1187,4 +1187,5 @@ export const de: Record<string, string> = {
   "O ganho de peso inclui músculo. Combine com treino de força e proteína suficiente.": "Die Gewichtszunahme enthält Muskeln. Kombinieren Sie sie mit Krafttraining und genug Protein.",
   "Ainda não registou o peso. Toque em + para começar.": "Sie haben Ihr Gewicht noch nicht eingetragen. Tippen Sie auf +, um zu beginnen.",
   "Entradas de peso": "Gewichtseinträge",
+  "Compare o antes e o depois do seu corpo.": "Vergleichen Sie Ihren Körper vorher und nachher.",
 };
