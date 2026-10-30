@@ -1,3 +1,4 @@
+import { useScheduleExtra } from '../services/schedule';
 import { BellRing, Droplets, GlassWater, Minus, Plus, Sparkles } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -35,6 +36,7 @@ export default function WaterScreen() {
   const insets = useSafeAreaInsets();
   const water = useWater();
   const { profile } = useProfile();
+  const { extra } = useScheduleExtra();
   const goal = profile?.goal ?? null;
 
   const nextReminder = useMemo(() => {
@@ -43,22 +45,22 @@ export default function WaterScreen() {
       now: new Date(),
       glasses: water.glasses,
       goalGlasses: water.goalGlasses,
-      wakeHour: profile.wakeHour,
-      sleepHour: profile.sleepHour,
+      wakeHour: profile.wakeHour + extra.wake / 60,
+      sleepHour: profile.sleepHour + extra.sleep / 60,
       goal,
       days: 2,
       ...waterProfileFromQuiz(profile.quiz),
     });
     return plan[0] ?? null;
-  }, [profile, water.glasses, water.goalGlasses, goal]);
+  }, [profile, water.glasses, water.goalGlasses, goal, extra.wake, extra.sleep]);
 
   // Os horários pensados para esta pessoa (rotina + respostas do quiz).
   const myTimes = useMemo(() => {
     if (!profile) return '';
-    return waterMinutesOfDay({ wakeHour: profile.wakeHour, sleepHour: profile.sleepHour, goalGlasses: water.goalGlasses, ...waterProfileFromQuiz(profile.quiz) })
+    return waterMinutesOfDay({ wakeHour: profile.wakeHour + extra.wake / 60, sleepHour: profile.sleepHour + extra.sleep / 60, goalGlasses: water.goalGlasses, ...waterProfileFromQuiz(profile.quiz) })
       .map(formatMinutes)
       .join(' · ');
-  }, [profile, water.goalGlasses]);
+  }, [profile, water.goalGlasses, extra.wake, extra.sleep]);
 
   const done = water.glasses >= water.goalGlasses;
 

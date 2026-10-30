@@ -1188,4 +1188,6 @@ export const it: Record<string, string> = {
   "Ainda não registou o peso. Toque em + para começar.": "Non hai ancora registrato il peso. Tocca + per iniziare.",
   "Entradas de peso": "Registrazioni del peso",
   "Compare o antes e o depois do seu corpo.": "Confronta il tuo corpo prima e dopo.",
+  "Acordo às": "Mi sveglio alle",
+  "Vou dormir às": "Vado a dormire alle",
 };

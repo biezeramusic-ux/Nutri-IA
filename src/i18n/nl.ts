@@ -1188,4 +1188,6 @@ export const nl: Record<string, string> = {
   "Ainda não registou o peso. Toque em + para começar.": "Je hebt je gewicht nog niet gelogd. Tik op + om te beginnen.",
   "Entradas de peso": "Gewichtsinvoer",
   "Compare o antes e o depois do seu corpo.": "Vergelijk je lichaam voor en na.",
+  "Acordo às": "Ik word wakker om",
+  "Vou dormir às": "Ik ga slapen om",
 };

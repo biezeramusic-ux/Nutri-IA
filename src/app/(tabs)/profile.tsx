@@ -13,6 +13,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useAuth } from '../../hooks/useAuth';
 import { useProfile } from '../../hooks/useProfile';
 import { useSubscription } from '../../hooks/useSubscription';
+import { useScheduleExtra } from '../../services/schedule';
 import { GLASS_ML, glassesFromMl } from '../../services/goals';
 import { ensureNotificationPermission, notificationsSupported, scheduleMealReminders } from '../../services/notifications';
 import { GOAL_LABEL } from '../../constants/labels';
@@ -27,6 +28,8 @@ import { tr } from '../../i18n';
 
 const SAVE_DELAY_MS = 700;
 
+const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+
 export default function ProfileScreen() {
   const { colors, mode, setMode, isDark } = useTheme();
   const avatar = useAvatar();
@@ -40,8 +43,10 @@ export default function ProfileScreen() {
   const { isPremium, trialDaysLeft, lockReason } = useSubscription();
 
   const [reminders, setReminders] = useState(profile?.waterReminders ?? true);
-  const [wake, setWake] = useState(profile?.wakeHour ?? 7);
-  const [sleep, setSleep] = useState(profile?.sleepHour ?? 22);
+  const { extra, setExtra } = useScheduleExtra();
+  // Hora de acordar e de dormir em minutos desde as 00:00 (as horas vão para a conta, os minutos ficam no telemóvel).
+  const [wake, setWake] = useState((profile?.wakeHour ?? 7) * 60 + extra.wake);
+  const [sleep, setSleep] = useState((profile?.sleepHour ?? 22) * 60 + extra.sleep);
   const [waterMl, setWaterMl] = useState(goals.waterMl);
   const [mealReminders, setMealReminders] = useState(false);
 
@@ -68,18 +73,20 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (!profile) return;
     setReminders(profile.waterReminders);
-    setWake(profile.wakeHour);
-    setSleep(profile.sleepHour);
+    setWake(profile.wakeHour * 60 + extra.wake);
+    setSleep(profile.sleepHour * 60 + extra.sleep);
     setWaterMl(profile.goals?.waterMl ?? goals.waterMl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.waterReminders, profile?.wakeHour, profile?.sleepHour, profile?.goals?.waterMl]);
+  }, [profile?.waterReminders, profile?.wakeHour, profile?.sleepHour, profile?.goals?.waterMl, extra.wake, extra.sleep]);
 
   // Guarda os lembretes (com pequeno atraso para agrupar toques).
   useEffect(() => {
     if (!profile) return;
-    if (reminders === profile.waterReminders && wake === profile.wakeHour && sleep === profile.sleepHour) return;
+    const wakeH = Math.floor(wake / 60);
+    const sleepH = Math.min(24, Math.floor(sleep / 60));
+    if (reminders === profile.waterReminders && wakeH === profile.wakeHour && sleepH === profile.sleepHour) return;
     const timer = setTimeout(() => {
-      saveReminders({ waterReminders: reminders, wakeHour: wake, sleepHour: sleep }).catch(() =>
+      saveReminders({ waterReminders: reminders, wakeHour: wakeH, sleepHour: sleepH }).catch(() =>
         Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet.')),
       );
     }, SAVE_DELAY_MS);
@@ -249,8 +256,8 @@ export default function ProfileScreen() {
           </View>
           {reminders && (
             <View style={{ gap: 10 }}>
-              <NumberStepper label={tr('Acordo às (hora)')} value={wake} unit="h" min={4} max={12} onChange={setWake} />
-              <NumberStepper label={tr('Vou dormir às (hora)')} value={sleep} unit="h" min={18} max={24} onChange={setSleep} />
+              <NumberStepper label={tr('Acordo às')} value={wake} min={240} max={720} step={15} format={hhmm} onChange={(v) => { setWake(v); setExtra({ wake: v % 60, sleep: extra.sleep }); }} />
+              <NumberStepper label={tr('Vou dormir às')} value={sleep} min={1080} max={1440} step={15} format={hhmm} onChange={(v) => { setSleep(v); setExtra({ wake: extra.wake, sleep: v % 60 }); }} />
             </View>
           )}
           <NumberStepper

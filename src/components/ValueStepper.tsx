@@ -1,8 +1,8 @@
-import { Minus, Plus } from 'lucide-react-native';
 import { useMemo } from 'react';
+import { Minus, Plus } from 'lucide-react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './AppText';
-import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { font, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 
 interface Props {
@@ -13,34 +13,37 @@ interface Props {
   max: number;
   step?: number;
   onChange: (value: number) => void;
+  /** Como mostrar o número (ex.: 450 → 07:30). */
+  format?: (value: number) => string;
 }
 
-/** Seletor de número para o Perfil, objetivos, porção e peso: etiqueta, valor grande, botões redondos e uma barra com a posição dentro do intervalo. */
-export function ValueStepper({ label, value, unit, min, max, step = 1, onChange }: Props) {
+const TICKS = 21;
+
+export function ValueStepper({ label, value, unit, min, max, step = 1, onChange, format }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const set = (next: number) => onChange(Math.round(Math.min(max, Math.max(min, next)) * 100) / 100);
-  const frac = Math.max(0, Math.min(1, (value - min) / Math.max(1e-9, max - min)));
+  const set = (next: number) => onChange(Math.min(max, Math.max(min, next)));
   return (
-    <View style={styles.card}>
-      <Text style={styles.label} numberOfLines={2}>
-        {label}
-      </Text>
+    <View style={styles.wrap}>
+      <Text style={styles.label}>{label}</Text>
       <View style={styles.row}>
-        <Pressable style={({ pressed }) => [styles.btn, pressed && { opacity: 0.7 }]} onPress={() => set(value - step)} hitSlop={8} accessibilityLabel={`Diminuir ${label}`}>
-          <Minus size={20} color={colors.text} strokeWidth={2.6} />
+        <Pressable style={styles.btn} onPress={() => set(value - step)} hitSlop={8} accessibilityLabel={`Diminuir ${label}`}>
+          <Minus size={22} color={colors.primary} strokeWidth={3} />
         </Pressable>
         <View style={styles.center}>
-          <Text style={styles.value}>{Number.isInteger(value) ? value : String(value).replace('.', ',')}</Text>
+          <Text style={styles.value}>{format ? format(value) : value}</Text>
           {!!unit && <Text style={styles.unit}>{unit}</Text>}
         </View>
-        <Pressable style={({ pressed }) => [styles.btn, styles.btnOn, pressed && { opacity: 0.85 }]} onPress={() => set(value + step)} hitSlop={8} accessibilityLabel={`Aumentar ${label}`}>
-          <Plus size={20} color="#fff" strokeWidth={2.6} />
+        <Pressable style={[styles.btn, styles.btnPrimary]} onPress={() => set(value + step)} hitSlop={8} accessibilityLabel={`Aumentar ${label}`}>
+          <Plus size={22} color="#fff" strokeWidth={3} />
         </Pressable>
       </View>
-      <View style={styles.track}>
-        <View style={[styles.fill, { width: `${Math.max(4, frac * 100)}%` }]} />
-        <View style={[styles.thumb, { left: `${frac * 100}%` }]} />
+      <View style={styles.ruler}>
+        {Array.from({ length: TICKS }, (_, i) => {
+          const d = Math.abs(i - (TICKS - 1) / 2);
+          const mid = i === (TICKS - 1) / 2;
+          return <View key={i} style={[styles.tick, { height: mid ? 26 : i % 5 === 0 ? 18 : 11, opacity: mid ? 1 : Math.max(0.25, 1 - d / 10) }, mid && styles.tickMid]} />;
+        })}
       </View>
     </View>
   );
@@ -48,15 +51,22 @@ export function ValueStepper({ label, value, unit, min, max, step = 1, onChange 
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    card: { ...cardBase(colors), borderRadius: radius.lg, paddingHorizontal: 16, paddingVertical: 14, gap: 12 },
-    label: { fontSize: font.small, fontWeight: '600', color: colors.textMuted, lineHeight: 17 },
+    wrap: {
+      backgroundColor: colors.primarySoft,
+      borderWidth: 1.5,
+      borderColor: colors.primary,
+      borderRadius: radius.card,
+      padding: 16,
+      gap: 10,
+    },
+    label: { fontSize: font.small, fontWeight: '700', color: colors.primary, textTransform: 'uppercase', letterSpacing: 1 },
     row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    btn: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-    btnOn: { backgroundColor: colors.primary },
+    btn: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.card, borderWidth: 2, borderColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+    btnPrimary: { backgroundColor: colors.primary },
     center: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
-    value: { fontSize: 38, lineHeight: 44, fontWeight: '800', color: colors.text, letterSpacing: -1 },
-    unit: { fontSize: font.body, fontWeight: '600', color: colors.textMuted },
-    track: { height: 6, borderRadius: 3, backgroundColor: colors.surface, marginHorizontal: 4 },
-    fill: { height: 6, borderRadius: 3, backgroundColor: colors.primary },
-    thumb: { position: 'absolute', top: -4, marginLeft: -7, width: 14, height: 14, borderRadius: 7, backgroundColor: colors.card, borderWidth: 3, borderColor: colors.primary },
+    value: { fontSize: 48, lineHeight: 54, fontWeight: '800', color: colors.text, letterSpacing: -1 },
+    unit: { fontSize: font.h3, color: colors.textMuted, fontWeight: '600' },
+    ruler: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 28 },
+    tick: { width: 3, borderRadius: 2, backgroundColor: colors.primary },
+    tickMid: { width: 4 },
   });

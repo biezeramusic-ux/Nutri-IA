@@ -13,9 +13,11 @@ interface Props {
   max: number;
   step?: number;
   onChange: (value: number) => void;
+  /** Como mostrar o número (ex.: 450 → 07:30). */
+  format?: (value: number) => string;
 }
 
-export function NumberStepper({ label, value, unit, min, max, step = 1, onChange }: Props) {
+export function NumberStepper({ label, value, unit, min, max, step = 1, onChange, format }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const set = (next: number) => onChange(Math.min(max, Math.max(min, next)));
@@ -27,7 +29,7 @@ export function NumberStepper({ label, value, unit, min, max, step = 1, onChange
           <Minus size={18} color={colors.text} />
         </Pressable>
         <Text style={styles.value}>
-          {value}
+          {format ? format(value) : value}
           {!!unit && <Text style={styles.unit}> {unit}</Text>}
         </Text>
         <Pressable style={[styles.btn, styles.btnPrimary]} onPress={() => set(value + step)} hitSlop={8} accessibilityLabel={`Aumentar ${label}`}>

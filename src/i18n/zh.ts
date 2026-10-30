@@ -1188,4 +1188,6 @@ export const zh: Record<string, string> = {
   "Ainda não registou o peso. Toque em + para começar.": "您还没有记录体重。点按 + 开始。",
   "Entradas de peso": "体重记录",
   "Compare o antes e o depois do seu corpo.": "对比您身体的前后变化。",
+  "Acordo às": "我起床的时间",
+  "Vou dormir às": "我睡觉的时间",
 };

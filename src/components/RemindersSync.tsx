@@ -1,3 +1,4 @@
+import { useScheduleExtra } from '../services/schedule';
 import { useEffect, useMemo } from 'react';
 import type { MealType } from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,8 +26,9 @@ export function RemindersSync() {
   const { lang } = useTheme();
 
   const enabled = !!user && onboardingDone && (profile?.waterReminders ?? false);
-  const wakeHour = profile?.wakeHour ?? 7;
-  const sleepHour = profile?.sleepHour ?? 22;
+  const { extra } = useScheduleExtra();
+  const wakeHour = (profile?.wakeHour ?? 7) + extra.wake / 60;
+  const sleepHour = (profile?.sleepHour ?? 22) + extra.sleep / 60;
   const goal = profile?.goal ?? null;
   const firstName = profile?.fullName.split(' ')[0] || undefined;
   const quiz = profile?.quiz;
