@@ -27,7 +27,7 @@ export function ScannerFab({ onPress, accessibilityState }: Props) {
         }}
         style={({ pressed }) => [styles.fab, focused && styles.focused, pressed && styles.pressed]}
       >
-        <Camera size={30} color="#fff" strokeWidth={2} />
+        <Camera size={24} color="#fff" strokeWidth={2} />
       </Pressable>
     </View>
   );
@@ -38,14 +38,14 @@ const createStyles = (colors: ThemeColors) =>
   slot: { flex: 1, alignItems: 'center' },
   fab: {
     position: 'absolute',
-    top: -30,
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    top: -22,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 5,
+    borderWidth: 4,
     borderColor: colors.background,
     shadowColor: colors.primary,
     shadowOpacity: 0.35,
