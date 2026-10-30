@@ -14,6 +14,8 @@ const FOCUS = [
   { x: 0.46, y: 0.6 },
 ];
 
+// Onde fica o painel de resultados no ecrã do telemóvel de cada foto (fração da altura da foto): fica escondido atrás do cartão.
+const PANEL_Y = [0.58, 0.6, 0.73];
 const HOLD_MS = 4200;
 const IN_MS = 1300;
 
@@ -72,7 +74,7 @@ export function AuthPhotoBackdrop() {
             width: imgW,
             height: imgH,
             left: width / 2 - imgW * FOCUS[i].x,
-            top: Math.max(height - imgH, Math.min(0, height * 0.22 - imgH * FOCUS[i].y)),
+            top: Math.max(height - imgH, Math.min(0, height * 0.63 - imgH * PANEL_Y[i])),
             zIndex: layer[i],
             opacity: opacity[i],
             transform: [{ translateX: slide[i] }, { scale: zoom[i] }],

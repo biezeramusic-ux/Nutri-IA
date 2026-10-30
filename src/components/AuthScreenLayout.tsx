@@ -84,7 +84,7 @@ const createStyles = (colors: ThemeColors) =>
   brandText: { fontSize: font.h2, fontWeight: '700', color: '#fff' },
   cardWrap: { borderRadius: radius.card, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.55)' },
   cardTint: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(190,235,196,0.5)' },
-  card: { padding: 14, gap: 8 },
+  card: { padding: 18, gap: 10 },
   title: { fontSize: font.h2, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   subtitle: { fontSize: font.small, color: colors.textMuted, marginTop: -4, lineHeight: 17 },
   config: {
