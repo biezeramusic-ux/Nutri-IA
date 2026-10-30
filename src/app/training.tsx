@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { Bookmark, Check, ChevronRight, Dumbbell, Flame, Footprints, HeartPulse, Home, MapPin, Mountain, RefreshCw, Sparkles, Timer, Wind, X, Zap } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
@@ -13,6 +13,7 @@ import { useProfile } from '../hooks/useProfile';
 import { useSubscription } from '../hooks/useSubscription';
 import { useTheme } from '../hooks/useTheme';
 import { tr } from '../i18n';
+import { formatKm, isRegistered, loadWalks, type Walk } from '../services/walks';
 import {
   LEVELS,
   PLACES,
@@ -30,13 +31,13 @@ import {
   type WorkoutPlan,
 } from '../services/workout';
 
-type Tile = { id: string; label: string; colors: [string, string]; Icon: typeof Dumbbell; kind?: WorkoutKind; run?: boolean };
+type Tile = { id: string; label: string; colors: [string, string]; Icon: typeof Dumbbell; kind?: WorkoutKind; run?: boolean; desc?: string };
 
 const RUN_TILES: Tile[] = [
-  { id: 'easy', label: 'Corrida leve', colors: ['#84CC16', '#16A34A'], Icon: Footprints, run: true },
-  { id: 'pace', label: 'Corrida de ritmo', colors: ['#F59E0B', '#EA580C'], Icon: Timer, run: true },
-  { id: 'interval', label: 'Intervalos', colors: ['#F97316', '#DC2626'], Icon: Zap, run: true },
-  { id: 'hill', label: 'Corrida em subida', colors: ['#4D7C0F', '#166534'], Icon: Mountain, run: true },
+  { id: 'easy', label: 'Corrida leve', colors: ['#84CC16', '#16A34A'], Icon: Footprints, run: true, desc: 'Ritmo confortável, 20 a 30 minutos. Ideal para começar e queimar calorias.' },
+  { id: 'pace', label: 'Corrida de ritmo', colors: ['#F59E0B', '#EA580C'], Icon: Timer, run: true, desc: 'Ritmo firme e constante durante 20 a 40 minutos.' },
+  { id: 'interval', label: 'Intervalos', colors: ['#F97316', '#DC2626'], Icon: Zap, run: true, desc: 'Alterne 1 minuto rápido com 2 minutos leves, várias vezes.' },
+  { id: 'hill', label: 'Corrida em subida', colors: ['#4D7C0F', '#166534'], Icon: Mountain, run: true, desc: 'Procure uma subida e repita com calma. Fortalece pernas e queima mais.' },
 ];
 const GYM_TILES: Tile[] = [
   { id: 'strength', label: 'Força', colors: ['#3B82F6', '#1D4ED8'], Icon: Dumbbell, kind: 'strength' },
@@ -70,6 +71,8 @@ export default function TrainingScreen() {
   const [tip, setTip] = useState<string | null>(null);
   const [tipLoading, setTipLoading] = useState(false);
   const [pick, setPick] = useState<Tile | null>(null);
+  const [run, setRun] = useState<Tile | null>(null);
+  const [walks, setWalks] = useState<Walk[]>([]);
   const [minutes, setMinutes] = useState(30);
   const [busy, setBusy] = useState(false);
   const [plan, setPlan] = useState<WorkoutPlan | null>(null);
@@ -83,6 +86,13 @@ export default function TrainingScreen() {
     });
     void loadSaved(uid).then(setSaved);
   }, [uid]);
+
+  // Volta a ler os km sempre que o ecrã aparece (por exemplo, depois de terminar uma corrida).
+  useFocusEffect(
+    useCallback(() => {
+      if (uid) void loadWalks(uid).then(setWalks);
+    }, [uid]),
+  );
 
   const refreshTip = useCallback(
     async (force = false) => {
@@ -108,7 +118,7 @@ export default function TrainingScreen() {
 
   const open = (t: Tile) => {
     if (t.run) {
-      router.push('/walk');
+      setRun(t);
       return;
     }
     setPick(t);
@@ -121,8 +131,14 @@ export default function TrainingScreen() {
     setBusy(false);
     setPick(null);
     setPlan(r.plan);
-    if (r.proOnly) Alert.alert(tr('Treino personalizado com IA'), tr('Com o plano Pro a IA cria o treino pensado para si. Este é um treino base.'));
+    if (r.proOnly) Alert.alert(tr('Treino personalizado'), tr('Com o plano Pro, o treino é pensado para si. Este é um treino base.'));
   };
+
+  const registered = walks.filter(isRegistered);
+  const weekStart = Date.now() - 7 * 86400000;
+  const weekM = registered.filter((w) => w.start >= weekStart).reduce((a, w) => a + w.distanceM, 0);
+  const weekRuns = registered.filter((w) => w.start >= weekStart).length;
+  const totalM = registered.reduce((a, w) => a + w.distanceM, 0);
 
   const isSaved = (p: WorkoutPlan) => saved.some((w) => w.id === p.id);
   const save = async (p: WorkoutPlan) => uid && setSaved(await toggleSaved(uid, p));
@@ -171,6 +187,23 @@ export default function TrainingScreen() {
             </Pressable>
           </View>
           <Text style={styles.tipText}>{tip ?? '…'}</Text>
+        </View>
+
+        <View style={styles.kmCard}>
+          <View style={styles.kmCol}>
+            <Text style={styles.kmValue}>{formatKm(weekM)}</Text>
+            <Text style={styles.kmLabel}>{tr('km esta semana')}</Text>
+          </View>
+          <View style={styles.kmDivider} />
+          <View style={styles.kmCol}>
+            <Text style={styles.kmValue}>{weekRuns}</Text>
+            <Text style={styles.kmLabel}>{tr('corridas e caminhadas')}</Text>
+          </View>
+          <View style={styles.kmDivider} />
+          <View style={styles.kmCol}>
+            <Text style={styles.kmValue}>{formatKm(totalM)}</Text>
+            <Text style={styles.kmLabel}>{tr('km no total')}</Text>
+          </View>
         </View>
 
         <View style={styles.tabs}>
@@ -251,7 +284,7 @@ export default function TrainingScreen() {
         <View style={styles.overlay}>
           <View style={[styles.sheet, { paddingBottom: insets.bottom + 18 }]}>
             <Text style={styles.sheetTitle}>{pick ? tr(pick.label) : ''}</Text>
-            <Text style={styles.muted}>{isPro ? tr('A IA cria o treino para si.') : tr('Com o plano Pro a IA cria o treino pensado para si.')}</Text>
+            <Text style={styles.muted}>{isPro ? tr('Criamos o treino para si.') : tr('Com o plano Pro, o treino é pensado para si.')}</Text>
             <Text style={styles.sheetSub}>{tr('Quanto tempo tem?')}</Text>
             <View style={styles.optGrid}>
               {MINUTES.map((m) => (
@@ -264,6 +297,33 @@ export default function TrainingScreen() {
               {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>{tr('Criar treino')}</Text>}
             </Pressable>
             <Pressable onPress={() => !busy && setPick(null)} style={{ alignItems: 'center', padding: 8 }}>
+              <Text style={styles.muted}>{tr('Cancelar')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Corrida: começar abre o ecrã da corrida com GPS, sensor e voz */}
+      <Modal visible={!!run} transparent animationType="slide" onRequestClose={() => setRun(null)}>
+        <View style={styles.overlay}>
+          <View style={[styles.sheet, { paddingBottom: insets.bottom + 18 }]}>
+            <Text style={styles.sheetTitle}>{run ? tr(run.label) : ''}</Text>
+            <Text style={styles.muted}>{run?.desc ? tr(run.desc) : ''}</Text>
+            <View style={styles.runInfo}>
+              <Text style={styles.runLine}>📍 {tr('Mede os km com o GPS e o sensor de passos.')}</Text>
+              <Text style={styles.runLine}>🎧 {tr('O treinador fala consigo a cada km e diz quanto falta.')}</Text>
+              <Text style={styles.runLine}>📈 {tr('No fim, os km ficam guardados no seu progresso.')}</Text>
+            </View>
+            <Pressable
+              style={styles.cta}
+              onPress={() => {
+                setRun(null);
+                router.push({ pathname: '/walk', params: { start: '1' } });
+              }}
+            >
+              <Text style={styles.ctaText}>{tr('Começar corrida')}</Text>
+            </Pressable>
+            <Pressable onPress={() => setRun(null)} style={{ alignItems: 'center', padding: 8 }}>
               <Text style={styles.muted}>{tr('Cancelar')}</Text>
             </Pressable>
           </View>
@@ -295,12 +355,6 @@ export default function TrainingScreen() {
                   <Flame size={18} color="#F97316" />
                   <Text style={styles.statValue}>≈ {plan.kcal} kcal</Text>
                 </View>
-                {plan.ai && (
-                  <View style={styles.stat}>
-                    <Sparkles size={18} color="#8B5CF6" />
-                    <Text style={styles.statValue}>IA</Text>
-                  </View>
-                )}
               </View>
               {plan.warmup.length > 0 && (
                 <View style={styles.block}>
@@ -351,6 +405,13 @@ const createStyles = (colors: ThemeColors) =>
     tipHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     tipTitle: { flex: 1, color: '#fff', fontSize: font.body, fontWeight: '800' },
     tipText: { color: '#fff', fontSize: font.h3, lineHeight: 24, fontWeight: '600' },
+    kmCard: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', borderRadius: 22, paddingVertical: 14 },
+    kmCol: { flex: 1, alignItems: 'center', gap: 2 },
+    kmValue: { fontSize: 26, fontWeight: '800', color: colors.text, letterSpacing: -0.5 },
+    kmLabel: { fontSize: 11, fontWeight: '600', color: colors.textMuted, textAlign: 'center' },
+    kmDivider: { width: 1, height: 34, backgroundColor: colors.border },
+    runInfo: { gap: 8, backgroundColor: colors.surface, borderRadius: radius.lg, padding: 14 },
+    runLine: { fontSize: font.body, color: colors.text, lineHeight: 21 },
     tabs: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.border },
     tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
     tabOn: { borderBottomWidth: 2, borderBottomColor: colors.text },

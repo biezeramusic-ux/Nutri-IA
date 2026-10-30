@@ -1,4 +1,4 @@
-import { Pause, Play, Square } from 'lucide-react-native';
+import { Pause, Play, Square, Volume2, VolumeX } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './AppText';
@@ -6,6 +6,7 @@ import { RouteMap } from './RouteMap';
 import { font, radius } from '../constants/theme';
 import { formatHMS } from '../hooks/useFasting';
 import { tr } from '../i18n';
+import { coachSpeak, coachStop } from '../services/coachVoice';
 import { formatKm, formatPace, type RoutePoint } from '../services/walks';
 
 interface Props {
@@ -42,6 +43,9 @@ function recentPace(points: RoutePoint[]): string {
 export function RunLive({ points, distanceM, elapsedMs, steps, kcal, paused, name, width, onTogglePause, onFinish }: Props) {
   const styles = useMemo(() => createStyles(), []);
   const [coach, setCoach] = useState<string | null>(null);
+  const [voiceOn, setVoiceOn] = useState(true);
+  const voiceRef = useRef(true);
+  voiceRef.current = voiceOn;
   const fade = useRef(new Animated.Value(0)).current;
   const lastKm = useRef(0);
   const lastTalk = useRef(0);
@@ -49,6 +53,7 @@ export function RunLive({ points, distanceM, elapsedMs, steps, kcal, paused, nam
 
   const say = (text: string) => {
     setCoach(text);
+    if (voiceRef.current) coachSpeak(text);
     fade.setValue(0);
     Animated.sequence([
       Animated.timing(fade, { toValue: 1, duration: 280, useNativeDriver: true }),
@@ -58,7 +63,7 @@ export function RunLive({ points, distanceM, elapsedMs, steps, kcal, paused, nam
   };
 
   useEffect(() => {
-    say(tr('Boa corrida{who}! Comece devagar.', { who }));
+    say(tr('Corrida iniciada{who}. Comece devagar e respire com calma.', { who }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -66,7 +71,19 @@ export function RunLive({ points, distanceM, elapsedMs, steps, kcal, paused, nam
     const km = Math.floor(distanceM / 1000);
     if (km > lastKm.current) {
       lastKm.current = km;
-      say(tr('{n} km feitos! Continue assim{who}!', { n: km, who }));
+      const perKm = elapsedMs / 60000 / Math.max(0.1, distanceM / 1000);
+      const left = Math.max(1, Math.round(perKm));
+      say(tr('{n} km percorridos. Faltam cerca de {m} minutos para o próximo quilómetro. Continue no bom ritmo{who}!', { n: km, m: left, who }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [distanceM]);
+
+  const halfKm = useRef(-1);
+  useEffect(() => {
+    const k = Math.floor(distanceM / 1000);
+    if (distanceM % 1000 >= 500 && halfKm.current !== k && distanceM > 500) {
+      halfKm.current = k;
+      say(tr('Já passou o meio quilómetro. Falta metade para o próximo. Está a ir muito bem{who}!', { who }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [distanceM]);
@@ -91,7 +108,13 @@ export function RunLive({ points, distanceM, elapsedMs, steps, kcal, paused, nam
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.kicker}>{paused ? tr('EM PAUSA') : tr('RITMO ATUAL')}</Text>
+      <View style={styles.topRow}>
+        <Text style={styles.kicker}>{paused ? tr('EM PAUSA') : tr('RITMO ATUAL')}</Text>
+        <Pressable style={styles.voiceBtn} onPress={() => { if (voiceOn) coachStop(); setVoiceOn((v) => !v); }} accessibilityLabel={tr('Voz do treinador')}>
+          {voiceOn ? <Volume2 size={16} color="#4ADE80" /> : <VolumeX size={16} color="#94A3B8" />}
+          <Text style={[styles.voiceText, !voiceOn && { color: '#94A3B8' }]}>{voiceOn ? tr('Voz ligada') : tr('Voz desligada')}</Text>
+        </Pressable>
+      </View>
       <Text style={[styles.hero, paused && { color: '#94A3B8' }]}>
         {pace}
         <Text style={styles.heroUnit}> /km</Text>
@@ -129,7 +152,10 @@ export function RunLive({ points, distanceM, elapsedMs, steps, kcal, paused, nam
 const createStyles = () =>
   StyleSheet.create({
     wrap: { backgroundColor: '#0B0F14', borderRadius: 28, padding: 16, gap: 14 },
-    kicker: { textAlign: 'center', fontSize: font.tiny, fontWeight: '700', letterSpacing: 1.2, color: '#94A3B8' },
+    topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    voiceBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
+    voiceText: { color: '#4ADE80', fontSize: 11, fontWeight: '700' },
+    kicker: { fontSize: font.tiny, fontWeight: '700', letterSpacing: 1.2, color: '#94A3B8' },
     hero: { textAlign: 'center', fontSize: 52, lineHeight: 58, fontWeight: '800', color: '#4ADE80', letterSpacing: -1 },
     heroUnit: { fontSize: font.h2, fontWeight: '600', color: '#94A3B8' },
     grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 14 },

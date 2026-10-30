@@ -2,7 +2,7 @@ import * as Haptics from 'expo-haptics';
 import * as Location from 'expo-location';
 import { Footprints, MapPin, Route, Timer, Trash } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
@@ -23,6 +23,7 @@ import { formatHMS } from '../hooks/useFasting';
 import { deleteWalk, formatKm, formatPace, isRegistered, isRun, kcalForWalk, loadWalks, saveWalk, stepsFromDistance, thinPoints, updateWalk, type Walk } from '../services/walks';
 import { todayKey } from '../services/date';
 import { tr } from '../i18n';
+import { coachSpeak } from '../services/coachVoice';
 
 const formatDuration = (ms: number): string => {
   const total = Math.round(ms / 1000);
@@ -84,7 +85,7 @@ export default function WalkScreen() {
     );
   };
 
-  const { open: openParam } = useLocalSearchParams<{ open?: string }>();
+  const { open: openParam, start: startParam } = useLocalSearchParams<{ open?: string; start?: string }>();
   useEffect(() => {
     if (!userId) return;
     void loadWalks(userId).then((list) => {
@@ -115,6 +116,7 @@ export default function WalkScreen() {
   const finish = useCallback(async () => {
     const { startedAt, endedAt } = tracker.stop();
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => undefined);
+    coachSpeak(tracker.distanceM >= 20 ? tr('Corrida terminada: {km} km. Excelente trabalho!', { km: formatKm(tracker.distanceM) }) : tr('Corrida terminada. Excelente trabalho!'));
     if (!userId || tracker.distanceM < 20) {
       Alert.alert(tr('Caminhada muito curta'), tr('Caminhe um pouco mais para ficar registada.'));
       return;
@@ -142,6 +144,15 @@ export default function WalkScreen() {
         { text: tr('Abrir definições'), onPress: () => void Linking.openSettings() },
       ]);
   };
+
+  // Vindo do ecrã de Treino ("Começar corrida"): arranca sozinho assim que o sensor de passos está ligado.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (startParam !== '1' || autoStarted.current || stepsOn !== true || tracker.active || open) return;
+    autoStarted.current = true;
+    void startWalk();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startParam, stepsOn, tracker.active, open]);
 
   /** Regista a corrida: conta os passos e as calorias no dia. */
   const register = async (w: Walk) => {
