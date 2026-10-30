@@ -117,7 +117,7 @@ export default function WaterScreen() {
       <View style={styles.infoCard}>
         <Sparkles size={18} color={colors.limeDark} />
         <View style={{ flex: 1, gap: 2 }}>
-          <Text style={styles.infoTitle}>{tr('Meta calculada pelo Nutri AI')}</Text>
+          <Text style={styles.infoTitle}>{tr('Meta calculada pelo Nutrifitness AI')}</Text>
           <Text style={styles.infoText}>
             {tr('{ml} ml por dia, com base no seu peso, atividade e no calor de Moçambique.', { ml: water.goalMl })} {tr(TIPS[goal ?? 'generic'])}
           </Text>

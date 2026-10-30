@@ -6,14 +6,14 @@ interface Props {
   style?: StyleProp<ImageStyle>;
 }
 
-/** Marca do Nutri AI (transparente, funciona em fundos claros). */
+/** Marca do Nutrifitness AI (transparente, funciona em fundos claros). */
 export function Logo({ size = 72, style }: Props) {
   return (
     <Image
       source={require('../../assets/logo-mark.png')}
       style={[{ width: size, height: size }, style]}
       resizeMode="contain"
-      accessibilityLabel={tr('Nutri AI')}
+      accessibilityLabel={tr('Nutrifitness AI')}
     />
   );
 }

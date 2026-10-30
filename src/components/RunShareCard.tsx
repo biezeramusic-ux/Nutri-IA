@@ -84,7 +84,7 @@ export function RunShareCard({ points, distanceM, ms, title, width }: { points: 
             </View>
           </View>
         </View>
-        <Text style={styles.brand}>Nutri AI</Text>
+        <Text style={styles.brand}>Nutrifitness AI</Text>
       </View>
       <View style={{ flexDirection: 'row', gap: 10 }}>
         <Pressable style={styles.pickBtn} onPress={() => void pick(true)}>

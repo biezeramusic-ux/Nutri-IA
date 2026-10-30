@@ -37,7 +37,7 @@ export function ProGate({ children, feature, inline }: Props) {
             <View style={styles.icon}>
               <Sparkles size={20} color={colors.primary} />
             </View>
-            <Text style={styles.title}>{tr('Recurso Nutri AI Pro')}</Text>
+            <Text style={styles.title}>{tr('Recurso Nutrifitness AI Pro')}</Text>
             <Text style={styles.body}>
               {tr(feature)} {tr('Todos os planos Pro têm os mesmos recursos; só muda o período.')}
             </Text>

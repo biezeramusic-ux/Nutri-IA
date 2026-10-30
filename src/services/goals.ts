@@ -82,7 +82,7 @@ export function planTips(a: QuizAnswers): string[] {
   if (a.conditions.includes('pregnancy')) {
     tips.push(tr('Na gravidez ou amamentação não aplicamos défice calórico. Fale com o seu médico sobre a sua alimentação.'));
   } else if (a.conditions.length > 0) {
-    tips.push(tr('O Nutri AI não substitui o seu médico. Confirme estas metas com um profissional de saúde.'));
+    tips.push(tr('O Nutrifitness AI não substitui o seu médico. Confirme estas metas com um profissional de saúde.'));
   }
   if (a.habits.sugaryDrinks) tips.push(tr('Trocar refrigerantes e sumos açucarados por água pode poupar muitas calorias por dia.'));
   if (a.habits.skipsMeals) tips.push(tr('Saltar refeições costuma aumentar a fome à noite. Vamos ajudá-lo a distribuir as calorias.'));

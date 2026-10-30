@@ -48,7 +48,7 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
             <View style={styles.logoBubble}>
               <Logo size={34} />
             </View>
-            <Text style={styles.brandText}>{tr('Nutri AI')}</Text>
+            <Text style={styles.brandText}>{tr('Nutrifitness AI')}</Text>
             <View style={{ marginLeft: 'auto' }}>
               <LanguagePill />
             </View>

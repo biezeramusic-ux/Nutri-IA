@@ -97,7 +97,7 @@ export default function DetailsScreen() {
       setCorrection('');
       void refresh();
     } else if (result.status === 'blocked') {
-      askForPlans('Limite de análises', 'Atingiu o limite de análises do plano grátis. Com o Nutri AI Pro são ilimitadas.');
+      askForPlans('Limite de análises', 'Atingiu o limite de análises do plano grátis. Com o Nutrifitness AI Pro são ilimitadas.');
     } else {
       Alert.alert(tr('Correção indisponível'), tr('Não foi possível corrigir agora. Use o nome e a porção abaixo, ou tente mais tarde.'));
     }
@@ -118,9 +118,9 @@ export default function DetailsScreen() {
     } catch (e) {
       const message = e instanceof Error ? e.message : '';
       if (message.includes('meal_limit_reached')) {
-        askForPlans('Limite do teste grátis', 'O plano grátis permite até 5 registos de refeições. Com o Nutri AI Pro os registos são ilimitados.');
+        askForPlans('Limite do teste grátis', 'O plano grátis permite até 5 registos de refeições. Com o Nutrifitness AI Pro os registos são ilimitados.');
       } else if (message.includes('trial_expired')) {
-        askForPlans('O seu teste terminou', 'Assine o Nutri AI Pro para continuar a registar refeições.');
+        askForPlans('O seu teste terminou', 'Assine o Nutrifitness AI Pro para continuar a registar refeições.');
       } else {
         Alert.alert(tr('Não foi possível salvar'), tr('Verifique a ligação à internet e tente novamente.'));
       }

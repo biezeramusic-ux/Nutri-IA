@@ -21,7 +21,7 @@ export function SubscriptionCard() {
   const renewAt = planInfo && activePlan?.at ? new Date(activePlan.at + planInfo.days * 86400000) : null;
 
   const expired = !isPremium && lockReason === 'trial_expired';
-  const title = isPremium ? 'Nutri AI Pro' : expired ? 'Teste terminado' : 'Teste grátis';
+  const title = isPremium ? 'Nutrifitness AI Pro' : expired ? 'Teste terminado' : 'Teste grátis';
   const big = isPremium
     ? tr('Ativo')
     : expired

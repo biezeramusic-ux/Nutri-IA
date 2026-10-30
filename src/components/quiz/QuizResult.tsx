@@ -200,7 +200,7 @@ export function QuizResult({ answers, goals, tips, firstName, saving, reminderTi
             <Droplets size={24} color={colors.water} />
             <View style={{ flex: 1 }}>
               <Text style={styles.waterTitle}>{tr('{ml} ml de água por dia', { ml: goals.waterMl })}</Text>
-              <Text style={styles.waterSub}>{tr('{n} copos de {ml} ml. O Nutri AI vai lembrá-lo de beber.', { n: glassesFromMl(goals.waterMl), ml: GLASS_ML })}</Text>
+              <Text style={styles.waterSub}>{tr('{n} copos de {ml} ml. O Nutrifitness AI vai lembrá-lo de beber.', { n: glassesFromMl(goals.waterMl), ml: GLASS_ML })}</Text>
               {!!reminderTimes && <Text style={styles.waterSub}>{tr('Lembretes às {times}', { times: reminderTimes })}</Text>}
             </View>
           </View>

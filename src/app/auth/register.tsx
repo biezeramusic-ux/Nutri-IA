@@ -75,7 +75,7 @@ export default function RegisterScreen() {
   };
 
   return (
-    <AuthScreenLayout title={tr('Criar Conta')} subtitle={tr('3 dias grátis para experimentar o Nutri AI.')}>
+    <AuthScreenLayout title={tr('Criar Conta')} subtitle={tr('3 dias grátis para experimentar o Nutrifitness AI.')}>
       <View style={styles.form}>
         <AuthInput
           label={tr('Nome')}

@@ -60,7 +60,7 @@ export default function DiaryScreen() {
 
   const selectDay = (day: Date) => {
     if (!isPro && todayKey(day) !== todayKey()) {
-      Alert.alert(tr('Histórico completo é Pro'), tr('No teste grátis só vê o dia de hoje. Com o Nutri AI Pro tem o histórico completo das refeições.'), [
+      Alert.alert(tr('Histórico completo é Pro'), tr('No teste grátis só vê o dia de hoje. Com o Nutrifitness AI Pro tem o histórico completo das refeições.'), [
         { text: tr('Agora não'), style: 'cancel' },
         { text: tr('Ver planos'), onPress: () => router.push('/paywall') },
       ]);
@@ -80,7 +80,7 @@ export default function DiaryScreen() {
     } catch (e) {
       const message = e instanceof Error ? e.message : '';
       if (message.includes('meal_limit_reached') || message.includes('trial_expired')) {
-        Alert.alert(tr('Limite do teste grátis'), tr('Com o Nutri AI Pro os registos são ilimitados.'), [
+        Alert.alert(tr('Limite do teste grátis'), tr('Com o Nutrifitness AI Pro os registos são ilimitados.'), [
           { text: tr('Agora não'), style: 'cancel' },
           { text: tr('Ver planos'), onPress: () => router.push('/paywall') },
         ]);

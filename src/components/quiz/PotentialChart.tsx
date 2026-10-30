@@ -12,7 +12,7 @@ const H = 170;
 const PAD = 14;
 const DURATION = 2600;
 
-// y de 0 (início) a 1 (objetivo). Com o Nutri AI: arranca devagar e depois acelera. Sem a app: lento e instável.
+// y de 0 (início) a 1 (objetivo). Com o Nutrifitness AI: arranca devagar e depois acelera. Sem a app: lento e instável.
 const withApp = (t: number) => 0.1 + 0.88 * (1 / (1 + Math.exp(-7.5 * (t - 0.5))) - 0.023) / 0.954;
 const without = (t: number) => 0.1 + 0.26 * t + 0.045 * Math.sin(11 * t);
 

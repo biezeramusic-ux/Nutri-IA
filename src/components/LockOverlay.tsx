@@ -12,7 +12,7 @@ import { tr } from '../i18n';
 const MESSAGES: Record<Exclude<LockReason, null>, { title: string; body: string }> = {
   trial_expired: {
     title: 'O seu teste gratuito terminou',
-    body: 'Assine o Nutri AI para continuar a contar calorias sem limites.',
+    body: 'Assine o Nutrifitness AI para continuar a contar calorias sem limites.',
   },
   daily_limit: {
     title: 'Limite diário atingido',
@@ -36,7 +36,7 @@ export function LockOverlay({ reason }: { reason: Exclude<LockReason, null> }) {
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.body}>{body}</Text>
           <Pressable style={styles.button} onPress={() => router.push('/paywall')}>
-            <Text style={styles.buttonText}>{tr('Desbloquear Nutri AI')}</Text>
+            <Text style={styles.buttonText}>{tr('Desbloquear Nutrifitness AI')}</Text>
           </Pressable>
         </View>
       </View>
