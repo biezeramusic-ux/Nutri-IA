@@ -477,11 +477,8 @@ export default function ProgressScreen() {
             <WeightChanges logs={logs} gaining={profile?.goal === 'gain_muscle'} />
         <Pressable style={({ pressed }) => [styles.photosCard, pressed && { opacity: 0.92 }]} onPress={() => router.push('/progress-photos')} accessibilityRole="button">
           <View style={styles.photosDeco} />
-          <PhotoPlusIcon size={58} />
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={styles.photosTitle}>{tr('Fotos de progresso')}</Text>
-            <Text style={styles.photosSub}>{tr('Compare o antes e o depois do seu corpo.')}</Text>
-          </View>
+          <PhotoPlusIcon size={40} />
+          <Text style={[styles.photosTitle, { flex: 1 }]}>{tr('Fotos de progresso')}</Text>
           <ChevronRight size={22} color="#fff" />
         </Pressable>
 
@@ -496,8 +493,8 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   shareBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   shareText: { color: '#fff', fontWeight: '700', fontSize: font.body },
-  photosCard: { flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 24, padding: 16, backgroundColor: colors.primary, overflow: 'hidden' },
-  photosDeco: { position: 'absolute', width: 150, height: 150, borderRadius: 75, backgroundColor: '#fff', opacity: 0.12, right: -40, top: -50 },
+  photosCard: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 20, paddingVertical: 10, paddingHorizontal: 16, backgroundColor: colors.primary, overflow: 'hidden' },
+  photosDeco: { position: 'absolute', width: 110, height: 110, borderRadius: 55, backgroundColor: '#fff', opacity: 0.12, right: -30, top: -40 },
   photosTitle: { color: '#fff', fontSize: font.h3, fontWeight: '800' },
   photosSub: { color: 'rgba(255,255,255,0.9)', fontSize: font.small, lineHeight: 18 },
   photosBtn: { flexDirection: 'row', gap: 8, height: 48, borderRadius: radius.md, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
