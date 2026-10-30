@@ -2,21 +2,21 @@
   "expo": {
     "name": "Nutrifitness AI",
     "slug": "nutri-ai",
-    "scheme": "nutriai",
+    "scheme": "nutrifitness",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "mz.nutriai.app",
+      "bundleIdentifier": "mz.nutrifitness.app",
       "infoPlist": {
         "NSCameraUsageDescription": "O Nutrifitness AI usa a câmera para analisar as suas refeições.",
         "NSLocationWhenInUseUsageDescription": "O Nutrifitness AI usa a sua localização para desenhar a rota e contar os km das suas caminhadas."
       }
     },
     "android": {
-      "package": "mz.nutriai.app",
+      "package": "mz.nutrifitness.app",
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/android-icon-foreground.png",

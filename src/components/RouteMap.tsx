@@ -20,7 +20,7 @@ function Tile({ z, x, y, left, top }: { z: number; x: number; y: number; left: n
   const prov = PROVIDERS[Math.min(p, PROVIDERS.length - 1)];
   return (
     <Image
-      source={{ uri: prov.url(z, x, y), headers: { 'User-Agent': 'NutriIA/1.0 (mz.nutriai.app)' } }}
+      source={{ uri: prov.url(z, x, y), headers: { 'User-Agent': 'NutrifitnessAI/1.0 (mz.nutrifitness.app)' } }}
       onError={() => setP((v) => Math.min(v + 1, PROVIDERS.length - 1))}
       style={{ position: 'absolute', left, top, width: TILE, height: TILE }}
     />

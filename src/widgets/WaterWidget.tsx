@@ -32,7 +32,7 @@ export function WaterWidget({ snapshot, width, dark = false }: { snapshot: Widge
       </FlexWidget>
       <FlexWidget
         clickAction="OPEN_URI"
-        clickActionData={{ uri: 'nutriai://water' }}
+        clickActionData={{ uri: 'nutrifitness://water' }}
         style={{ height: 30, borderRadius: 15, backgroundColor: '#38BDF8', alignItems: 'center', justifyContent: 'center' }}
       >
         <TextWidget text={`+ ${tr('Registrar água')}`} style={{ fontSize: 12, fontWeight: '700', color: '#FFFFFF' }} />

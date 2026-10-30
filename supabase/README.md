@@ -23,7 +23,7 @@
 2. Em *URIs de redirecionamento autorizados* coloque: `https://<ref-do-projeto>.supabase.co/auth/v1/callback` (o URL exato aparece no Supabase, no painel do provedor Google).
 3. Copie o **Client ID** e o **Client Secret**.
 4. **Supabase → Authentication → Sign In / Providers → Google**: ative, cole o Client ID e o Client Secret, *Save*.
-5. **Supabase → Authentication → URL Configuration → Redirect URLs**: adicione `exp://**` (Expo Go) e `nutriai://**` (app instalada), *Save*.
+5. **Supabase → Authentication → URL Configuration → Redirect URLs**: adicione `exp://**` (Expo Go) e `nutrifitness://**` (app instalada), *Save*.
 
 ## Regras de segurança (resumo)
 - RLS em todas as tabelas: cada utilizador só vê/escreve as suas linhas.

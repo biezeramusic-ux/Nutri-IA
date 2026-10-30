@@ -41,7 +41,7 @@ export function CaloriesWidget({ snapshot, dark = false }: { snapshot: WidgetSna
       </OverlapWidget>
       <FlexWidget
         clickAction="OPEN_URI"
-        clickActionData={{ uri: 'nutriai://scanner' }}
+        clickActionData={{ uri: 'nutrifitness://scanner' }}
         style={{ height: 28, borderRadius: 14, backgroundColor: '#FBBF24', paddingHorizontal: 16, alignItems: 'center', justifyContent: 'center', marginTop: 4 }}
       >
         <TextWidget text={`+ ${tr('Adicionar alimento')}`} style={{ fontSize: 11, fontWeight: '700', color: '#0F172A' }} />

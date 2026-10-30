@@ -22,7 +22,7 @@ export async function lookupBarcode(code: string): Promise<BarcodeOutcome> {
   try {
     const res = await fetch(
       `https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=product_name,product_name_pt,generic_name,brands,serving_quantity,nutriments`,
-      { headers: { 'User-Agent': 'NutriIA/1.0 (mz.nutriai.app)' } },
+      { headers: { 'User-Agent': 'NutrifitnessAI/1.0 (mz.nutrifitness.app)' } },
     );
     if (!res.ok && res.status !== 404) return { status: 'offline' };
     const json = (await res.json()) as { status?: number; product?: OffProduct };

@@ -77,7 +77,7 @@ export function NutritionWidget({ snapshot, width, dark = false }: Props) {
           ))}
           <FlexWidget
             clickAction="OPEN_URI"
-            clickActionData={{ uri: 'nutriai://scanner' }}
+            clickActionData={{ uri: 'nutrifitness://scanner' }}
             style={{ width: rightW, height: 32, borderRadius: 16, backgroundColor: '#FBBF24', alignItems: 'center', justifyContent: 'center', marginTop: 2 }}
           >
             <TextWidget text={`+ ${tr('Adicionar alimento')}`} style={{ fontSize: 12, fontWeight: '700', color: '#0F172A' }} />
