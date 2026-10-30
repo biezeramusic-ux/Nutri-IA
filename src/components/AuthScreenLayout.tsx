@@ -1,3 +1,4 @@
+import { BlurView } from 'expo-blur';
 import { useMemo, type ReactNode } from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
@@ -56,10 +57,15 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
           {!isSupabaseConfigured && (
             <Text style={styles.config}>{tr('Supabase não configurado. Preencha EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_ANON_KEY no .env e reinicie.')}</Text>
           )}
-          <View style={styles.card}>
-            <Text style={styles.title}>{title}</Text>
-            <Text style={styles.subtitle}>{subtitle}</Text>
-            {children}
+          <View style={styles.cardWrap}>
+            {/* Vidro fosco: a foto passa desfocada por baixo e uma camada verde clara dá a cor da marca. */}
+            <BlurView intensity={45} tint="light" experimentalBlurMethod="dimezisBlurView" style={StyleSheet.absoluteFill} />
+            <View style={styles.cardTint} pointerEvents="none" />
+            <View style={styles.card}>
+              <Text style={styles.title}>{title}</Text>
+              <Text style={styles.subtitle}>{subtitle}</Text>
+              {children}
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -76,14 +82,9 @@ const createStyles = (colors: ThemeColors) =>
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 'auto' },
   logoBubble: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center' },
   brandText: { fontSize: font.h2, fontWeight: '700', color: '#fff' },
-  card: {
-    backgroundColor: `${colors.card}EE`,
-    borderRadius: radius.card,
-    borderWidth: 1,
-    borderColor: 'rgba(226,232,240,0.9)',
-    padding: 14,
-    gap: 8,
-  },
+  cardWrap: { borderRadius: radius.card, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.55)' },
+  cardTint: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(190,235,196,0.5)' },
+  card: { padding: 14, gap: 8 },
   title: { fontSize: font.h2, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
   subtitle: { fontSize: font.small, color: colors.textMuted, marginTop: -4, lineHeight: 17 },
   config: {
