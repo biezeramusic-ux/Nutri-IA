@@ -74,7 +74,7 @@ export function AuthPhotoBackdrop() {
             width: imgW,
             height: imgH,
             left: width / 2 - imgW * FOCUS[i].x,
-            top: Math.max(height - imgH, Math.min(0, height * 0.63 - imgH * PANEL_Y[i])),
+            top: Math.max(height - imgH, Math.min(0, height * 0.62 - imgH * PANEL_Y[i])),
             zIndex: layer[i],
             opacity: opacity[i],
             transform: [{ translateX: slide[i] }, { scale: zoom[i] }],
