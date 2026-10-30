@@ -13,7 +13,7 @@ import { WeightTracker } from '../../components/WeightTracker';
 import { StackedChart } from '../../components/StackedChart';
 import { LineChart } from '../../components/LineChart';
 import { ProGate } from '../../components/ProOverlay';
-import { NumberStepper } from '../../components/quiz/NumberStepper';
+import { ValueStepper as NumberStepper } from '../../components/ValueStepper';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { MedalsGallery } from '../../components/MedalsGallery';
 import { StreakCard } from '../../components/StreakCard';

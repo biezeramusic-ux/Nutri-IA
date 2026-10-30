@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './AppText';
 import { WeightChart } from './WeightChart';
-import { NumberStepper } from './quiz/NumberStepper';
+import { ValueStepper as NumberStepper } from './ValueStepper';
 import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { Alert } from '../i18n/alert';
 import { useProfile } from '../hooks/useProfile';

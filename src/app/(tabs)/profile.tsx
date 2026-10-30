@@ -6,7 +6,7 @@ import { Image, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-na
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { NumberStepper } from '../../components/quiz/NumberStepper';
+import { ValueStepper as NumberStepper } from '../../components/ValueStepper';
 import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
 import { useAvatar } from '../../hooks/useAvatar';
 import { useTheme } from '../../hooks/useTheme';

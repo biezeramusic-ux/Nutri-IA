@@ -6,7 +6,7 @@ import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProgressRing } from '../components/ProgressRing';
 import { ProGate } from '../components/ProOverlay';
-import { NumberStepper } from '../components/quiz/NumberStepper';
+import { ValueStepper as NumberStepper } from '../components/ValueStepper';
 import { QuizChip } from '../components/quiz/QuizChip';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';

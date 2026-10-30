@@ -12,7 +12,7 @@ import { NutritionFacts } from '../components/NutritionFacts';
 import { MealPhoto } from '../components/MealPhoto';
 import { MacroCards } from '../components/MacroCards';
 import { ProBadge } from '../components/ProOverlay';
-import { NumberStepper } from '../components/quiz/NumberStepper';
+import { ValueStepper as NumberStepper } from '../components/ValueStepper';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, cardBase, font, petalPalette, radius, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';

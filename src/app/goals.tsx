@@ -6,7 +6,7 @@ import { Text } from '../components/AppText';
 import { Alert } from '../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProGate } from '../components/ProOverlay';
-import { NumberStepper } from '../components/quiz/NumberStepper';
+import { ValueStepper as NumberStepper } from '../components/ValueStepper';
 import { QuizOption } from '../components/quiz/QuizOption';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
