@@ -40,7 +40,6 @@ function ThemedApp() {
                 <Stack.Screen name="fasting" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="activity" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="edit-profile" options={{ animation: 'slide_from_right' }} />
-                <Stack.Screen name="weight" options={{ animation: 'slide_from_right' }} />
                 <Stack.Screen name="goals" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="favorites" options={{ animation: 'slide_from_right' }} />
               <Stack.Screen name="invite" options={{ animation: 'slide_from_right' }} />

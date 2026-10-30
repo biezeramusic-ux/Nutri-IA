@@ -1,12 +1,10 @@
 import { Plus, Scale } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text } from '../components/AppText';
-import { WeightChart } from '../components/WeightChart';
-import { NumberStepper } from '../components/quiz/NumberStepper';
-import { ScreenHeader } from '../components/ScreenHeader';
-import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './AppText';
+import { WeightChart } from './WeightChart';
+import { NumberStepper } from './quiz/NumberStepper';
+import { cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { Alert } from '../i18n/alert';
 import { useProfile } from '../hooks/useProfile';
 import { useTheme } from '../hooks/useTheme';
@@ -29,11 +27,9 @@ const longDay = (day: string) => new Date(`${day}T12:00:00`).toLocaleDateString(
  * Rastreador de peso: peso atual e alvo (do quiz), progresso até à meta (perder ou ganhar massa),
  * gráfico por período com a linha da meta e a lista de registos.
  */
-export default function WeightScreen() {
+export function WeightTracker({ width: totalWidth }: { width: number }) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
-  const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
   const { profile } = useProfile();
   const { logs, addToday } = useWeightLogs(1200);
   const [range, setRange] = useState('month');
@@ -55,7 +51,7 @@ export default function WeightScreen() {
     return todayKey(d);
   }, [days]);
   const inRange = logs.filter((l) => l.day >= since);
-  const chartW = width - SCREEN_PADDING * 2 - 32;
+  const chartW = totalWidth - 32;
 
   const change = current !== undefined && start !== undefined ? Math.round((current - start) * 10) / 10 : null;
   const gaining = goal === 'gain_muscle';
@@ -80,16 +76,13 @@ export default function WeightScreen() {
   };
 
   return (
-    <View style={styles.root}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: SCREEN_PADDING, paddingBottom: insets.bottom + 40, gap: 14 }} showsVerticalScrollIndicator={false}>
-        <ScreenHeader
-          title={tr('Rastreador de peso')}
-          right={
-            <Pressable style={styles.plus} onPress={() => setDraft(Math.round((current ?? 65) * 2) / 2)} accessibilityLabel={tr('Registar peso')}>
-              <Plus size={18} color="#fff" />
-            </Pressable>
-          }
-        />
+    <View style={{ gap: 14 }}>
+      <View style={styles.titleRow}>
+        <Text style={styles.sectionTitle}>{tr('Rastreador de peso')}</Text>
+        <Pressable style={styles.plus} onPress={() => setDraft(Math.round((current ?? 65) * 2) / 2)} accessibilityLabel={tr('Registar peso')}>
+          <Plus size={18} color="#fff" />
+        </Pressable>
+      </View>
 
         <View style={styles.pair}>
           <View style={styles.box}>
@@ -181,14 +174,14 @@ export default function WeightScreen() {
             })}
           </View>
         )}
-      </ScrollView>
     </View>
   );
 }
 
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
-    root: { flex: 1, backgroundColor: colors.background },
+    titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+    sectionTitle: { fontSize: font.h2, fontWeight: '800', color: colors.text },
     plus: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
     pair: { flexDirection: 'row', gap: 12 },
     box: { flex: 1, ...cardBase(colors), borderRadius: radius.lg, padding: 14, gap: 4 },

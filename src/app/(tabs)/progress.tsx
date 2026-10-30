@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { JourneyChart } from '../../components/JourneyChart';
 import { ProgressRing } from '../../components/ProgressRing';
 import { WeightChanges } from '../../components/WeightChanges';
+import { WeightTracker } from '../../components/WeightTracker';
 import { StackedChart } from '../../components/StackedChart';
 import { LineChart } from '../../components/LineChart';
 import { ProGate } from '../../components/ProOverlay';
@@ -470,55 +471,8 @@ export default function ProgressScreen() {
         </View>
 
 
-        <View style={styles.card}>
-          <View style={styles.weightHead}>
-            <Scale size={18} color={colors.primary} />
-            <Text style={styles.cardTitle}>{tr('Peso')}</Text>
-            <Pressable onPress={startLogging} style={styles.smallBtn}>
-              <Text style={styles.smallBtnText}>{tr('Registar peso')}</Text>
-            </Pressable>
-          </View>
-          {latest ? (
-            <>
-              <View style={styles.bigRow}>
-                <Text style={styles.big}>{latest.weightKg.toString().replace('.', ',')}</Text>
-                <Text style={styles.unit}>{tr('kg')}</Text>
-                {weightDelta !== null && (
-                  <Text style={[styles.target, { color: colors.text }]}>
-                    {weightDelta > 0 ? '+' : ''}
-                    {weightDelta.toFixed(1).replace('.', ',')} kg
-                  </Text>
-                )}
-              </View>
-              {periodLogs.length > 0 ? (
-                <LineChart points={periodLogs.map((l) => ({ label: shortDate(l.day), value: l.weightKg }))} width={chartWidth} goal={targetWeight} />
-              ) : (
-                <Text style={styles.muted}>{tr('Sem registos de peso neste período.')}</Text>
-              )}
-            </>
-          ) : (
-            <Text style={styles.muted}>{tr('Ainda não registou o peso. Toque em "Registar peso" para começar.')}</Text>
-          )}
+        <WeightTracker width={chartWidth + 32} />
 
-          {logging && draftWeight !== null && (
-            <View style={{ gap: 10 }}>
-              <NumberStepper label={tr('O seu peso hoje')} value={draftWeight} unit="kg" min={30} max={300} step={0.5} onChange={setDraftWeight} />
-              <View style={styles.actions}>
-                <Pressable style={styles.ghost} onPress={() => setLogging(false)}>
-                  <Text style={styles.ghostText}>{tr('Cancelar')}</Text>
-                </Pressable>
-                <Pressable style={styles.primary} onPress={() => void saveWeight()}>
-                  <Text style={styles.primaryText}>{tr('Guardar')}</Text>
-                </Pressable>
-              </View>
-            </View>
-          )}
-        </View>
-
-            <Pressable style={styles.photosBtn} onPress={() => router.push('/weight')}>
-              <Scale size={16} color={colors.primaryDark} />
-              <Text style={styles.photosText}>{tr('Rastreador de peso e progresso')}</Text>
-            </Pressable>
             {profile?.goal === 'lose_weight' && <WeightChanges logs={logs} />}
         <Pressable style={styles.photosBtn} onPress={() => router.push('/progress-photos')}>
           <Camera size={16} color={colors.primaryDark} />

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import { ChevronRight, Crown, Droplets, Gift, LogOut, Moon, Pencil, Scale, Sun, Timer, type LucideIcon } from 'lucide-react-native';
+import { ChevronRight, Crown, Droplets, Gift, LogOut, Moon, Pencil, Sun, Timer, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { Text } from '../../components/AppText';
@@ -214,7 +214,6 @@ export default function ProfileScreen() {
 
         <Text style={styles.section}>{tr('Atalhos')}</Text>
         <View style={styles.group}>
-          <Row icon={Scale} label={tr('Rastreador de peso')} onPress={() => router.push('/weight')} />
           <Row icon={Droplets} label={tr('Registo de água')} onPress={() => router.push('/water')} />
           {profile?.goal === 'lose_weight' && <Row icon={Timer} label={tr('Jejum intermitente')} onPress={() => router.push('/fasting')} />}
           <Row icon={Gift} label={tr('Convidar amigos (5% de desconto)')} onPress={() => router.push('/invite')} />
