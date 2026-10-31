@@ -1324,4 +1324,11 @@ export const es: Record<string, string> = {
   "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "Aún no registraste ningún alimento hoy, {name}. Fotografía tu comida y continúa.",
   "estimado automaticamente": "estimado automáticamente",
   "O peso é estimado automaticamente com as calorias que come e que queima nos treinos, corridas e atividades. Pese-se de vez em quando para acertar.": "El peso se estima automáticamente con las calorías que comes y quemas en entrenamientos, carreras y actividades. Pésate de vez en cuando para afinarlo.",
+  "Semana de {name}": "Semana de {name}",
+  "A minha semana": "Mi semana",
+  "dia seguido": "día seguido",
+  "dias com registo": "días con registro",
+  "Código de convite: {code}": "Código de invitación: {code}",
+  "Partilhar": "Compartir",
+  "Usar fundo verde": "Usar fondo verde",
 };

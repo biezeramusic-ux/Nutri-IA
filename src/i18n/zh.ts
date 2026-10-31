@@ -1324,4 +1324,11 @@ export const zh: Record<string, string> = {
   "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "您今天还没有记录任何食物，{name}。拍下您的餐食并继续。",
   "estimado automaticamente": "自动估算",
   "O peso é estimado automaticamente com as calorias que come e que queima nos treinos, corridas e atividades. Pese-se de vez em quando para acertar.": "体重根据你摄入的热量以及训练、跑步和活动消耗的热量自动估算。请偶尔称重以校准。",
+  "Semana de {name}": "{name}的一周",
+  "A minha semana": "我的一周",
+  "dia seguido": "天连续",
+  "dias com registo": "天有记录",
+  "Código de convite: {code}": "邀请码：{code}",
+  "Partilhar": "分享",
+  "Usar fundo verde": "使用绿色背景",
 };

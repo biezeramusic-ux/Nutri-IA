@@ -1,7 +1,7 @@
 import { Camera, ChevronDown, ChevronLeft, ChevronRight, Lock, Scale, Share2, Sparkles, Wand2 } from 'lucide-react-native';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text } from '../../components/AppText';
 import { Alert } from '../../i18n/alert';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +15,7 @@ import { LineChart } from '../../components/LineChart';
 import { ProGate } from '../../components/ProOverlay';
 import { ValueStepper as NumberStepper } from '../../components/ValueStepper';
 import { SegmentedControl } from '../../components/SegmentedControl';
-import { MedalsGallery } from '../../components/MedalsGallery';
+import { WeekShareStory } from '../../components/WeekShareStory';
 import { StreakCard } from '../../components/StreakCard';
 import { SCREEN_PADDING, TAB_BAR_SPACE, cardBase, font, radius, type ThemeColors } from '../../constants/theme';
 import { useTheme } from '../../hooks/useTheme';
@@ -35,7 +35,6 @@ import { useGoalPlan } from '../../hooks/useGoalPlan';
 import { useSubscription } from '../../hooks/useSubscription';
 import { buildProgressSummary } from '../../services/progressSummary';
 import { computeStreak } from '../../services/streak';
-import { buildWeeklyReport } from '../../services/weeklyReport';
 import { tr } from '../../i18n';
 
 
@@ -94,6 +93,7 @@ export default function ProgressScreen() {
   const [macro, setMacro] = useState<'protein' | 'fats' | 'carbs'>('protein');
   const [reportOpen, setReportOpen] = useState(false);
   const [waterByDay, setWaterByDay] = useState<Record<string, number>>({});
+  const [shareOpen, setShareOpen] = useState(false);
   const [burnByDay, setBurnByDay] = useState<Record<string, number>>({});
 
   const today = todayKey();
@@ -403,17 +403,15 @@ export default function ProgressScreen() {
 
 
         <StreakCard streak={streak} last7={last7} />
-        <MedalsGallery best={streak.best} />
 
         <Pressable
           style={styles.shareBtn}
-          onPress={() =>
-            void Share.share({ message: buildWeeklyReport(meals, goals, displayName.split(' ')[0] ?? '', referral.code || undefined) }).catch(() => undefined)
-          }
+          onPress={() => setShareOpen(true)}
         >
           <Share2 size={16} color="#fff" />
           <Text style={styles.shareText}>{tr('Partilhar resumo da semana')}</Text>
         </Pressable>
+        <WeekShareStory visible={shareOpen} onClose={() => setShareOpen(false)} meals={meals} goals={goals} name={displayName.split(' ')[0] ?? ''} inviteCode={referral.code || undefined} />
           </>
         )}
 
