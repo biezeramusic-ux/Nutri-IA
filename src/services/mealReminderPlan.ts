@@ -61,7 +61,7 @@ const REVIEW = {
 
 /** Quem passou o dia sem registar nenhum alimento recebe este aviso ao fim da tarde (com sequência: "vamos manter a sequência viva"). */
 const EMPTY = {
-  hour: 19,
+  hour: 21,
   minute: 30,
   title: 'Lembrete do diário',
   bodies: ['{name}, ainda não registou nenhum alimento hoje. Vamos manter a sequência viva!', 'Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.'],
