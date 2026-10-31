@@ -1,4 +1,3 @@
-import { useActivity } from '../hooks/useActivity';
 import { useScheduleExtra } from '../services/schedule';
 import { useEffect, useMemo } from 'react';
 import type { MealType } from '../types';
@@ -25,8 +24,6 @@ export function RemindersSync() {
   const { glasses, goalGlasses } = useWater();
   const { meals } = useDiary();
   const { lang } = useTheme();
-  const { activities } = useActivity();
-  const trainedToday = activities.length > 0;
 
   const enabled = !!user && onboardingDone && (profile?.waterReminders ?? false);
   const { extra } = useScheduleExtra();
@@ -67,11 +64,11 @@ export function RemindersSync() {
     AsyncStorage.getItem('nutria.mealReminders')
       .then((v) =>
         v === '1'
-          ? scheduleMealReminders(true, { firstName, trainedToday, loggedToday: loggedKey ? (loggedKey.split(',') as MealType[]) : [] })
+          ? scheduleMealReminders(true, { firstName, loggedToday: loggedKey ? (loggedKey.split(',') as MealType[]) : [] })
           : undefined,
       )
       .catch(() => undefined);
-  }, [user, lang, firstName, loggedKey, trainedToday]);
+  }, [user, lang, firstName, loggedKey]);
 
   return null;
 }

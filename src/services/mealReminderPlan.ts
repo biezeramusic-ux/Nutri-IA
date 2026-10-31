@@ -51,13 +51,7 @@ const SLOTS: Slot[] = [
   },
 ];
 
-/** Avisos extra do dia: hora de treinar e, ao fim do dia, confirmar que tudo foi registado. */
-const TRAIN = {
-  hour: 18,
-  minute: 0,
-  title: 'Treino',
-  bodies: ['{name}, hora de treinar! Depois registe o treino para ver as calorias queimadas.', 'Já treinou hoje, {name}? Registe o treino e acompanhe as calorias queimadas.'],
-};
+/** Avisos extra do dia: ao fim do dia, confirmar que tudo foi registado. */
 const REVIEW = {
   hour: 21,
   minute: 30,
@@ -80,13 +74,11 @@ interface Input {
   firstName?: string;
   /** Refeições de hoje que já têm registo: não lembramos o que já foi feito. */
   loggedToday: MealType[];
-  /** Já registou algum treino hoje (então não se lembra de treinar). */
-  trainedToday?: boolean;
   days?: number;
 }
 
 /** Planeia os lembretes de refeição dos próximos dias, com mensagens a rodar. */
-export function planMealReminders({ now, firstName, loggedToday, trainedToday = false, days = DAYS_AHEAD }: Input): PlannedMealReminder[] {
+export function planMealReminders({ now, firstName, loggedToday, days = DAYS_AHEAD }: Input): PlannedMealReminder[] {
   const result: PlannedMealReminder[] = [];
   const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86_400_000);
   for (let d = 0; d < days; d++) {
@@ -98,14 +90,14 @@ export function planMealReminders({ now, firstName, loggedToday, trainedToday = 
       const body = personalize(tr(slot.bodies[(dayOfYear + d + s) % slot.bodies.length]), firstName);
       result.push({ at, title: tr(slot.title), body });
     });
-    const extra = (x: typeof TRAIN, skip: boolean, salt: number) => {
+    const extra = (x: typeof REVIEW, skip: boolean, salt: number) => {
       const at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), x.hour, x.minute, 0, 0);
       if (at.getTime() <= now.getTime() + 60_000 || (d === 0 && skip)) return;
       result.push({ at, title: tr(x.title), body: personalize(tr(x.bodies[(dayOfYear + d + salt) % x.bodies.length]), firstName) });
     };
-    extra(TRAIN, trainedToday, 0);
     extra(EMPTY, loggedToday.length > 0, 2);
-    extra(REVIEW, ['breakfast', 'lunch', 'dinner'].every((t) => loggedToday.includes(t as MealType)), 1);
+    // Dia sem nenhum registo: só o aviso das 19:30. Com alguns registos, o das 21:30 confirma o que falta.
+    extra(REVIEW, loggedToday.length === 0 || ['breakfast', 'lunch', 'dinner'].every((t) => loggedToday.includes(t as MealType)), 1);
   }
   return result;
 }
