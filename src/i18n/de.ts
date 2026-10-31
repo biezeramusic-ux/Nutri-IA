@@ -1343,4 +1343,7 @@ export const de: Record<string, string> = {
   "Story Instagram": "Instagram-Story",
   "Story Facebook": "Facebook-Story",
   "Outras apps": "Andere Apps",
+  "WhatsApp": "WhatsApp",
+  "WhatsApp não encontrado": "WhatsApp nicht gefunden",
+  "Use o botão Outras apps para partilhar noutras apps.": "Nutze die Schaltfläche Andere Apps, um anderswo zu teilen.",
 };

@@ -1343,4 +1343,7 @@ export const zh: Record<string, string> = {
   "Story Instagram": "Instagram 快拍",
   "Story Facebook": "Facebook 快拍",
   "Outras apps": "其他应用",
+  "WhatsApp": "WhatsApp",
+  "WhatsApp não encontrado": "未找到 WhatsApp",
+  "Use o botão Outras apps para partilhar noutras apps.": "请使用“其他应用”按钮分享到其他应用。",
 };

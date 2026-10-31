@@ -166,6 +166,22 @@ export function WeekShareStory({ visible, onClose, meals, goals, name, inviteCod
     }
   };
 
+  /** Abre o WhatsApp com a imagem: a pessoa escolhe o contacto ou "O meu estado". */
+  const shareWhatsApp = async () => {
+    setBusy(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const RNShare = (require('react-native-share') as typeof import('react-native-share')).default;
+      const b64 = await capture(true);
+      await RNShare.shareSingle({ social: RNShare.Social.WHATSAPP, url: `data:image/png;base64,${b64}`, type: 'image/png' } as never);
+    } catch (e) {
+      const m = String((e as { message?: string })?.message ?? '').toLowerCase();
+      if (!m.includes('cancel') && !m.includes('dismiss')) Alert.alert(tr('WhatsApp não encontrado'), tr('Use o botão Outras apps para partilhar noutras apps.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   /** Envia a imagem para o armazenamento público e partilha o link: quem o abrir vê o cartão. */
   const shareLink = async () => {
     setBusy(true);
@@ -302,10 +318,15 @@ export function WeekShareStory({ visible, onClose, meals, goals, name, inviteCod
             </Pressable>
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Pressable style={[styles.shareBtn, { flex: 1, backgroundColor: '#25D366' }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void shareWhatsApp()}>
+              <Text style={styles.shareText}>{tr('WhatsApp')}</Text>
+            </Pressable>
             <Pressable style={[styles.shareBtn, { flex: 1 }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void share()}>
               <Share2 size={17} color="#fff" />
               <Text style={styles.shareText}>{tr('Outras apps')}</Text>
             </Pressable>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
             <Pressable style={[styles.shareBtn, { flex: 1, backgroundColor: '#475569' }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void shareLink()}>
               <Link2 size={17} color="#fff" />
               <Text style={styles.shareText}>{tr('Link')}</Text>
