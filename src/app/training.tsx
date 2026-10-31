@@ -31,20 +31,20 @@ import {
   type WorkoutPlan,
 } from '../services/workout';
 
-type Tile = { id: string; label: string; colors: [string, string]; Icon: typeof Dumbbell; kind?: WorkoutKind; run?: boolean; desc?: string };
+type Tile = { id: string; label: string; colors: [string, string]; Icon: typeof Dumbbell; kind?: WorkoutKind; run?: boolean; desc?: string; sub?: string };
 
 const RUN_TILES: Tile[] = [
-  { id: 'easy', label: 'Corrida leve', colors: ['#84CC16', '#16A34A'], Icon: Footprints, run: true, desc: 'Ritmo confortável, 20 a 30 minutos. Ideal para começar e queimar calorias.' },
-  { id: 'pace', label: 'Corrida de ritmo', colors: ['#F59E0B', '#EA580C'], Icon: Timer, run: true, desc: 'Ritmo firme e constante durante 20 a 40 minutos.' },
-  { id: 'interval', label: 'Intervalos', colors: ['#F97316', '#DC2626'], Icon: Zap, run: true, desc: 'Alterne 1 minuto rápido com 2 minutos leves, várias vezes.' },
-  { id: 'hill', label: 'Corrida em subida', colors: ['#4D7C0F', '#166534'], Icon: Mountain, run: true, desc: 'Procure uma subida e repita com calma. Fortalece pernas e queima mais.' },
+  { id: 'easy', sub: '20 a 30 min', label: 'Corrida leve', colors: ['#84CC16', '#16A34A'], Icon: Footprints, run: true, desc: 'Ritmo confortável, 20 a 30 minutos. Ideal para começar e queimar calorias.' },
+  { id: 'pace', sub: '20 a 40 min', label: 'Corrida de ritmo', colors: ['#F59E0B', '#EA580C'], Icon: Timer, run: true, desc: 'Ritmo firme e constante durante 20 a 40 minutos.' },
+  { id: 'interval', sub: 'Rápido e leve', label: 'Intervalos', colors: ['#F97316', '#DC2626'], Icon: Zap, run: true, desc: 'Alterne 1 minuto rápido com 2 minutos leves, várias vezes.' },
+  { id: 'hill', sub: 'Pernas fortes', label: 'Corrida em subida', colors: ['#4D7C0F', '#166534'], Icon: Mountain, run: true, desc: 'Procure uma subida e repita com calma. Fortalece pernas e queima mais.' },
 ];
 const GYM_TILES: Tile[] = [
-  { id: 'strength', label: 'Força', colors: ['#3B82F6', '#1D4ED8'], Icon: Dumbbell, kind: 'strength' },
-  { id: 'hiit', label: 'Cardio intenso', colors: ['#EF4444', '#B91C1C'], Icon: Flame, kind: 'hiit' },
-  { id: 'pilates', label: 'Pilates', colors: ['#14B8A6', '#0F766E'], Icon: Wind, kind: 'pilates' },
-  { id: 'mobility', label: 'Mobilidade', colors: ['#22C55E', '#15803D'], Icon: HeartPulse, kind: 'mobility' },
-  { id: 'stretch', label: 'Alongamento', colors: ['#A855F7', '#7E22CE'], Icon: Sparkles, kind: 'stretch' },
+  { id: 'strength', sub: 'Músculos', label: 'Força', colors: ['#3B82F6', '#1D4ED8'], Icon: Dumbbell, kind: 'strength' },
+  { id: 'hiit', sub: 'Queima mais', label: 'Cardio intenso', colors: ['#EF4444', '#B91C1C'], Icon: Flame, kind: 'hiit' },
+  { id: 'pilates', sub: 'Postura e core', label: 'Pilates', colors: ['#14B8A6', '#0F766E'], Icon: Wind, kind: 'pilates' },
+  { id: 'mobility', sub: 'Soltar o corpo', label: 'Mobilidade', colors: ['#22C55E', '#15803D'], Icon: HeartPulse, kind: 'mobility' },
+  { id: 'stretch', sub: 'Relaxar', label: 'Alongamento', colors: ['#A855F7', '#7E22CE'], Icon: Sparkles, kind: 'stretch' },
 ];
 const PLACE_ICON: Record<Place, typeof Home> = { home: Home, gym: Dumbbell, outdoor: Mountain, studio: MapPin };
 const MINUTES = [15, 20, 30, 45, 60];
@@ -144,13 +144,20 @@ export default function TrainingScreen() {
   const save = async (p: WorkoutPlan) => uid && setSaved(await toggleSaved(uid, p));
 
   const tile = (t: Tile) => (
-    <Pressable key={t.id} style={({ pressed }) => [styles.tile, pressed && { opacity: 0.9 }]} onPress={() => open(t)}>
+    <Pressable key={t.id} style={({ pressed }) => [styles.tile, pressed && { transform: [{ scale: 0.97 }] }]} onPress={() => open(t)} accessibilityRole="button">
       <LinearGradient colors={t.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-      <t.Icon size={64} color="rgba(255,255,255,0.22)" style={styles.tileBig} />
-      <t.Icon size={20} color="#fff" />
-      <Text style={styles.tileText}>{tr(t.label)}</Text>
+      <View style={styles.tileShine} />
+      <t.Icon size={92} color="rgba(255,255,255,0.18)" strokeWidth={1.5} style={styles.tileBig} />
+      <View style={styles.tileIcon}>
+        <t.Icon size={22} color="#fff" strokeWidth={2.2} />
+      </View>
+      <View>
+        <Text style={styles.tileText}>{tr(t.label)}</Text>
+        {!!t.sub && <Text style={styles.tileSub}>{tr(t.sub)}</Text>}
+      </View>
     </Pressable>
   );
+
 
   if (!loaded) {
     return (
@@ -418,9 +425,12 @@ const createStyles = (colors: ThemeColors) =>
     tabText: { fontSize: font.body, fontWeight: '700', color: colors.textMuted },
     section: { fontSize: font.small, fontWeight: '800', color: colors.textMuted, textTransform: 'uppercase', letterSpacing: 0.6, marginTop: 4 },
     grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-    tile: { width: '30.6%', aspectRatio: 1, borderRadius: 16, padding: 10, justifyContent: 'space-between', overflow: 'hidden' },
-    tileBig: { position: 'absolute', right: -8, bottom: -8 },
-    tileText: { color: '#fff', fontSize: 13, fontWeight: '800', lineHeight: 16 },
+    tile: { width: '48.2%', height: 128, borderRadius: 22, padding: 14, justifyContent: 'space-between', overflow: 'hidden', shadowColor: '#000', shadowOpacity: 0.16, shadowRadius: 10, shadowOffset: { width: 0, height: 5 }, elevation: 4 },
+    tileShine: { position: 'absolute', top: -50, left: -30, width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,255,255,0.14)' },
+    tileBig: { position: 'absolute', right: -14, bottom: -14 },
+    tileIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' },
+    tileText: { color: '#fff', fontSize: 18, fontWeight: '800', letterSpacing: -0.2, textShadowColor: 'rgba(0,0,0,0.25)', textShadowRadius: 4, textShadowOffset: { width: 0, height: 1 } },
+    tileSub: { color: 'rgba(255,255,255,0.92)', fontSize: 12, fontWeight: '600', marginTop: 2 },
     muted: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
     savedRow: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg },
     savedIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },

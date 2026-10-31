@@ -1251,4 +1251,13 @@ export const fr: Record<string, string> = {
   "km esta semana": "km cette semaine",
   "km no total": "km au total",
   "{n} km percorridos. Faltam cerca de {m} minutos para o próximo quilómetro. Continue no bom ritmo{who}!": "{n} km parcourus. Il reste environ {m} minutes jusqu'au prochain kilomètre. Gardez ce bon rythme{who} !",
+  "Rápido e leve": "Rapide et facile",
+  "Pernas fortes": "Jambes fortes",
+  "Músculos": "Muscles",
+  "Queima mais": "Brûle plus",
+  "Postura e core": "Posture et gainage",
+  "Soltar o corpo": "Détendre le corps",
+  "Relaxar": "Se détendre",
+  "20 a 30 min": "20 à 30 min",
+  "20 a 40 min": "20 à 40 min",
 };

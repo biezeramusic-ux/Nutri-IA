@@ -1251,4 +1251,13 @@ export const zh: Record<string, string> = {
   "km esta semana": "本周公里",
   "km no total": "总公里数",
   "{n} km percorridos. Faltam cerca de {m} minutos para o próximo quilómetro. Continue no bom ritmo{who}!": "已跑 {n} 公里。距离下一公里约还需 {m} 分钟。保持好节奏{who}！",
+  "Rápido e leve": "快慢交替",
+  "Pernas fortes": "强健双腿",
+  "Músculos": "肌肉",
+  "Queima mais": "燃烧更多",
+  "Postura e core": "体态与核心",
+  "Soltar o corpo": "放松身体",
+  "Relaxar": "放松",
+  "20 a 30 min": "20 至 30 分钟",
+  "20 a 40 min": "20 至 40 分钟",
 };

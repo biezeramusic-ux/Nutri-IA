@@ -1251,4 +1251,13 @@ export const nl: Record<string, string> = {
   "km esta semana": "km deze week",
   "km no total": "km in totaal",
   "{n} km percorridos. Faltam cerca de {m} minutos para o próximo quilómetro. Continue no bom ritmo{who}!": "{n} km gedaan. Nog ongeveer {m} minuten tot de volgende kilometer. Houd dit goede tempo vol{who}!",
+  "Rápido e leve": "Snel en rustig",
+  "Pernas fortes": "Sterke benen",
+  "Músculos": "Spieren",
+  "Queima mais": "Verbrandt meer",
+  "Postura e core": "Houding en core",
+  "Soltar o corpo": "Soepel worden",
+  "Relaxar": "Ontspannen",
+  "20 a 30 min": "20 tot 30 min",
+  "20 a 40 min": "20 tot 40 min",
 };
