@@ -67,5 +67,5 @@ const createStyles = (colors: ThemeColors) =>
   },
   fieldError: { borderColor: colors.danger },
   input: { flex: 1, fontSize: font.body, color: colors.text, paddingVertical: 0 },
-  error: { fontSize: font.small, color: '#FEE2E2', fontWeight: '600' },
+  error: { fontSize: font.small, color: colors.danger },
 });
