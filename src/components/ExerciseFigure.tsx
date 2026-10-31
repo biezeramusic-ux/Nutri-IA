@@ -72,8 +72,8 @@ const MOVES: Record<Move, [Pose, Pose]> = {
     { head: [100, 40], neck: [90, 46], hip: [54, 60], eL: [90, 62], hL: [90, 76], eR: [90, 62], hR: [90, 76], kL: [34, 68], fL: [16, 76], kR: [72, 66], fR: [76, 76] },
   ],
   press: [
-    { head: [60, 16], neck: [60, 30], hip: [60, 62], eL: [40, 44], hL: [40, 28], eR: [80, 44], hR: [80, 28], kL: [55, 84], fL: [53, 106], kR: [65, 84], fR: [67, 106] },
-    { head: [60, 16], neck: [60, 30], hip: [60, 62], eL: [46, 22], hL: [52, 4], eR: [74, 22], hR: [68, 4], kL: [55, 84], fL: [53, 106], kR: [65, 84], fR: [67, 106] },
+    { head: [60, 22], neck: [60, 36], hip: [60, 64], eL: [38, 50], hL: [40, 36], eR: [82, 50], hR: [80, 36], kL: [55, 86], fL: [53, 106], kR: [65, 86], fR: [67, 106] },
+    { head: [60, 22], neck: [60, 36], hip: [60, 64], eL: [42, 30], hL: [40, 14], eR: [78, 30], hR: [80, 14], kL: [55, 86], fL: [53, 106], kR: [65, 86], fR: [67, 106] },
   ],
   row: [
     { head: [86, 36], neck: [78, 44], hip: [44, 62], eL: [80, 62], hL: [82, 80], eR: [80, 62], hR: [82, 80], kL: [44, 86], fL: [42, 106], kR: [44, 86], fR: [42, 106] },
@@ -182,31 +182,28 @@ export function ExerciseFigure({ name, size = 120, color, period = 1600, gym = f
   ];
   const gear: ReactElement[] = [];
   const behind: ReactElement[] = [];
+  // Ferramentas desenhadas no mesmo ângulo do boneco: de frente (agachamento, ombros, rosca, puxada) ou de lado
+  // (supino, remada, leg press), onde a barra e os halteres se veem de ponta, como um disco.
+  const endOn = (h: P, r: number, key: string) => (
+    <G key={key}>
+      <Circle cx={h[0]} cy={h[1]} r={r} fill={dark} stroke="#fff" strokeWidth={1.4} />
+      <Circle cx={h[0]} cy={h[1]} r={r * 0.38} fill={gold} />
+    </G>
+  );
   if (gym) {
-    if (move === 'squat') {
-      // Barra às costas e suporte (rack) atrás.
-      behind.push(<Line key="rk1" x1={14} y1={20} x2={14} y2={110} stroke={steel} strokeWidth={4} opacity={0.5} />, <Line key="rk2" x1={106} y1={20} x2={106} y2={110} stroke={steel} strokeWidth={4} opacity={0.5} />);
-      gear.push(...bar([pose.neck[0] - 30, pose.neck[1] - 1], [pose.neck[0] + 30, pose.neck[1] - 1], 'sq'));
-    } else if (move === 'press') gear.push(...bar(pose.hL, pose.hR, 'pr'));
-    else if (move === 'lunge' || move === 'curl' || move === 'row') {
-      gear.push(...dumbbell(pose.hL, 'd1'));
-      if (move !== 'row') gear.push(...dumbbell(pose.hR, 'd2'));
-    } else if (move === 'bench') {
-      // Banco acolchoado com pés e a barra sobre o peito.
-      behind.push(<Rect key="bench" x={8} y={86} width={66} height={9} rx={4} fill="#0F172A" />, <Rect key="benchl" x={8} y={86} width={66} height={3} rx={1.5} fill="#334155" />);
-      behind.push(<Line key="bl1" x1={20} y1={95} x2={20} y2={110} stroke={steel} strokeWidth={4} strokeLinecap="round" />, <Line key="bl2" x1={62} y1={95} x2={62} y2={110} stroke={steel} strokeWidth={4} strokeLinecap="round" />);
-      gear.push(...bar([pose.hL[0] - 14, pose.hL[1]], [pose.hL[0] + 14, pose.hL[1]], 'bn'));
+    if (move === 'squat') gear.push(...bar([pose.neck[0] - 30, pose.neck[1] - 1], [pose.neck[0] + 30, pose.neck[1] - 1], 'sq'));
+    else if (move === 'press') gear.push(...bar(pose.hL, pose.hR, 'pr'));
+    else if (move === 'lunge' || move === 'curl') gear.push(...dumbbell(pose.hL, 'd1'), ...dumbbell(pose.hR, 'd2'));
+    else if (move === 'row') gear.push(endOn(pose.hL, 7, 'rw'));
+    else if (move === 'bench') {
+      behind.push(<Rect key="bench" x={8} y={87} width={66} height={8} rx={4} fill="#0F172A" />, <Line key="bl1" x1={20} y1={95} x2={20} y2={110} stroke={steel} strokeWidth={4} strokeLinecap="round" />, <Line key="bl2" x1={62} y1={95} x2={62} y2={110} stroke={steel} strokeWidth={4} strokeLinecap="round" />);
+      gear.push(endOn(pose.hL, 11, 'bn'));
     } else if (move === 'legpress') {
-      // Máquina: encosto, calhas e plataforma onde os pés empurram.
-      behind.push(<Line key="seat" x1={12} y1={92} x2={48} y2={50} stroke="#0F172A" strokeWidth={9} strokeLinecap="round" opacity={0.8} />, <Line key="rail" x1={40} y1={100} x2={112} y2={40} stroke={steel} strokeWidth={3} opacity={0.7} />);
-      gear.push(<Line key="plat" x1={pose.fL[0] + 6} y1={pose.fL[1] - 20} x2={pose.fL[0] + 6} y2={pose.fL[1] + 20} stroke={dark} strokeWidth={9} strokeLinecap="round" />, <Line key="plat2" x1={pose.fL[0] + 6} y1={pose.fL[1] - 14} x2={pose.fL[0] + 6} y2={pose.fL[1] + 14} stroke={gold} strokeWidth={2.4} strokeLinecap="round" />);
+      behind.push(<Line key="seat" x1={12} y1={92} x2={46} y2={52} stroke="#0F172A" strokeWidth={8} strokeLinecap="round" opacity={0.85} />);
+      gear.push(<Line key="plat" x1={pose.fL[0] + 6} y1={pose.fL[1] - 20} x2={pose.fL[0] + 6} y2={pose.fL[1] + 20} stroke={dark} strokeWidth={8} strokeLinecap="round" />);
     } else if (move === 'pulldown') {
-      // Polia no topo, cabo e barra; pilha de pesos ao lado.
-      behind.push(<Rect key="stack" x={96} y={2} width={14} height={60} rx={3} fill="#0F172A" opacity={0.8} />, <Line key="stk" x1={96} y1={20} x2={110} y2={20} stroke={gold} strokeWidth={2} />, <Line key="stk2" x1={96} y1={36} x2={110} y2={36} stroke={gold} strokeWidth={2} />);
-      gear.push(<Circle key="pul" cx={60} cy={3} r={4} fill={steel} />, <Line key="cable" x1={60} y1={3} x2={(pose.hL[0] + pose.hR[0]) / 2} y2={pose.hL[1]} stroke="#64748B" strokeWidth={2} />, <Line key="pbar" x1={pose.hL[0] - 5} y1={pose.hL[1]} x2={pose.hR[0] + 5} y2={pose.hR[1]} stroke="#475569" strokeWidth={5} strokeLinecap="round" />, <Line key="pbar2" x1={pose.hL[0] - 5} y1={pose.hL[1]} x2={pose.hR[0] + 5} y2={pose.hR[1]} stroke="#E2E8F0" strokeWidth={2} strokeLinecap="round" />);
-    } else if (move === 'bridge') {
-      gear.push(plate(pose.hip[0], pose.hip[1] - 5, 'hip'));
-    }
+      gear.push(<Line key="cable" x1={60} y1={0} x2={(pose.hL[0] + pose.hR[0]) / 2} y2={pose.hL[1]} stroke="#64748B" strokeWidth={2} />, <Line key="pbar" x1={pose.hL[0] - 5} y1={pose.hL[1]} x2={pose.hR[0] + 5} y2={pose.hR[1]} stroke={dark} strokeWidth={5} strokeLinecap="round" />);
+    } else if (move === 'bridge') gear.push(endOn([pose.hip[0], pose.hip[1] - 6], 9, 'hip'));
   }
   const c = color ?? colors.primary;
   const seg = (a: P, b: P, key: string) => <Line key={key} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={c} strokeWidth={6} strokeLinecap="round" />;
