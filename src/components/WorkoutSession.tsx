@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from './AppText';
-import { ExerciseFigure } from './ExerciseFigure';
+import { ExerciseFigure, equipmentFor } from './ExerciseFigure';
 import { font, radius, SCREEN_PADDING, type ThemeColors } from '../constants/theme';
 import { useTheme } from '../hooks/useTheme';
 import { tr } from '../i18n';
@@ -166,6 +166,7 @@ export function WorkoutSession({ plan, onClose, onSave }: { plan: WorkoutPlan; o
         </View>
         <Text style={styles.name}>{step.type === 'rest' ? step.next : title}</Text>
         {step.type === 'rest' && <Text style={styles.muted}>{tr('Respire fundo e prepare-se.')}</Text>}
+        {work && equipmentFor(work.ex.name, plan.place === 'gym') && <Text style={styles.gearLine}>🏋️ {tr(equipmentFor(work.ex.name, true) ?? '')}</Text>}
         {work?.ex.tip && <Text style={styles.muted}>{work.ex.tip}</Text>}
         <Text style={step.type === 'work' && !step.seconds ? styles.bigReps : styles.big}>
           {step.type === 'work' && !step.seconds ? `${step.reps} ${tr('repetições')}` : mmss(left)}
@@ -206,6 +207,7 @@ const createStyles = (colors: ThemeColors) =>
     stage: { width: 270, height: 270, borderRadius: 135, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
     name: { fontSize: font.h1, fontWeight: '800', color: colors.text, textAlign: 'center', marginTop: 6 },
     muted: { fontSize: font.body, color: colors.textMuted, textAlign: 'center' },
+    gearLine: { fontSize: font.body, fontWeight: '800', color: colors.primaryDark },
     big: { fontSize: 56, fontWeight: '800', color: colors.text, letterSpacing: -1, marginTop: 4 },
     bigReps: { fontSize: 34, fontWeight: '800', color: colors.text, textAlign: 'center', marginTop: 4 },
     row: { flexDirection: 'row', gap: 12 },

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
-import { ExerciseFigure } from '../components/ExerciseFigure';
+import { ExerciseFigure, equipmentFor } from '../components/ExerciseFigure';
 import { ScreenHeader } from '../components/ScreenHeader';
 import { WorkoutSession } from '../components/WorkoutSession';
 import { useActivity } from '../hooks/useActivity';
@@ -397,6 +397,12 @@ export default function TrainingScreen() {
                         <Text style={styles.pillText}>{tr('descanso')} {e.restSec}s</Text>
                       </View>
                     </View>
+                    {equipmentFor(e.name, plan.place === 'gym') && (
+                      <View style={styles.gearPill}>
+                        <Dumbbell size={12} color={colors.primaryDark} />
+                        <Text style={styles.gearText}>{tr(equipmentFor(e.name, true) ?? '')}</Text>
+                      </View>
+                    )}
                     {!!e.tip && <Text style={styles.exTip}>{e.tip}</Text>}
                   </View>
                 </View>
@@ -498,6 +504,8 @@ const createStyles = (colors: ThemeColors) =>
     numText: { color: '#fff', fontWeight: '800', fontSize: 12 },
     exName: { fontSize: font.h3, fontWeight: '800', color: colors.text, letterSpacing: -0.2 },
     exTip: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
+    gearPill: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', backgroundColor: colors.primarySoft, borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 3 },
+    gearText: { fontSize: 11, fontWeight: '800', color: colors.primaryDark },
     pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
     pill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 },
     pillGreen: { backgroundColor: colors.primarySoft },

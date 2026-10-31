@@ -1280,4 +1280,11 @@ export const nl: Record<string, string> = {
   "{s} segundos": "{s} seconden",
   "Treino base. Com o plano Pro, o treino é pensado para si.": "Basistraining. Met het Pro-abonnement is de training op maat gemaakt.",
   "séries": "sets",
+  "Barra e rack": "Halterstang en rek",
+  "Barra": "Halterstang",
+  "Banco e barra": "Bank en halterstang",
+  "Máquina de leg press": "Beenpers",
+  "Polia (cabo)": "Kabelstation",
+  "Halteres": "Dumbbells",
+  "Disco": "Gewichtsschijf",
 };

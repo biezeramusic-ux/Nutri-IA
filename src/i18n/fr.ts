@@ -1280,4 +1280,11 @@ export const fr: Record<string, string> = {
   "{s} segundos": "{s} secondes",
   "Treino base. Com o plano Pro, o treino é pensado para si.": "Entraînement de base. Avec le forfait Pro, l'entraînement est pensé pour vous.",
   "séries": "séries",
+  "Barra e rack": "Barre et rack",
+  "Barra": "Barre",
+  "Banco e barra": "Banc et barre",
+  "Máquina de leg press": "Presse à cuisses",
+  "Polia (cabo)": "Poulie (câble)",
+  "Halteres": "Haltères",
+  "Disco": "Disque",
 };

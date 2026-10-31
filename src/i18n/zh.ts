@@ -1280,4 +1280,11 @@ export const zh: Record<string, string> = {
   "{s} segundos": "{s} 秒",
   "Treino base. Com o plano Pro, o treino é pensado para si.": "基础训练。升级专业版，训练为您量身定制。",
   "séries": "组",
+  "Barra e rack": "杠铃和深蹲架",
+  "Barra": "杠铃",
+  "Banco e barra": "卧推凳和杠铃",
+  "Máquina de leg press": "腿举机",
+  "Polia (cabo)": "滑轮（缆绳）",
+  "Halteres": "哑铃",
+  "Disco": "杠铃片",
 };
