@@ -1279,5 +1279,4 @@ export const af: Record<string, string> = {
   "{r} repetições": "{r} herhalings",
   "{s} segundos": "{s} sekondes",
   "Treino base. Com o plano Pro, o treino é pensado para si.": "Basiese oefensessie. Met die Pro-plan is die oefensessie net vir jou gemaak.",
-  "séries": "stelle",
 };

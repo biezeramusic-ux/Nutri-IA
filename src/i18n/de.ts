@@ -1279,5 +1279,4 @@ export const de: Record<string, string> = {
   "{r} repetições": "{r} Wiederholungen",
   "{s} segundos": "{s} Sekunden",
   "Treino base. Com o plano Pro, o treino é pensado para si.": "Basistraining. Mit dem Pro-Tarif ist das Training speziell für Sie gemacht.",
-  "séries": "Sätze",
 };
