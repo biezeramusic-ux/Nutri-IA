@@ -5,7 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
+import { ExerciseFigure } from '../components/ExerciseFigure';
 import { ScreenHeader } from '../components/ScreenHeader';
+import { WorkoutSession } from '../components/WorkoutSession';
+import { useActivity } from '../hooks/useActivity';
 import { SCREEN_PADDING, cardBase, font, radius, type ThemeColors } from '../constants/theme';
 import { Alert } from '../i18n/alert';
 import { useAuth } from '../hooks/useAuth';
@@ -76,6 +79,8 @@ export default function TrainingScreen() {
   const [minutes, setMinutes] = useState(30);
   const [busy, setBusy] = useState(false);
   const [plan, setPlan] = useState<WorkoutPlan | null>(null);
+  const [session, setSession] = useState(false);
+  const { add: addActivity } = useActivity();
 
   useEffect(() => {
     if (!uid) return;
@@ -373,8 +378,11 @@ export default function TrainingScreen() {
               )}
               {plan.exercises.map((e, i) => (
                 <View key={i} style={styles.exercise}>
-                  <View style={styles.num}>
-                    <Text style={styles.numText}>{i + 1}</Text>
+                  <View style={styles.figBox}>
+                    <ExerciseFigure name={e.name} size={74} />
+                    <View style={styles.numBadge}>
+                      <Text style={styles.numText}>{i + 1}</Text>
+                    </View>
                   </View>
                   <View style={{ flex: 1, gap: 2 }}>
                     <Text style={styles.exName}>{e.name}</Text>
@@ -395,6 +403,24 @@ export default function TrainingScreen() {
               )}
               {!!plan.note && <Text style={styles.muted}>{plan.note}</Text>}
             </ScrollView>
+            <View style={[styles.startBar, { paddingBottom: insets.bottom + 12 }]}>
+              <Pressable style={styles.cta} onPress={() => setSession(true)}>
+                <Text style={styles.ctaText}>{tr('Começar treino')} · {plan.minutes} min</Text>
+              </Pressable>
+            </View>
+            <Modal visible={session} animationType="slide" onRequestClose={() => setSession(false)}>
+              <WorkoutSession
+                plan={plan}
+                onClose={() => setSession(false)}
+                onSave={async (m, k) => {
+                  try {
+                    await addActivity({ type: plan.title, minutes: m, kcal: k });
+                  } catch {
+                    Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet.'));
+                  }
+                }}
+              />
+            </Modal>
           </View>
         )}
       </Modal>
@@ -457,8 +483,11 @@ const createStyles = (colors: ThemeColors) =>
     blockTitle: { fontSize: font.body, fontWeight: '800', color: colors.text, marginBottom: 2 },
     line: { fontSize: font.body, color: colors.text, lineHeight: 22 },
     exercise: { ...cardBase(colors), flexDirection: 'row', gap: 12, padding: 14, borderRadius: radius.lg },
+    figBox: { width: 74, height: 74, borderRadius: 18, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+    numBadge: { position: 'absolute', top: -6, left: -6, width: 24, height: 24, borderRadius: 12, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+    startBar: { paddingHorizontal: SCREEN_PADDING, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.background },
     num: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
-    numText: { color: '#fff', fontWeight: '800' },
+    numText: { color: '#fff', fontWeight: '800', fontSize: 12 },
     exName: { fontSize: font.body, fontWeight: '800', color: colors.text },
     exMeta: { fontSize: font.small, fontWeight: '700', color: colors.primaryDark },
   });
