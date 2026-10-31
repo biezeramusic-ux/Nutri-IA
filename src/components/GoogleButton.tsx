@@ -59,8 +59,8 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   wrap: { gap: 8 },
   dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  line: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: colors.border },
-  or: { color: colors.textMuted, fontSize: font.small },
+  line: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: 'rgba(255,255,255,0.55)' },
+  or: { color: 'rgba(255,255,255,0.9)', fontSize: font.small },
   button: {
     height: 44,
     borderRadius: radius.md,

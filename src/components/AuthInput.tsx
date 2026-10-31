@@ -53,7 +53,7 @@ export const AuthInput = forwardRef<TextInput, Props>(function AuthInput(
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   wrap: { gap: 3 },
-  label: { fontSize: font.tiny, fontWeight: '500', color: colors.text },
+  label: { fontSize: font.tiny, fontWeight: '600', color: '#fff' },
   field: {
     flexDirection: 'row',
     alignItems: 'center',

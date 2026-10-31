@@ -1,4 +1,3 @@
-import { BlurView } from 'expo-blur';
 import { useMemo, type ReactNode } from 'react';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/AppText';
@@ -58,9 +57,6 @@ export function AuthScreenLayout({ title, subtitle, children }: Props) {
             <Text style={styles.config}>{tr('Supabase não configurado. Preencha EXPO_PUBLIC_SUPABASE_URL e EXPO_PUBLIC_SUPABASE_ANON_KEY no .env e reinicie.')}</Text>
           )}
           <View style={styles.cardWrap}>
-            {/* Vidro fosco: a foto passa desfocada por baixo e uma camada verde clara dá a cor da marca. */}
-            <BlurView intensity={45} tint="light" experimentalBlurMethod="dimezisBlurView" style={StyleSheet.absoluteFill} />
-            <View style={styles.cardTint} pointerEvents="none" />
             <View style={styles.card}>
               <Text style={styles.title}>{title}</Text>
               <Text style={styles.subtitle}>{subtitle}</Text>
@@ -82,11 +78,10 @@ const createStyles = (colors: ThemeColors) =>
   brand: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 'auto' },
   logoBubble: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.92)', alignItems: 'center', justifyContent: 'center' },
   brandText: { fontSize: font.h2, fontWeight: '700', color: '#fff' },
-  cardWrap: { borderRadius: radius.card, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.55)' },
-  cardTint: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(190,235,196,0.5)' },
+  cardWrap: { borderRadius: radius.card, overflow: 'hidden', backgroundColor: '#2E9E4F', borderWidth: 1, borderColor: 'rgba(255,255,255,0.35)' },
   card: { padding: 14, gap: 8 },
-  title: { fontSize: font.h2, fontWeight: '700', color: colors.text, letterSpacing: -0.3 },
-  subtitle: { fontSize: font.small, color: colors.textMuted, marginTop: -4, lineHeight: 17 },
+  title: { fontSize: font.h2, fontWeight: '700', color: '#fff', letterSpacing: -0.3 },
+  subtitle: { fontSize: font.small, color: 'rgba(255,255,255,0.9)', marginTop: -4, lineHeight: 17 },
   config: {
     fontSize: font.small,
     color: colors.danger,
