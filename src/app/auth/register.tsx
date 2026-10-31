@@ -149,6 +149,6 @@ const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
   form: { gap: 8 },
   footer: { flexDirection: 'row', justifyContent: 'center' },
-  footerText: { color: 'rgba(255,255,255,0.92)', fontSize: font.body },
-  link: { color: '#fff', fontSize: font.body, fontWeight: '800', textDecorationLine: 'underline' },
+  footerText: { color: colors.textMuted, fontSize: font.body },
+  link: { color: colors.primaryDark, fontSize: font.body, fontWeight: '600' },
 });
