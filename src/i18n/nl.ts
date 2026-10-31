@@ -1298,4 +1298,9 @@ export const nl: Record<string, string> = {
   "kcal queimadas": "kcal verbrand",
   "treino": "training",
   "treinos": "trainingen",
+  "Registo do dia": "Dagregistratie",
+  "{name}, hora de treinar! Depois registe o treino para ver as calorias queimadas.": "{name}, tijd om te trainen! Log je training daarna om de verbrande calorieën te zien.",
+  "Já treinou hoje, {name}? Registe o treino e acompanhe as calorias queimadas.": "Heb je vandaag getraind, {name}? Log het en volg de verbrande calorieën.",
+  "O dia está quase a acabar, {name}. Confirme que registou tudo hoje.": "De dag is bijna voorbij, {name}. Controleer of je vandaag alles hebt gelogd.",
+  "{name}, antes de dormir: registe o que falta (refeições, água e treino).": "{name}, voor het slapen: log wat er nog ontbreekt (maaltijden, water en training).",
 };

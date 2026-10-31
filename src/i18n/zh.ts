@@ -1298,4 +1298,9 @@ export const zh: Record<string, string> = {
   "kcal queimadas": "千卡已消耗",
   "treino": "次训练",
   "treinos": "次训练",
+  "Registo do dia": "每日记录",
+  "{name}, hora de treinar! Depois registe o treino para ver as calorias queimadas.": "{name}，该训练了！训练后记录下来，查看消耗的热量。",
+  "Já treinou hoje, {name}? Registe o treino e acompanhe as calorias queimadas.": "{name}，今天训练了吗？记录下来并跟踪消耗的热量。",
+  "O dia está quase a acabar, {name}. Confirme que registou tudo hoje.": "今天快结束了，{name}。请确认已记录全部内容。",
+  "{name}, antes de dormir: registe o que falta (refeições, água e treino).": "{name}，睡前请补充记录（餐食、饮水和训练）。",
 };

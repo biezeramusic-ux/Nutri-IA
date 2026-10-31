@@ -1298,4 +1298,9 @@ export const it: Record<string, string> = {
   "kcal queimadas": "kcal bruciate",
   "treino": "allenamento",
   "treinos": "allenamenti",
+  "Registo do dia": "Registro del giorno",
+  "{name}, hora de treinar! Depois registe o treino para ver as calorias queimadas.": "{name}, è ora di allenarsi! Poi registra l'allenamento per vedere le calorie bruciate.",
+  "Já treinou hoje, {name}? Registe o treino e acompanhe as calorias queimadas.": "Ti sei allenato oggi, {name}? Registra l'allenamento e segui le calorie bruciate.",
+  "O dia está quase a acabar, {name}. Confirme que registou tudo hoje.": "La giornata sta finendo, {name}. Controlla di aver registrato tutto oggi.",
+  "{name}, antes de dormir: registe o que falta (refeições, água e treino).": "{name}, prima di dormire: registra ciò che manca (pasti, acqua e allenamento).",
 };
