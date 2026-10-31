@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Bookmark, Check, ChevronRight, Dumbbell, Flame, Footprints, HeartPulse, Home, MapPin, Mountain, RefreshCw, Sparkles, Timer, Wind, X, Zap } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Text } from '../components/AppText';
 import { ExerciseFigure } from '../components/ExerciseFigure';
@@ -455,9 +455,8 @@ const createStyles = (colors: ThemeColors) =>
     tileShine: { position: 'absolute', top: -50, left: -30, width: 150, height: 150, borderRadius: 75, backgroundColor: 'rgba(255,255,255,0.14)' },
     tileBig: { position: 'absolute', right: -14, bottom: -14 },
     tileIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' },
-    // Letra desportiva: itálico forte em maiúsculas (Avenir Next no iPhone, Roboto condensado no Android).
-    tileText: { color: '#fff', fontSize: 20, lineHeight: 22, fontWeight: '900', fontStyle: 'italic', textTransform: 'uppercase', letterSpacing: 0.2, fontFamily: Platform.select({ ios: 'AvenirNext-HeavyItalic', android: 'sans-serif-condensed', default: undefined }), textShadowColor: 'rgba(0,0,0,0.28)', textShadowRadius: 5, textShadowOffset: { width: 0, height: 2 } },
-    tileSub: { color: 'rgba(255,255,255,0.92)', fontSize: 11, fontWeight: '700', letterSpacing: 1.1, textTransform: 'uppercase', marginTop: 3 },
+    tileText: { color: '#fff', fontSize: 18, fontWeight: '800', letterSpacing: -0.2, textShadowColor: 'rgba(0,0,0,0.25)', textShadowRadius: 4, textShadowOffset: { width: 0, height: 1 } },
+    tileSub: { color: 'rgba(255,255,255,0.92)', fontSize: 12, fontWeight: '600', marginTop: 2 },
     muted: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
     savedRow: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: radius.lg },
     savedIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
