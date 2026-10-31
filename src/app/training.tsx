@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { Bookmark, Check, ChevronLeft, ChevronRight, Trash2, Dumbbell, Flame, Footprints, HeartPulse, Home, MapPin, Mountain, RefreshCw, Sparkles, Timer, Wind, X, Zap } from 'lucide-react-native';
+import { Bookmark, Check, ChevronRight, Dumbbell, Flame, Footprints, HeartPulse, Home, MapPin, Mountain, RefreshCw, Sparkles, Timer, Wind, X, Zap } from 'lucide-react-native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,15 +16,13 @@ import { useProfile } from '../hooks/useProfile';
 import { useSubscription } from '../hooks/useSubscription';
 import { useTheme } from '../hooks/useTheme';
 import { tr } from '../i18n';
-import { todayKey } from '../services/date';
-import { weekDays } from '../services/dayUtils';
-import { deleteActivity, listActivities, listActivityKcal } from '../services/repositories/tracker';
-import type { ActivityLog } from '../types';
-import { WeekStrip } from '../components/WeekStrip';
+import { formatKm, isRegistered, loadWalks, type Walk } from '../services/walks';
 import {
   LEVELS,
   PLACES,
+  fallbackTip,
   generateWorkout,
+  getTrainingTip,
   loadPrefs,
   loadSaved,
   savePrefs,
@@ -38,6 +36,12 @@ import {
 
 type Tile = { id: string; label: string; colors: [string, string]; Icon: typeof Dumbbell; kind?: WorkoutKind; run?: boolean; desc?: string; sub?: string };
 
+const RUN_TILES: Tile[] = [
+  { id: 'easy', sub: '20 a 30 min', label: 'Corrida leve', colors: ['#84CC16', '#16A34A'], Icon: Footprints, run: true, desc: 'Ritmo confortável, 20 a 30 minutos. Ideal para começar e queimar calorias.' },
+  { id: 'pace', sub: '20 a 40 min', label: 'Corrida de ritmo', colors: ['#F59E0B', '#EA580C'], Icon: Timer, run: true, desc: 'Ritmo firme e constante durante 20 a 40 minutos.' },
+  { id: 'interval', sub: 'Rápido e leve', label: 'Intervalos', colors: ['#F97316', '#DC2626'], Icon: Zap, run: true, desc: 'Alterne 1 minuto rápido com 2 minutos leves, várias vezes.' },
+  { id: 'hill', sub: 'Pernas fortes', label: 'Corrida em subida', colors: ['#4D7C0F', '#166534'], Icon: Mountain, run: true, desc: 'Procure uma subida e repita com calma. Fortalece pernas e queima mais.' },
+];
 const GYM_TILES: Tile[] = [
   { id: 'strength', sub: 'Músculos', label: 'Força', colors: ['#3B82F6', '#1D4ED8'], Icon: Dumbbell, kind: 'strength' },
   { id: 'hiit', sub: 'Queima mais', label: 'Cardio intenso', colors: ['#EF4444', '#B91C1C'], Icon: Flame, kind: 'hiit' },
@@ -67,11 +71,11 @@ export default function TrainingScreen() {
   const [draftLevel, setDraftLevel] = useState<Level>('beginner');
   const [tab, setTab] = useState<'all' | 'saved'>('all');
   const [saved, setSaved] = useState<WorkoutPlan[]>([]);
+  const [tip, setTip] = useState<string | null>(null);
+  const [tipLoading, setTipLoading] = useState(false);
   const [pick, setPick] = useState<Tile | null>(null);
-  const [selDay, setSelDay] = useState(() => new Date());
-  const [entries, setEntries] = useState<ActivityLog[]>([]);
-  const [todayEntries, setTodayEntries] = useState<ActivityLog[]>([]);
-  const [weekKcal, setWeekKcal] = useState<Record<string, number>>({});
+  const [run, setRun] = useState<Tile | null>(null);
+  const [walks, setWalks] = useState<Walk[]>([]);
   const [minutes, setMinutes] = useState(30);
   const [busy, setBusy] = useState(false);
   const [plan, setPlan] = useState<WorkoutPlan | null>(null);
@@ -88,28 +92,26 @@ export default function TrainingScreen() {
     void loadSaved(uid).then(setSaved);
   }, [uid]);
 
-  const selKey = todayKey(selDay);
-  const days = useMemo(() => weekDays(selDay), [selDay]);
-  const weekFrom = todayKey(days[0]);
-  const weekTo = todayKey(days[6]);
-
-  // Lê o registo do dia escolhido, o de hoje e as calorias da semana (sempre que o ecrã aparece ou o dia muda).
-  const reload = useCallback(async () => {
-    if (!uid) return;
-    try {
-      const [day, today, week] = await Promise.all([listActivities(uid, selKey), listActivities(uid, todayKey()), listActivityKcal(uid, weekFrom, weekTo)]);
-      setEntries(day);
-      setTodayEntries(today);
-      setWeekKcal(week);
-    } catch {
-      // sem ligação: mantém o que já estava
-    }
-  }, [uid, selKey, weekFrom, weekTo]);
+  // Volta a ler os km sempre que o ecrã aparece (por exemplo, depois de terminar uma corrida).
   useFocusEffect(
     useCallback(() => {
-      void reload();
-    }, [reload]),
+      if (uid) void loadWalks(uid).then(setWalks);
+    }, [uid]),
   );
+
+  const refreshTip = useCallback(
+    async (force = false) => {
+      if (!prefs) return;
+      setTipLoading(true);
+      const t = await getTrainingTip(goal, prefs, { kcalGoal: profile?.goals?.calories }, force);
+      setTip(t ?? fallbackTip(goal));
+      setTipLoading(false);
+    },
+    [prefs, goal, profile?.goals?.calories],
+  );
+  useEffect(() => {
+    void refreshTip(false);
+  }, [refreshTip]);
 
   const confirmPrefs = async () => {
     if (!uid) return;
@@ -120,6 +122,10 @@ export default function TrainingScreen() {
   };
 
   const open = (t: Tile) => {
+    if (t.run) {
+      setRun(t);
+      return;
+    }
     setPick(t);
   };
 
@@ -133,27 +139,11 @@ export default function TrainingScreen() {
     if (r.proOnly) Alert.alert(tr('Treino personalizado'), tr('Com o plano Pro, o treino é pensado para si. Este é um treino base.'));
   };
 
-  const todayKcal = todayEntries.reduce((a, e) => a + e.kcal, 0);
-  const todayMin = todayEntries.reduce((a, e) => a + e.minutes, 0);
-  const dayKcal = entries.reduce((a, e) => a + e.kcal, 0);
-  const dayMin = entries.reduce((a, e) => a + e.minutes, 0);
-  const isToday = selKey === todayKey();
-  const shiftWeek = (n: number) => setSelDay((d) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n * 7));
-  const dayLabel = selDay.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
-  const rangeLabel = `${days[0].getDate()}/${days[0].getMonth() + 1} – ${days[6].getDate()}/${days[6].getMonth() + 1}`;
-  const progressByDay = Object.fromEntries(Object.entries(weekKcal).map(([k, v]) => [k, Math.min(1, v / 300)]));
-  const removeEntry = (id: string) =>
-    Alert.alert(tr('Apagar registo'), tr('Este registo fica apagado.'), [
-      { text: tr('Cancelar'), style: 'cancel' },
-      {
-        text: tr('Apagar'),
-        style: 'destructive',
-        onPress: async () => {
-          await deleteActivity(id).catch(() => undefined);
-          void reload();
-        },
-      },
-    ]);
+  const registered = walks.filter(isRegistered);
+  const weekStart = Date.now() - 7 * 86400000;
+  const weekM = registered.filter((w) => w.start >= weekStart).reduce((a, w) => a + w.distanceM, 0);
+  const weekRuns = registered.filter((w) => w.start >= weekStart).length;
+  const totalM = registered.reduce((a, w) => a + w.distanceM, 0);
 
   const isSaved = (p: WorkoutPlan) => saved.some((w) => w.id === p.id);
   const save = async (p: WorkoutPlan) => uid && setSaved(await toggleSaved(uid, p));
@@ -185,92 +175,47 @@ export default function TrainingScreen() {
   return (
     <View style={styles.root}>
       <ScrollView contentContainerStyle={{ paddingTop: insets.top + 8, paddingHorizontal: SCREEN_PADDING, paddingBottom: insets.bottom + 40, gap: 16 }} showsVerticalScrollIndicator={false}>
-        <ScreenHeader
-          title={tr('Treino')}
-          right={
-            prefs ? (
-              <Pressable style={styles.placeBtn} onPress={() => { setDraftPlace(prefs.place); setDraftLevel(prefs.level); setAsking(true); }} accessibilityLabel={tr('Alterar')}>
-                {(() => {
-                  const I = PLACE_ICON[prefs.place];
-                  return <I size={18} color={colors.primaryDark} />;
-                })()}
-              </Pressable>
-            ) : undefined
-          }
-        />
+        <ScreenHeader title={tr('Treino')} />
 
-
-        <LinearGradient colors={['#22C55E', '#15803D']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.todayCard}>
-          <View style={styles.todayDeco} />
-          <View style={styles.todayHead}>
-            <View style={styles.todayIcon}>
-              <Flame size={20} color="#fff" />
-            </View>
-            <Text style={styles.todayTitle}>{tr('Treino de hoje')}</Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-            <Text style={styles.todayBig}>{todayKcal}</Text>
-            <Text style={styles.todayUnit}>{tr('kcal queimadas')}</Text>
-          </View>
-          <View style={styles.todayChips}>
-            <View style={styles.todayChip}>
-              <Timer size={14} color="#fff" />
-              <Text style={styles.todayChipText}>{todayMin} min</Text>
-            </View>
-            <View style={styles.todayChip}>
-              <Dumbbell size={14} color="#fff" />
-              <Text style={styles.todayChipText}>
-                {todayEntries.length} {tr(todayEntries.length === 1 ? 'treino' : 'treinos')}
-              </Text>
-            </View>
-          </View>
-        </LinearGradient>
-
-        <View style={styles.historyCard}>
-          <View style={styles.historyHead}>
-            <Text style={styles.historyTitle}>{tr('Registo de treinos')}</Text>
-            <View style={styles.weekNav}>
-              <Pressable style={styles.navBtn} onPress={() => shiftWeek(-1)} accessibilityLabel={tr('Semana anterior')}>
-                <ChevronLeft size={18} color={colors.text} />
-              </Pressable>
-              <Text style={styles.rangeText}>{rangeLabel}</Text>
-              <Pressable style={styles.navBtn} onPress={() => shiftWeek(1)} accessibilityLabel={tr('Semana seguinte')}>
-                <ChevronRight size={18} color={colors.text} />
-              </Pressable>
-            </View>
-          </View>
-          <WeekStrip days={days} selectedKey={selKey} onSelect={setSelDay} progressByDay={progressByDay} />
-          <View style={styles.dayHead}>
-            <Text style={styles.dayLabel}>{isToday ? tr('Hoje') : dayLabel}</Text>
-            <Text style={styles.daySummary}>
-              {dayMin} min · {dayKcal} kcal
+        {prefs && (
+          <Pressable style={styles.placeChip} onPress={() => { setDraftPlace(prefs.place); setDraftLevel(prefs.level); setAsking(true); }}>
+            {(() => {
+              const I = PLACE_ICON[prefs.place];
+              return <I size={16} color={colors.primaryDark} />;
+            })()}
+            <Text style={styles.placeText}>
+              {tr(PLACES.find((p) => p.id === prefs.place)?.label ?? '')} · {tr(LEVELS.find((l) => l.id === prefs.level)?.label ?? '')}
             </Text>
-          </View>
-          {!isToday && (
-            <Pressable onPress={() => setSelDay(new Date())}>
-              <Text style={styles.linkText}>{tr('Voltar a hoje')}</Text>
+            <Text style={styles.placeEdit}>{tr('Alterar')}</Text>
+          </Pressable>
+        )}
+
+        <View style={styles.tipCard}>
+          <View style={styles.tipHead}>
+            <Sparkles size={18} color="#fff" />
+            <Text style={styles.tipTitle}>{tr('Dica de treino de hoje')}</Text>
+            <Pressable onPress={() => void refreshTip(true)} hitSlop={10} accessibilityLabel={tr('Nova dica')}>
+              {tipLoading ? <ActivityIndicator color="#fff" size="small" /> : <RefreshCw size={16} color="#fff" />}
             </Pressable>
-          )}
-          {entries.length === 0 ? (
-            <Text style={styles.muted}>{tr('Nenhum treino registado neste dia.')}</Text>
-          ) : (
-            entries.map((e) => (
-              <View key={e.id} style={styles.entryRow}>
-                <View style={styles.savedIcon}>
-                  <Dumbbell size={16} color={colors.primary} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.savedTitle}>{e.type}</Text>
-                  <Text style={styles.muted}>
-                    {e.minutes} min · {e.kcal} kcal
-                  </Text>
-                </View>
-                <Pressable onPress={() => removeEntry(e.id)} hitSlop={10} accessibilityLabel={tr('Apagar')}>
-                  <Trash2 size={16} color={colors.textFaint} />
-                </Pressable>
-              </View>
-            ))
-          )}
+          </View>
+          <Text style={styles.tipText}>{tip ?? '…'}</Text>
+        </View>
+
+        <View style={styles.kmCard}>
+          <View style={styles.kmCol}>
+            <Text style={styles.kmValue}>{formatKm(weekM)}</Text>
+            <Text style={styles.kmLabel}>{tr('km esta semana')}</Text>
+          </View>
+          <View style={styles.kmDivider} />
+          <View style={styles.kmCol}>
+            <Text style={styles.kmValue}>{weekRuns}</Text>
+            <Text style={styles.kmLabel}>{tr('corridas e caminhadas')}</Text>
+          </View>
+          <View style={styles.kmDivider} />
+          <View style={styles.kmCol}>
+            <Text style={styles.kmValue}>{formatKm(totalM)}</Text>
+            <Text style={styles.kmLabel}>{tr('km no total')}</Text>
+          </View>
         </View>
 
         <View style={styles.tabs}>
@@ -283,6 +228,8 @@ export default function TrainingScreen() {
 
         {tab === 'all' ? (
           <>
+            <Text style={styles.section}>{tr('Corrida')}</Text>
+            <View style={styles.grid}>{RUN_TILES.map(tile)}</View>
             <Text style={styles.section}>{tr('Treino')}</Text>
             <View style={styles.grid}>{GYM_TILES.map(tile)}</View>
           </>
@@ -362,6 +309,33 @@ export default function TrainingScreen() {
               {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaText}>{tr('Criar treino')}</Text>}
             </Pressable>
             <Pressable onPress={() => !busy && setPick(null)} style={{ alignItems: 'center', padding: 8 }}>
+              <Text style={styles.muted}>{tr('Cancelar')}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Corrida: começar abre o ecrã da corrida com GPS, sensor e voz */}
+      <Modal visible={!!run} transparent animationType="slide" onRequestClose={() => setRun(null)}>
+        <View style={styles.overlay}>
+          <View style={[styles.sheet, { paddingBottom: insets.bottom + 18 }]}>
+            <Text style={styles.sheetTitle}>{run ? tr(run.label) : ''}</Text>
+            <Text style={styles.muted}>{run?.desc ? tr(run.desc) : ''}</Text>
+            <View style={styles.runInfo}>
+              <Text style={styles.runLine}>📍 {tr('Mede os km com o GPS e o sensor de passos.')}</Text>
+              <Text style={styles.runLine}>🎧 {tr('O treinador fala consigo a cada km e diz quanto falta.')}</Text>
+              <Text style={styles.runLine}>📈 {tr('No fim, os km ficam guardados no seu progresso.')}</Text>
+            </View>
+            <Pressable
+              style={styles.cta}
+              onPress={() => {
+                setRun(null);
+                router.push({ pathname: '/walk', params: { start: '1' } });
+              }}
+            >
+              <Text style={styles.ctaText}>{tr('Começar corrida')}</Text>
+            </Pressable>
+            <Pressable onPress={() => setRun(null)} style={{ alignItems: 'center', padding: 8 }}>
               <Text style={styles.muted}>{tr('Cancelar')}</Text>
             </Pressable>
           </View>
@@ -455,7 +429,6 @@ export default function TrainingScreen() {
                 onSave={async (m, k) => {
                   try {
                     await addActivity({ type: plan.title, minutes: m, kcal: k });
-                    void reload();
                   } catch {
                     Alert.alert(tr('Não foi possível guardar'), tr('Verifique a ligação à internet.'));
                   }
@@ -472,7 +445,6 @@ export default function TrainingScreen() {
 const createStyles = (colors: ThemeColors) =>
   StyleSheet.create({
     root: { flex: 1, backgroundColor: colors.background },
-    placeBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
     placeChip: { flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', backgroundColor: colors.primarySoft, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 8 },
     placeText: { fontSize: font.small, fontWeight: '700', color: colors.primaryDark },
     placeEdit: { fontSize: font.small, fontWeight: '700', color: colors.textMuted },
@@ -480,27 +452,6 @@ const createStyles = (colors: ThemeColors) =>
     tipHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     tipTitle: { flex: 1, color: '#fff', fontSize: font.body, fontWeight: '800' },
     tipText: { color: '#fff', fontSize: font.h3, lineHeight: 24, fontWeight: '600' },
-    todayCard: { borderRadius: 26, padding: 18, gap: 10, overflow: 'hidden' },
-    todayDeco: { position: 'absolute', width: 170, height: 170, borderRadius: 85, backgroundColor: 'rgba(255,255,255,0.13)', right: -50, top: -60 },
-    todayHead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    todayIcon: { width: 36, height: 36, borderRadius: 18, backgroundColor: 'rgba(255,255,255,0.22)', alignItems: 'center', justifyContent: 'center' },
-    todayTitle: { color: '#fff', fontSize: font.h3, fontWeight: '800' },
-    todayBig: { color: '#fff', fontSize: 54, lineHeight: 60, fontWeight: '800', letterSpacing: -1.5 },
-    todayUnit: { color: 'rgba(255,255,255,0.92)', fontSize: font.h3, fontWeight: '700' },
-    todayChips: { flexDirection: 'row', gap: 8 },
-    todayChip: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 6 },
-    todayChipText: { color: '#fff', fontSize: font.small, fontWeight: '800' },
-    historyCard: { ...cardBase(colors), borderRadius: 24, padding: 16, gap: 12 },
-    historyHead: { gap: 10 },
-    historyTitle: { fontSize: font.h3, fontWeight: '800', color: colors.text },
-    weekNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    navBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.surface, alignItems: 'center', justifyContent: 'center' },
-    rangeText: { fontSize: font.body, fontWeight: '700', color: colors.text },
-    dayHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
-    dayLabel: { fontSize: font.body, fontWeight: '800', color: colors.text, textTransform: 'capitalize' },
-    daySummary: { fontSize: font.small, fontWeight: '700', color: colors.textMuted },
-    linkText: { fontSize: font.small, fontWeight: '800', color: colors.primaryDark },
-    entryRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6, borderTopWidth: 1, borderTopColor: colors.border },
     kmCard: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', borderRadius: 22, paddingVertical: 14 },
     kmCol: { flex: 1, alignItems: 'center', gap: 2 },
     kmValue: { fontSize: 26, fontWeight: '800', color: colors.text, letterSpacing: -0.5 },
