@@ -32,7 +32,8 @@ export function WeekStrip({ days, selectedKey, onSelect, progressByDay }: Props)
               strokeWidth={3}
               progress={progressByDay[key] ?? 0}
               color={colors.primary}
-              trackColor={selected ? '#fff' : colors.border}
+              trackColor={selected ? '#fff' : colors.textFaint}
+              dashed
             >
               <Text style={styles.number}>{day.getDate()}</Text>
             </ProgressRing>
