@@ -1278,4 +1278,5 @@ export const es: Record<string, string> = {
   "{name}. Série {n} de {sets}. {reps}": "{name}. Serie {n} de {sets}. {reps}",
   "{r} repetições": "{r} repeticiones",
   "{s} segundos": "{s} segundos",
+  "Treino base. Com o plano Pro, o treino é pensado para si.": "Entrenamiento básico. Con el plan Pro, el entrenamiento está pensado para ti.",
 };

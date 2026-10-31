@@ -163,7 +163,7 @@ export function basePlan(kind: WorkoutKind, place: Place, minutes: number): Work
     warmup: b.warmup,
     exercises: list,
     cooldown: b.cooldown,
-    note: 'Treino base. Com o plano Pro, a IA cria treinos pensados para si.',
+    note: 'Treino base. Com o plano Pro, o treino é pensado para si.',
     createdAt: Date.now(),
     ai: false,
   };

@@ -379,7 +379,7 @@ export default function TrainingScreen() {
               {plan.exercises.map((e, i) => (
                 <View key={i} style={styles.exercise}>
                   <View style={styles.figBox}>
-                    <ExerciseFigure name={e.name} size={74} />
+                    <ExerciseFigure name={e.name} size={74} gym={plan.place === 'gym'} />
                     <View style={styles.numBadge}>
                       <Text style={styles.numText}>{i + 1}</Text>
                     </View>

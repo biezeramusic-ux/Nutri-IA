@@ -1278,4 +1278,5 @@ export const nl: Record<string, string> = {
   "{name}. Série {n} de {sets}. {reps}": "{name}. Set {n} van {sets}. {reps}",
   "{r} repetições": "{r} herhalingen",
   "{s} segundos": "{s} seconden",
+  "Treino base. Com o plano Pro, o treino é pensado para si.": "Basistraining. Met het Pro-abonnement is de training op maat gemaakt.",
 };

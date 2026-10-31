@@ -1278,4 +1278,5 @@ export const zh: Record<string, string> = {
   "{name}. Série {n} de {sets}. {reps}": "{name}。第 {n} 组，共 {sets} 组。{reps}",
   "{r} repetições": "{r} 次",
   "{s} segundos": "{s} 秒",
+  "Treino base. Com o plano Pro, o treino é pensado para si.": "基础训练。升级专业版，训练为您量身定制。",
 };

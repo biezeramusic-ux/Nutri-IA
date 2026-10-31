@@ -162,7 +162,7 @@ export function WorkoutSession({ plan, onClose, onSave }: { plan: WorkoutPlan; o
           {step.type === 'rest' ? tr('A seguir') : work ? tr('Série {n} de {sets}', { n: work.setNo, sets: work.sets }) : ''}
         </Text>
         <View style={[styles.stage, step.type === 'rest' && { opacity: 0.55 }]}>
-          <ExerciseFigure name={figureName} size={230} />
+          <ExerciseFigure name={figureName} size={230} gym={plan.place === 'gym'} />
         </View>
         <Text style={styles.name}>{step.type === 'rest' ? step.next : title}</Text>
         {step.type === 'rest' && <Text style={styles.muted}>{tr('Respire fundo e prepare-se.')}</Text>}

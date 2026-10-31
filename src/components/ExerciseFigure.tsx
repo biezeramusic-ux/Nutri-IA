@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import Svg, { Circle, Line } from 'react-native-svg';
+import { useEffect, useState, type ReactElement } from 'react';
+import Svg, { Circle, Line, Rect } from 'react-native-svg';
 import { useTheme } from '../hooks/useTheme';
 
 /** Pontos do boneco: cabeça, pescoço, anca, cotovelos e mãos (E/D), joelhos e pés (E/D). Coordenadas num quadro 120×120. */
@@ -20,9 +20,25 @@ interface Pose {
 
 const stand: Pose = { head: [60, 16], neck: [60, 30], hip: [60, 62], eL: [46, 46], hL: [44, 62], eR: [74, 46], hR: [76, 62], kL: [55, 84], fL: [53, 106], kR: [65, 84], fR: [67, 106] };
 
-export type Move = 'squat' | 'pushup' | 'lunge' | 'bridge' | 'plank' | 'jack' | 'knees' | 'climber' | 'press' | 'row' | 'crunch' | 'stretch' | 'march';
+export type Move = 'bench' | 'legpress' | 'curl' | 'pulldown' | 'squat' | 'pushup' | 'lunge' | 'bridge' | 'plank' | 'jack' | 'knees' | 'climber' | 'press' | 'row' | 'crunch' | 'stretch' | 'march';
 
 const MOVES: Record<Move, [Pose, Pose]> = {
+  bench: [
+    { head: [14, 74], neck: [26, 78], hip: [64, 80], eL: [34, 90], hL: [30, 70], eR: [34, 90], hR: [30, 70], kL: [84, 72], fL: [92, 104], kR: [84, 72], fR: [92, 104] },
+    { head: [14, 74], neck: [26, 78], hip: [64, 80], eL: [32, 58], hL: [30, 38], eR: [32, 58], hR: [30, 38], kL: [84, 72], fL: [92, 104], kR: [84, 72], fR: [92, 104] },
+  ],
+  legpress: [
+    { head: [20, 36], neck: [28, 44], hip: [42, 74], eL: [32, 60], hL: [44, 62], eR: [32, 60], hR: [44, 62], kL: [60, 56], fL: [72, 42], kR: [60, 56], fR: [72, 42] },
+    { head: [20, 36], neck: [28, 44], hip: [42, 74], eL: [32, 60], hL: [44, 62], eR: [32, 60], hR: [44, 62], kL: [84, 58], fL: [102, 48], kR: [84, 58], fR: [102, 48] },
+  ],
+  curl: [
+    { head: [60, 16], neck: [60, 30], hip: [60, 62], eL: [46, 48], hL: [44, 66], eR: [74, 48], hR: [76, 66], kL: [55, 84], fL: [53, 106], kR: [65, 84], fR: [67, 106] },
+    { head: [60, 16], neck: [60, 30], hip: [60, 62], eL: [46, 48], hL: [48, 32], eR: [74, 48], hR: [72, 32], kL: [55, 84], fL: [53, 106], kR: [65, 84], fR: [67, 106] },
+  ],
+  pulldown: [
+    { head: [60, 26], neck: [60, 40], hip: [60, 74], eL: [42, 22], hL: [36, 4], eR: [78, 22], hR: [84, 4], kL: [48, 90], fL: [46, 106], kR: [72, 90], fR: [74, 106] },
+    { head: [60, 26], neck: [60, 40], hip: [60, 74], eL: [38, 54], hL: [46, 34], eR: [82, 54], hR: [74, 34], kL: [48, 90], fL: [46, 106], kR: [72, 90], fR: [74, 106] },
+  ],
   squat: [
     stand,
     { head: [60, 38], neck: [60, 52], hip: [60, 82], eL: [48, 58], hL: [42, 52], eR: [72, 58], hR: [78, 52], kL: [44, 88], fL: [50, 106], kR: [76, 88], fR: [70, 106] },
@@ -80,9 +96,13 @@ const MOVES: Record<Move, [Pose, Pose]> = {
 const strip = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 /** Escolhe o movimento pelo nome do exercício (português, inglês, espanhol, francês...). */
-export function moveFor(name: string): Move {
+export function moveFor(name: string, gym = false): Move {
   const n = strip(name);
   const has = (...k: string[]) => k.some((x) => n.includes(x));
+  if (has('leg press', 'prensa')) return 'legpress';
+  if (has('puxada', 'pulldown', 'pull-down', 'jalon', 'tirage', 'barra fixa', 'pull up', 'pull-up')) return 'pulldown';
+  if (has('rosca', 'curl', 'biceps')) return 'curl';
+  if (has('supino', 'bench', 'banca') && gym) return 'bench';
   if (has('polichinelo', 'jumping', 'jack', 'saltos de estrela', 'sauts')) return 'jack';
   if (has('alpinista', 'climber', 'escalador', 'grimpeur')) return 'climber';
   if (has('joelhos altos', 'high knee', 'rodillas altas', 'genoux', 'corrida no lugar', 'marcha')) return has('marcha') ? 'march' : 'knees';
@@ -105,8 +125,11 @@ const subs = new Set<(t: number) => void>();
 function start() {
   if (raf) return;
   const step = () => {
-    tick = Date.now();
-    subs.forEach((f) => f(tick));
+    const now = Date.now();
+    if (now - tick >= 33) {
+      tick = now;
+      subs.forEach((f) => f(tick));
+    }
     raf = subs.size ? requestAnimationFrame(step) : 0;
   };
   raf = requestAnimationFrame(step);
@@ -126,10 +149,11 @@ function useClock(): number {
 const lerp = (a: P, b: P, k: number): P => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
 
 /** Boneco animado que repete o movimento do exercício, para a pessoa ver o que fazer. */
-export function ExerciseFigure({ name, size = 120, color, period = 1600 }: { name: string; size?: number; color?: string; period?: number }) {
+export function ExerciseFigure({ name, size = 120, color, period = 1600, gym = false }: { name: string; size?: number; color?: string; period?: number; gym?: boolean }) {
   const { colors } = useTheme();
   const t = useClock();
-  const [A, B] = MOVES[moveFor(name)];
+  const move = moveFor(name, gym);
+  const [A, B] = MOVES[move];
   const phase = (Math.sin(((t % period) / period) * Math.PI * 2 - Math.PI / 2) + 1) / 2; // 0 → 1 → 0, suave
   const pose = {} as Pose;
   (Object.keys(A) as (keyof Pose)[]).forEach((k) => {
@@ -138,9 +162,45 @@ export function ExerciseFigure({ name, size = 120, color, period = 1600 }: { nam
   const c = color ?? colors.primary;
   const w = 6;
   const seg = (a: P, b: P, key: string) => <Line key={key} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={c} strokeWidth={w} strokeLinecap="round" />;
+  const eq = '#475569';
+  const plate = (x: number, y: number, key: string) => (
+    <Circle key={key} cx={x} cy={y} r={8} fill={eq} stroke={colors.card} strokeWidth={1.5} />
+  );
+  const bar = (a: P, b: P, key: string) => [
+    <Line key={`${key}l`} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={eq} strokeWidth={4} strokeLinecap="round" />,
+    plate(a[0], a[1], `${key}a`),
+    plate(b[0], b[1], `${key}b`),
+  ];
+  const dumbbell = (h: P, key: string) => [
+    <Line key={`${key}l`} x1={h[0] - 7} y1={h[1]} x2={h[0] + 7} y2={h[1]} stroke={eq} strokeWidth={4} strokeLinecap="round" />,
+    <Circle key={`${key}a`} cx={h[0] - 8} cy={h[1]} r={4.5} fill={eq} />,
+    <Circle key={`${key}b`} cx={h[0] + 8} cy={h[1]} r={4.5} fill={eq} />,
+  ];
+  const gear: ReactElement[] = [];
+  const behind: ReactElement[] = [];
+  if (gym) {
+    if (move === 'squat') gear.push(...bar([pose.neck[0] - 30, pose.neck[1] - 1], [pose.neck[0] + 30, pose.neck[1] - 1], 'sq'));
+    else if (move === 'press') gear.push(...bar(pose.hL, pose.hR, 'pr'));
+    else if (move === 'lunge' || move === 'curl' || move === 'row') {
+      gear.push(...dumbbell(pose.hL, 'd1'));
+      if (move !== 'row') gear.push(...dumbbell(pose.hR, 'd2'));
+    } else if (move === 'bench') {
+      behind.push(<Rect key="bench" x={10} y={86} width={62} height={7} rx={3} fill={eq} opacity={0.55} />);
+      behind.push(<Line key="bl1" x1={20} y1={93} x2={20} y2={110} stroke={eq} strokeWidth={4} opacity={0.55} />, <Line key="bl2" x1={62} y1={93} x2={62} y2={110} stroke={eq} strokeWidth={4} opacity={0.55} />);
+      gear.push(...bar([pose.hL[0] - 14, pose.hL[1]], [pose.hL[0] + 14, pose.hL[1]], 'bn'));
+    } else if (move === 'legpress') {
+      behind.push(<Line key="seat" x1={14} y1={86} x2={50} y2={52} stroke={eq} strokeWidth={6} strokeLinecap="round" opacity={0.45} />);
+      gear.push(<Line key="plat" x1={pose.fL[0] + 5} y1={pose.fL[1] - 18} x2={pose.fL[0] + 5} y2={pose.fL[1] + 18} stroke={eq} strokeWidth={7} strokeLinecap="round" />);
+    } else if (move === 'pulldown') {
+      gear.push(<Line key="cable" x1={60} y1={-2} x2={(pose.hL[0] + pose.hR[0]) / 2} y2={pose.hL[1]} stroke={eq} strokeWidth={2} />, <Line key="pbar" x1={pose.hL[0] - 4} y1={pose.hL[1]} x2={pose.hR[0] + 4} y2={pose.hR[1]} stroke={eq} strokeWidth={4} strokeLinecap="round" />);
+    } else if (move === 'bridge') {
+      gear.push(plate(pose.hip[0], pose.hip[1] - 4, 'hip'));
+    }
+  }
   return (
     <Svg width={size} height={size} viewBox="0 0 120 120">
       <Line x1={6} y1={110} x2={114} y2={110} stroke={colors.border} strokeWidth={3} strokeLinecap="round" />
+      {behind}
       {seg(pose.neck, pose.hip, 'torso')}
       {seg(pose.neck, pose.eL, 'a1')}
       {seg(pose.eL, pose.hL, 'a2')}
@@ -151,6 +211,7 @@ export function ExerciseFigure({ name, size = 120, color, period = 1600 }: { nam
       {seg(pose.hip, pose.kR, 'l3')}
       {seg(pose.kR, pose.fR, 'l4')}
       <Circle cx={pose.head[0]} cy={pose.head[1]} r={10} fill={c} />
+      {gear}
     </Svg>
   );
 }
