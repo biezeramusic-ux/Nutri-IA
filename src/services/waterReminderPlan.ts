@@ -62,9 +62,9 @@ export function mlPerReminder(missingMl: number, remainingReminders: number): nu
   return Math.min(500, Math.max(100, Math.round(raw / 50) * 50));
 }
 
-function pickMessage(index: number, ml: number, goal: GoalType | null, name?: string): string {
-  const first = personalize(tr(SIMPLE_MESSAGES[index % SIMPLE_MESSAGES.length]), name);
-  return `${first}\n${tr('Recomendamos cerca de {ml} ml agora.', { ml })} ${why(goal)}`;
+function pickMessage(index: number, _ml: number, _goal: GoalType | null, name?: string): string {
+  // Só pede para beber água e cuidar da hidratação (sem recomendar quantidades).
+  return personalize(tr(SIMPLE_MESSAGES[index % SIMPLE_MESSAGES.length]), name);
 }
 
 /**
