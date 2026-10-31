@@ -1303,4 +1303,6 @@ export const nl: Record<string, string> = {
   "Já treinou hoje, {name}? Registe o treino e acompanhe as calorias queimadas.": "Heb je vandaag getraind, {name}? Log het en volg de verbrande calorieën.",
   "O dia está quase a acabar, {name}. Confirme que registou tudo hoje.": "De dag is bijna voorbij, {name}. Controleer of je vandaag alles hebt gelogd.",
   "{name}, antes de dormir: registe o que falta (refeições, água e treino).": "{name}, voor het slapen: log wat er nog ontbreekt (maaltijden, water en training).",
+  "{name}, hoje ainda não registou nenhuma refeição. Leva só alguns segundos com a câmera.": "{name}, je hebt vandaag nog geen maaltijd gelogd. Met de camera duurt het maar een paar seconden.",
+  "Ainda não há registos hoje, {name}. Fotografe a sua refeição e retome o acompanhamento.": "Nog geen invoer vandaag, {name}. Maak een foto van je maaltijd en ga weer verder.",
 };

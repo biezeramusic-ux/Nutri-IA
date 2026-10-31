@@ -1303,4 +1303,6 @@ export const zh: Record<string, string> = {
   "Já treinou hoje, {name}? Registe o treino e acompanhe as calorias queimadas.": "{name}，今天训练了吗？记录下来并跟踪消耗的热量。",
   "O dia está quase a acabar, {name}. Confirme que registou tudo hoje.": "今天快结束了，{name}。请确认已记录全部内容。",
   "{name}, antes de dormir: registe o que falta (refeições, água e treino).": "{name}，睡前请补充记录（餐食、饮水和训练）。",
+  "{name}, hoje ainda não registou nenhuma refeição. Leva só alguns segundos com a câmera.": "{name}，您今天还没有记录任何餐食。用相机只需几秒钟。",
+  "Ainda não há registos hoje, {name}. Fotografe a sua refeição e retome o acompanhamento.": "今天还没有记录，{name}。拍下您的餐食，继续跟进。",
 };

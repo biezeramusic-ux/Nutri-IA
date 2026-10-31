@@ -1303,4 +1303,6 @@ export const it: Record<string, string> = {
   "Já treinou hoje, {name}? Registe o treino e acompanhe as calorias queimadas.": "Ti sei allenato oggi, {name}? Registra l'allenamento e segui le calorie bruciate.",
   "O dia está quase a acabar, {name}. Confirme que registou tudo hoje.": "La giornata sta finendo, {name}. Controlla di aver registrato tutto oggi.",
   "{name}, antes de dormir: registe o que falta (refeições, água e treino).": "{name}, prima di dormire: registra ciò che manca (pasti, acqua e allenamento).",
+  "{name}, hoje ainda não registou nenhuma refeição. Leva só alguns segundos com a câmera.": "{name}, oggi non hai ancora registrato nessun pasto. Bastano pochi secondi con la fotocamera.",
+  "Ainda não há registos hoje, {name}. Fotografe a sua refeição e retome o acompanhamento.": "Nessuna registrazione oggi, {name}. Fotografa il tuo pasto e riprendi il percorso.",
 };

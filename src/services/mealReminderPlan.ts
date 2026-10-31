@@ -65,6 +65,14 @@ const REVIEW = {
   bodies: ['O dia está quase a acabar, {name}. Confirme que registou tudo hoje.', '{name}, antes de dormir: registe o que falta (refeições, água e treino).'],
 };
 
+/** Quem passou o dia sem registar nenhuma refeição recebe este aviso ao fim da tarde. */
+const EMPTY = {
+  hour: 19,
+  minute: 30,
+  title: 'Registo do dia',
+  bodies: ['{name}, hoje ainda não registou nenhuma refeição. Leva só alguns segundos com a câmera.', 'Ainda não há registos hoje, {name}. Fotografe a sua refeição e retome o acompanhamento.'],
+};
+
 const DAYS_AHEAD = 4;
 
 interface Input {
@@ -96,6 +104,7 @@ export function planMealReminders({ now, firstName, loggedToday, trainedToday = 
       result.push({ at, title: tr(x.title), body: personalize(tr(x.bodies[(dayOfYear + d + salt) % x.bodies.length]), firstName) });
     };
     extra(TRAIN, trainedToday, 0);
+    extra(EMPTY, loggedToday.length > 0, 2);
     extra(REVIEW, ['breakfast', 'lunch', 'dinner'].every((t) => loggedToday.includes(t as MealType)), 1);
   }
   return result;
