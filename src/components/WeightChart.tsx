@@ -26,26 +26,29 @@ function niceScale(min: number, max: number, ticks = 5): { lo: number; hi: numbe
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ','));
 
 /** Gráfico de peso com o eixo dos kg à esquerda, grelha, datas em baixo, linha da meta e o último valor em destaque. */
-export function WeightChart({ points, width, height = 210, goal, goalLabel }: { points: Point[]; width: number; height?: number; goal?: number; goalLabel?: string }) {
+export function WeightChart({ points, estimated = [], width, height = 210, goal, goalLabel }: { points: Point[]; estimated?: Point[]; width: number; height?: number; goal?: number; goalLabel?: string }) {
   const { colors } = useTheme();
   const geo = useMemo(() => {
-    const vals = points.map((p) => p.value).concat(goal !== undefined ? [goal] : []);
+    const vals = points.concat(estimated).map((p) => p.value).concat(goal !== undefined ? [goal] : []);
     const { lo, hi, step } = niceScale(Math.min(...vals), Math.max(...vals));
     const n = Math.round((hi - lo) / step);
     const levels = Array.from({ length: n + 1 }, (_, i) => lo + i * step);
     return { lo, hi, levels };
-  }, [points, goal]);
+  }, [points, estimated, goal]);
   if (points.length === 0) return null;
 
   const innerW = width - PAD_L - PAD_R;
   const innerH = height - PAD_T - PAD_B;
-  const x = (i: number) => PAD_L + (points.length === 1 ? innerW / 2 : (i * innerW) / (points.length - 1));
+  const total = points.length + estimated.length;
+  const x = (i: number) => PAD_L + (total === 1 ? innerW / 2 : (i * innerW) / (total - 1));
   const y = (v: number) => PAD_T + ((geo.hi - v) / (geo.hi - geo.lo)) * innerH;
 
   // Até 5 datas repartidas ao longo do eixo.
-  const maxLabels = Math.min(5, points.length);
-  const labelIdx = Array.from(new Set(Array.from({ length: maxLabels }, (_, k) => Math.round((k * (points.length - 1)) / Math.max(1, maxLabels - 1)))));
-  const last = points.length - 1;
+  const all = points.concat(estimated);
+  const maxLabels = Math.min(5, all.length);
+  const labelIdx = Array.from(new Set(Array.from({ length: maxLabels }, (_, k) => Math.round((k * (all.length - 1)) / Math.max(1, maxLabels - 1)))));
+  const last = points.length - 1; // último peso registado (o balão mostra este)
+  const lastAll = all.length - 1;
   const lastX = x(last);
   const bubbleW = 52;
   const bubbleX = Math.min(width - PAD_R - bubbleW, Math.max(PAD_L, lastX - bubbleW / 2));
@@ -71,6 +74,12 @@ export function WeightChart({ points, width, height = 210, goal, goalLabel }: { 
         </G>
       )}
       {points.length > 1 && <Polyline points={points.map((p, i) => `${x(i)},${y(p.value)}`).join(' ')} fill="none" stroke="#2E6FD8" strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" />}
+      {estimated.length > 0 && (
+        <>
+          <Polyline points={[points[last], ...estimated].map((p, i) => `${x(last + i)},${y(p.value)}`).join(' ')} fill="none" stroke="#2E6FD8" strokeWidth={2} strokeDasharray="5 4" opacity={0.7} strokeLinejoin="round" strokeLinecap="round" />
+          <Circle cx={x(lastAll)} cy={y(estimated[estimated.length - 1].value)} r={4.5} fill={colors.card} stroke="#2E6FD8" strokeWidth={2} strokeDasharray="2 2" />
+        </>
+      )}
       {points.map((p, i) => (
         <Circle key={`${p.label}-${i}`} cx={x(i)} cy={y(p.value)} r={i === last ? 5 : 3} fill={i === last ? '#2E6FD8' : colors.card} stroke="#2E6FD8" strokeWidth={2} />
       ))}
@@ -81,8 +90,8 @@ export function WeightChart({ points, width, height = 210, goal, goalLabel }: { 
         </SvgText>
       </G>
       {labelIdx.map((i) => (
-        <SvgText key={`x${i}`} x={x(i)} y={height - 6} fontSize={11} fill={colors.textMuted} textAnchor={i === 0 ? 'start' : i === last ? 'end' : 'middle'}>
-          {points[i].label}
+        <SvgText key={`x${i}`} x={x(i)} y={height - 6} fontSize={11} fill={colors.textMuted} textAnchor={i === 0 ? 'start' : i === lastAll ? 'end' : 'middle'}>
+          {all[i].label}
         </SvgText>
       ))}
     </Svg>

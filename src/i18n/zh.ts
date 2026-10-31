@@ -1322,4 +1322,6 @@ export const zh: Record<string, string> = {
   "{name}, antes de dormir: confirme que registou tudo hoje (refeições e água).": "{name}，睡前请确认今天都已记录（餐食和饮水）。",
   "{name}, ainda não registou nenhum alimento hoje. Vamos manter a sequência viva!": "{name}，您今天还没有记录任何食物。让我们保持连续记录！",
   "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "您今天还没有记录任何食物，{name}。拍下您的餐食并继续。",
+  "estimado automaticamente": "自动估算",
+  "O peso é estimado automaticamente com as calorias que come e que queima nos treinos, corridas e atividades. Pese-se de vez em quando para acertar.": "体重根据你摄入的热量以及训练、跑步和活动消耗的热量自动估算。请偶尔称重以校准。",
 };

@@ -1322,4 +1322,6 @@ export const af: Record<string, string> = {
   "{name}, antes de dormir: confirme que registou tudo hoje (refeições e água).": "{name}, voor jy slaap: maak seker jy het alles vandag aangeteken (maaltye en water).",
   "{name}, ainda não registou nenhum alimento hoje. Vamos manter a sequência viva!": "{name}, jy het vandag nog geen kos aangeteken nie. Kom ons hou die reeks lewendig!",
   "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "Jy het vandag nog geen kos aangeteken nie, {name}. Neem 'n foto van jou maaltyd en gaan voort.",
+  "estimado automaticamente": "outomaties geskat",
+  "O peso é estimado automaticamente com as calorias que come e que queima nos treinos, corridas e atividades. Pese-se de vez em quando para acertar.": "Gewig word outomaties geskat uit die kalorieë wat jy eet en verbrand in oefeninge, hardloop en aktiwiteite. Weeg jouself af en toe om dit reg te stel.",
 };

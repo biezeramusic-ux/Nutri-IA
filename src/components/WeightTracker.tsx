@@ -1,5 +1,5 @@
 import { Plus, Scale } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './AppText';
 import { WeightChart } from './WeightChart';
@@ -10,6 +10,12 @@ import { useProfile } from '../hooks/useProfile';
 import { useTheme } from '../hooks/useTheme';
 import { useWeightLogs } from '../hooks/useWeightLogs';
 import { todayKey } from '../services/date';
+import { dayKeyOf } from '../services/dayUtils';
+import { basalMetabolicRate } from '../services/goals';
+import { listActivityKcal } from '../services/repositories/tracker';
+import { estimateWeight } from '../services/weightEstimate';
+import { useAuth } from '../hooks/useAuth';
+import { useDiary } from '../hooks/useDiary';
 import { tr } from '../i18n';
 
 const RANGES: { id: string; label: string; days: number | null }[] = [
@@ -39,8 +45,37 @@ export function WeightTracker({ width: totalWidth }: { width: number }) {
   const quizWeight = profile?.quiz?.weightKg;
   const wantsTarget = goal === 'lose_weight' || goal === 'gain_muscle';
   const target = wantsTarget ? profile?.quiz?.targetWeightKg : undefined;
+  const { user } = useAuth();
+  const { meals } = useDiary();
+  const [burnByDay, setBurnByDay] = useState<Record<string, number>>({});
   const latest = logs[logs.length - 1];
-  const current = latest?.weightKg ?? quizWeight;
+  // Estimativa automática a partir das calorias comidas e queimadas (treinos, corridas e atividades) desde o último peso.
+  const eatenByDay = useMemo(() => {
+    const m: Record<string, number> = {};
+    meals.forEach((x) => {
+      const k = dayKeyOf(x.createdAt);
+      m[k] = (m[k] ?? 0) + x.analysis.calories;
+    });
+    return m;
+  }, [meals]);
+  const firstMealDay = useMemo(() => Object.keys(eatenByDay).sort()[0], [eatenByDay]);
+  const anchorDay = latest?.day ?? firstMealDay;
+  const anchorKg = latest?.weightKg ?? quizWeight;
+  const q = profile?.quiz;
+  const restKcal = q && anchorKg ? Math.round(basalMetabolicRate({ sex: q.sex, age: q.age, heightCm: q.heightCm, weightKg: anchorKg }) * 1.2) : null;
+  useEffect(() => {
+    if (!user || !anchorDay) return;
+    void listActivityKcal(user.id, anchorDay, todayKey())
+      .then(setBurnByDay)
+      .catch(() => undefined);
+  }, [user, anchorDay, meals.length]);
+  const estimate = useMemo(() => {
+    if (!anchorDay || anchorKg === undefined || restKcal === null) return [];
+    return estimateWeight({ anchorDay, anchorKg, today: todayKey(), eatenByDay, burnByDay, restKcal });
+  }, [anchorDay, anchorKg, restKcal, eatenByDay, burnByDay]);
+  const estKg = estimate.length > 0 ? estimate[estimate.length - 1].kg : undefined;
+  const usingEstimate = estKg !== undefined && anchorKg !== undefined && Math.abs(estKg - anchorKg) >= 0.1;
+  const current = usingEstimate ? estKg : latest?.weightKg ?? quizWeight;
   const start = logs[0]?.weightKg ?? quizWeight;
 
   const days = RANGES.find((r) => r.id === range)?.days ?? null;
@@ -84,10 +119,19 @@ export function WeightTracker({ width: totalWidth }: { width: number }) {
         </Pressable>
       </View>
 
+        {usingEstimate && (
+          <View style={styles.autoCard}>
+            <Text style={styles.autoText}>
+              {tr('O peso é estimado automaticamente com as calorias que come e que queima nos treinos, corridas e atividades. Pese-se de vez em quando para acertar.')}
+            </Text>
+          </View>
+        )}
+
         <View style={styles.pair}>
           <View style={styles.box}>
             <Text style={styles.boxLabel}>{tr('Peso atual')}</Text>
-            <Text style={styles.boxValue}>{current !== undefined ? `${kg(current)} kg` : '--'}</Text>
+            <Text style={styles.boxValue}>{current !== undefined ? `${usingEstimate ? '≈ ' : ''}${kg(current)} kg` : '--'}</Text>
+            {usingEstimate && <Text style={styles.autoNote}>{tr('estimado automaticamente')}</Text>}
           </View>
           <View style={styles.box}>
             <Text style={styles.boxLabel}>{tr('Peso alvo')}</Text>
@@ -144,7 +188,7 @@ export function WeightTracker({ width: totalWidth }: { width: number }) {
             ))}
           </View>
           {inRange.length > 0 ? (
-            <WeightChart points={inRange.map((l) => ({ label: dd(l.day), value: l.weightKg }))} width={chartW} height={220} goal={target} goalLabel={tr('Meta')} />
+            <WeightChart points={inRange.map((l) => ({ label: dd(l.day), value: l.weightKg }))} estimated={estimate.filter((e) => e.day >= since).map((e) => ({ label: dd(e.day), value: e.kg }))} width={chartW} height={220} goal={target} goalLabel={tr('Meta')} />
           ) : (
             <Text style={styles.small}>{logs.length === 0 ? tr('Ainda não registou o peso. Toque em + para começar.') : tr('Sem registos de peso neste período.')}</Text>
           )}
@@ -185,6 +229,9 @@ const createStyles = (colors: ThemeColors) =>
     plus: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
     pair: { flexDirection: 'row', gap: 12 },
     box: { flex: 1, ...cardBase(colors), borderRadius: radius.lg, padding: 14, gap: 4 },
+    autoNote: { fontSize: 11, fontWeight: '700', color: colors.primaryDark },
+    autoCard: { backgroundColor: colors.primarySoft, borderRadius: radius.lg, padding: 12 },
+    autoText: { fontSize: font.small, color: colors.text, lineHeight: 18 },
     boxLabel: { fontSize: font.small, color: colors.textMuted, fontWeight: '600' },
     boxValue: { fontSize: font.h1, fontWeight: '800', color: colors.text },
     card: { ...cardBase(colors), borderRadius: radius.card, padding: 16, gap: 10 },

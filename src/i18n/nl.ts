@@ -1322,4 +1322,6 @@ export const nl: Record<string, string> = {
   "{name}, antes de dormir: confirme que registou tudo hoje (refeições e água).": "{name}, voor het slapen: controleer of je vandaag alles hebt gelogd (maaltijden en water).",
   "{name}, ainda não registou nenhum alimento hoje. Vamos manter a sequência viva!": "{name}, je hebt vandaag nog geen eten gelogd. Laten we de reeks levend houden!",
   "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "Je hebt vandaag nog geen eten gelogd, {name}. Maak een foto van je maaltijd en ga door.",
+  "estimado automaticamente": "automatisch geschat",
+  "O peso é estimado automaticamente com as calorias que come e que queima nos treinos, corridas e atividades. Pese-se de vez em quando para acertar.": "Het gewicht wordt automatisch geschat uit de calorieën die je eet en verbrandt bij trainingen, runs en activiteiten. Weeg jezelf af en toe om het bij te stellen.",
 };

@@ -1322,4 +1322,6 @@ export const it: Record<string, string> = {
   "{name}, antes de dormir: confirme que registou tudo hoje (refeições e água).": "{name}, prima di dormire: controlla di aver registrato tutto oggi (pasti e acqua).",
   "{name}, ainda não registou nenhum alimento hoje. Vamos manter a sequência viva!": "{name}, oggi non hai ancora registrato nessun alimento. Manteniamo viva la serie!",
   "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "Oggi non hai ancora registrato nessun alimento, {name}. Fotografa il tuo pasto e prosegui.",
+  "estimado automaticamente": "stimato automaticamente",
+  "O peso é estimado automaticamente com as calorias que come e que queima nos treinos, corridas e atividades. Pese-se de vez em quando para acertar.": "Il peso è stimato automaticamente dalle calorie assunte e bruciate in allenamenti, corse e attività. Pesati ogni tanto per correggerlo.",
 };
