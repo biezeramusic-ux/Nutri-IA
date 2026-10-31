@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactElement } from 'react';
-import Svg, { Circle, Line, Rect } from 'react-native-svg';
+import Svg, { Circle, Ellipse, Line, Rect } from 'react-native-svg';
 import { useTheme } from '../hooks/useTheme';
 
 /** Pontos do boneco: cabeça, pescoço, anca, cotovelos e mãos (E/D), joelhos e pés (E/D). Coordenadas num quadro 120×120. */
@@ -159,9 +159,11 @@ export function ExerciseFigure({ name, size = 120, color, period = 1600, gym = f
   (Object.keys(A) as (keyof Pose)[]).forEach((k) => {
     pose[k] = lerp(A[k], B[k], phase);
   });
-  const c = color ?? colors.primary;
-  const w = 6;
-  const seg = (a: P, b: P, key: string) => <Line key={key} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={c} strokeWidth={w} strokeLinecap="round" />;
+  const shirt = color ?? colors.primary;
+  const pants = '#334155';
+  const skin = '#F2C9A5';
+  const hair = '#3B2A20';
+  const line = (a: P, b: P, key: string, stroke: string, w: number) => <Line key={key} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke={stroke} strokeWidth={w} strokeLinecap="round" />;
   const eq = '#475569';
   const plate = (x: number, y: number, key: string) => (
     <Circle key={key} cx={x} cy={y} r={8} fill={eq} stroke={colors.card} strokeWidth={1.5} />
@@ -197,20 +199,32 @@ export function ExerciseFigure({ name, size = 120, color, period = 1600, gym = f
       gear.push(plate(pose.hip[0], pose.hip[1] - 4, 'hip'));
     }
   }
+  const shoe = (f: P, key: string) => <Circle key={key} cx={f[0]} cy={f[1]} r={5.2} fill="#1F2937" />;
+  const hand = (h: P, key: string) => <Circle key={key} cx={h[0]} cy={h[1]} r={4.4} fill={skin} />;
   return (
     <Svg width={size} height={size} viewBox="0 0 120 120">
-      <Line x1={6} y1={110} x2={114} y2={110} stroke={colors.border} strokeWidth={3} strokeLinecap="round" />
+      <Ellipse cx={60} cy={111} rx={44} ry={4.5} fill={colors.border} opacity={0.9} />
       {behind}
-      {seg(pose.neck, pose.hip, 'torso')}
-      {seg(pose.neck, pose.eL, 'a1')}
-      {seg(pose.eL, pose.hL, 'a2')}
-      {seg(pose.neck, pose.eR, 'a3')}
-      {seg(pose.eR, pose.hR, 'a4')}
-      {seg(pose.hip, pose.kL, 'l1')}
-      {seg(pose.kL, pose.fL, 'l2')}
-      {seg(pose.hip, pose.kR, 'l3')}
-      {seg(pose.kR, pose.fR, 'l4')}
-      <Circle cx={pose.head[0]} cy={pose.head[1]} r={10} fill={c} />
+      {/* pernas: calção até ao joelho, pele na canela, ténis */}
+      {line(pose.hip, pose.kL, 'l1', pants, 11)}
+      {line(pose.kL, pose.fL, 'l2', skin, 8)}
+      {shoe(pose.fL, 'sl')}
+      {line(pose.hip, pose.kR, 'l3', pants, 11)}
+      {line(pose.kR, pose.fR, 'l4', skin, 8)}
+      {shoe(pose.fR, 'sr')}
+      {/* tronco */}
+      {line(pose.neck, pose.hip, 'torso', shirt, 17)}
+      {line(pose.hip, [pose.hip[0] + (pose.neck[0] - pose.hip[0]) * 0.12, pose.hip[1] + (pose.neck[1] - pose.hip[1]) * 0.12], 'belt', pants, 16)}
+      {/* braços: manga na parte de cima, pele no antebraço */}
+      {line(pose.neck, pose.eL, 'a1', shirt, 8.5)}
+      {line(pose.eL, pose.hL, 'a2', skin, 7)}
+      {hand(pose.hL, 'hl')}
+      {line(pose.neck, pose.eR, 'a3', shirt, 8.5)}
+      {line(pose.eR, pose.hR, 'a4', skin, 7)}
+      {hand(pose.hR, 'hr')}
+      {/* cabeça com cabelo */}
+      <Circle cx={pose.head[0]} cy={pose.head[1] - 1.8} r={10.6} fill={hair} />
+      <Circle cx={pose.head[0]} cy={pose.head[1] + 0.8} r={9.4} fill={skin} />
       {gear}
     </Svg>
   );
