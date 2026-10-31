@@ -111,3 +111,16 @@ export async function listActivityKcal(userId: string, fromDay: string, toDay: s
   });
   return out;
 }
+
+/** Todas as atividades desde um dia (para o resumo "em geral" dos treinos). */
+export async function listActivitiesSince(userId: string, fromDay: string): Promise<ActivityLog[]> {
+  const { data, error } = await supabase
+    .from('activity_logs')
+    .select('id, day, type, minutes, kcal')
+    .eq('user_id', userId)
+    .gte('day', fromDay)
+    .order('day', { ascending: false })
+    .limit(2000);
+  if (error) throw new Error(error.message);
+  return data;
+}

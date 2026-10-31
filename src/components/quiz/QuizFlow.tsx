@@ -69,7 +69,7 @@ function stepsFor(goal: GoalType): Step[] {
   }
 }
 
-/** Metas que a pessoa pode escolher (até 3). Cada uma corresponde a um tipo de objetivo da app. */
+/** Metas que a pessoa pode escolher (até 2). Cada uma corresponde a um tipo de objetivo da app. */
 const GOAL_ROWS: { id: string; goal: GoalType; title: string }[] = [
   { id: 'lose', goal: 'lose_weight', title: 'Perder peso' },
   { id: 'gain', goal: 'gain_muscle', title: 'Ganhar peso' },
@@ -134,7 +134,7 @@ const COPY: Record<Step, { title: string; subtitle?: string }> = {
   lifestyle: { title: 'O seu dia a dia à mesa', subtitle: 'Ajuda-nos a sugerir melhores escolhas.' },
   motivation: { title: 'O que mais o motiva?', subtitle: 'Escolha até 3 e diga-nos como prefere ser acompanhado.' },
   timeframe: { title: 'Em quanto tempo quer chegar à meta?', subtitle: 'Escolha um prazo realista para o seu peso desejado.' },
-  goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até três metas que são mais importantes para si.' },
+  goal: { title: 'Vamos começar pelos seus objetivos.', subtitle: 'Selecione até duas metas que são mais importantes para si.' },
   about: { title: 'Fale-nos de si', subtitle: 'Usamos isto para calcular as suas calorias.' },
   body: { title: 'A sua altura e peso', subtitle: 'Pode ajustar mais tarde no Perfil.' },
   activity: { title: 'Como é o seu dia a dia?', subtitle: 'Quanto mais ativo, mais calorias e água precisa.' },
@@ -277,10 +277,10 @@ export function QuizFlow({ mode }: { mode: 'first' | 'redo' }) {
   const current: Step | null = step < steps.length ? steps[step] : null;
   const canContinue = current === 'goal' ? goalPicked : current === 'habits' ? answeredAllHabits : current === 'name' ? name.trim().length >= 2 : true;
 
-  // Até 3 metas; a principal (que define as calorias) segue esta ordem de prioridade.
+  // Até 2 metas; a principal (que define as calorias) segue esta ordem de prioridade.
   const toggleGoal = (id: string) => {
     touched.current = true;
-    const next = pickedIds.includes(id) ? pickedIds.filter((x) => x !== id) : pickedIds.length >= 3 ? pickedIds : [...pickedIds, id];
+    const next = pickedIds.includes(id) ? pickedIds.filter((x) => x !== id) : pickedIds.length >= 2 ? pickedIds : [...pickedIds, id];
     setPickedIds(next);
     const nextGoals = GOAL_ROWS.filter((r) => next.includes(r.id)).map((r) => r.goal);
     const main = GOAL_PRIORITY.find((p) => nextGoals.includes(p));

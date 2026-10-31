@@ -221,7 +221,7 @@ export default function ProfileScreen() {
 
         <Text style={styles.section}>{tr('Atalhos')}</Text>
         <View style={styles.group}>
-          <Row icon={Dumbbell} label={tr('Treino')} onPress={() => router.push('/training')} />
+          {(profile?.goal === 'lose_weight' || profile?.goal === 'gain_muscle') && <Row icon={Dumbbell} label={tr('Treino')} onPress={() => router.push('/training')} />}
           <Row icon={Droplets} label={tr('Registo de água')} onPress={() => router.push('/water')} />
           {profile?.goal === 'lose_weight' && <Row icon={Timer} label={tr('Jejum intermitente')} onPress={() => router.push('/fasting')} />}
           <Row icon={Gift} label={tr('Convidar amigos (5% de desconto)')} onPress={() => router.push('/invite')} />

@@ -18,7 +18,7 @@ import { useTheme } from '../hooks/useTheme';
 import { tr } from '../i18n';
 import { todayKey } from '../services/date';
 import { weekDays } from '../services/dayUtils';
-import { deleteActivity, listActivities, listActivityKcal } from '../services/repositories/tracker';
+import { deleteActivity, listActivities, listActivityKcal, listActivitiesSince } from '../services/repositories/tracker';
 import type { ActivityLog } from '../types';
 import { WeekStrip } from '../components/WeekStrip';
 import {
@@ -39,7 +39,7 @@ import {
 type Tile = { id: string; label: string; colors: [string, string]; Icon: typeof Dumbbell; kind?: WorkoutKind; run?: boolean; desc?: string; sub?: string };
 
 const GYM_TILES: Tile[] = [
-  { id: 'strength', sub: 'Músculos', label: 'Força', colors: ['#3B82F6', '#1D4ED8'], Icon: Dumbbell, kind: 'strength' },
+  { id: 'strength', sub: 'Força e massa', label: 'Musculação', colors: ['#3B82F6', '#1D4ED8'], Icon: Dumbbell, kind: 'strength' },
   { id: 'hiit', sub: 'Queima mais', label: 'Cardio intenso', colors: ['#EF4444', '#B91C1C'], Icon: Flame, kind: 'hiit' },
   { id: 'pilates', sub: 'Postura e core', label: 'Pilates', colors: ['#14B8A6', '#0F766E'], Icon: Wind, kind: 'pilates' },
   { id: 'mobility', sub: 'Soltar o corpo', label: 'Mobilidade', colors: ['#22C55E', '#15803D'], Icon: HeartPulse, kind: 'mobility' },
@@ -72,6 +72,7 @@ export default function TrainingScreen() {
   const [entries, setEntries] = useState<ActivityLog[]>([]);
   const [todayEntries, setTodayEntries] = useState<ActivityLog[]>([]);
   const [weekKcal, setWeekKcal] = useState<Record<string, number>>({});
+  const [allTime, setAllTime] = useState<ActivityLog[]>([]);
   const [minutes, setMinutes] = useState(30);
   const [busy, setBusy] = useState(false);
   const [plan, setPlan] = useState<WorkoutPlan | null>(null);
@@ -97,7 +98,9 @@ export default function TrainingScreen() {
   const reload = useCallback(async () => {
     if (!uid) return;
     try {
-      const [day, today, week] = await Promise.all([listActivities(uid, selKey), listActivities(uid, todayKey()), listActivityKcal(uid, weekFrom, weekTo)]);
+      const yearAgo = todayKey(new Date(Date.now() - 365 * 86400000));
+      const [day, today, week, all] = await Promise.all([listActivities(uid, selKey), listActivities(uid, todayKey()), listActivityKcal(uid, weekFrom, weekTo), listActivitiesSince(uid, yearAgo)]);
+      setAllTime(all);
       setEntries(day);
       setTodayEntries(today);
       setWeekKcal(week);
@@ -138,6 +141,10 @@ export default function TrainingScreen() {
   const dayKcal = entries.reduce((a, e) => a + e.kcal, 0);
   const dayMin = entries.reduce((a, e) => a + e.minutes, 0);
   const isToday = selKey === todayKey();
+  const totalKcal = allTime.reduce((a, e) => a + e.kcal, 0);
+  const totalMin = allTime.reduce((a, e) => a + e.minutes, 0);
+  const activeDays = new Set(allTime.map((e) => e.day)).size;
+  const bestDayKcal = Object.values(allTime.reduce<Record<string, number>>((m, e) => ({ ...m, [e.day]: (m[e.day] ?? 0) + e.kcal }), {})).reduce((a, b) => Math.max(a, b), 0);
   const shiftWeek = (n: number) => setSelDay((d) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n * 7));
   const dayLabel = selDay.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
   const rangeLabel = `${days[0].getDate()}/${days[0].getMonth() + 1} – ${days[6].getDate()}/${days[6].getMonth() + 1}`;
@@ -271,6 +278,29 @@ export default function TrainingScreen() {
               </View>
             ))
           )}
+        </View>
+
+        <View style={styles.generalCard}>
+          <Text style={styles.historyTitle}>{tr('Em geral')}</Text>
+          <View style={styles.generalGrid}>
+            <View style={styles.generalItem}>
+              <Text style={styles.generalValue}>{allTime.length}</Text>
+              <Text style={styles.generalLabel}>{tr('treinos feitos')}</Text>
+            </View>
+            <View style={styles.generalItem}>
+              <Text style={styles.generalValue}>{totalKcal}</Text>
+              <Text style={styles.generalLabel}>{tr('kcal queimadas no total')}</Text>
+            </View>
+            <View style={styles.generalItem}>
+              <Text style={styles.generalValue}>{Math.round(totalMin / 60 * 10) / 10}</Text>
+              <Text style={styles.generalLabel}>{tr('horas de treino')}</Text>
+            </View>
+            <View style={styles.generalItem}>
+              <Text style={styles.generalValue}>{activeDays}</Text>
+              <Text style={styles.generalLabel}>{tr('dias ativos')}</Text>
+            </View>
+          </View>
+          {bestDayKcal > 0 && <Text style={styles.muted}>{tr('Melhor dia: {kcal} kcal queimadas.', { kcal: bestDayKcal })}</Text>}
         </View>
 
         <View style={styles.tabs}>
@@ -501,6 +531,11 @@ const createStyles = (colors: ThemeColors) =>
     daySummary: { fontSize: font.small, fontWeight: '700', color: colors.textMuted },
     linkText: { fontSize: font.small, fontWeight: '800', color: colors.primaryDark },
     entryRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6, borderTopWidth: 1, borderTopColor: colors.border },
+    generalCard: { ...cardBase(colors), borderRadius: 24, padding: 16, gap: 12 },
+    generalGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    generalItem: { width: '47.5%', backgroundColor: colors.surface, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 14, gap: 2 },
+    generalValue: { fontSize: 26, fontWeight: '800', color: colors.text, letterSpacing: -0.5 },
+    generalLabel: { fontSize: font.small, fontWeight: '600', color: colors.textMuted },
     kmCard: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', borderRadius: 22, paddingVertical: 14 },
     kmCol: { flex: 1, alignItems: 'center', gap: 2 },
     kmValue: { fontSize: 26, fontWeight: '800', color: colors.text, letterSpacing: -0.5 },
