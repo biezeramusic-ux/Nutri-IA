@@ -1337,4 +1337,10 @@ export const it: Record<string, string> = {
   "Verifique a ligação à internet e tente de novo.": "Controlla la connessione internet e riprova.",
   "Imagem": "Immagine",
   "Link": "Link",
+  "Instagram não encontrado": "Instagram non trovato",
+  "Facebook não encontrado": "Facebook non trovato",
+  "Use o botão Imagem para partilhar noutras apps.": "Usa il pulsante Altre app per condividere altrove.",
+  "Story Instagram": "Storia Instagram",
+  "Story Facebook": "Storia Facebook",
+  "Outras apps": "Altre app",
 };

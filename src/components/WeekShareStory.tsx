@@ -141,6 +141,31 @@ export function WeekShareStory({ visible, onClose, meals, goals, name, inviteCod
     }
   };
 
+  /** Partilha direto para os Stories do Instagram ou do Facebook (exige o APK; no Expo Go cai na partilha normal). */
+  const shareStory = async (target: 'instagram' | 'facebook') => {
+    setBusy(true);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const RNShare = (require('react-native-share') as typeof import('react-native-share')).default;
+      const b64 = await capture(true);
+      const appId = process.env.EXPO_PUBLIC_FACEBOOK_APP_ID ?? '';
+      await RNShare.shareSingle({
+        social: target === 'instagram' ? RNShare.Social.INSTAGRAM_STORIES : RNShare.Social.FACEBOOK_STORIES,
+        appId,
+        backgroundImage: `data:image/png;base64,${b64}`,
+        backgroundBottomColor: '#0F4D2A',
+        backgroundTopColor: '#166534',
+      } as never);
+    } catch (e) {
+      const cancelled = String((e as { message?: string })?.message ?? '').toLowerCase().includes('cancel') || String((e as { message?: string })?.message ?? '').toLowerCase().includes('dismiss');
+      if (!cancelled) {
+        Alert.alert(target === 'instagram' ? tr('Instagram não encontrado') : tr('Facebook não encontrado'), tr('Use o botão Imagem para partilhar noutras apps.'));
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
   /** Envia a imagem para o armazenamento público e partilha o link: quem o abrir vê o cartão. */
   const shareLink = async () => {
     setBusy(true);
@@ -267,15 +292,25 @@ export function WeekShareStory({ visible, onClose, meals, goals, name, inviteCod
           )}
         </ScrollView>
 
-        <View style={{ flexDirection: 'row', gap: 10 }}>
-          <Pressable style={[styles.shareBtn, { flex: 1 }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void share()}>
-            <Share2 size={18} color="#fff" />
-            <Text style={styles.shareText}>{tr('Imagem')}</Text>
-          </Pressable>
-          <Pressable style={[styles.shareBtn, { flex: 1, backgroundColor: '#2563EB' }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void shareLink()}>
-            <Link2 size={18} color="#fff" />
-            <Text style={styles.shareText}>{tr('Link')}</Text>
-          </Pressable>
+        <View style={{ gap: 8 }}>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Pressable style={[styles.shareBtn, { flex: 1, backgroundColor: '#C13584' }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void shareStory('instagram')}>
+              <Text style={styles.shareText}>{tr('Story Instagram')}</Text>
+            </Pressable>
+            <Pressable style={[styles.shareBtn, { flex: 1, backgroundColor: '#1877F2' }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void shareStory('facebook')}>
+              <Text style={styles.shareText}>{tr('Story Facebook')}</Text>
+            </Pressable>
+          </View>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Pressable style={[styles.shareBtn, { flex: 1 }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void share()}>
+              <Share2 size={17} color="#fff" />
+              <Text style={styles.shareText}>{tr('Outras apps')}</Text>
+            </Pressable>
+            <Pressable style={[styles.shareBtn, { flex: 1, backgroundColor: '#475569' }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void shareLink()}>
+              <Link2 size={17} color="#fff" />
+              <Text style={styles.shareText}>{tr('Link')}</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </Modal>
@@ -301,6 +336,6 @@ const styles = StyleSheet.create({
   pickBtn: { flex: 1, height: 44, borderRadius: radius.pill, backgroundColor: 'rgba(255,255,255,0.14)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
   pickText: { color: '#fff', fontWeight: '700', fontSize: font.small },
   noPhoto: { color: 'rgba(255,255,255,0.75)', fontSize: font.small, textDecorationLine: 'underline' },
-  shareBtn: { height: 52, borderRadius: radius.pill, backgroundColor: '#22A559', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
-  shareText: { color: '#fff', fontWeight: '800', fontSize: font.body },
+  shareBtn: { height: 48, borderRadius: radius.pill, backgroundColor: '#22A559', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  shareText: { color: '#fff', fontWeight: '800', fontSize: font.small },
 });

@@ -12,7 +12,13 @@
       "bundleIdentifier": "mz.nutrifitness.app",
       "infoPlist": {
         "NSCameraUsageDescription": "O Nutrifitness AI usa a câmera para analisar as suas refeições.",
-        "NSLocationWhenInUseUsageDescription": "O Nutrifitness AI usa a sua localização para desenhar a rota e contar os km das suas caminhadas."
+        "NSLocationWhenInUseUsageDescription": "O Nutrifitness AI usa a sua localização para desenhar a rota e contar os km das suas caminhadas.",
+        "LSApplicationQueriesSchemes": [
+          "instagram",
+          "instagram-stories",
+          "facebook-stories",
+          "fb"
+        ]
       }
     },
     "android": {

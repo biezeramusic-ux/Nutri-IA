@@ -1337,4 +1337,10 @@ export const zh: Record<string, string> = {
   "Verifique a ligação à internet e tente de novo.": "请检查网络连接后重试。",
   "Imagem": "图片",
   "Link": "链接",
+  "Instagram não encontrado": "未找到 Instagram",
+  "Facebook não encontrado": "未找到 Facebook",
+  "Use o botão Imagem para partilhar noutras apps.": "请使用“其他应用”按钮分享到其他应用。",
+  "Story Instagram": "Instagram 快拍",
+  "Story Facebook": "Facebook 快拍",
+  "Outras apps": "其他应用",
 };

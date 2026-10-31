@@ -1337,4 +1337,10 @@ export const nl: Record<string, string> = {
   "Verifique a ligação à internet e tente de novo.": "Controleer je internetverbinding en probeer opnieuw.",
   "Imagem": "Afbeelding",
   "Link": "Link",
+  "Instagram não encontrado": "Instagram niet gevonden",
+  "Facebook não encontrado": "Facebook niet gevonden",
+  "Use o botão Imagem para partilhar noutras apps.": "Gebruik de knop Andere apps om elders te delen.",
+  "Story Instagram": "Instagram-story",
+  "Story Facebook": "Facebook-story",
+  "Outras apps": "Andere apps",
 };
