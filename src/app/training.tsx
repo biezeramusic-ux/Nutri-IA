@@ -379,17 +379,25 @@ export default function TrainingScreen() {
               {plan.exercises.map((e, i) => (
                 <View key={i} style={styles.exercise}>
                   <View style={styles.figBox}>
-                    <ExerciseFigure name={e.name} size={74} gym={plan.place === 'gym'} />
+                    <ExerciseFigure name={e.name} size={92} gym={plan.place === 'gym'} />
                     <View style={styles.numBadge}>
                       <Text style={styles.numText}>{i + 1}</Text>
                     </View>
                   </View>
-                  <View style={{ flex: 1, gap: 2 }}>
+                  <View style={{ flex: 1, gap: 8 }}>
                     <Text style={styles.exName}>{e.name}</Text>
-                    <Text style={styles.exMeta}>
-                      {e.sets} × {e.reps} · {tr('descanso')} {e.restSec}s
-                    </Text>
-                    {!!e.tip && <Text style={styles.muted}>{e.tip}</Text>}
+                    <View style={styles.pills}>
+                      <View style={styles.pill}>
+                        <Text style={styles.pillText}>{e.sets} {tr('séries')}</Text>
+                      </View>
+                      <View style={[styles.pill, styles.pillGreen]}>
+                        <Text style={[styles.pillText, { color: colors.primaryDark }]}>{e.reps}</Text>
+                      </View>
+                      <View style={styles.pill}>
+                        <Text style={styles.pillText}>{tr('descanso')} {e.restSec}s</Text>
+                      </View>
+                    </View>
+                    {!!e.tip && <Text style={styles.exTip}>{e.tip}</Text>}
                   </View>
                 </View>
               ))}
@@ -482,12 +490,16 @@ const createStyles = (colors: ThemeColors) =>
     block: { ...cardBase(colors), borderRadius: radius.lg, padding: 14, gap: 4 },
     blockTitle: { fontSize: font.body, fontWeight: '800', color: colors.text, marginBottom: 2 },
     line: { fontSize: font.body, color: colors.text, lineHeight: 22 },
-    exercise: { ...cardBase(colors), flexDirection: 'row', gap: 12, padding: 14, borderRadius: radius.lg },
-    figBox: { width: 74, height: 74, borderRadius: 18, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
+    exercise: { ...cardBase(colors), flexDirection: 'row', alignItems: 'center', gap: 14, padding: 12, borderRadius: 22 },
+    figBox: { width: 92, height: 92, borderRadius: 22, backgroundColor: colors.primarySoft, alignItems: 'center', justifyContent: 'center' },
     numBadge: { position: 'absolute', top: -6, left: -6, width: 24, height: 24, borderRadius: 12, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
     startBar: { paddingHorizontal: SCREEN_PADDING, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border, backgroundColor: colors.background },
     num: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
     numText: { color: '#fff', fontWeight: '800', fontSize: 12 },
-    exName: { fontSize: font.body, fontWeight: '800', color: colors.text },
-    exMeta: { fontSize: font.small, fontWeight: '700', color: colors.primaryDark },
+    exName: { fontSize: font.h3, fontWeight: '800', color: colors.text, letterSpacing: -0.2 },
+    exTip: { fontSize: font.small, color: colors.textMuted, lineHeight: 18 },
+    pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+    pill: { backgroundColor: colors.surface, borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 4 },
+    pillGreen: { backgroundColor: colors.primarySoft },
+    pillText: { fontSize: 12, fontWeight: '800', color: colors.textMuted },
   });
