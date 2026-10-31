@@ -12,6 +12,8 @@ interface Props {
   color?: string;
   trackColor?: string;
   children?: ReactNode;
+  /** Fundo do anel em traços (como um relógio) em vez de uma linha contínua. */
+  dashed?: boolean;
 }
 
 export function ProgressRing({
@@ -21,6 +23,7 @@ export function ProgressRing({
   color: colorProp,
   trackColor: trackProp,
   children,
+  dashed,
 }: Props) {
   const { colors } = useTheme();
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -32,7 +35,7 @@ export function ProgressRing({
   return (
     <View style={{ width: size, height: size }}>
       <Svg width={size} height={size} style={styles.svg}>
-        <Circle cx={size / 2} cy={size / 2} r={radius} stroke={trackColor} strokeWidth={strokeWidth} fill="none" />
+        <Circle cx={size / 2} cy={size / 2} r={radius} stroke={trackColor} strokeWidth={strokeWidth} fill="none" strokeDasharray={dashed ? `${strokeWidth * 0.9} ${strokeWidth * 1.3}` : undefined} />
         <Circle
           cx={size / 2}
           cy={size / 2}
