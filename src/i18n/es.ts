@@ -1317,4 +1317,9 @@ export const es: Record<string, string> = {
   "Musculação": "Musculación",
   "Força e massa": "Fuerza y masa",
   "Selecione até duas metas que são mais importantes para si.": "Selecciona hasta dos metas que más te importan.",
+  "Lembrete do diário": "Recordatorio del diario",
+  "Registou todas as suas refeições hoje, {name}? Verifique agora!": "¿Registraste todas tus comidas hoy, {name}? ¡Compruébalo ahora!",
+  "{name}, antes de dormir: confirme que registou tudo hoje (refeições e água).": "{name}, antes de dormir: confirma que registraste todo hoy (comidas y agua).",
+  "{name}, ainda não registou nenhum alimento hoje. Vamos manter a sequência viva!": "{name}, aún no registraste ningún alimento hoy. ¡Mantengamos viva la racha!",
+  "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "Aún no registraste ningún alimento hoy, {name}. Fotografía tu comida y continúa.",
 };

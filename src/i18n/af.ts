@@ -1317,4 +1317,9 @@ export const af: Record<string, string> = {
   "Musculação": "Spiersterkte-oefening",
   "Força e massa": "Krag en massa",
   "Selecione até duas metas que são mais importantes para si.": "Kies tot twee doelwitte wat vir jou die belangrikste is.",
+  "Lembrete do diário": "Dagboekherinnering",
+  "Registou todas as suas refeições hoje, {name}? Verifique agora!": "Het jy vandag al jou maaltye aangeteken, {name}? Kyk nou!",
+  "{name}, antes de dormir: confirme que registou tudo hoje (refeições e água).": "{name}, voor jy slaap: maak seker jy het alles vandag aangeteken (maaltye en water).",
+  "{name}, ainda não registou nenhum alimento hoje. Vamos manter a sequência viva!": "{name}, jy het vandag nog geen kos aangeteken nie. Kom ons hou die reeks lewendig!",
+  "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "Jy het vandag nog geen kos aangeteken nie, {name}. Neem 'n foto van jou maaltyd en gaan voort.",
 };

@@ -1317,4 +1317,9 @@ export const zh: Record<string, string> = {
   "Musculação": "力量训练",
   "Força e massa": "力量与增肌",
   "Selecione até duas metas que são mais importantes para si.": "最多选择两个对您最重要的目标。",
+  "Lembrete do diário": "日记提醒",
+  "Registou todas as suas refeições hoje, {name}? Verifique agora!": "{name}，今天所有餐食都记录了吗？现在就检查一下！",
+  "{name}, antes de dormir: confirme que registou tudo hoje (refeições e água).": "{name}，睡前请确认今天都已记录（餐食和饮水）。",
+  "{name}, ainda não registou nenhum alimento hoje. Vamos manter a sequência viva!": "{name}，您今天还没有记录任何食物。让我们保持连续记录！",
+  "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "您今天还没有记录任何食物，{name}。拍下您的餐食并继续。",
 };

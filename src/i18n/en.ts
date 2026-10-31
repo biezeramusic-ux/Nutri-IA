@@ -1317,4 +1317,9 @@ export const en: Record<string, string> = {
   "Musculação": "Bodybuilding",
   "Força e massa": "Strength and mass",
   "Selecione até duas metas que são mais importantes para si.": "Select up to two goals that matter most to you.",
+  "Lembrete do diário": "Daily reminder",
+  "Registou todas as suas refeições hoje, {name}? Verifique agora!": "Did you log all your meals today, {name}? Check now!",
+  "{name}, antes de dormir: confirme que registou tudo hoje (refeições e água).": "{name}, before bed: make sure you logged everything today (meals and water).",
+  "{name}, ainda não registou nenhum alimento hoje. Vamos manter a sequência viva!": "{name}, you haven't logged any food today. Let's keep the streak alive!",
+  "Ainda não registou nenhum alimento hoje, {name}. Fotografe a sua refeição e continue.": "You haven't logged any food today, {name}. Take a photo of your meal and carry on.",
 };

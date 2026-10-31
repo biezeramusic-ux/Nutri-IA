@@ -137,6 +137,8 @@ interface MealReminderOptions {
   firstName?: string;
   /** Refeições de hoje que já foram registadas (não se lembra o que já está feito). */
   loggedToday?: MealType[];
+  /** Dias seguidos a registar (até ontem). */
+  streak?: number;
 }
 
 /** Lembretes para escanear as refeições (pequeno-almoço, almoço, lanche e jantar), com mensagens variadas. */
@@ -147,7 +149,7 @@ export async function scheduleMealReminders(enabled: boolean, options: MealRemin
     await cancelByKind(N, KIND_MEAL_SLOT);
     if (!enabled) return true;
     if (!(await ensureNotificationPermission(true))) return false;
-    const plan = planMealReminders({ now: new Date(), firstName: options.firstName, loggedToday: options.loggedToday ?? [] });
+    const plan = planMealReminders({ now: new Date(), firstName: options.firstName, loggedToday: options.loggedToday ?? [], streak: options.streak });
     for (const reminder of plan) {
       await N.scheduleNotificationAsync({
         content: { title: reminder.title, body: reminder.body, data: { kind: KIND_MEAL_SLOT } },

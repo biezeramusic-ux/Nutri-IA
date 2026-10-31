@@ -1,3 +1,4 @@
+import { computeStreak } from '../services/streak';
 import { useScheduleExtra } from '../services/schedule';
 import { useEffect, useMemo } from 'react';
 import type { MealType } from '../types';
@@ -53,6 +54,7 @@ export function RemindersSync() {
   }, [user, enabled, glasses, goalGlasses, wakeHour, sleepHour, goal, firstName, quiz, lang]);
 
   // Refeições de hoje já registadas (ex.: "breakfast,lunch"): não se lembra o que já está feito.
+  const streakNow = useMemo(() => computeStreak(meals).current, [meals]);
   const loggedKey = useMemo(() => {
     const today = todayKey();
     return [...new Set(meals.filter((m) => dayKeyOf(m.createdAt) === today).map((m) => mealTypeOf(m)))].sort().join(',');
@@ -64,11 +66,11 @@ export function RemindersSync() {
     AsyncStorage.getItem('nutria.mealReminders')
       .then((v) =>
         v === '1'
-          ? scheduleMealReminders(true, { firstName, loggedToday: loggedKey ? (loggedKey.split(',') as MealType[]) : [] })
+          ? scheduleMealReminders(true, { firstName, streak: streakNow, loggedToday: loggedKey ? (loggedKey.split(',') as MealType[]) : [] })
           : undefined,
       )
       .catch(() => undefined);
-  }, [user, lang, firstName, loggedKey]);
+  }, [user, lang, firstName, loggedKey, streakNow]);
 
   return null;
 }
