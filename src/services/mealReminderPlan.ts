@@ -97,7 +97,7 @@ export function planMealReminders({ now, firstName, loggedToday, streak = 0, day
       if (at.getTime() <= now.getTime() + 60_000 || (d === 0 && skip)) return;
       result.push({ at, title: tr(x.title), body: personalize(tr(x.bodies[fixed ?? (dayOfYear + d + salt) % x.bodies.length]), firstName) });
     };
-    extra(EMPTY, loggedToday.length > 0, 2, streak > 0 ? 0 : 1);
+    extra(EMPTY, loggedToday.length > 0, 2, 0);
     // Dia sem nenhum registo: só o aviso das 19:30. Com alguns registos, o das 21:30 confirma o que falta.
     extra(REVIEW, loggedToday.length === 0 || ['breakfast', 'lunch', 'dinner'].every((t) => loggedToday.includes(t as MealType)), 1);
   }
