@@ -1331,4 +1331,10 @@ export const es: Record<string, string> = {
   "Código de convite: {code}": "Código de invitación: {code}",
   "Partilhar": "Compartir",
   "Usar fundo verde": "Usar fondo verde",
+  "Veja o meu resumo da semana no Nutrifitness AI, {name}": "Mira mi resumen de la semana en Nutrifitness AI, {name}",
+  "Veja o meu resumo da semana no Nutrifitness AI": "Mira mi resumen de la semana en Nutrifitness AI",
+  "Não foi possível criar o link": "No se pudo crear el enlace",
+  "Verifique a ligação à internet e tente de novo.": "Comprueba tu conexión a internet e inténtalo de nuevo.",
+  "Imagem": "Imagen",
+  "Link": "Enlace",
 };

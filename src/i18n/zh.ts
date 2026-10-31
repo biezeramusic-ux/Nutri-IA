@@ -1331,4 +1331,10 @@ export const zh: Record<string, string> = {
   "Código de convite: {code}": "邀请码：{code}",
   "Partilhar": "分享",
   "Usar fundo verde": "使用绿色背景",
+  "Veja o meu resumo da semana no Nutrifitness AI, {name}": "来看看我在 Nutrifitness AI 的本周总结，{name}",
+  "Veja o meu resumo da semana no Nutrifitness AI": "来看看我在 Nutrifitness AI 的本周总结",
+  "Não foi possível criar o link": "无法创建链接",
+  "Verifique a ligação à internet e tente de novo.": "请检查网络连接后重试。",
+  "Imagem": "图片",
+  "Link": "链接",
 };

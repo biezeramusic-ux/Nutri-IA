@@ -1331,4 +1331,10 @@ export const af: Record<string, string> = {
   "Código de convite: {code}": "Uitnodigingskode: {code}",
   "Partilhar": "Deel",
   "Usar fundo verde": "Gebruik groen agtergrond",
+  "Veja o meu resumo da semana no Nutrifitness AI, {name}": "Kyk na my weekopsomming op Nutrifitness AI, {name}",
+  "Veja o meu resumo da semana no Nutrifitness AI": "Kyk na my weekopsomming op Nutrifitness AI",
+  "Não foi possível criar o link": "Kon nie die skakel skep nie",
+  "Verifique a ligação à internet e tente de novo.": "Kontroleer jou internetverbinding en probeer weer.",
+  "Imagem": "Beeld",
+  "Link": "Skakel",
 };

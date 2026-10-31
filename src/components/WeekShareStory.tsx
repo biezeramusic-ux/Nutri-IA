@@ -2,11 +2,14 @@ import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Camera, Image as ImageIcon, Share2, X } from 'lucide-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, Image, Modal, Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Alert, Animated, Easing, Image, Modal, Pressable, ScrollView, Share, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { Text } from './AppText';
 import { font, radius } from '../constants/theme';
+import { useAuth } from '../hooks/useAuth';
+import { isSupabaseConfigured, supabase } from '../services/supabase';
+import { Link2 } from 'lucide-react-native';
 import { todayKey } from '../services/date';
 import { WEEKDAY_LABELS, mealsOfDay, sumMeals, weekDays } from '../services/dayUtils';
 import { computeStreak } from '../services/streak';
@@ -71,6 +74,7 @@ function Flame({ size }: { size: number }) {
 /** Cartão vertical (formato story) com o resumo da semana. A pessoa pode pôr uma foto de fundo ou usar o fundo verde. */
 export function WeekShareStory({ visible, onClose, meals, goals, name, inviteCode }: Props) {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
   const { width, height } = useWindowDimensions();
   const [photo, setPhoto] = useState<string | null>(null);
   const [run, setRun] = useState(0);
@@ -112,15 +116,19 @@ export function WeekShareStory({ visible, onClose, meals, goals, name, inviteCod
     }
   };
 
+  const capture = async (base64: boolean) => {
+    // Carregado só aqui para a app não falhar caso o módulo nativo não exista.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { captureRef } = require('react-native-view-shot') as typeof import('react-native-view-shot');
+    return captureRef(cardRef, { format: 'png', quality: 1, result: base64 ? 'base64' : 'tmpfile' });
+  };
+
   const share = async () => {
     setBusy(true);
     try {
-      // Carregados só aqui para a app não falhar caso o módulo nativo não exista.
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { captureRef } = require('react-native-view-shot') as typeof import('react-native-view-shot');
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const Sharing = require('expo-sharing') as typeof import('expo-sharing');
-      const uri = await captureRef(cardRef, { format: 'png', quality: 1, result: 'tmpfile' });
+      const uri = await capture(false);
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: tr('Partilhar resumo da semana') });
         return;
@@ -128,6 +136,28 @@ export function WeekShareStory({ visible, onClose, meals, goals, name, inviteCod
       throw new Error('sem partilha');
     } catch {
       await Share.share({ message: buildWeeklyReport(meals, goals, name, inviteCode) }).catch(() => undefined);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** Envia a imagem para o armazenamento público e partilha o link: quem o abrir vê o cartão. */
+  const shareLink = async () => {
+    setBusy(true);
+    try {
+      if (!isSupabaseConfigured || !user) throw new Error('sem conta');
+      const b64 = await capture(true);
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const path = `${user.id}/${Date.now()}.png`;
+      const up = await supabase.storage.from('weekly-shares').upload(path, bytes, { contentType: 'image/png' });
+      if (up.error) throw up.error;
+      const url = supabase.storage.from('weekly-shares').getPublicUrl(path).data.publicUrl;
+      const text = name ? tr('Veja o meu resumo da semana no Nutrifitness AI, {name}', { name }) : tr('Veja o meu resumo da semana no Nutrifitness AI');
+      await Share.share({ message: `${text}\n${url}`, url });
+    } catch {
+      Alert.alert(tr('Não foi possível criar o link'), tr('Verifique a ligação à internet e tente de novo.'));
     } finally {
       setBusy(false);
     }
@@ -237,10 +267,16 @@ export function WeekShareStory({ visible, onClose, meals, goals, name, inviteCod
           )}
         </ScrollView>
 
-        <Pressable style={[styles.shareBtn, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void share()}>
-          <Share2 size={18} color="#fff" />
-          <Text style={styles.shareText}>{tr('Partilhar')}</Text>
-        </Pressable>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Pressable style={[styles.shareBtn, { flex: 1 }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void share()}>
+            <Share2 size={18} color="#fff" />
+            <Text style={styles.shareText}>{tr('Imagem')}</Text>
+          </Pressable>
+          <Pressable style={[styles.shareBtn, { flex: 1, backgroundColor: '#2563EB' }, (!ready || busy) && { opacity: 0.6 }]} disabled={!ready || busy} onPress={() => void shareLink()}>
+            <Link2 size={18} color="#fff" />
+            <Text style={styles.shareText}>{tr('Link')}</Text>
+          </Pressable>
+        </View>
       </View>
     </Modal>
   );
